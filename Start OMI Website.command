@@ -4,7 +4,7 @@ export PATH="/opt/homebrew/opt/node@22/bin:/opt/homebrew/opt/postgresql@16/bin:/
 cd /Users/anu/Projects/omi-jaffna-cms
 brew services start postgresql@16
 mkdir -p .local/logs
-for service in api web; do
+for service in api web site; do
   launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/local.omi-jaffna.$service.plist" 2>/dev/null || true
   launchctl kickstart "gui/$(id -u)/local.omi-jaffna.$service"
 done

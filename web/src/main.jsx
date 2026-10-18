@@ -6,7 +6,7 @@ import {
  Search,Plus,ChevronDown,ChevronRight,Menu,X,LogOut,Bell,ExternalLink,ArrowRight,ArrowUpRight,
  CheckCircle2,Clock3,Edit3,Trash2,Save,Eye,UploadCloud,FileText,Image as ImageIcon,
  ShieldAlert,RefreshCw,Filter,LockKeyhole,Calendar,Mail,Phone,Check,AlertCircle,Info,
- Compass,FolderOpen,Radio,Send,CheckCircle,Copy,Download,MoreHorizontal
+ Compass,FolderOpen,Radio,Send,CheckCircle,Copy,Download,MoreHorizontal,UserRound
 } from 'lucide-react';
 import seed from './demo.json';
 import CoverImageUpload from './CoverImageUpload.jsx';
@@ -14,13 +14,13 @@ import './style.css';
 
 const GROUPS=[
  {label:'WORKSPACE',items:[['overview','Overview',LayoutDashboard],['page','Website Pages',PanelsTopLeft]]},
- {label:'PROVINCE & MISSION',items:[['ministry','17 Ministries',HeartHandshake],['parish','12 Parishes',Church],['formation','Formation & Vocations',GraduationCap],['location','Locations & Houses',MapPin],['leadership','Leadership',Users],['international','International Mission',Globe2],['school','Schools & Education',School],['timeline','History Timeline',History]]},
+ {label:'PROVINCE & MISSION',items:[['ministry','17 Ministries',HeartHandshake],['parish','12 Parishes',Church],['formation','Formation & Vocations',GraduationCap],['location','Locations & Houses',MapPin],['leadership','Leadership',Users],['priest','Oblate Priests',UserRound],['international','International Mission',Globe2],['school','Schools & Education',School],['timeline','History Timeline',History]]},
  {label:'CONTENT & MEDIA',items:[['news','News & Stories',Newspaper],['event','Feasts & Events',CalendarDays],['publication','Publications',BookOpen],['media','Media Library',Images],['assets','File Uploads',FolderOpen]]},
  {label:'MANAGEMENT',items:[['contacts','Contact Directory',ContactRound],['inquiries','Enquiries',MessageCircle],['users','Team & Roles',ShieldCheck],['settings','Site Settings',Settings2]]}
 ];
 const iconFor=Object.fromEntries(GROUPS.flatMap(g=>g.items.map(([id,,icon])=>[id,icon])));
 const labels=Object.fromEntries(GROUPS.flatMap(g=>g.items.map(([id,label])=>[id,label])));
-const collectionTypes=new Set(['page','ministry','parish','formation','location','leadership','international','news','event','publication','media','school','timeline']);
+const collectionTypes=new Set(['page','ministry','parish','formation','location','leadership','international','news','event','publication','media','school','timeline','priest']);
 const requiresVerification=new Set(['parish','location','leadership','international','formation','timeline']);
 const demo=location.pathname.startsWith('/demo');
 const datePretty=x=>x?new Date(x).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';

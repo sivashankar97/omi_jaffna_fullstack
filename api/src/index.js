@@ -26,7 +26,7 @@ app.use(helmet({crossOriginResourcePolicy:{policy:'same-origin'}}));
 app.use(cors({origin:process.env.FRONTEND_ORIGIN?.split(',').map(s=>s.trim())||'http://localhost:5173',credentials:true}));
 app.use(express.json({limit:'600kb'}));
 app.use(cookieParser());
-app.use('/api',rateLimit({windowMs:15*60*1000,limit:400,standardHeaders:'draft-7',legacyHeaders:false}));
+app.use('/api',rateLimit({windowMs:15*60*1000,limit:400,standardHeaders:'draft-7',legacyHeaders:false,skip:req=>req.method==='GET'&&req.path.startsWith('/public/')}));
 const slowLimit=rateLimit({windowMs:15*60*1000,limit:12,standardHeaders:'draft-7',legacyHeaders:false});
 const asyncRoute=fn=>(req,res,next)=>Promise.resolve(fn(req,res,next)).catch(next);
 const idValid=id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'');
@@ -125,14 +125,21 @@ app.delete('/api/items/:id',auth,allow('admin'),asyncRoute(async(req,res)=>{
 }));
 
 // Public routes deliberately exclude unpublished content and private contact records.
+const PUBLIC_META_KEYS=[
+ 'role','term','term_in_source','section','end_date','date_display','subtitle','kind','place',
+ 'district','purpose','contact','phone','email','lat','lng',
+ 'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample'
+];
 app.get('/api/public/items',asyncRoute(async(req,res)=>{
  const type=String(req.query.type||'page');if(!TYPES[type])return bad(res,'Invalid type');
  const lang=['en','ta','si'].includes(req.query.lang)?req.query.lang:'en';
  const slug=req.query.slug?String(req.query.slug).slice(0,180):null;
  const args=[type];const parts=['type=$1',"status='published'"];
  if(slug){args.push(slug);parts.push('slug=$2');}
- const r=await query(`SELECT id,type,slug,title_en,title_ta,title_si,excerpt_en,excerpt_ta,excerpt_si,body_en,body_ta,body_si,location_text,image_url,media_url,event_date,featured,sort_order,published_at,verification_status,last_verified_at FROM content_items WHERE ${parts.join(' AND ')} ORDER BY sort_order,COALESCE(event_date,created_at) DESC LIMIT 200`,args);
- res.json({items:r.rows.map(item=>({...item,title:item[`title_${lang}`]||item.title_en,excerpt:item[`excerpt_${lang}`]||item.excerpt_en,body:item[`body_${lang}`]||item.body_en}))});
+ const r=await query(`SELECT id,type,slug,title_en,title_ta,title_si,excerpt_en,excerpt_ta,excerpt_si,body_en,body_ta,body_si,location_text,image_url,media_url,event_date,featured,sort_order,published_at,verification_status,last_verified_at,metadata FROM content_items WHERE ${parts.join(' AND ')} ORDER BY sort_order,COALESCE(event_date,created_at) DESC LIMIT 200`,args);
+ // Metadata can hold editorial notes, so only these keys are public.
+ const publicMeta=m=>Object.fromEntries(PUBLIC_META_KEYS.filter(k=>m?.[k]!=null).map(k=>[k,m[k]]));
+ res.json({items:r.rows.map(({metadata,...item})=>({...item,meta:publicMeta(metadata),title:item[`title_${lang}`]||item.title_en,excerpt:item[`excerpt_${lang}`]||item.excerpt_en,body:item[`body_${lang}`]||item.body_en}))});
 }));
 app.post('/api/public/inquiries',slowLimit,asyncRoute(async(req,res)=>{
  const parsed=inquirySchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Evangelizing the poor">
+  <rect width="1200" height="900" fill="#f7fdff"/>
+  <rect x="0" y="0" width="28" height="900" fill="#d4af37"/>
+  <circle cx="920" cy="250" r="160" fill="#48cae4" opacity="0.85"/>
+  <circle cx="980" cy="620" r="90" fill="#90e0ef"/>
+  <text x="100" y="340" fill="#023e8a" font-family="Poppins, sans-serif" font-size="78" font-weight="700">Evangelizing</text>
+  <text x="100" y="440" fill="#0077b6" font-family="Poppins, sans-serif" font-size="78" font-weight="700">the poor</text>
+  <text x="100" y="530" fill="#023e8a" font-family="Poppins, sans-serif" font-size="34">Presence, healing, reconciliation</text>
+</svg>

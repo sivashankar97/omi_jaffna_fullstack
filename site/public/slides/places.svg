@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Many places one mission">
+  <defs>
+    <linearGradient id="sea" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#023e8a"/>
+      <stop offset="1" stop-color="#48cae4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#sea)"/>
+  <circle cx="860" cy="430" r="250" fill="none" stroke="#ffffff" stroke-width="18" opacity="0.85"/>
+  <path d="M860 220 V640 M650 430 H1070" stroke="#ffffff" stroke-width="8" opacity="0.7"/>
+  <path d="M700 300 C 860 250, 1020 300, 1040 430 C 1000 560, 760 580, 680 460" fill="none" stroke="#d4af37" stroke-width="10"/>
+  <text x="90" y="220" fill="#ffffff" font-family="Poppins, sans-serif" font-size="72" font-weight="700">17 places</text>
+  <text x="90" y="310" fill="#caf0f8" font-family="Poppins, sans-serif" font-size="42">One mission</text>
+</svg>

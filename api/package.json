@@ -8,6 +8,7 @@
     "start": "node src/index.js",
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js",
+    "import:site": "node --no-warnings scripts/import-site-content.js",
     "test": "node --test"
   },
   "dependencies": {

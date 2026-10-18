@@ -1,0 +1,180 @@
+import { formationHouses as builtInHouses, ministries as builtInMinistries, parishes as builtInParishes } from "@/content/province"
+import type { NavItem } from "@/types"
+
+type NavigationData = {
+  ministries: readonly { number: string; title: string }[]
+  parishes: readonly { name: string }[]
+  formationHouses: readonly { name: string }[]
+}
+
+export function anchorId(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+}
+
+export function ministryAnchor(number: string) {
+  return `ministry-${number}`
+}
+
+export function parishAnchor(name: string) {
+  return `parish-${anchorId(name)}`
+}
+
+export function houseAnchor(name: string) {
+  return `house-${anchorId(name)}`
+}
+
+export const mediaSections = [
+  "Photo gallery",
+  "Video",
+  "Podcasts",
+  "Articles",
+  "Interviews",
+  "Homilies and reflections",
+  "Testimonials",
+  "Historical archive",
+] as const
+
+export function buildNavigation({ ministries, parishes, formationHouses }: NavigationData): NavItem[] {
+  return [
+    {
+      label: "Home",
+      href: "/",
+      description: "Province identity, charism, mission and the way in",
+      sections: [
+        { label: "Province", id: "hero" },
+        { label: "Welcome", id: "welcome" },
+        { label: "Charism, mission and vision", id: "pillars" },
+        { label: "Ministries", id: "ministries" },
+        { label: "Formation", id: "formation" },
+        { label: "Beyond the island", id: "beyond" },
+        { label: "Province office", id: "office" },
+        { label: "Oblate family", id: "family" },
+        { label: "The journey", id: "journey" },
+        { label: "Calendar", id: "calendar" },
+        { label: "Mission map", id: "mission-map" },
+      ],
+    },
+    {
+      label: "Charism",
+      href: "/charism",
+      description: "Evangelizing the poor, mission, vision and our story since 1847",
+      sections: [
+        { label: "Charism", id: "charism" },
+        { label: "How we live it", id: "how-we-live" },
+        { label: "Mission", id: "mission" },
+        { label: "Vision", id: "vision" },
+        { label: "About us", id: "about" },
+        { label: "Arrival in Jaffna", id: "arrival" },
+        { label: "The journey", id: "history" },
+      ],
+    },
+    {
+      label: "Leadership",
+      href: "/leadership",
+      description: "Provincial Superior, council and administration",
+      sections: [
+        { label: "Provincial Superior", id: "provincial-superior" },
+        { label: "Provincial Council", id: "council" },
+        { label: "Former Provincials", id: "former-provincials" },
+        { label: "Oblate priests", id: "priests" },
+      ],
+    },
+    {
+      label: "Ministries",
+      href: "/ministries",
+      description: "Seventeen ministries and twelve parishes, one mission",
+      sections: [
+        { label: "Seventeen ministries", id: "all-ministries" },
+        ...ministries.map((ministry) => ({
+          label: ministry.title,
+          id: ministryAnchor(ministry.number),
+        })),
+        { label: "Parish directory", id: "parish-directory" },
+        ...parishes.map((parish) => ({
+          label: parish.name,
+          id: parishAnchor(parish.name),
+        })),
+      ],
+    },
+    {
+      label: "Vocations",
+      href: "/vocations",
+      description: "Formation houses and the call to missionary life",
+      sections: [
+        { label: "The call", id: "the-call" },
+        ...formationHouses.map((house) => ({
+          label: house.name,
+          id: houseAnchor(house.name),
+        })),
+        { label: "Begin the conversation", id: "discernment" },
+      ],
+    },
+    {
+      label: "International",
+      href: "/international",
+      description: "Missionaries serving beyond Sri Lanka",
+      sections: [
+        { label: "Sent from here", id: "sent" },
+        { label: "Countries of mission", id: "countries" },
+        { label: "Formation abroad", id: "formation-abroad" },
+      ],
+    },
+    {
+      label: "News",
+      href: "/news",
+      description: "Province news, feasts and pastoral updates",
+      sections: [
+        { label: "Magazine", id: "news-intro" },
+        { label: "Province events", id: "province-events" },
+        { label: "Parish events", id: "parish-events" },
+        { label: "Liturgical celebrations", id: "liturgical" },
+        { label: "Formation activities", id: "formation" },
+        { label: "Youth events", id: "youth" },
+        { label: "Social initiatives", id: "social" },
+      ],
+    },
+    {
+      label: "Media",
+      href: "/media",
+      description: "Photos, video, reflections, publications and digital mission",
+      sections: [
+        { label: "Digital mission", id: "digital-mission" },
+        { label: "Social channels", id: "social-signals" },
+        ...mediaSections.map((label) => ({
+          label,
+          id: anchorId(label),
+        })),
+        { label: "Publications", id: "publications" },
+        { label: "Yazha-Thoni", id: "yazha-thoni" },
+        { label: "Zeal", id: "zeal" },
+      ],
+    },
+    {
+      label: "Contact",
+      href: "/contact",
+      description: "Provincial House, phone, email and enquiries",
+      sections: [
+        { label: "Provincial House", id: "thodarpaham" },
+        { label: "Visit or write", id: "visit" },
+        { label: "Enquiry", id: "enquiry" },
+        { label: "Mission map", id: "mission-map" },
+      ],
+    },
+  ]
+}
+
+export const mainNavigation = buildNavigation({
+  ministries: builtInMinistries,
+  parishes: builtInParishes,
+  formationHouses: builtInHouses,
+})
+
+export const locales = [
+  { code: "en", label: "English" },
+  { code: "ta", label: "தமிழ்" },
+  { code: "si", label: "සිංහල" },
+] as const

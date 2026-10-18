@@ -1,0 +1,32 @@
+"use client"
+
+import { usePathname } from "next/navigation"
+
+const pageThemes: Record<string, string> = {
+  "/about": "reef",
+  "/charism": "tide",
+  "/leadership": "lilac",
+  "/ministries": "harbor",
+  "/parishes": "depth",
+  "/vocations": "lake",
+  "/international": "current",
+  "/news": "horizon",
+  "/publications": "moon",
+  "/media": "grove",
+  "/contact": "moon",
+  "/login": "slate",
+  "/register": "harbor",
+}
+
+export function PageTheme({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const theme = pageThemes[pathname] ?? (pathname.startsWith("/news/") ? "horizon" : undefined)
+
+  if (!theme) return children
+
+  return (
+    <div data-page-theme={theme} className="page-theme">
+      {children}
+    </div>
+  )
+}
