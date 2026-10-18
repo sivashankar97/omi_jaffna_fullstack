@@ -426,14 +426,15 @@
     width: calc(5rem - 0.5rem * var(--tuck));
   }
 
-  .header-nav-clip {
-    max-height: calc(4.75rem * (1 - var(--tuck)));
-    overflow: hidden;
+  .header-logo-row {
+    max-height: calc(7rem * (1 - var(--tuck)));
+    padding-top: calc(0.625rem * (1 - var(--tuck)));
+    padding-bottom: calc(0.625rem * (1 - var(--tuck)));
+    opacity: calc(1 - var(--tuck));
   }
 
-  .site-header.is-expanded .header-nav-clip {
+  .site-header.is-expanded .header-logo-row {
     max-height: none;
-    overflow: visible;
   }
 }
 
@@ -1716,5 +1717,29 @@ html.dark .charism-glass-vision :is(h2, p) {
     opacity: 1;
     animation: none;
     transform: none;
+  }
+}
+
+.ministry-arrow {
+  animation: ministry-arrow-nudge 1.4s ease-in-out infinite;
+}
+
+.group:hover .ministry-arrow {
+  animation-duration: 0.7s;
+}
+
+@keyframes ministry-arrow-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ministry-arrow {
+    animation: none;
   }
 }

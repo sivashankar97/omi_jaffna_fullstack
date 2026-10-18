@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Compass, Eye, HandHeart } from "lucide-react"
+import { ArrowRight, Compass, Eye, HandHeart } from "lucide-react"
 
 import { Reveal } from "@/components/motion/reveal"
 import { MinistryCard } from "@/components/sections/ministry-card"
@@ -158,24 +158,14 @@ export async function HomeSections() {
         <span aria-hidden="true" className="ministry-blob ministry-blob-left" />
         <span aria-hidden="true" className="ministry-blob ministry-blob-right" />
         <div className="relative mx-auto max-w-6xl">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <Reveal from="left">
-              <p className="ministry-heading font-heading text-4xl leading-tight font-semibold sm:text-5xl">
-                Ministries
-              </p>
-              <h2 className="ministry-sub mt-2 text-sm font-semibold tracking-[0.22em] uppercase">
-                Seventeen ways of serving
-              </h2>
-            </Reveal>
-            <Reveal from="right" delay={150}>
-              <Button
-                asChild
-                className="lightning-ring relative h-auto rounded-full border-0 bg-[#17b3c6] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#0f9fb4]"
-              >
-                <Link href="/ministries">All ministries</Link>
-              </Button>
-            </Reveal>
-          </div>
+          <Reveal from="left">
+            <p className="ministry-heading font-heading text-4xl leading-tight font-semibold sm:text-5xl">
+              Ministries
+            </p>
+            <h2 className="ministry-sub mt-2 text-sm font-semibold tracking-[0.22em] uppercase">
+              Seventeen ways of serving
+            </h2>
+          </Reveal>
           <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {ministries.slice(0, 6).map((ministry, index) => (
               <Reveal
@@ -192,6 +182,17 @@ export async function HomeSections() {
               </Reveal>
             ))}
           </div>
+          <Reveal from="right" delay={150} className="mt-12 flex justify-end">
+            <Button
+              asChild
+              className="lightning-ring group relative h-auto gap-2 rounded-full border-0 bg-[#17b3c6] px-7 py-3 text-sm font-bold text-white hover:bg-[#0f9fb4]"
+            >
+              <Link href="/ministries">
+                All ministries
+                <ArrowRight aria-hidden="true" className="ministry-arrow size-4" />
+              </Link>
+            </Button>
+          </Reveal>
         </div>
       </section>
 
