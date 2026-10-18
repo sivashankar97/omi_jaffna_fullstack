@@ -1,0 +1,1654 @@
+{
+  "site_identity": {
+    "name": "Oblate Province of Jaffna",
+    "tagline": "17 Ministries. Many Places. One Mission.",
+    "subtitle": "Serving the people of God island-wide and abroad.",
+    "foundation_year": 1847,
+    "address": "657/1 Hospital Road, Jaffna, Sri Lanka",
+    "email": "omi.jafprovince@gmail.com",
+    "phone": "021-2222721",
+    "languages": [
+      "en",
+      "ta",
+      "si"
+    ],
+    "brand_colors": {
+      "navy": "#10243b",
+      "gold": "#c39a4b"
+    }
+  },
+  "items": [
+    {
+      "type": "ministry",
+      "slug": "administration",
+      "title_en": "Administration",
+      "excerpt_en": "Administration exists for mission: coordinating missionaries, supporting communities, planning pastoral activities and directing resources towards missionary needs.",
+      "body_en": "Administration exists for mission: coordinating missionaries, supporting communities, planning pastoral activities and directing resources towards missionary needs.",
+      "location_text": "Thodarpaham – Jaffna",
+      "sort_order": 1,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 1,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "mission-preaching",
+      "title_en": "Mission Preaching",
+      "excerpt_en": "Mission preaching brings the Gospel to communities through preaching, renewal and accompaniment.",
+      "body_en": "Mission preaching brings the Gospel to communities through preaching, renewal and accompaniment.",
+      "location_text": "Amathi Aham – Vavuniya",
+      "sort_order": 2,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 2,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "hospital-prison-chaplaincy",
+      "title_en": "Hospital & Prison Chaplaincy",
+      "excerpt_en": "A ministry of presence among people who are sick, isolated, vulnerable or forgotten, offering prayer, pastoral care, dignity and hope.",
+      "body_en": "A ministry of presence among people who are sick, isolated, vulnerable or forgotten, offering prayer, pastoral care, dignity and hope.",
+      "location_text": "Hospitals and prisons",
+      "sort_order": 3,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 3,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "formal-education",
+      "title_en": "Formal Education",
+      "excerpt_en": "Formal education is one of the Province’s continuing missionary commitments, supporting children and young people through schools, formation, learning and values-based education.",
+      "body_en": "Formal education is one of the Province’s continuing missionary commitments, supporting children and young people through schools, formation, learning and values-based education.",
+      "location_text": "St Patrick’s College; St Anthony’s Maha Vidyalayam — Muthur; Patima School — Mannar; Kalmunai Carmel Fatima College; Fatima Maha Vidyalayam — Iranapalai; St Anthony’s Vidyalayam — Colombo; Kokkulai Sigala Vidyalayam",
+      "sort_order": 4,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 4,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "non-formal-education",
+      "title_en": "Non-Formal Education",
+      "excerpt_en": "Learning opportunities, skills development, personal growth and social empowerment beyond the traditional classroom.",
+      "body_en": "Learning opportunities, skills development, personal growth and social empowerment beyond the traditional classroom.",
+      "location_text": "Annai Illam – Kanakapuraikulam; OBTEC – Kanakapuram; Amala Uthayam – Uppuvelli; Anjali Aham – Point Pedro",
+      "sort_order": 5,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 5,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "youth-animation",
+      "title_en": "Youth Animation",
+      "excerpt_en": "Accompanying young people through formation, empowerment, leadership, faith and life challenges.",
+      "body_en": "Accompanying young people through formation, empowerment, leadership, faith and life challenges.",
+      "location_text": "Gnanatheepam Youth Empowerment Centre – Ariyalai",
+      "sort_order": 6,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 6,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "childrens-animation",
+      "title_en": "Children’s Animation",
+      "excerpt_en": "Creating spaces where children receive care, formation, protection, encouragement and hope.",
+      "body_en": "Creating spaces where children receive care, formation, protection, encouragement and hope.",
+      "location_text": "Amala Annai Anpaham – Mulangavil",
+      "sort_order": 7,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 7,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "parish-ministry",
+      "title_en": "Parish Ministry",
+      "excerpt_en": "Celebration of the Eucharist and sacraments, proclamation of the Word, family ministry, children and youth ministry, care for the sick and formation of Christian communities.",
+      "body_en": "Celebration of the Eucharist and sacraments, proclamation of the Word, family ministry, children and youth ministry, care for the sick and formation of Christian communities.",
+      "location_text": "Jaffna, Mannar, Badulla, Galle, Trincomalee, Ratnapura and other missionary communities",
+      "sort_order": 8,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 8,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "formation",
+      "title_en": "Formation",
+      "excerpt_en": "Preparing future missionaries through prayer, study, community life, pastoral experience, spiritual direction, human formation and discernment.",
+      "body_en": "Preparing future missionaries through prayer, study, community life, pastoral experience, spiritual direction, human formation and discernment.",
+      "location_text": "Colombuthurai, Keeri, Ampitiya",
+      "sort_order": 9,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 9,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "psycho-social-counselling",
+      "title_en": "Psycho-Social Counselling",
+      "excerpt_en": "Accompanying people and families carrying psychological wounds, emotional burdens and social difficulties.",
+      "body_en": "Accompanying people and families carrying psychological wounds, emotional burdens and social difficulties.",
+      "location_text": "Amaithi Thedral – Mullaitivu; Valarpirai / ICOF – Chundikuli",
+      "sort_order": 10,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 10,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "care-for-persons-with-disabilities",
+      "title_en": "Care for Persons with Disabilities",
+      "excerpt_en": "Recognizing dignity, inclusion, participation and the gifts of persons living with disabilities.",
+      "body_en": "Recognizing dignity, inclusion, participation and the gifts of persons living with disabilities.",
+      "location_text": "Amathi Karangal – Mankulam",
+      "sort_order": 11,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 11,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "rehabilitation",
+      "title_en": "Rehabilitation",
+      "excerpt_en": "Supporting people affected by addiction, exclusion or difficult life circumstances towards dignity, responsibility, relationships and hope.",
+      "body_en": "Supporting people affected by addiction, exclusion or difficult life circumstances towards dignity, responsibility, relationships and hope.",
+      "location_text": "Thiruppunamai / CRADA – Thoddaveli; Eugene De Mazenod Home – Batticaloa; Nampikai Illam – Ariyalai",
+      "sort_order": 12,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 12,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "justice-peace-integrity-of-creation",
+      "title_en": "Justice, Peace & Integrity of Creation",
+      "excerpt_en": "Working for justice, dignity, dialogue, reconciliation, peace and care for creation, especially in communities carrying wounds of conflict.",
+      "body_en": "Working for justice, dignity, dialogue, reconciliation, peace and care for creation, especially in communities carrying wounds of conflict.",
+      "location_text": "Centre for Peace and Reconciliation – Paranthan",
+      "sort_order": 13,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 13,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "spiritual-renewal-animation",
+      "title_en": "Spiritual Renewal & Animation",
+      "excerpt_en": "Retreats, prayer, reflection and formation that renew personal faith and strengthen communities.",
+      "body_en": "Retreats, prayer, reflection and formation that renew personal faith and strengthen communities.",
+      "location_text": "Sangamam – Kopay",
+      "sort_order": 14,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 14,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "community-development",
+      "title_en": "Community Development",
+      "excerpt_en": "Empowering communities through education, livelihood support, leadership, women’s development, youth development and support for vulnerable families.",
+      "body_en": "Empowering communities through education, livelihood support, leadership, women’s development, youth development and support for vulnerable families.",
+      "location_text": "Nesakarangal – Iyackachchi; Amathi Vanam – Skandhapuram; Amathik Kalam – Kokkilai; Amala Aruvi – Mullikulam; Malarum Mullai – Oddusuddan; Eugene Nivasa – Avissawella",
+      "sort_order": 15,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 15,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "retired-oblates",
+      "title_en": "Retired Oblates",
+      "excerpt_en": "Caring for elderly and retired missionaries with dignity, gratitude, fraternity and community.",
+      "body_en": "Caring for elderly and retired missionaries with dignity, gratitude, fraternity and community.",
+      "location_text": "Amala Utpavam – Colombuthurai",
+      "sort_order": 16,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 16,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "ministry",
+      "slug": "oblate-community-fathers-house",
+      "title_en": "Oblate Community / Fathers’ House",
+      "excerpt_en": "A community space for prayer, fraternity, rest, support and shared missionary life.",
+      "body_en": "A community space for prayer, fraternity, rest, support and shared missionary life.",
+      "location_text": "Colombo Oblate House – Borella",
+      "sort_order": 17,
+      "metadata": {
+        "source": "2026 blueprint, ministry table",
+        "source_number": 17,
+        "needs_verification": true
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "maniyam-thoddam-parish",
+      "title_en": "Maniyam Thoddam Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Jaffna",
+      "sort_order": 1,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "kanakarayankulam-parish",
+      "title_en": "Kanakarayankulam Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Vavuniya",
+      "sort_order": 2,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "hapurugala-parish",
+      "title_en": "Hapurugala Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Ratnapura",
+      "sort_order": 3,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "st-jude-parish",
+      "title_en": "St. Jude Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Pasara",
+      "sort_order": 4,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "muthur-parish",
+      "title_en": "Muthur Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Trincomalee",
+      "sort_order": 5,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "anthoniyarpuram-parish",
+      "title_en": "Anthoniyarpuram Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Mannar",
+      "sort_order": 6,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "akkarayan-parish",
+      "title_en": "Akkarayan Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Kilinochchi",
+      "sort_order": 7,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "thachanamadhu-parish",
+      "title_en": "Thachanamadhu Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Mannar",
+      "sort_order": 8,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "anninganda-parish",
+      "title_en": "Anninganda Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Galle",
+      "sort_order": 9,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "kokkulai-parish",
+      "title_en": "Kokkulai Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Mullaitivu",
+      "sort_order": 10,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "thirukovil-parish",
+      "title_en": "Thirukovil Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Batticaloa",
+      "sort_order": 11,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "parish",
+      "slug": "sambalthevu-parish",
+      "title_en": "Sambalthevu Parish",
+      "excerpt_en": "Parish information and Mass schedule require approval before publication.",
+      "body_en": "",
+      "location_text": "Trincomalee",
+      "sort_order": 12,
+      "metadata": {
+        "mass_times": null,
+        "responsible_contact": null,
+        "source": "2026 blueprint, 12-parish directory"
+      }
+    },
+    {
+      "type": "timeline",
+      "slug": "1816",
+      "title_en": "1816",
+      "excerpt_en": "Missionaries of Provence begin under Eugene de Mazenod.",
+      "body_en": "Missionaries of Provence begin under Eugene de Mazenod.",
+      "location_text": "",
+      "sort_order": 1,
+      "metadata": {
+        "date_display": "1816",
+        "archive_verified": false
+      }
+    },
+    {
+      "type": "timeline",
+      "slug": "1826",
+      "title_en": "1826",
+      "excerpt_en": "The congregation receives papal approval as the Missionary Oblates of Mary Immaculate.",
+      "body_en": "The congregation receives papal approval as the Missionary Oblates of Mary Immaculate.",
+      "location_text": "",
+      "sort_order": 2,
+      "metadata": {
+        "date_display": "1826",
+        "archive_verified": false
+      }
+    },
+    {
+      "type": "timeline",
+      "slug": "21-oct-1847",
+      "title_en": "21 Oct 1847",
+      "excerpt_en": "Four Oblate missionaries leave Marseille for Ceylon.",
+      "body_en": "Four Oblate missionaries leave Marseille for Ceylon.",
+      "location_text": "",
+      "sort_order": 3,
+      "metadata": {
+        "date_display": "21 Oct 1847",
+        "archive_verified": false
+      }
+    },
+    {
+      "type": "timeline",
+      "slug": "28-nov-1847",
+      "title_en": "28 Nov 1847",
+      "excerpt_en": "The first Oblates arrive in Ceylon at Galle.",
+      "body_en": "The first Oblates arrive in Ceylon at Galle.",
+      "location_text": "",
+      "sort_order": 4,
+      "metadata": {
+        "date_display": "28 Nov 1847",
+        "archive_verified": false
+      }
+    },
+    {
+      "type": "timeline",
+      "slug": "8-feb-1848",
+      "title_en": "8 Feb 1848",
+      "excerpt_en": "Fr Joseph Ciamin begins ministry in the Mannar–Mantotte–Vanny mission.",
+      "body_en": "Fr Joseph Ciamin begins ministry in the Mannar–Mantotte–Vanny mission.",
+      "location_text": "",
+      "sort_order": 5,
+      "metadata": {
+        "date_display": "8 Feb 1848",
+        "archive_verified": false
+      }
+    },
+    {
+      "type": "timeline",
+      "slug": "10-mar-1848",
+      "title_en": "10 Mar 1848",
+      "excerpt_en": "The first group of Oblates reaches Jaffna.",
+      "body_en": "The first group of Oblates reaches Jaffna.",
+      "location_text": "",
+      "sort_order": 6,
+      "metadata": {
+        "date_display": "10 Mar 1848",
+        "archive_verified": false
+      }
+    },
+    {
+      "type": "timeline",
+      "slug": "19th-century",
+      "title_en": "19th century",
+      "excerpt_en": "Mission expands through villages, islands, education, pastoral ministry and formation.",
+      "body_en": "Mission expands through villages, islands, education, pastoral ministry and formation.",
+      "location_text": "",
+      "sort_order": 7,
+      "metadata": {
+        "date_display": "19th century",
+        "archive_verified": false
+      }
+    },
+    {
+      "type": "timeline",
+      "slug": "1988",
+      "title_en": "1988",
+      "excerpt_en": "Jaffna becomes a Vice Province.",
+      "body_en": "Jaffna becomes a Vice Province.",
+      "location_text": "",
+      "sort_order": 8,
+      "metadata": {
+        "date_display": "1988",
+        "archive_verified": false
+      }
+    },
+    {
+      "type": "timeline",
+      "slug": "2001",
+      "title_en": "2001",
+      "excerpt_en": "Jaffna becomes an independent Oblate Province.",
+      "body_en": "Jaffna becomes an independent Oblate Province.",
+      "location_text": "",
+      "sort_order": 9,
+      "metadata": {
+        "date_display": "2001",
+        "archive_verified": false
+      }
+    },
+    {
+      "type": "timeline",
+      "slug": "2026",
+      "title_en": "2026",
+      "excerpt_en": "The Province presents its mission through 17 ministries, many places and one missionary spirit.",
+      "body_en": "The Province presents its mission through 17 ministries, many places and one missionary spirit.",
+      "location_text": "",
+      "sort_order": 10,
+      "metadata": {
+        "date_display": "2026",
+        "archive_verified": false
+      }
+    },
+    {
+      "type": "page",
+      "slug": "home",
+      "title_en": "Home",
+      "excerpt_en": "17 Ministries. Many Places. One Mission.",
+      "body_en": "Welcome to the Oblate Province of Jaffna, part of the worldwide Missionary Oblates of Mary Immaculate. The Oblate missionary presence in Sri Lanka began in 1847, and the first Oblates reached Jaffna in 1848. From those beginnings, the mission has grown through pastoral ministry, education, formation, social service, reconciliation, community development and many other forms of accompaniment.\n\nToday, the Oblates continue to serve the people of God island-wide and abroad. With a particular missionary presence among Tamil-speaking people and communities across Sri Lanka, the Province seeks to proclaim the Good News, accompany people in their joys and struggles, and respond to the needs of the Church and society.",
+      "location_text": "",
+      "sort_order": 1,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "who-we-are",
+      "title_en": "Who We Are",
+      "excerpt_en": "Our missionary identity",
+      "body_en": "The Missionary Oblates of Mary Immaculate are a Roman Catholic missionary religious congregation founded by St Eugene de Mazenod. The Oblate vocation is rooted in the proclamation of the Gospel, especially among the poor and those most in need of hope, accompaniment and healing.\n\nThe Oblate Province of Jaffna is part of this worldwide missionary family. Its history in Sri Lanka reaches back to 1847, when the first Oblates arrived in Ceylon. In Jaffna, the mission developed through language learning, pastoral presence, education, formation, village ministry and accompaniment of communities through times of peace, suffering and social change.",
+      "location_text": "",
+      "sort_order": 2,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "charism",
+      "title_en": "Charism",
+      "excerpt_en": "Evangelizing the poor",
+      "body_en": "For the Oblate, the poor are not simply people who lack material resources. Poverty can also appear through abandonment, exclusion, displacement, addiction, disability, loneliness, injustice, conflict and loss of hope. Evangelizing the poor therefore means going towards people, listening to them, walking with them and proclaiming the Good News through word and life.",
+      "location_text": "",
+      "sort_order": 3,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "mission",
+      "title_en": "Mission",
+      "excerpt_en": "A healing society through the Good News",
+      "body_en": "Empowered by the Good News, we work for a healing society in and through the light of the Good News.",
+      "location_text": "",
+      "sort_order": 4,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "vision",
+      "title_en": "Vision",
+      "excerpt_en": "A renewed, just and free society",
+      "body_en": "A life towards a renewed, just and free society.",
+      "location_text": "",
+      "sort_order": 5,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "st-eugene-de-mazenod",
+      "title_en": "St Eugene de Mazenod",
+      "excerpt_en": "Our founder and inspiration",
+      "body_en": "Eugene de Mazenod looked at a society marked by poverty, religious decline and social change and refused to remain indifferent. He preached to the poor, accompanied young people, reached prisoners and sought ways to communicate the Gospel in language people could understand.\n\nHis missionary conviction was simple and demanding: the Gospel must go out. It must reach people where they are. This missionary spirit became the foundation of the Oblate vocation.",
+      "location_text": "",
+      "sort_order": 6,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "history",
+      "title_en": "History",
+      "excerpt_en": "1847–2026",
+      "body_en": "Eugene de Mazenod looked at a society marked by poverty, religious decline and social change and refused to remain indifferent. He preached to the poor, accompanied young people, reached prisoners and sought ways to communicate the Gospel in language people could understand.\n\nThe mission moved beyond the city into villages, coastal communities and islands, reaching places such as Mannar, Point Pedro and Mullaitivu. Missionaries celebrated Mass, preached, baptized, visited families, taught children, formed catechists and helped establish Christian communities.",
+      "location_text": "",
+      "sort_order": 7,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "timeline",
+      "title_en": "Timeline",
+      "excerpt_en": "Oblate journey through history",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 8,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "ministries",
+      "title_en": "Ministries",
+      "excerpt_en": "17 ministries — one mission",
+      "body_en": "From parishes and schools to youth centres, counselling, rehabilitation, peacebuilding, community development, formation and diaspora ministry, the Province serves in many places and through many forms of missionary presence.",
+      "location_text": "",
+      "sort_order": 9,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "parishes",
+      "title_en": "Parishes",
+      "excerpt_en": "12 parish communities",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 10,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "formation-vocations",
+      "title_en": "Formation & Vocations",
+      "excerpt_en": "Discern a missionary calling",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 11,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "international-mission",
+      "title_en": "International Mission",
+      "excerpt_en": "Serving island-wide and abroad",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 12,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "news-events",
+      "title_en": "News & Events",
+      "excerpt_en": "Latest missionary life and activities",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 13,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "publications",
+      "title_en": "Publications",
+      "excerpt_en": "Yazha-Thoni and Zeal",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 14,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "media",
+      "title_en": "Media",
+      "excerpt_en": "Digital mission and media",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 15,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "leadership",
+      "title_en": "Leadership",
+      "excerpt_en": "Provincial leadership and council",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 16,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "page",
+      "slug": "contact",
+      "title_en": "Contact",
+      "excerpt_en": "Find an Oblate community",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 17,
+      "metadata": {
+        "seo_review_required": true
+      }
+    },
+    {
+      "type": "formation",
+      "slug": "st-josephs-juniorate-colombuthurai",
+      "title_en": "St Joseph’s Juniorate – Colombuthurai",
+      "excerpt_en": "Formation house named in source; details pending confirmation.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 1,
+      "metadata": {
+        "source": "2026 blueprint formation section"
+      }
+    },
+    {
+      "type": "formation",
+      "slug": "pre-novitiate-gnanodhayam-keeri",
+      "title_en": "Pre-Novitiate, Gnanodhayam – Keeri",
+      "excerpt_en": "Formation house named in source; details pending confirmation.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 2,
+      "metadata": {
+        "source": "2026 blueprint formation section"
+      }
+    },
+    {
+      "type": "formation",
+      "slug": "de-mazenod-scholasticate-colombuthurai",
+      "title_en": "De Mazenod Scholasticate – Colombuthurai",
+      "excerpt_en": "Formation house named in source; details pending confirmation.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 3,
+      "metadata": {
+        "source": "2026 blueprint formation section"
+      }
+    },
+    {
+      "type": "formation",
+      "slug": "oblate-scholasticate-ampitiya",
+      "title_en": "Oblate Scholasticate – Ampitiya",
+      "excerpt_en": "Formation house named in source; details pending confirmation.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 4,
+      "metadata": {
+        "source": "2026 blueprint formation section"
+      }
+    },
+    {
+      "type": "international",
+      "slug": "mexico",
+      "title_en": "Mexico",
+      "excerpt_en": "Country named in source; current assignments pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 1,
+      "metadata": {
+        "verified_assignment": false
+      }
+    },
+    {
+      "type": "international",
+      "slug": "kenya",
+      "title_en": "Kenya",
+      "excerpt_en": "Country named in source; current assignments pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 2,
+      "metadata": {
+        "verified_assignment": false
+      }
+    },
+    {
+      "type": "international",
+      "slug": "denmark",
+      "title_en": "Denmark",
+      "excerpt_en": "Country named in source; current assignments pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 3,
+      "metadata": {
+        "verified_assignment": false
+      }
+    },
+    {
+      "type": "international",
+      "slug": "italy",
+      "title_en": "Italy",
+      "excerpt_en": "Country named in source; current assignments pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 4,
+      "metadata": {
+        "verified_assignment": false
+      }
+    },
+    {
+      "type": "international",
+      "slug": "united-kingdom",
+      "title_en": "United Kingdom",
+      "excerpt_en": "Country named in source; current assignments pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 5,
+      "metadata": {
+        "verified_assignment": false
+      }
+    },
+    {
+      "type": "international",
+      "slug": "norway",
+      "title_en": "Norway",
+      "excerpt_en": "Country named in source; current assignments pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 6,
+      "metadata": {
+        "verified_assignment": false
+      }
+    },
+    {
+      "type": "international",
+      "slug": "australia",
+      "title_en": "Australia",
+      "excerpt_en": "Country named in source; current assignments pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 7,
+      "metadata": {
+        "verified_assignment": false
+      }
+    },
+    {
+      "type": "international",
+      "slug": "pakistan",
+      "title_en": "Pakistan",
+      "excerpt_en": "Country named in source; current assignments pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 8,
+      "metadata": {
+        "verified_assignment": false
+      }
+    },
+    {
+      "type": "international",
+      "slug": "france-diaspora-chaplaincy",
+      "title_en": "France — diaspora chaplaincy",
+      "excerpt_en": "Country named in source; current assignments pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 9,
+      "metadata": {
+        "verified_assignment": false
+      }
+    },
+    {
+      "type": "publication",
+      "slug": "yazha-thoni-the-lyre-boat",
+      "title_en": "Yazha-Thoni — The Lyre Boat",
+      "excerpt_en": "Publication named in the 2026 blueprint; issue archive pending upload.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 1,
+      "metadata": {
+        "edition": null
+      }
+    },
+    {
+      "type": "publication",
+      "slug": "zeal-annual-magazine",
+      "title_en": "Zeal — Annual Magazine",
+      "excerpt_en": "Publication named in the 2026 blueprint; issue archive pending upload.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 2,
+      "metadata": {
+        "edition": null
+      }
+    },
+    {
+      "type": "location",
+      "slug": "omi-provincial-house-thodarpaham-jaffna",
+      "title_en": "OMI Provincial House – Thodarpaham — Jaffna",
+      "excerpt_en": "Fr. Jeyanthan Paul Pachchek, OMI / Provincial Superior",
+      "body_en": "",
+      "location_text": "657/1, Hospital Road, Jaffna",
+      "sort_order": 1,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "amala-utpavam-jaffna",
+      "title_en": "Amala Utpavam — Jaffna",
+      "excerpt_en": "Multiple Oblates listed in supplied Jaffna directory",
+      "body_en": "",
+      "location_text": "Swamiyar Veethi, Columbuthurai, Jaffna",
+      "sort_order": 2,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "st-josephs-omi-seminary-jaffna",
+      "title_en": "St Joseph’s OMI Seminary — Jaffna",
+      "excerpt_en": "Formation community",
+      "body_en": "",
+      "location_text": "Swamiyar Road / Swamiyar Veethi, Columbuthurai, Jaffna",
+      "sort_order": 3,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "vasanthaham-de-mazenod-scholasticate-jaffna",
+      "title_en": "Vasanthaham – De Mazenod Scholasticate — Jaffna",
+      "excerpt_en": "Formation community",
+      "body_en": "",
+      "location_text": "Swamiyar Veethi, Columbuthurai, Jaffna",
+      "sort_order": 4,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "sangamam-jaffna",
+      "title_en": "Sangamam — Jaffna",
+      "excerpt_en": "Spiritual renewal / animation",
+      "body_en": "",
+      "location_text": "St. Mary’s Lane, Kopay, Jaffna",
+      "sort_order": 5,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "gnanatheepam-yec-jaffna",
+      "title_en": "Gnanatheepam YEC — Jaffna",
+      "excerpt_en": "Youth Empowerment Centre",
+      "body_en": "",
+      "location_text": "30/2, Pannai Valavu, Kandy Road, Ariyalai, Jaffna",
+      "sort_order": 6,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "nambikkai-illam-jaffna",
+      "title_en": "Nambikkai Illam — Jaffna",
+      "excerpt_en": "Rehabilitation / care ministry",
+      "body_en": "",
+      "location_text": "835, Navalar Road, Ariyalai, Jaffna",
+      "sort_order": 7,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "anjali-aham-jaffna",
+      "title_en": "Anjali Aham — Jaffna",
+      "excerpt_en": "Non-formal / community ministry",
+      "body_en": "",
+      "location_text": "Nellandai Veethi, Thumpalai, Point Pedro",
+      "sort_order": 8,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "st-patricks-college-jaffna",
+      "title_en": "St Patrick’s College — Jaffna",
+      "excerpt_en": "Education / Oblate contact",
+      "body_en": "",
+      "location_text": "St. Patrick’s Road, Jaffna",
+      "sort_order": 9,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "st-antonys-church-pasayoor-jaffna",
+      "title_en": "St Antony’s Church – Pasayoor — Jaffna",
+      "excerpt_en": "Parish contact",
+      "body_en": "",
+      "location_text": "Pasayoor, Jaffna",
+      "sort_order": 10,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "annai-illam-kilinochchi",
+      "title_en": "Annai Illam — Kilinochchi",
+      "excerpt_en": "Community / non-formal education",
+      "body_en": "",
+      "location_text": "No. 87, Kanahampikai Kulam, Kilinochchi",
+      "sort_order": 11,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "amaithy-vanam-kilinochchi",
+      "title_en": "Amaithy Vanam — Kilinochchi",
+      "excerpt_en": "Community / counselling ministry",
+      "body_en": "",
+      "location_text": "455 Anna Silai Road, Akkarayankulam, Kilinochchi",
+      "sort_order": 12,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "obtec-kilinochchi",
+      "title_en": "OBTEC — Kilinochchi",
+      "excerpt_en": "Non-formal education",
+      "body_en": "",
+      "location_text": "No. 76, Kanahapuram, Kilinochchi",
+      "sort_order": 13,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "nesakkarangkal-kilinochchi",
+      "title_en": "Nesakkarangkal — Kilinochchi",
+      "excerpt_en": "Community development",
+      "body_en": "",
+      "location_text": "Sangathar Vayal, Pullaveli Road, Iyakkachchi",
+      "sort_order": 14,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "amaithy-thendral-mullaitivu",
+      "title_en": "Amaithy Thendral — Mullaitivu",
+      "excerpt_en": "Psycho-social / community support",
+      "body_en": "",
+      "location_text": "Unnapulavu, Mullaitivu",
+      "sort_order": 15,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "our-lady-of-good-voyage-kokkilai-mullaitivu",
+      "title_en": "Our Lady of Good Voyage – Kokkilai — Mullaitivu",
+      "excerpt_en": "Parish contact",
+      "body_en": "",
+      "location_text": "Kokkilai, Mullaitivu",
+      "sort_order": 16,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "amathy-kalam-mullaitivu",
+      "title_en": "Amathy Kalam — Mullaitivu",
+      "excerpt_en": "Community development",
+      "body_en": "",
+      "location_text": "Kokilai, Mullaitivu",
+      "sort_order": 17,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "amaithy-aham-vavuniya",
+      "title_en": "Amaithy Aham — Vavuniya",
+      "excerpt_en": "Mission / counselling / community support",
+      "body_en": "",
+      "location_text": "26 Goods Shed Road, Vavuniya",
+      "sort_order": 18,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "st-antonys-church-kanagarayan-kulam-vavuniya",
+      "title_en": "St Antony’s Church – Kanagarayan Kulam — Vavuniya",
+      "excerpt_en": "Parish contact",
+      "body_en": "",
+      "location_text": "A9 Road, Kanagarayan Kulam, Vavuniya",
+      "sort_order": 19,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "gnanodhayam-mannar",
+      "title_en": "Gnanodhayam — Mannar",
+      "excerpt_en": "Formation / community",
+      "body_en": "",
+      "location_text": "Thalvupadu Road, Keeri, Mannar",
+      "sort_order": 20,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "crada-mannar",
+      "title_en": "CRADA — Mannar",
+      "excerpt_en": "Rehabilitation / community development",
+      "body_en": "",
+      "location_text": "Station Road, Thottaveli, Mannar",
+      "sort_order": 21,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "st-antonys-church-thatchanamarutha-madhu-mannar",
+      "title_en": "St Antony’s Church – Thatchanamarutha Madhu — Mannar",
+      "excerpt_en": "Parish contact",
+      "body_en": "",
+      "location_text": "Patampitti / Thatchanamarutha Madhu, Mannar",
+      "sort_order": 22,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "st-anthonys-church-thevanpitty-mannar",
+      "title_en": "St Anthony’s Church – Thevanpitty — Mannar",
+      "excerpt_en": "Parish contact",
+      "body_en": "",
+      "location_text": "Thevanpitty, Mannar",
+      "sort_order": 23,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "sacred-heart-church-iruthayapuram-trincomalee",
+      "title_en": "Sacred Heart Church – Iruthayapuram — Trincomalee",
+      "excerpt_en": "Parish contact",
+      "body_en": "",
+      "location_text": "Iruthayapuram, Muthur",
+      "sort_order": 24,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "st-john-the-baptist-church-sambaltheevu-trincomalee",
+      "title_en": "St John the Baptist Church – Sambaltheevu — Trincomalee",
+      "excerpt_en": "Parish contact",
+      "body_en": "",
+      "location_text": "Sambaltheevu, Trincomalee",
+      "sort_order": 25,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "amala-uthayam-trincomalee",
+      "title_en": "Amala Uthayam — Trincomalee",
+      "excerpt_en": "Community ministry",
+      "body_en": "",
+      "location_text": "CTB Road, Uppuvely, Trincomalee",
+      "sort_order": 26,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "st-eugene-de-mazenod-home-batticaloa",
+      "title_en": "St Eugene de Mazenod Home — Batticaloa",
+      "excerpt_en": "Rehabilitation / community care",
+      "body_en": "",
+      "location_text": "No. 290/2, Trinco-Batti Road, Batticaloa",
+      "sort_order": 27,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "st-paul-the-hermit-church-passara-badulla",
+      "title_en": "St Paul the Hermit Church – Passara — Badulla",
+      "excerpt_en": "Parish contact",
+      "body_en": "",
+      "location_text": "Passara, Badulla",
+      "sort_order": 28,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "eugene-nivasa-omi-fathers-house-ratnapura",
+      "title_en": "Eugene Nivasa / OMI Fathers’ House — Ratnapura",
+      "excerpt_en": "Community / retired Oblate care",
+      "body_en": "",
+      "location_text": "No. 956/1, Ratnapura Road, Dehiyahapitiya, Avissawella",
+      "sort_order": 29,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "kandy-oblate-contact-kandy",
+      "title_en": "Kandy Oblate contact — Kandy",
+      "excerpt_en": "Oblate contact",
+      "body_en": "",
+      "location_text": "Kandy",
+      "sort_order": 30,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "location",
+      "slug": "sacred-heart-church-anninkanda-deniyaya",
+      "title_en": "Sacred Heart Church – Anninkanda — Deniyaya",
+      "excerpt_en": "Parish contact",
+      "body_en": "",
+      "location_text": "Anninkanda, Deniyaya",
+      "sort_order": 31,
+      "metadata": {
+        "source": "2026 blueprint location directory",
+        "geocoding_status": "not_checked"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "very-rev-fr-paul-jeyanthan-pachchek-omi",
+      "title_en": "Very Rev. Fr. Paul Jeyanthan Pachchek, OMI",
+      "excerpt_en": "Provincial Superior — term and official spelling to be verified.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 1,
+      "metadata": {
+        "role": "Provincial Superior",
+        "source": "Section 13",
+        "term_in_source": "2023–2026",
+        "current_appointment_unverified": true
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "pakkiyanathan-antony-jesuthasan",
+      "title_en": "Pakkiyanathan Antony Jesuthasan",
+      "excerpt_en": "1st Councilor — 2026–2029 council listing requires official verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 2,
+      "metadata": {
+        "role": "1st Councilor",
+        "source": "Section 13",
+        "term_in_source": "2026–2029"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "francis-loshington-antonipillai",
+      "title_en": "Francis Loshington Antonipillai",
+      "excerpt_en": "2nd Councilor — 2026–2029 council listing requires official verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 3,
+      "metadata": {
+        "role": "2nd Councilor",
+        "source": "Section 13",
+        "term_in_source": "2026–2029"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "sathiyaseelan-pathinathan",
+      "title_en": "Sathiyaseelan Pathinathan",
+      "excerpt_en": "3rd Councilor — 2026–2029 council listing requires official verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 4,
+      "metadata": {
+        "role": "3rd Councilor",
+        "source": "Section 13",
+        "term_in_source": "2026–2029"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "jayabalan-balasingham",
+      "title_en": "Jayabalan Balasingham",
+      "excerpt_en": "4th Councilor — 2026–2029 council listing requires official verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 5,
+      "metadata": {
+        "role": "4th Councilor",
+        "source": "Section 13",
+        "term_in_source": "2026–2029"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "anson-regikumar-tharcious",
+      "title_en": "Anson Regikumar Tharcious",
+      "excerpt_en": "5th Councilor — 2026–2029 council listing requires official verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 6,
+      "metadata": {
+        "role": "5th Councilor",
+        "source": "Section 13",
+        "term_in_source": "2026–2029"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "rev-fr-joseph-j-kamalananthan-omi",
+      "title_en": "Rev. Fr. Joseph J. Kamalananthan, OMI",
+      "excerpt_en": "Provincial Bursar — appointment must be verified.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 7,
+      "metadata": {
+        "role": "Provincial Bursar",
+        "source": "Section 13"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "fr-louis-ponnaiah-omi",
+      "title_en": "Fr. Louis Ponnaiah, OMI",
+      "excerpt_en": "Former Provincial · period listed: 1984–1991 (chronology requires archival verification).",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 8,
+      "metadata": {
+        "role": "Former Provincial",
+        "term_in_source": "1984–1991",
+        "archive_verified": false,
+        "source": "Section 13 former provincials"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "rev-fr-p-p-philip",
+      "title_en": "Rev. Fr. P. P. Philip",
+      "excerpt_en": "Former Provincial · period listed: 1991–1997 (chronology requires archival verification).",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 9,
+      "metadata": {
+        "role": "Former Provincial",
+        "term_in_source": "1991–1997",
+        "archive_verified": false,
+        "source": "Section 13 former provincials"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "rev-fr-p-jesunesan",
+      "title_en": "Rev. Fr. P. Jesunesan",
+      "excerpt_en": "Former Provincial · period listed: 1989–1999 (chronology requires archival verification).",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 10,
+      "metadata": {
+        "role": "Former Provincial",
+        "term_in_source": "1989–1999",
+        "archive_verified": false,
+        "source": "Section 13 former provincials"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "rev-fr-jeevendra-paul",
+      "title_en": "Rev. Fr. Jeevendra Paul",
+      "excerpt_en": "Former Provincial · period listed: 1999–2004 (chronology requires archival verification).",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 11,
+      "metadata": {
+        "role": "Former Provincial",
+        "term_in_source": "1999–2004",
+        "archive_verified": false,
+        "source": "Section 13 former provincials"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "rev-fr-s-m-selvaratnam",
+      "title_en": "Rev. Fr. S.M. Selvaratnam",
+      "excerpt_en": "Former Provincial · period listed: 2005–2008 (chronology requires archival verification).",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 12,
+      "metadata": {
+        "role": "Former Provincial",
+        "term_in_source": "2005–2008",
+        "archive_verified": false,
+        "source": "Section 13 former provincials"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "rev-fr-paul-natchathiram",
+      "title_en": "Rev. Fr. Paul Natchathiram",
+      "excerpt_en": "Former Provincial · period listed: 2008–2014 (chronology requires archival verification).",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 13,
+      "metadata": {
+        "role": "Former Provincial",
+        "term_in_source": "2008–2014",
+        "archive_verified": false,
+        "source": "Section 13 former provincials"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "rev-fr-edwin-vasantharajah",
+      "title_en": "Rev. Fr. Edwin Vasantharajah",
+      "excerpt_en": "Former Provincial · period listed: 2014–2020 (chronology requires archival verification).",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 14,
+      "metadata": {
+        "role": "Former Provincial",
+        "term_in_source": "2014–2020",
+        "archive_verified": false,
+        "source": "Section 13 former provincials"
+      }
+    },
+    {
+      "type": "leadership",
+      "slug": "rev-fr-eugene-benedict",
+      "title_en": "Rev. Fr. Eugene Benedict",
+      "excerpt_en": "Former Provincial · period listed: 2020–2022 (chronology requires archival verification).",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 15,
+      "metadata": {
+        "role": "Former Provincial",
+        "term_in_source": "2020–2022",
+        "archive_verified": false,
+        "source": "Section 13 former provincials"
+      }
+    },
+    {
+      "type": "school",
+      "slug": "st-patricks-college",
+      "title_en": "St Patrick’s College",
+      "excerpt_en": "Formal education institution named in the Province blueprint; status pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 1,
+      "metadata": {
+        "source": "Ministry 04: Formal Education",
+        "operational_status_verified": false
+      }
+    },
+    {
+      "type": "school",
+      "slug": "st-anthonys-maha-vidyalayam-muthur",
+      "title_en": "St Anthony’s Maha Vidyalayam — Muthur",
+      "excerpt_en": "Formal education institution named in the Province blueprint; status pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 2,
+      "metadata": {
+        "source": "Ministry 04: Formal Education",
+        "operational_status_verified": false
+      }
+    },
+    {
+      "type": "school",
+      "slug": "patima-school-mannar",
+      "title_en": "Patima School — Mannar",
+      "excerpt_en": "Formal education institution named in the Province blueprint; status pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 3,
+      "metadata": {
+        "source": "Ministry 04: Formal Education",
+        "operational_status_verified": false
+      }
+    },
+    {
+      "type": "school",
+      "slug": "kalmunai-carmel-fatima-college",
+      "title_en": "Kalmunai Carmel Fatima College",
+      "excerpt_en": "Formal education institution named in the Province blueprint; status pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 4,
+      "metadata": {
+        "source": "Ministry 04: Formal Education",
+        "operational_status_verified": false
+      }
+    },
+    {
+      "type": "school",
+      "slug": "fatima-maha-vidyalayam-iranapalai",
+      "title_en": "Fatima Maha Vidyalayam — Iranapalai",
+      "excerpt_en": "Formal education institution named in the Province blueprint; status pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 5,
+      "metadata": {
+        "source": "Ministry 04: Formal Education",
+        "operational_status_verified": false
+      }
+    },
+    {
+      "type": "school",
+      "slug": "st-anthonys-vidyalayam-colombo",
+      "title_en": "St Anthony’s Vidyalayam — Colombo",
+      "excerpt_en": "Formal education institution named in the Province blueprint; status pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 6,
+      "metadata": {
+        "source": "Ministry 04: Formal Education",
+        "operational_status_verified": false
+      }
+    },
+    {
+      "type": "school",
+      "slug": "kokkulai-sigala-vidyalayam",
+      "title_en": "Kokkulai Sigala Vidyalayam",
+      "excerpt_en": "Formal education institution named in the Province blueprint; status pending verification.",
+      "body_en": "",
+      "location_text": "",
+      "sort_order": 7,
+      "metadata": {
+        "source": "Ministry 04: Formal Education",
+        "operational_status_verified": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "OMI: Start website",
+      "type": "process",
+      "command": "/bin/zsh",
+      "args": ["${workspaceFolder}/Start OMI Website.command"],
+      "problemMatcher": [],
+      "group": {"kind": "build", "isDefault": true},
+      "presentation": {"reveal": "always", "panel": "dedicated"}
+    },
+    {
+      "label": "OMI: Build frontend",
+      "type": "shell",
+      "command": "npm run build",
+      "options": {"cwd": "${workspaceFolder}/web", "env": {"PATH": "/opt/homebrew/opt/node@22/bin:/opt/homebrew/bin:${env:PATH}"}},
+      "problemMatcher": []
+    },
+    {
+      "label": "OMI: Test backend",
+      "type": "shell",
+      "command": "npm test",
+      "options": {"cwd": "${workspaceFolder}/api", "env": {"PATH": "/opt/homebrew/opt/node@22/bin:/opt/homebrew/bin:${env:PATH}"}},
+      "problemMatcher": []
+    }
+  ]
+}

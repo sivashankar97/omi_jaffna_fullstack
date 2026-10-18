@@ -1,0 +1,7 @@
+{
+  "terminal.integrated.env.osx": {
+    "PATH": "/opt/homebrew/opt/node@22/bin:/opt/homebrew/opt/postgresql@16/bin:/opt/homebrew/bin:${env:PATH}"
+  },
+  "files.exclude": {"**/node_modules": true},
+  "search.exclude": {"**/node_modules": true, "web/dist": true, ".local": true, "api/uploads": true}
+}
