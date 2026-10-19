@@ -5,11 +5,7 @@ import { usePathname } from "next/navigation"
 const pageThemes: Record<string, string> = {
   "/about": "reef",
   "/charism": "tide",
-  "/ministries": "harbor",
   "/parishes": "depth",
-  "/vocations": "lake",
-  "/international": "current",
-  "/news": "horizon",
   "/publications": "moon",
   "/media": "grove",
   "/contact": "moon",
@@ -19,7 +15,7 @@ const pageThemes: Record<string, string> = {
 
 export function PageTheme({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const theme = pageThemes[pathname] ?? (pathname.startsWith("/news/") ? "horizon" : undefined)
+  const theme = pageThemes[pathname]
 
   if (!theme) return children
 

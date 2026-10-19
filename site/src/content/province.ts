@@ -297,16 +297,16 @@ export const missionCountries = [
 export const formationAbroad = ["Philippines", "Australia", "Rome"] as const
 
 export const council = [
-  { role: "1st Councillor", name: "Pakkiyanathan Antony Jesuthasan" },
-  { role: "2nd Councillor", name: "Francis Loshington Antonipillai" },
-  { role: "3rd Councillor", name: "Sathiyaseelan Pathinathan" },
-  { role: "4th Councillor", name: "Jayabalan Balasingham" },
-  { role: "5th Councillor", name: "Anson Regikumar Tharcious" },
-  { role: "Bursar", name: "Antony Hubert" },
+  { role: "1st Councillor", name: "Rev. Fr. Pakkiyanathan Antony Jesuthasan" },
+  { role: "2nd Councillor", name: "Rev. Fr. Francis Loshington Antonipillai" },
+  { role: "3rd Councillor", name: "Rev. Fr. Sathiyaseelan Pathinathan" },
+  { role: "4th Councillor", name: "Rev. Fr. Jayabalan Balasingham" },
+  { role: "5th Councillor", name: "Rev. Fr. Anson Regikumar Tharcious" },
+  { role: "Bursar", name: "Rev. Fr. Antony Hubert" },
 ] as const
 
 export const formerProvincials = [
-  { name: "Fr. Louis Ponnaiah, OMI", dates: "1984–1991" },
+  { name: "Rev. Fr. Louis Ponnaiah, OMI", dates: "1984–1991" },
   { name: "Rev. Fr. P. P. Philip", dates: "1991–1997" },
   { name: "Rev. Fr. P. Jesunesan", dates: "1989–1999" },
   { name: "Rev. Fr. Jeevendra Paul", dates: "1999–2004" },

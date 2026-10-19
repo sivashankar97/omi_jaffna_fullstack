@@ -9,3 +9,11 @@ export const provincialSuperior = {
     { label: "Second term", appointed: "15 January 2026", installed: "16 February 2026" },
   ],
 } as const
+
+export const councilImages: Record<string, string> = {
+  "Rev. Fr. Pakkiyanathan Antony Jesuthasan": "/Leadership_img/Pakkiyanathan_Antony_Jesuthasan-removebg-preview.png",
+  "Rev. Fr. Francis Loshington Antonipillai": "/Leadership_img/Francis_Loshington_Antonipillai-removebg-preview.png",
+  "Rev. Fr. Sathiyaseelan Pathinathan": "/Leadership_img/Sathiyaseelan_Pathinathan-removebg-preview.png",
+  "Rev. Fr. Jayabalan Balasingham": "/Leadership_img/Jayabalan_Balasingham-removebg-preview.png",
+  "Rev. Fr. Anson Regikumar Tharcious": "/Leadership_img/Anson_Regikumar_Tharcious-removebg-preview.png",
+}

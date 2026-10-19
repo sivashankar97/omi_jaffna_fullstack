@@ -6,7 +6,7 @@ import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { PriestDirectory } from "@/components/sections/leadership/priest-directory"
 import { SectionHeading } from "@/components/sections/section-heading"
-import { provincialSuperior } from "@/content/leadership"
+import { councilImages, provincialSuperior } from "@/content/leadership"
 import { getFormerProvincials, getLeadership, getPriests } from "@/lib/cms"
 
 export const metadata: Metadata = {
@@ -148,29 +148,58 @@ export default async function LeadershipPage() {
             title="Provincial Council"
             subtitle="The Council supports the Provincial Superior in guiding the mission and life of the Province."
           />
-          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {council.map((person, index) => (
-              <Reveal
-                key={`${person.role}-${person.name}`}
-                from="up"
-                delay={(index % 3) * 120}
-                className="group h-full"
-              >
-                <article className="relative flex h-full items-center gap-5 overflow-hidden rounded-2xl bg-white p-6 shadow-[0_18px_40px_-30px_rgba(2,62,138,0.55)] ring-1 ring-[#e2f2f6] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_26px_50px_-28px_rgba(2,62,138,0.55)]">
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-[#17b3c6] to-[#ffbf00] transition duration-500 group-hover:scale-x-100"
-                  />
-                  <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#17b3c6] to-[#0e6a68] font-heading text-lg font-bold text-white ring-4 ring-[#e7fbff] transition duration-500 group-hover:scale-110">
-                    {initials(person.name)}
-                  </span>
-                  <div>
-                    <p className="text-xs font-bold tracking-[0.18em] text-[#17b3c6] uppercase">{person.role}</p>
-                    <p className="mt-1 font-heading text-lg leading-snug font-semibold text-[#023e8a]">{person.name}</p>
-                  </div>
-                </article>
-              </Reveal>
-            ))}
+          <div className="mx-auto mt-16 grid max-w-5xl gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            {council.map((person, index) => {
+              const photo = councilImages[person.name]
+              return (
+                <Reveal key={`${person.role}-${person.name}`} from="up" delay={(index % 3) * 120} className="group">
+                  <article className="relative mx-auto aspect-[4/5] w-full max-w-xs transition duration-500 group-hover:-translate-y-2">
+                    <div
+                      aria-hidden="true"
+                      className="absolute top-0 bottom-0 left-0 w-[46%] overflow-hidden rounded-t-[3rem] rounded-b-[1.5rem] shadow-[0_30px_60px_-30px_rgba(3,32,43,0.7)]"
+                      style={{ background: "linear-gradient(180deg, #17b3c6 0%, #0e98ac 38%)" }}
+                    >
+                      <span className="absolute inset-x-0 top-5 flex justify-center font-heading text-6xl font-bold tracking-wide text-white/15 uppercase [writing-mode:vertical-rl] rotate-180">
+                        Council
+                      </span>
+                    </div>
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-x-0 top-[38%] bottom-0 rounded-[1.5rem] rounded-tl-none shadow-[0_30px_60px_-30px_rgba(3,32,43,0.7)]"
+                      style={{ background: "linear-gradient(180deg, #0e98ac 0%, #0a5062 70%, #06394a 100%)" }}
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="absolute top-[38%] right-5 z-10 h-1 w-10 rounded-full bg-[#ffcf4a] transition-all duration-500 group-hover:w-16"
+                    />
+
+                    {photo ? (
+                      <div className="absolute inset-x-0 top-[5%] bottom-0 z-10 overflow-hidden rounded-b-[1.5rem]">
+                        <Image
+                          src={photo}
+                          alt={person.name}
+                          fill
+                          sizes="(min-width: 1024px) 20rem, (min-width: 640px) 45vw, 90vw"
+                          className="origin-bottom object-contain object-bottom drop-shadow-[0_18px_24px_rgba(3,32,43,0.45)] transition duration-700 group-hover:scale-[1.04]"
+                        />
+                      </div>
+                    ) : (
+                      <div className="absolute inset-x-0 top-[22%] z-10 flex justify-center">
+                        <span className="flex size-32 items-center justify-center rounded-full bg-white/15 font-heading text-4xl font-bold text-white ring-4 ring-white/25 backdrop-blur-sm transition duration-500 group-hover:scale-105">
+                          {initials(person.name)}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="absolute inset-x-0 bottom-0 z-20 h-[45%] rounded-b-[1.5rem] bg-gradient-to-t from-[#03202b] via-[#03202b]/80 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 z-30 p-5">
+                      <p className="text-[11px] font-bold tracking-[0.2em] text-[#ffcf4a] uppercase">{person.role}</p>
+                      <p className="mt-1 font-heading text-lg leading-snug font-semibold text-white">{person.name}</p>
+                    </div>
+                  </article>
+                </Reveal>
+              )
+            })}
           </div>
         </div>
       </section>
