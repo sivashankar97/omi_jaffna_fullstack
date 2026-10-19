@@ -265,6 +265,18 @@ export async function HomeSections() {
         </div>
       </section>
 
+      <section id="latest-news" className="scroll-mt-80 bg-[#f7fbff] pt-4 pb-16">
+        <Reveal from="up" className="mx-auto mb-6 max-w-6xl px-4 sm:px-8">
+          <h2 className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">Latest news</h2>
+          <p className="mt-2 text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">From the Province</p>
+        </Reveal>
+        <NewsMarquee articles={latestNews} />
+      </section>
+
+      <MediaHighlights />
+
+      <JourneyPath />
+
       <section id="family" className="scroll-mt-80 bg-[#f7fbff] px-4 py-16 text-[#023e8a] sm:px-8">
         <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-[1.2fr_1fr] md:items-center">
           <Reveal>
@@ -302,17 +314,6 @@ export async function HomeSections() {
         </div>
       </section>
 
-      <section id="latest-news" className="scroll-mt-80 bg-[#f7fbff] pt-4 pb-16">
-        <Reveal from="up" className="mx-auto mb-6 max-w-6xl px-4 sm:px-8">
-          <h2 className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">Latest news</h2>
-          <p className="mt-2 text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">From the Province</p>
-        </Reveal>
-        <NewsMarquee articles={latestNews} />
-      </section>
-
-      <MediaHighlights />
-
-      <JourneyPath />
       <ProvinceCalendar events={events} />
       <JoinUs />
       <HomeContact />

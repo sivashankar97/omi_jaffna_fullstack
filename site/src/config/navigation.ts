@@ -59,17 +59,32 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
       ],
     },
     {
+      label: "History",
+      href: "/history",
+      description: "Who we are, the brief history, journey and development of the Province",
+      sections: [
+        { label: "Who we are", id: "who-we-are" },
+        { label: "Missionary family", id: "missionary-family" },
+        { label: "Core commitments", id: "core-commitments" },
+        { label: "Brief history", id: "brief-history" },
+        { label: "The journey", id: "journey" },
+        { label: "Development", id: "development" },
+      ],
+    },
+    {
       label: "Charism",
       href: "/charism",
       description: "Evangelizing the poor, mission, vision and our story since 1847",
       sections: [
         { label: "Charism", id: "charism" },
+        { label: "Mission with the poor", id: "identity" },
+        { label: "Charism priorities", id: "priorities" },
         { label: "How we live it", id: "how-we-live" },
         { label: "Mission", id: "mission" },
         { label: "Vision", id: "vision" },
+        { label: "Motto", id: "motto" },
         { label: "About us", id: "about" },
         { label: "Arrival in Jaffna", id: "arrival" },
-        { label: "The journey", id: "history" },
       ],
     },
     {
