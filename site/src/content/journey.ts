@@ -284,6 +284,7 @@ export const journeyEras: JourneyEra[] = [
         ["May 30", "Fr. Bernard Quintus elected Second Assistant General."],
         ["November 14", "Opening of the Oblate Communication Centre at Palwatte, Minuwangoda."],
         ["December 8", "Establishment of the General Delegation in Jaffna."],
+        ["December 8", "Rev. Fr. Louis Ponnaiah, OMI begins as Superior of the General Delegation of Jaffna (1984–1991)."],
         ["December 15", "Mgr. Edmund Fernando named to the See of Badulla."]
       ),
       y("1985", ["May 22", "Commemorative stamp issued honoring Fr. Peter Pillai."]),
@@ -305,10 +306,16 @@ export const journeyEras: JourneyEra[] = [
         ["December 28", "Philatelic Bureau issued a stamp honoring Thomas Cardinal Cooray."]
       ),
       y(
+        "1989",
+        ["August 23", "General Delegation of Jaffna raised to Vice-Province; Rev. Fr. Louis Ponnaiah, OMI becomes its first Provincial."],
+        "Rev. Fr. P. Jesunesan, OMI listed in Provincial leadership (1989–1999)."
+      ),
+      y(
         "1990",
         ["May 22", "Postage stamp issued honoring Fr. T. M. F. Long, former Rector of St. Patrick’s, Jaffna."],
         ["June 11", "First South Asian Oblate Formators Meeting held at Ampitiya."]
       ),
+      y("1991", ["June 19", "Rev. Fr. P. P. Philip Fernando, OMI installed as Provincial of the Vice-Province of Jaffna (1991–1997)."]),
       y("1993", "Mr. Roche Tewerapperuma made an Honorary Oblate."),
       y(
         "1994",
@@ -326,7 +333,47 @@ export const journeyEras: JourneyEra[] = [
         ["June 1", "Visitation of the Province by a team appointed by Fr. General."],
         ["August 12–16", "Oblate Congress at Ampitiya."]
       ),
-      y("1997", ["June 14", "Mgr. Edmund Fernando resigned from the See of Badulla."]),
+      y(
+        "1997",
+        ["May 15", "Rev. Fr. P. Jesunesan, OMI takes over as Provincial Superior of the Vice-Province of Jaffna."],
+        ["June 14", "Mgr. Edmund Fernando resigned from the See of Badulla."]
+      ),
+      y(
+        "1998",
+        "Rev. Fr. P. Jesunesan, OMI elected General Councillor for Asia-Oceania at the General Chapter.",
+        "Rev. Fr. A. Jeevendra Paul, OMI appointed Vicar Provincial by the Superior General."
+      ),
+      y("1999", ["January", "Rev. Fr. Jeevendra Paul, OMI appointed Provincial Superior (1999–2004)."]),
+    ],
+  },
+  {
+    id: "province",
+    range: "2000 – Present",
+    title: "A Full-Fledged Province",
+    years: [
+      y(
+        "2001",
+        ["July 8", "The Vice-Province of Jaffna declared a full-fledged Province by the Superior General."],
+        ["July 12", "Decree of Promulgation signed in Rome; Rev. Fr. Jeevendra Paul, OMI becomes the first Provincial of the Province."]
+      ),
+      y("2005", "Rev. Fr. S. M. Selvaratnam, OMI begins his term as Provincial Superior (2005–2008)."),
+      y("2008", "Rev. Fr. Paul Natchathiram, OMI begins his term as Provincial Superior (2008–2014)."),
+      y("2014", "Rev. Fr. Edwin Vasantharajah, OMI begins his term as Provincial Superior (2014–2020)."),
+      y("2020", "Rev. Fr. Eugene Benedict, OMI begins his term as Provincial Superior (2020–2022)."),
+      y(
+        "2022",
+        ["October 4", "Rev. Fr. Eugene Benedict, OMI appointed General Councillor for Asia-Oceania at the 37th General Chapter in Rome."]
+      ),
+      y(
+        "2023",
+        ["January 10", "Rev. Fr. Paul Jeyanthan Pachchek, OMI appointed Provincial Superior."],
+        ["February 17", "Installation of the new Provincial Superior."]
+      ),
+      y(
+        "2026",
+        ["January 15", "Rev. Fr. Paul Jeyanthan Pachchek, OMI reappointed for a second term."],
+        ["February 16", "Installed for the second term as Provincial Superior."]
+      ),
     ],
   },
 ]

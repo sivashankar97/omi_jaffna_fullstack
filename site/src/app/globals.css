@@ -1903,3 +1903,59 @@ html.dark .charism-glass-motto :is(h2, p) {
     display: none;
   }
 }
+
+.news-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: news-ticker 60s linear infinite;
+}
+
+.news-ticker:hover .news-ticker-track,
+.news-ticker:focus-within .news-ticker-track {
+  animation-play-state: paused;
+}
+
+@keyframes news-ticker {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.news-live-dot {
+  animation: news-live 1.6s ease-in-out infinite;
+}
+
+@keyframes news-live {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(255 207 74 / 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgb(255 207 74 / 0);
+  }
+}
+
+.news-dropcap::first-letter {
+  float: left;
+  margin: 0.35rem 0.6rem 0 0;
+  font-family: var(--font-heading, inherit);
+  font-size: 4.2rem;
+  font-weight: 600;
+  line-height: 0.8;
+  color: #0a5062;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-ticker-track,
+  .news-live-dot {
+    animation: none;
+  }
+
+  .news-ticker-track {
+    flex-wrap: wrap;
+    width: auto;
+  }
+}

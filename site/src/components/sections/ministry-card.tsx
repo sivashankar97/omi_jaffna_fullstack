@@ -52,7 +52,7 @@ const icons = [
   Home,
 ] as const
 
-const images: Record<string, string> = {
+export const ministryImages: Record<string, string> = {
   Administration: "/Administration.jpg",
   "Mission Preaching": "/ministries/mission_Preaching.jpg",
   "Hospital & Prison Chaplaincy": "/ministries/Hospital & Prison Chaplaincy.jpeg",
@@ -65,15 +65,17 @@ export function MinistryCard({
   ministry,
   index,
   href,
+  actionLabel,
 }: {
   ministry: Ministry
   index: number
   href?: string
+  actionLabel?: string
 }) {
   const tone = tones[index % tones.length]
   const Icon = icons[index % icons.length]
   const curveRight = index % 2 === 1
-  const image = ministry.image ?? images[ministry.title]
+  const image = ministry.image ?? ministryImages[ministry.title]
 
   return (
     <article className="ministry-tile group flex h-full flex-col overflow-hidden rounded-[1.75rem]">
@@ -126,6 +128,13 @@ export function MinistryCard({
           >
             Read more
           </Link>
+        ) : actionLabel ? (
+          <span className="mt-auto inline-flex items-center gap-2 self-start border-b-2 border-[#ffcf4a] pt-5 pb-0.5 text-xs font-bold tracking-[0.16em] text-white uppercase">
+            {actionLabel}
+            <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">
+              →
+            </span>
+          </span>
         ) : null}
       </div>
     </article>
