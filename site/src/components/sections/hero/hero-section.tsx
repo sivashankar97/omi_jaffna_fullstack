@@ -1,4 +1,3 @@
-import Image from "next/image"
 import Link from "next/link"
 import { ArrowDown, ArrowUpRight } from "lucide-react"
 
@@ -8,14 +7,18 @@ import type { HomeContent } from "@/lib/cms"
 export function HeroSection({ hero }: { hero: HomeContent["hero"] }) {
   return (
     <section id="hero" className="relative isolate flex min-h-[calc(100svh-17rem)] scroll-mt-80 flex-col justify-center overflow-hidden bg-[#092f3d] text-white">
-      <Image
-        src="/Herosection/Heroimage_4.jpg"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="pointer-events-none object-cover object-[center_42%]"
-      />
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster="/Herosection/Heroimage_4.jpg"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[center_42%]"
+      >
+        <source src="/video/Hero_section.mp4" type="video/mp4" />
+      </video>
       <div
         className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(4,31,42,0.94)_0%,rgba(4,31,42,0.76)_46%,rgba(4,31,42,0.35)_100%)]"
         aria-hidden="true"
@@ -70,15 +73,15 @@ export function HeroSection({ hero }: { hero: HomeContent["hero"] }) {
       </div>
 
       <svg
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-12 w-full fill-white sm:h-20 dark:fill-[#071422]"
-        viewBox="0 0 1440 120"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-7 w-full fill-white sm:h-10 dark:fill-[#071422]"
+        viewBox="0 30 1440 90"
         preserveAspectRatio="none"
         aria-hidden="true"
       >
-        <path d="M0 68c40-26 80-26 120 0s80 26 120 0 80-26 120 0 80 26 120 0 80-26 120 0 80 26 120 0 80-26 120 0 80 26 120 0 80-26 120 0 80 26 120 0 80-26 120 0 80 26 120 0V120H0Z" />
+        <path d="M0 70c33-22 67-22 100 0c47 18 93 18 140 0c60-34 120-34 180 0c30 12 60 12 90 0c40-18 80-18 120 0c53 26 107 26 160 0c27-14 53-14 80 0c37 16 73 16 110 0c67-30 133-30 200 0c33 20 67 20 100 0c30-16 60-16 90 0c23 10 47 10 70 0V120H0Z" />
       </svg>
 
-      <Link href="#welcome" aria-label="Scroll to welcome" className="absolute right-6 bottom-14 sm:bottom-24 z-20 hidden size-10 items-center justify-center border border-white/50 text-white transition-colors hover:border-[#ffcf4a] hover:text-[#ffcf4a] sm:flex">
+      <Link href="#welcome" aria-label="Scroll to welcome" className="absolute right-6 bottom-10 sm:bottom-14 z-20 hidden size-10 items-center justify-center border border-white/50 text-white transition-colors hover:border-[#ffcf4a] hover:text-[#ffcf4a] sm:flex">
         <ArrowDown aria-hidden="true" className="size-4" />
       </Link>
     </section>

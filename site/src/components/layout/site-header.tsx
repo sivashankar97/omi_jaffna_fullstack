@@ -27,11 +27,9 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
   const [query, setQuery] = useState("")
   const [openHref, setOpenHref] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState<string | null>(null)
-  const [tucked, setTucked] = useState(false)
   const [expanded, setExpanded] = useState(true)
   const headerRef = useRef<HTMLElement>(null)
   const navRef = useRef<HTMLElement>(null)
-  const tuckedRef = useRef(false)
   const expandedRef = useRef(true)
 
   const results = useMemo(() => {
@@ -59,15 +57,9 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
       const tuck = reduce ? (y > 48 ? 1 : 0) : Math.min(1, Math.max(0, (y - 2) / 72))
       header.style.setProperty("--tuck", tuck.toFixed(4))
       const nextExpanded = tuck < 0.04
-      const nextTucked = tuck > 0.92
       if (nextExpanded !== expandedRef.current) {
         expandedRef.current = nextExpanded
         setExpanded(nextExpanded)
-      }
-      if (nextTucked !== tuckedRef.current) {
-        tuckedRef.current = nextTucked
-        setTucked(nextTucked)
-        if (nextTucked) setOpenHref(null)
       }
     }
 
@@ -246,8 +238,7 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
       <nav
         ref={navRef}
         aria-label="Main"
-        aria-hidden={tucked}
-        className={cn("header-nav nav-gradient relative hidden lg:block", tucked && "pointer-events-none")}
+        className="header-nav nav-gradient relative hidden lg:block"
       >
         <div className="header-nav-clip">
         <div className="relative z-10 mx-auto flex w-full max-w-[90rem] items-center gap-3 px-3 py-1 min-[1400px]:gap-5 min-[1400px]:px-5">
