@@ -1,0 +1,43 @@
+# One Netlify site: Next.js public site, the CMS as static files at /admin,
+# and the Express API as a function at /api. Data lives in Supabase.
+[build]
+  base = "site"
+  command = "npm ci --prefix ../api --omit=dev && npm ci --prefix ../web --include=dev && npm run build --prefix ../web -- --base=/admin/ --outDir ../site/public/admin --emptyOutDir && npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[functions]
+  directory = "../api/netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["pg-native"]
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/demo"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/demo/*"
+  to = "/admin/index.html"
+  status = 200

@@ -1,9 +1,7 @@
 import {Router} from 'express';
 import bcrypt from 'bcryptjs';
-import {unlink,rename} from 'node:fs/promises';
-import path from 'node:path';
-import {randomUUID} from 'node:crypto';
 import {query,pool} from './db.js';
+import {removeFile} from './storage.js';
 import {auth,allow} from './security.js';
 import {contentSchema,publishCheck,contactSchema,userSchema,userUpdateSchema,assetSchema,adminInquirySchema,settingKeySchema,settingValueSchema} from './validation.js';
 
@@ -20,7 +18,7 @@ async function transaction(fn){const db=await pool.connect();try{await db.query(
 async function insert(db,table,data){const keys=Object.keys(data);return (await db.query(`INSERT INTO ${table}(${keys.join(',')}) VALUES(${keys.map((_,i)=>`$${i+1}`).join(',')}) RETURNING *`,Object.values(data))).rows[0];}
 async function update(db,table,id,data,extra=''){const keys=Object.keys(data);return (await db.query(`UPDATE ${table} SET ${keys.map((k,i)=>`${k}=$${i+1}`).join(',')}${extra} WHERE id=$${keys.length+1} RETURNING *`,[...Object.values(data),id])).rows[0];}
 
-export function crudRouter(uploadDir){
+export function crudRouter(){
  const router=Router();
  // Identifiers and table names below come only from this fixed server-side map.
  const resources={items:'content_items',contacts:'people_contacts',inquiries:'inquiries',assets:'media_assets',users:'users'};
@@ -138,14 +136,14 @@ export function crudRouter(uploadDir){
   });res.json({item:{...item,url:`/api/files/${item.id}`}});
  }));
  router.delete('/assets/:id',auth,allow('admin'),wrap(async(req,res)=>{
-  let original,staged;
-  try{await transaction(async db=>{
-   const old=await row(db,'media_assets',req.params.id,true);original=path.join(uploadDir,old.filename);
-   const temporary=path.join(uploadDir,`.deleted-${randomUUID()}`);
-   try{await rename(original,temporary);staged=temporary;}catch(e){if(e.code!=='ENOENT')throw e;}
+  const filename=await transaction(async db=>{
+   const old=await row(db,'media_assets',req.params.id,true);
    await db.query('DELETE FROM media_assets WHERE id=$1',[old.id]);await audit(db,req.session.sub,'delete','asset',old.id);
-  });}catch(e){if(staged)await rename(staged,original);throw e;}
-  if(staged)await unlink(staged);res.json({ok:true});
+   return old.filename;
+  });
+  // The record is gone once committed; a leftover file is harmless, a dangling record is not.
+  await removeFile(filename).catch(e=>console.error('Could not remove file',filename,e.message));
+  res.json({ok:true});
  }));
  return router;
 }

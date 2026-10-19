@@ -7,6 +7,8 @@ api/.env
 api/uploads/*
 !api/uploads/.gitkeep
 web/dist/
+site/public/admin/
+.netlify/
 
 .local/
 LOCAL-LOGIN.txt

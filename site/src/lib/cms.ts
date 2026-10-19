@@ -17,7 +17,7 @@ import {
   timeline as builtInTimeline,
 } from "@/content/province"
 
-const API_ORIGIN = process.env.API_ORIGIN ?? "http://localhost:4000"
+const API_ORIGIN = process.env.API_ORIGIN ?? process.env.URL ?? "http://localhost:4000"
 const TIME_ZONE = "Asia/Colombo"
 
 type CmsType =

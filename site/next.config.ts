@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
     },
   },
   async rewrites() {
+    // On Netlify, /api, /admin and /demo are routed by netlify.toml instead.
+    if (process.env.NETLIFY) return [];
     return {
       beforeFiles: [
         { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },

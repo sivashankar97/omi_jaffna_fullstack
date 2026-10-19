@@ -54,7 +54,7 @@ function Tag({value}){
  const map={published:'bg-emerald-50 text-emerald-700 ring-emerald-100',draft:'bg-slate-100 text-slate-600 ring-slate-200',review:'bg-amber-50 text-amber-700 ring-amber-200',verified:'bg-blue-50 text-blue-700 ring-blue-100',pending:'bg-rose-50 text-rose-700 ring-rose-100',new:'bg-rose-50 text-rose-700 ring-rose-100',closed:'bg-emerald-50 text-emerald-700 ring-emerald-100',in_progress:'bg-amber-50 text-amber-700 ring-amber-100'};
  return <span className={`inline-flex whitespace-nowrap items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold capitalize ring-1 ${map[value]||map.draft}`}><span className="h-1.5 w-1.5 rounded-full bg-current opacity-70"/>{String(value||'unknown').replaceAll('_',' ')}</span>;
 }
-function Crest({small=false}){return <img src="/images/omi-jaffna-logo.png" alt="Missionary Oblates of Mary Immaculate, OMI Jaffna" className={`${small?'h-10 w-10':'h-12 w-12'} shrink-0 rounded-md object-contain bg-white shadow-sm`}/>}
+function Crest({small=false}){return <img src={`${import.meta.env.BASE_URL}images/omi-jaffna-logo.png`} alt="Missionary Oblates of Mary Immaculate, OMI Jaffna" className={`${small?'h-10 w-10':'h-12 w-12'} shrink-0 rounded-md object-contain bg-white shadow-sm`}/>}
 function Login({onLogin,notify}){
  const [identifier,setIdentifier]=useState(''),[password,setPassword]=useState(''),[loading,setLoading]=useState(false);
  async function submit(e){e.preventDefault();setLoading(true);try{const d=await api('/api/auth/login',{method:'POST',body:JSON.stringify({identifier,password})});onLogin(d.user)}catch(err){notify(err.message,'error')}finally{setLoading(false)}}
