@@ -192,17 +192,19 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
                             {item.label}
                           </Link>
                         </SheetClose>
-                        <button
-                          type="button"
-                          aria-expanded={expanded}
-                          aria-label={`${item.label} sections`}
-                          onClick={() => setMobileOpen(expanded ? null : item.href)}
-                          className="px-3 py-3"
-                        >
-                          <ChevronDown className={cn("size-4 transition duration-300", expanded && "rotate-180")} />
-                        </button>
+                        {item.sections.length > 0 ? (
+                          <button
+                            type="button"
+                            aria-expanded={expanded}
+                            aria-label={`${item.label} sections`}
+                            onClick={() => setMobileOpen(expanded ? null : item.href)}
+                            className="px-3 py-3"
+                          >
+                            <ChevronDown className={cn("size-4 transition duration-300", expanded && "rotate-180")} />
+                          </button>
+                        ) : null}
                       </div>
-                      {expanded ? (
+                      {expanded && item.sections.length > 0 ? (
                         <ul className="menu-drop overflow-hidden rounded-lg border border-[#90e0ef] bg-white">
                           {item.sections.map((section, index) => (
                             <li
@@ -248,7 +250,8 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
                 item.href === "/"
                   ? pathname === "/"
                   : pathname === item.href || pathname.startsWith(`${item.href}/`)
-              const open = openHref === item.href
+              const hasSections = item.sections.length > 0
+              const open = hasSections && openHref === item.href
               const alignRight = itemIndex > mainNavigation.length / 2
               return (
                 <li
@@ -265,7 +268,7 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
                 >
                   <Link
                     href={item.href}
-                    aria-expanded={open}
+                    aria-expanded={hasSections ? open : undefined}
                     aria-current={active ? "page" : undefined}
                     onClick={() => setOpenHref(null)}
                     className="nav-pill inline-flex min-h-11 items-center whitespace-nowrap rounded-md px-2 text-[11px] font-semibold transition-colors min-[1200px]:px-2.5 min-[1200px]:text-xs min-[1400px]:px-3 min-[1400px]:text-[13px]"
