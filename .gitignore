@@ -12,3 +12,7 @@ site/public/admin/
 
 .local/
 LOCAL-LOGIN.txt
+notes/.obsidian/workspace*.json
+notes/.obsidian/cache/
+notes/.trash/
+notes/.obsidian-mcp/

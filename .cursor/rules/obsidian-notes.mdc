@@ -1,0 +1,26 @@
+---
+description: Use the Obsidian notes vault (via the obsidian MCP server) as shared project memory
+alwaysApply: true
+---
+
+# Obsidian notes
+
+The `notes/` folder is an Obsidian vault exposed through the `obsidian` MCP server (vault id `notes`).
+It holds the user's tasks, page ideas, client feedback and project knowledge.
+
+## Before starting a task
+- For any code change, first search `Code map.md` for the page/feature name and open only the files
+  it lists. Fall back to searching the code only if the map has no entry.
+- Search the vault with `obsidian_search_vault` (vault `notes`) using 1–3 keywords from the request,
+  e.g. the page name, feature, or "deploy". Read only the notes that match with `obsidian_read_note`.
+- Do not read every note or list the whole vault. Skip the search for small talk or one-line questions.
+- If a note conflicts with the user's message, follow the message and mention the conflict.
+- `Project overview.md` has the repo layout, local ports and the Netlify deploy command.
+
+## After finishing a task
+- If a note listed the task (e.g. a `- [ ]` item in a Todo note), tick it off with `obsidian_edit_note`.
+- If you add, move, rename or delete a page, component, content file or API route,
+  update `Code map.md` in the same task.
+- When something durable changes (new page, new env var, deploy steps, design decisions),
+  update `Project overview.md` or the relevant note. Keep edits short.
+- Never write passwords, API keys, database URLs or anything from `LOCAL-LOGIN.txt` / `.env` into notes.

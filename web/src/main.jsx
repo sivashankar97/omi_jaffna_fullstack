@@ -103,11 +103,30 @@ function Overview({setSection,user,notify}){
    <div className="panel p-6 sm:p-7"><h3 className="section-title">Quick access</h3><p className="subcopy mt-1 mb-6">Common tasks for the Province team</p><div className="grid grid-cols-2 gap-3">{[['ministry','Ministries',HeartHandshake],['parish','Parish directory',Church],['news','Publish a story',Newspaper],['assets','Upload media',UploadCloud],['contacts','Contact approval',ContactRound],['inquiries','View enquiries',Mail]].map(([id,name,Icon])=><button key={id} onClick={()=>setSection(id)} className="flex flex-col items-start rounded-xl border border-slate-200 p-4 gap-3 hover:border-gold-400 hover:bg-gold-100/30 "><Icon size={19} className="text-gold-600"/><span className="text-xs font-bold text-navy-900 text-left">{name}</span></button>)}</div></div></div>
  </div>
 }
+const leadershipRoles=['Provincial Superior','1st Councillor','2nd Councillor','3rd Councillor','4th Councillor','5th Councillor','Bursar','Former Provincial'];
+const priestPlaces=[['sri-lanka','Serving in Sri Lanka'],['abroad','Serving outside Sri Lanka'],['out-of-province','Serving out of province']];
+const termsToText=terms=>Array.isArray(terms)?terms.map(t=>[t?.label,t?.appointed,t?.installed].map(v=>v||'').join(' | ')).join('\n'):'';
+const textToTerms=text=>text.split('\n').map(line=>line.split('|').map(v=>v.trim())).filter(([label])=>label).map(([label,appointed='',installed=''])=>({label,appointed,installed}));
+function MetaFields({type,meta,setMeta}){
+ const [termsText,setTermsText]=useState(()=>termsToText(meta.terms));
+ if(type==='priest')return <div><label className="form-label">Where serving</label><select className="field mt-2" value={meta.place||'sri-lanka'} onChange={e=>setMeta('place',e.target.value)}>{priestPlaces.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select><p className="mt-1 text-[11px] text-slate-400">Sets the filter group on the Leadership page. Photo: use the cover image below.</p></div>;
+ if(type!=='leadership')return null;
+ const role=meta.role||'',superior=/provincial superior/i.test(role),former=/former provincial/i.test(role);
+ return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Leadership details</p>
+  <div className="grid sm:grid-cols-2 gap-5"><div><label className="form-label">Position *</label><input required list="leadership-roles" className="field mt-2" value={role} onChange={e=>setMeta('role',e.target.value)} placeholder="e.g. 2nd Councillor"/><datalist id="leadership-roles">{leadershipRoles.map(r=><option key={r} value={r}/>)}</datalist></div>
+  <div><label className="form-label">Term</label><input className="field mt-2" value={meta.term||''} onChange={e=>setMeta('term',e.target.value)} placeholder={former?'e.g. 1984–1991':superior?'e.g. 2023 – Present':'e.g. 2026 – 2029'}/></div></div>
+  {superior&&<><div><label className="form-label">In office since (year)</label><input className="field mt-2" value={meta.since||''} onChange={e=>setMeta('since',e.target.value)} placeholder="2023"/></div>
+  <div><label className="form-label">Appointments</label><textarea rows={3} className="field mt-2 font-mono text-xs" value={termsText} onChange={e=>{setTermsText(e.target.value);setMeta('terms',textToTerms(e.target.value))}} placeholder={'First term | 10 January 2023 | 17 February 2023'}/><p className="mt-1 text-[11px] text-slate-400">One line per term: name | appointed date | installed date.</p></div></>}
+  <p className="text-[11px] text-slate-400 leading-5">{superior?'Shown as the Provincial Superior. Biography: "Full page content". Portrait: cover image (a cut-out PNG looks best).':former?'Shown in the Former Provincials timeline using the name and term.':'Shown as a Provincial Council card. Photo: cover image (a cut-out PNG looks best). The term of the first member is used as the council heading.'}</p>
+ </div>;
+}
 function ContentEditor({value,onClose,onSaved,notify,role}){
  const [form,setForm]=useState({...emptyItem(value.type),...value,metadata:value.metadata||{}}),[lang,setLang]=useState('en'),[busy,setBusy]=useState(false),[advanced,setAdvanced]=useState(false),[jsonMeta,setJsonMeta]=useState(JSON.stringify(value.metadata||{},null,2));
  const [imageBusy,setImageBusy]=useState(false);
  const isNew=!value.id;const canPublish=['admin','publisher'].includes(role);
  const set=(name,content)=>setForm(a=>({...a,[name]:content}));
+ const meta=(()=>{try{const m=JSON.parse(jsonMeta);return m&&typeof m==='object'&&!Array.isArray(m)?m:{}}catch{return {}}})();
+ const setMeta=(key,content)=>setJsonMeta(s=>{let m;try{m=JSON.parse(s)}catch{return s}if(!m||typeof m!=='object'||Array.isArray(m))m={};if(content===''||content==null)delete m[key];else m[key]=content;return JSON.stringify(m,null,2)});
  const validStatus=requiresVerification.has(form.type);
  async function save(e){e.preventDefault();if(imageBusy)return;setBusy(true);try{
   let metadata={};try{metadata=JSON.parse(jsonMeta);if(!metadata||Array.isArray(metadata)||typeof metadata!=='object')throw Error()}catch{throw Error('Advanced metadata must be a valid JSON object.');}
@@ -131,6 +150,7 @@ function ContentEditor({value,onClose,onSaved,notify,role}){
    <div><label className="form-label">Short description</label><textarea className="field mt-2 min-h-24" value={form[`excerpt_${lang}`]||''} onChange={e=>set(`excerpt_${lang}`,e.target.value)} rows={3} placeholder="Summary used on cards and website listings"/></div>
    <div><label className="form-label">Full page / article content</label><textarea className="field mt-2 min-h-44" value={form[`body_${lang}`]||''} onChange={e=>set(`body_${lang}`,e.target.value)} rows={7} placeholder="Write the full content here…"/><p className="mt-1 text-[11px] text-slate-400">Plain text. Rich-text formatting is a future enhancement.</p></div>
    <div className="grid sm:grid-cols-2 gap-5"><div><label className="form-label">Location / address</label><input value={form.location_text} onChange={e=>set('location_text',e.target.value)} className="field mt-2" placeholder="e.g. Jaffna"/></div><div><label className="form-label">Event / publication date</label><input type="datetime-local" value={form.event_date?String(form.event_date).slice(0,16):''} onChange={e=>set('event_date',e.target.value?new Date(e.target.value).toISOString():null)} className="field mt-2"/></div></div>
+   <MetaFields type={form.type} meta={meta} setMeta={setMeta}/>
    <CoverImageUpload value={form.image_url} onChange={url=>set('image_url',url)} api={api} canPublish={canPublish} notify={notify} onBusy={setImageBusy} demo={demo}/>
    <div><label className="form-label">Video / PDF / audio URL</label><input type="text" value={form.media_url} onChange={e=>set('media_url',e.target.value)} className="field mt-2" placeholder="https://…"/></div>
    <div className="flex items-center justify-between"><label className="flex gap-2.5 items-center cursor-pointer text-sm text-navy-900 font-medium"><input type="checkbox" checked={form.featured} onChange={e=>set('featured',e.target.checked)} className="accent-gold-500 h-4 w-4"/> Feature on website</label><div className="flex items-center gap-2"><span className="text-xs text-slate-500">Display order</span><input className="field w-20" type="number" value={form.sort_order} onChange={e=>set('sort_order',e.target.value)}/></div></div>

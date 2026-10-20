@@ -125,7 +125,7 @@ app.delete('/api/items/:id',auth,allow('admin'),asyncRoute(async(req,res)=>{
 
 // Public routes deliberately exclude unpublished content and private contact records.
 const PUBLIC_META_KEYS=[
- 'role','term','term_in_source','section','end_date','date_display','subtitle','kind','place',
+ 'role','term','term_in_source','since','terms','section','end_date','date_display','subtitle','kind','place',
  'district','purpose','contact','phone','email','lat','lng',
  'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample'
 ];

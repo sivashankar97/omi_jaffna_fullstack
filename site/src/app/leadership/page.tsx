@@ -19,13 +19,37 @@ function initials(name: string) {
   return `${words[0]?.[0] ?? ""}${words.length > 1 ? words[words.length - 1][0] : ""}`.toUpperCase()
 }
 
+const plainName = (name: string) =>
+  name
+    .replace(/^(very\s+)?rev\.?\s*(fr\.?)?\s*/i, "")
+    .replace(/,?\s*omi\s*$/i, "")
+    .trim()
+    .toLowerCase()
+
+const builtInCouncilPhoto = (name: string) =>
+  Object.entries(councilImages).find(([key]) => plainName(key) === plainName(name))?.[1]
+
+/** CMS uploads are served by the API, which the image optimizer cannot fetch on Netlify. */
+const isUpload = (src: string) => src.startsWith("/api/")
+
 export default async function LeadershipPage() {
-  const [{ council }, formerProvincials, priests] = await Promise.all([
+  const [leadership, formerProvincials, priests] = await Promise.all([
     getLeadership(),
     getFormerProvincials(),
     getPriests(),
   ])
-  const superior = provincialSuperior
+  const cmsSuperior = leadership.superior
+  const superior = {
+    name: cmsSuperior?.name || provincialSuperior.name,
+    role: cmsSuperior?.role || provincialSuperior.role,
+    term: cmsSuperior?.term || provincialSuperior.term,
+    since: cmsSuperior?.since || provincialSuperior.since,
+    bio: cmsSuperior?.bio || provincialSuperior.bio,
+    image: cmsSuperior?.image || provincialSuperior.image,
+    terms: cmsSuperior?.terms.length ? cmsSuperior.terms : provincialSuperior.terms,
+  }
+  const council = leadership.council
+  const councilTerm = council.find((person) => person.term)?.term ?? "2026 – 2029"
 
   return (
     <>
@@ -84,6 +108,7 @@ export default async function LeadershipPage() {
                     alt={superior.name}
                     fill
                     priority
+                    unoptimized={isUpload(superior.image)}
                     sizes="(min-width: 1024px) 28rem, 90vw"
                     className="object-contain object-bottom drop-shadow-[0_20px_30px_rgba(3,32,43,0.35)]"
                   />
@@ -91,7 +116,7 @@ export default async function LeadershipPage() {
               </div>
               <div className="charism-float absolute right-0 bottom-10 rounded-2xl bg-white px-5 py-3 shadow-[0_20px_45px_-20px_rgba(2,62,138,0.5)] ring-1 ring-[#e2f2f6] sm:-right-4">
                 <p className="text-[11px] font-bold tracking-[0.18em] text-[#17b3c6] uppercase">Since</p>
-                <p className="font-heading text-2xl font-bold text-[#023e8a]">2023</p>
+                <p className="font-heading text-2xl font-bold text-[#023e8a]">{superior.since}</p>
               </div>
             </Reveal>
 
@@ -144,13 +169,13 @@ export default async function LeadershipPage() {
       <section id="council" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-20 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-6xl">
           <SectionHeading
-            kicker="2026 – 2029"
+            kicker={councilTerm}
             title="Provincial Council"
             subtitle="The Council supports the Provincial Superior in guiding the mission and life of the Province."
           />
           <div className="mx-auto mt-16 grid max-w-5xl gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {council.map((person, index) => {
-              const photo = councilImages[person.name]
+              const photo = person.image || builtInCouncilPhoto(person.name)
               return (
                 <Reveal key={`${person.role}-${person.name}`} from="up" delay={(index % 3) * 120} className="group">
                   <article className="relative mx-auto aspect-[4/5] w-full max-w-xs transition duration-500 group-hover:-translate-y-2">
@@ -179,6 +204,7 @@ export default async function LeadershipPage() {
                           src={photo}
                           alt={person.name}
                           fill
+                          unoptimized={isUpload(photo)}
                           sizes="(min-width: 1024px) 20rem, (min-width: 640px) 45vw, 90vw"
                           className="origin-bottom object-contain object-bottom drop-shadow-[0_18px_24px_rgba(3,32,43,0.45)] transition duration-700 group-hover:scale-[1.04]"
                         />

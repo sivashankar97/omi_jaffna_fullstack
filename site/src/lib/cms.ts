@@ -55,7 +55,7 @@ export type CmsItem = {
 export type Ministry = { number: string; title: string; place: string; summary: string; image?: string }
 export type Parish = { name: string; place: string }
 export type TimelineEntry = { year: string; text: string }
-export type CouncilMember = { role: string; name: string }
+export type CouncilMember = { role: string; name: string; image?: string; term?: string }
 export type FormerProvincial = { name: string; dates: string }
 export type FormationHouse = { name: string; place: string }
 export type Publication = { id: string; title: string; subtitle: string; text: string; href?: string }
@@ -74,8 +74,17 @@ export type Gathering = {
   face: string
   ink: string
 }
+export type SuperiorTerm = { label: string; appointed: string; installed: string }
 export type Leadership = {
-  superior: { name: string; term: string; summary: string } | null
+  superior: {
+    name: string
+    role: string
+    term: string
+    since: string
+    bio: string
+    image?: string
+    terms: SuperiorTerm[]
+  } | null
   council: CouncilMember[]
 }
 export type HomeContent = {
@@ -231,6 +240,19 @@ export const getPublications = (fallback: Publication[]) =>
 const isSuperior = (item: CmsItem) => /provincial superior/i.test(text(item, "role"))
 const isFormerProvincial = (item: CmsItem) => /former provincial/i.test(text(item, "role"))
 
+const superiorTerms = (item: CmsItem): SuperiorTerm[] => {
+  const value = item.meta.terms
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((term): term is Record<string, unknown> => typeof term === "object" && term !== null)
+    .map((term) => ({
+      label: String(term.label ?? "").trim(),
+      appointed: String(term.appointed ?? "").trim(),
+      installed: String(term.installed ?? "").trim(),
+    }))
+    .filter((term) => term.label)
+}
+
 export const getLeadership = () =>
   fromCms<Leadership>(
     "leadership",
@@ -240,13 +262,22 @@ export const getLeadership = () =>
         superior: superior
           ? {
               name: superior.title,
+              role: text(superior, "role"),
               term: text(superior, "term") || text(superior, "term_in_source"),
-              summary: superior.excerpt,
+              since: text(superior, "since"),
+              bio: superior.body || superior.excerpt,
+              image: superior.image_url || undefined,
+              terms: superiorTerms(superior),
             }
           : null,
         council: items
           .filter((item) => !isSuperior(item))
-          .map((item) => ({ role: text(item, "role") || "Council", name: item.title })),
+          .map((item) => ({
+            role: text(item, "role") || "Council",
+            name: item.title,
+            image: item.image_url || undefined,
+            term: text(item, "term") || text(item, "term_in_source") || undefined,
+          })),
       }
     },
     { superior: null, council: [...builtInCouncil] },
