@@ -14,11 +14,18 @@ export const defaultPublications: Publication[] = [
     subtitle: "Annual magazine",
     text: "A scholastic publication of reflections, articles and community news.",
   },
+  {
+    id: "naan",
+    title: "Naan",
+    subtitle: "நான் · Tamil magazine",
+    text: "A Tamil magazine of the Province for personal growth, reflection and community life.",
+  },
 ]
 
 const tones = [
   "bg-gradient-to-br from-[#0f9fb4] via-[#17b3c6] to-[#0e98ac] text-white",
   "bg-[#f7fbff] text-[#023e8a] ring-1 ring-[#cfe9ef]",
+  "bg-gradient-to-br from-[#06394a] via-[#0a5062] to-[#023e8a] text-white",
 ]
 
 export function MediaPublications({ publications }: { publications: Publication[] }) {
@@ -32,9 +39,9 @@ export function MediaPublications({ publications }: { publications: Publication[
             Covers, editions and downloads will be added as each issue is approved for the website.
           </p>
         </Reveal>
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {publications.map((item, index) => (
-            <Reveal key={item.id} from={index === 0 ? "left" : "right"} delay={index * 120} className="h-full">
+            <Reveal key={item.id} from="up" delay={index * 120} className="h-full">
               <article
                 id={item.id}
                 className={`flex h-full min-h-[18rem] scroll-mt-80 flex-col justify-end rounded-[2rem] p-8 shadow-sm ${tones[index % tones.length]}`}

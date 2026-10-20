@@ -3,7 +3,8 @@ import { ArrowRight, Compass, Eye, HandHeart } from "lucide-react"
 
 import { Reveal } from "@/components/motion/reveal"
 import { MinistryCard } from "@/components/sections/ministry-card"
-import { ministryAnchor } from "@/config/navigation"
+import { ministryHref } from "@/config/navigation"
+import { site } from "@/config/site"
 import { Button } from "@/components/ui/button"
 import { JourneyPath } from "@/components/sections/home/journey-path"
 import { HomeContact } from "@/components/sections/home/home-contact"
@@ -90,8 +91,8 @@ export async function HomeSections() {
             <dl className="mt-7 grid max-w-md grid-cols-3 gap-3">
               {[
                 { label: "Ceylon", value: "1847" },
-                { label: "Jaffna", value: "1848" },
-                { label: "Ministries", value: "17" },
+                { label: "Jaffna", value: "1847" },
+                { label: "Ministries", value: "17+" },
               ].map((stat) => (
                 <div key={stat.label} className="welcome-stat rounded-2xl px-3 py-3">
                   <dt className="welcome-soft text-[11px] tracking-[0.16em] uppercase">{stat.label}</dt>
@@ -110,8 +111,8 @@ export async function HomeSections() {
           </div>
           <div className="welcome-photo flex items-center justify-center p-6 sm:p-10">
             <img
-              src="/Herosection/Welcome.jpeg"
-              alt="Oblate Media Ministry of the Oblate Province of Jaffna"
+              src={site.assets.logos.right}
+              alt="Oblates of Mary Immaculate, Province of Jaffna emblem"
               className="welcome-float h-auto max-h-[26rem] w-full rounded-[1.4rem] object-contain"
             />
           </div>
@@ -177,7 +178,7 @@ export async function HomeSections() {
                 <MinistryCard
                   ministry={ministry}
                   index={index}
-                  href={`/ministries#${ministryAnchor(ministry.number)}`}
+                  href={ministryHref(ministry)}
                 />
               </Reveal>
             ))}

@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useLayoutEffect, useState } from "react"
+import { Archive as ArchiveIcon, BookOpen, CirclePlay, Images, MessagesSquare, Mic, Newspaper, Quote } from "lucide-react"
 
 import type { NewsArticle } from "@/content/news"
 import { homeContent } from "@/content/home"
@@ -9,15 +10,17 @@ import type { Ministry, TimelineEntry } from "@/lib/cms"
 import { site } from "@/config/site"
 import { cn } from "cn"
 
+import { NecrologyRegister } from "./necrology-register"
+
 const desks = [
-  { id: "photo-gallery", label: "Photo gallery" },
-  { id: "video", label: "Video" },
-  { id: "podcasts", label: "Podcasts" },
-  { id: "articles", label: "Articles" },
-  { id: "interviews", label: "Interviews" },
-  { id: "homilies-and-reflections", label: "Homilies and reflections" },
-  { id: "testimonials", label: "Testimonials" },
-  { id: "historical-archive", label: "Historical archive" },
+  { id: "photo-gallery", label: "Photo gallery", Icon: Images },
+  { id: "video", label: "Video", Icon: CirclePlay },
+  { id: "podcasts", label: "Podcasts", Icon: Mic },
+  { id: "articles", label: "Articles", Icon: Newspaper },
+  { id: "interviews", label: "Interviews", Icon: MessagesSquare },
+  { id: "homilies-and-reflections", label: "Homilies and reflections", Icon: BookOpen },
+  { id: "testimonials", label: "Testimonials", Icon: Quote },
+  { id: "historical-archive", label: "Historical archive", Icon: ArchiveIcon },
 ] as const
 
 type DeskId = (typeof desks)[number]["id"]
@@ -75,6 +78,13 @@ const listens = [
     title: "Zeal",
     text: "A scholastic publication of reflections, articles and community news.",
     href: "/media#zeal",
+    external: false,
+  },
+  {
+    kicker: "Read",
+    title: "Naan",
+    text: "A Tamil magazine of the Province for personal growth, reflection and community life.",
+    href: "/media#naan",
     external: false,
   },
 ] as const
@@ -172,22 +182,24 @@ export function MediaStudio({
   }
 
   return (
-    <section className="border-t border-[#90e0ef] bg-white px-4 py-10 text-[#023e8a] sm:px-6 sm:py-14 lg:px-8">
+    <section className="bg-white px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
       <div className="mx-auto max-w-6xl">
-        <p className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">Media desks</p>
-        <h2 className="mt-3 max-w-2xl text-sm font-semibold tracking-[0.18em] text-[#0077b6] uppercase">
-          Eight ways to enter the same mission
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5c6b7a] sm:text-base">
-          Choose a desk. Each one opens in its own form. Photographs are from the Province collection. They are not offered as frames of one event.
-        </p>
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">Media desks</p>
+            <h2 className="mt-3 font-heading text-4xl font-semibold sm:text-5xl">Eight ways into the same mission</h2>
+          </div>
+          <p className="max-w-md leading-7 text-[#3d4b59]">
+            Choose a desk. Photographs are from the Province collection, not frames of one event.
+          </p>
+        </div>
 
         <div
           role="tablist"
           aria-label="Media desks"
-          className="mt-6 flex gap-2 overflow-x-auto pb-1"
+          className="mt-10 flex flex-wrap gap-1.5 rounded-2xl bg-[#f4fbfd] p-1.5 ring-1 ring-[#d9eef3] lg:flex-nowrap lg:gap-1"
         >
-          {desks.map((desk) => {
+          {desks.map(({ Icon, ...desk }) => {
             const selected = desk.id === active
             return (
               <button
@@ -199,12 +211,13 @@ export function MediaStudio({
                 aria-controls={`${desk.id}-panel`}
                 onClick={() => choose(desk.id)}
                 className={cn(
-                  "scroll-mt-80 shrink-0 rounded-full border-2 px-4 py-2 text-sm font-semibold transition",
+                  "flex grow scroll-mt-80 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition duration-300 lg:gap-1.5 lg:px-2 lg:text-[0.8rem] xl:px-3 xl:text-sm",
                   selected
-                    ? "border-[#023e8a] bg-[#023e8a] text-white"
-                    : "border-[#90e0ef] bg-[#e7fbff] text-[#023e8a] hover:bg-[#caf0f8]"
+                    ? "bg-gradient-to-r from-[#0e98ac] to-[#06394a] text-white shadow-[0_10px_24px_-14px_rgba(6,57,74,0.9)]"
+                    : "text-[#3d4b59] hover:bg-white hover:text-[#023e8a]"
                 )}
               >
+                <Icon aria-hidden="true" className={cn("size-4 shrink-0 lg:max-xl:hidden", selected ? "text-[#ffcf4a]" : "text-[#17b3c6]")} />
                 {desk.label}
               </button>
             )
@@ -216,7 +229,7 @@ export function MediaStudio({
           role="tabpanel"
           id={`${active}-panel`}
           aria-labelledby={active}
-          className="media-panel mt-8"
+          className="media-panel mt-10"
         >
           {active === "photo-gallery" ? <Gallery onOpen={setPhoto} /> : null}
           {active === "video" ? <VideoStage /> : null}
@@ -231,7 +244,7 @@ export function MediaStudio({
 
       {photo ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#053228]/80 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#03202b]/85 p-4"
           role="dialog"
           aria-modal="true"
           aria-label={photo.caption}
@@ -264,7 +277,7 @@ function Gallery({ onOpen }: { onOpen: (photo: (typeof photos)[number]) => void 
             <button
               type="button"
               onClick={() => onOpen(item)}
-              className="group block w-full overflow-hidden rounded-2xl border-2 border-[#90e0ef] bg-[#e7fbff] text-left"
+              className="group block w-full overflow-hidden rounded-2xl ring-1 ring-[#d9eef3] bg-[#e7fbff] text-left"
             >
               <img src={item.src} alt="" className="h-44 w-full object-cover transition duration-300 group-hover:scale-[1.03] sm:h-52" />
               <span className="block px-3 py-3 text-sm leading-5 text-[#023e8a]">{item.caption}</span>
@@ -283,7 +296,7 @@ function VideoStage() {
         href={site.social.youtube}
         target="_blank"
         rel="noreferrer"
-        className="media-in relative flex min-h-64 items-end overflow-hidden rounded-3xl border-2 border-[#90e0ef] bg-[#023e8a] p-6 text-white sm:min-h-80"
+        className="media-in relative flex min-h-64 items-end overflow-hidden rounded-3xl ring-1 ring-[#d9eef3] bg-[#023e8a] p-6 text-white sm:min-h-80"
       >
         <img
           src="/Herosection/Heroimage_2.jpg"
@@ -308,7 +321,7 @@ function VideoStage() {
         ].map(([title, text], index) => (
           <article
             key={title}
-            className="media-in rounded-2xl border-2 border-[#90e0ef] bg-[#e7fbff] p-4"
+            className="media-in rounded-2xl ring-1 ring-[#d9eef3] bg-[#f4fbfd] p-4"
             style={{ animationDelay: `${index * 50}ms` }}
           >
             <h3 className="font-heading text-lg font-semibold">{title}</h3>
@@ -324,9 +337,9 @@ function Playlist() {
   return (
     <div>
       <p className="text-sm leading-6 text-[#5c6b7a]">
-        A podcast series has not been published. The rows below are the public voices already named by the Province: the channel, the bulletin and the magazine.
+        A podcast series has not been published. The rows below are the public voices already named by the Province: the channel, the bulletin and the magazines.
       </p>
-      <ol className="mt-5 divide-y divide-[#90e0ef] overflow-hidden rounded-3xl border-2 border-[#90e0ef]">
+      <ol className="mt-5 divide-y divide-[#90e0ef] overflow-hidden rounded-3xl ring-1 ring-[#d9eef3]">
         {listens.map((item, index) => (
           <li key={item.title} className="media-in bg-white" style={{ animationDelay: `${index * 60}ms` }}>
             {item.external ? (
@@ -370,7 +383,7 @@ function Magazine({ newsArticles }: { newsArticles: NewsArticle[] }) {
     <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
       <Link
         href={`/news/${lead.slug}`}
-        className="media-in flex min-h-72 flex-col justify-end rounded-3xl border-2 border-[#90e0ef] bg-[#e7fbff] p-6"
+        className="media-in flex min-h-72 flex-col justify-end rounded-3xl ring-1 ring-[#d9eef3] bg-[#f4fbfd] p-6"
       >
         <p className="text-xs font-semibold tracking-[0.22em] text-[#0077b6] uppercase">{lead.dateLabel}</p>
         <h3 className="mt-3 font-heading text-3xl font-semibold sm:text-4xl">{lead.title}</h3>
@@ -380,7 +393,7 @@ function Magazine({ newsArticles }: { newsArticles: NewsArticle[] }) {
       <ul className="grid gap-3">
         {rest.map((article, index) => (
           <li key={article.slug} className="media-in" style={{ animationDelay: `${(index + 1) * 50}ms` }}>
-            <Link href={`/news/${article.slug}`} className="block rounded-2xl border-2 border-[#90e0ef] bg-white p-4 transition hover:bg-[#e7fbff]">
+            <Link href={`/news/${article.slug}`} className="block rounded-2xl ring-1 ring-[#d9eef3] bg-white p-4 transition hover:bg-[#e7fbff]">
               <p className="text-xs font-semibold tracking-wide text-[#0077b6]">{article.dateLabel}</p>
               <h3 className="mt-1 font-heading text-lg font-semibold">{article.title}</h3>
               <p className="mt-2 text-sm leading-6 text-[#5c6b7a]">{article.place}</p>
@@ -405,7 +418,7 @@ function Dialogue() {
           </p>
           <p
             className={cn(
-              "mt-1 max-w-xl rounded-2xl border-2 border-[#90e0ef] bg-[#e7fbff] px-4 py-3 text-sm leading-6",
+              "mt-1 max-w-xl rounded-2xl ring-1 ring-[#d9eef3] bg-[#e7fbff] px-4 py-3 text-sm leading-6",
               index % 2 === 0 ? "mr-auto rounded-tl-sm" : "ml-auto rounded-tr-sm bg-white"
             )}
           >
@@ -447,7 +460,7 @@ function Witnesses({ ministries }: { ministries: Ministry[] }) {
         {ministries.map((item, index) => (
           <li
             key={item.number}
-            className="media-in rounded-2xl border-2 border-[#90e0ef] bg-[#e7fbff] p-4"
+            className="media-in rounded-2xl ring-1 ring-[#d9eef3] bg-[#f4fbfd] p-4"
             style={{ animationDelay: `${Math.min(index, 8) * 30}ms` }}
           >
             <p className="font-heading text-2xl font-semibold text-[#0077b6]">{item.number}</p>
@@ -467,7 +480,9 @@ function Archive({ timeline }: { timeline: TimelineEntry[] }) {
 
   return (
     <div>
-      <p className="text-sm leading-6 text-[#5c6b7a]">
+      <NecrologyRegister />
+      <h3 className="mt-12 font-heading text-2xl font-semibold">The journey, year by year</h3>
+      <p className="mt-2 text-sm leading-6 text-[#5c6b7a]">
         Open a year. The line is the published journey of the Oblate Province of Jaffna, from 1816 to 2026.
       </p>
       <div className="mt-5 flex gap-2 overflow-x-auto pb-2">
@@ -486,7 +501,7 @@ function Archive({ timeline }: { timeline: TimelineEntry[] }) {
           </button>
         ))}
       </div>
-      <article key={current.year} className="media-in mt-4 rounded-3xl border-2 border-[#90e0ef] bg-[#e7fbff] p-6 sm:p-8">
+      <article key={current.year} className="media-in mt-4 rounded-3xl ring-1 ring-[#d9eef3] bg-[#f4fbfd] p-6 sm:p-8">
         <p className="font-heading text-5xl font-semibold sm:text-7xl">{current.year}</p>
         <p className="mt-4 max-w-2xl text-lg leading-8">{current.text}</p>
       </article>

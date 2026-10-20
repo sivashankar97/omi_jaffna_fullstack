@@ -27,20 +27,28 @@ function portraitInitials(name: string) {
   return `${first}${second ?? "M"}`.toUpperCase()
 }
 
+function normalizeName(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[.,]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
 export function PriestDirectory({ priests }: { priests: Priest[] }) {
   const [place, setPlace] = useState<FilterId>("all")
   const [query, setQuery] = useState("")
-  const term = query.trim().toLowerCase()
+  const search = normalizeName(query)
 
-  const visible = useMemo(
-    () =>
-      priests.filter((priest) => {
-        const matchesPlace = place === "all" || priest.place === place
-        const matchesName = term.length === 0 || priest.name.toLowerCase().includes(term)
-        return matchesPlace && matchesName
-      }),
-    [place, priests, term]
-  )
+  const visible = useMemo(() => {
+    const terms = search.split(" ").filter(Boolean)
+    return priests.filter((priest) => {
+      const matchesPlace = place === "all" || priest.place === place
+      const name = normalizeName(priest.name)
+      const matchesName = terms.every((term) => name.includes(term))
+      return matchesPlace && matchesName
+    })
+  }, [place, priests, search])
 
   const groups: { id: PriestPlace; title: string }[] = [
     { id: "sri-lanka", title: "In Sri Lanka" },

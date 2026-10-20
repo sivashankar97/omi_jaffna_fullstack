@@ -7,6 +7,7 @@ import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { NewsCard, NewsCategory, NewsCompact, readingMinutes } from "@/components/sections/news/news-card"
 import { ShareButtons } from "@/components/sections/news/share-buttons"
+import { site } from "@/config/site"
 import { newsSectionTitle } from "@/content/news"
 import { getNews, getNewsArticle } from "@/lib/cms"
 
@@ -81,7 +82,7 @@ export default async function NewsArticlePage({ params }: NewsPageProps) {
         >
           <div className="flex items-center gap-3">
             <img
-              src="/logos/logo_2.png"
+              src={site.assets.logos.right}
               alt=""
               className="size-10 rounded-full bg-white object-contain ring-1 ring-[#e1e8ee]"
             />

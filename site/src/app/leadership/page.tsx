@@ -6,7 +6,7 @@ import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { PriestDirectory } from "@/components/sections/leadership/priest-directory"
 import { SectionHeading } from "@/components/sections/section-heading"
-import { councilImages, provincialSuperior } from "@/content/leadership"
+import { councilImages, formerProvincialPhotos, provincialSuperior, type PortraitCrop } from "@/content/leadership"
 import { getFormerProvincials, getLeadership, getPriests } from "@/lib/cms"
 
 export const metadata: Metadata = {
@@ -17,6 +17,18 @@ export const metadata: Metadata = {
 function initials(name: string) {
   const words = name.replace(/Rev\.?|Fr\.?|OMI|,/gi, "").trim().split(/\s+/)
   return `${words[0]?.[0] ?? ""}${words.length > 1 ? words[words.length - 1][0] : ""}`.toUpperCase()
+}
+
+function cropStyle(crop: PortraitCrop): React.CSSProperties {
+  const width = 100 / crop.span
+  const height = width * (crop.h / crop.w)
+  return {
+    position: "absolute",
+    maxWidth: "none",
+    width: `${width}%`,
+    left: `${50 - crop.fx * width}%`,
+    top: `${42 - crop.fy * height}%`,
+  }
 }
 
 export default async function LeadershipPage() {
@@ -176,11 +188,13 @@ export default async function LeadershipPage() {
                     {photo ? (
                       <div className="absolute inset-x-0 top-[5%] bottom-0 z-10 overflow-hidden rounded-b-[1.5rem]">
                         <Image
-                          src={photo}
+                          src={photo.src}
                           alt={person.name}
                           fill
                           sizes="(min-width: 1024px) 20rem, (min-width: 640px) 45vw, 90vw"
-                          className="origin-bottom object-contain object-bottom drop-shadow-[0_18px_24px_rgba(3,32,43,0.45)] transition duration-700 group-hover:scale-[1.04]"
+                          className={`origin-bottom object-bottom drop-shadow-[0_18px_24px_rgba(3,32,43,0.45)] transition duration-700 group-hover:scale-[1.04] ${
+                            photo.cover ? "object-cover" : "object-contain"
+                          }`}
                         />
                       </div>
                     ) : (
@@ -211,30 +225,48 @@ export default async function LeadershipPage() {
             title="Former Provincials"
             subtitle="Dates follow the list currently published by the Province and will be confirmed with Province archives."
           />
-          <ol className="relative mt-14 space-y-4 before:absolute before:top-2 before:bottom-2 before:left-[1.1rem] before:w-0.5 before:bg-gradient-to-b before:from-[#17b3c6] before:to-[#ffbf00] sm:before:left-1/2 sm:before:-translate-x-1/2">
+          <ol className="relative mt-14 space-y-5 before:absolute before:top-2 before:bottom-2 before:left-7 before:w-0.5 before:-translate-x-1/2 before:bg-gradient-to-b before:from-[#17b3c6] before:to-[#ffbf00] sm:before:left-1/2">
             {formerProvincials.map((person, index) => {
               const right = index % 2 === 1
+              const photo = formerProvincialPhotos[person.name]
               return (
                 <Reveal
                   key={`${person.name}-${person.dates}`}
                   as="li"
                   from={right ? "right" : "left"}
                   delay={60}
-                  className={`relative pl-12 sm:w-1/2 sm:pl-0 ${right ? "sm:ml-auto sm:pl-10" : "sm:pr-10"}`}
+                  className={`group relative pl-14 sm:w-1/2 sm:pl-0 ${right ? "sm:ml-auto sm:pl-10" : "sm:pr-10"}`}
                 >
                   <span
                     aria-hidden="true"
-                    className={`absolute top-6 left-3 size-3.5 rounded-full border-2 border-white bg-[#17b3c6] shadow-[0_0_0_4px_rgba(23,179,198,0.2)] ${
-                      right ? "sm:-left-[0.45rem]" : "sm:right-[-0.45rem] sm:left-auto"
+                    className={`absolute top-1/2 left-7 h-0.5 w-7 -translate-y-1/2 bg-[#48cae4]/60 sm:w-10 ${
+                      right ? "sm:left-0" : "sm:right-0 sm:left-auto"
+                    }`}
+                  />
+                  <span
+                    aria-hidden="true"
+                    className={`absolute top-1/2 left-7 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#17b3c6] shadow-[0_0_0_4px_rgba(23,179,198,0.2)] ${
+                      right ? "sm:left-0" : "sm:right-0 sm:left-auto sm:translate-x-1/2"
                     }`}
                   />
                   <div
-                    className={`rounded-2xl bg-[#f4fbfd] px-5 py-4 ring-1 ring-[#e2f2f6] transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_18px_40px_-28px_rgba(2,62,138,0.5)] ${
-                      right ? "" : "sm:text-right"
+                    className={`flex items-center gap-4 rounded-full bg-[#f4fbfd] py-2 pr-6 pl-2 ring-1 ring-[#e2f2f6] transition duration-300 group-hover:bg-white group-hover:shadow-[0_18px_40px_-28px_rgba(2,62,138,0.5)] group-hover:ring-[#48cae4]/60 ${
+                      right ? "sm:flex-row-reverse sm:pr-2 sm:pl-6 sm:text-right" : ""
                     }`}
                   >
-                    <p className="text-xs font-bold tracking-[0.16em] text-[#ffbf00]">{person.dates}</p>
-                    <p className="mt-1 font-heading text-lg font-semibold text-[#023e8a]">{person.name}</p>
+                    <span className="relative block size-16 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-[#90e0ef] via-[#0077b6] to-[#023e8a] shadow-[0_12px_26px_-12px_rgba(2,62,138,0.75)] ring-4 ring-white transition duration-500 group-hover:scale-110 group-hover:ring-[#ffcf4a] sm:size-20">
+                      {photo ? (
+                        <img src={photo.src} alt={person.name} loading="lazy" style={cropStyle(photo)} />
+                      ) : (
+                        <span className="flex size-full items-center justify-center font-heading text-base font-bold text-white">
+                          {initials(person.name)}
+                        </span>
+                      )}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold tracking-[0.16em] text-[#ffbf00]">{person.dates}</p>
+                      <p className="mt-1 font-heading text-lg leading-snug font-semibold text-[#023e8a]">{person.name}</p>
+                    </div>
                   </div>
                 </Reveal>
               )

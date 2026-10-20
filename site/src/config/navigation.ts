@@ -19,6 +19,14 @@ export function ministryAnchor(number: string) {
   return `ministry-${number}`
 }
 
+export function ministrySlug(ministry: { number: string; title: string }) {
+  return `${ministry.number}-${anchorId(ministry.title)}`
+}
+
+export function ministryHref(ministry: { number: string; title: string }) {
+  return `/ministries/${ministrySlug(ministry)}`
+}
+
 export function parishAnchor(name: string) {
   return `parish-${anchorId(name)}`
 }
@@ -166,6 +174,7 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
         { label: "Publications", id: "publications" },
         { label: "Yazha-Thoni", id: "yazha-thoni" },
         { label: "Zeal", id: "zeal" },
+        { label: "Naan", id: "naan" },
       ],
     },
     {

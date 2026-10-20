@@ -7,8 +7,6 @@ const pageThemes: Record<string, string> = {
   "/charism": "tide",
   "/parishes": "depth",
   "/publications": "moon",
-  "/media": "grove",
-  "/contact": "moon",
   "/login": "slate",
   "/register": "harbor",
 }

@@ -1,3 +1,7 @@
+import { ArrowUpRight } from "lucide-react"
+
+import { Reveal } from "@/components/motion/reveal"
+import { FacebookIcon, InstagramIcon, WhatsAppIcon, YouTubeIcon } from "@/components/layout/site-footer"
 import { site } from "@/config/site"
 
 const channels = [
@@ -6,18 +10,18 @@ const channels = [
     handle: "Oblate Jaffna TV",
     text: "The official channel. Programmes are published there, including நற்கருணை ஆராதனை.",
     href: site.social.youtube,
-    action: "Open the channel",
-    className: "min-h-72 md:col-span-2 md:row-span-2 md:min-h-[28rem]",
-    face: "bg-[#023e8a] text-white",
+    action: "Watch on YouTube",
+    Icon: YouTubeIcon,
+    accent: "from-[#ff4e45] to-[#c4302b]",
   },
   {
     name: "Instagram",
     handle: "@omi_jaffna",
     text: "Photographs and short notes from the Province account.",
     href: site.social.instagram,
-    action: "Open Instagram",
-    className: "min-h-56 md:col-span-1 md:row-span-2",
-    face: "bg-[#e7fbff] text-[#023e8a]",
+    action: "Follow on Instagram",
+    Icon: InstagramIcon,
+    accent: "from-[#f9a03f] via-[#e1306c] to-[#833ab4]",
   },
   {
     name: "Facebook",
@@ -25,8 +29,8 @@ const channels = [
     text: "The public Facebook page shared for this Province.",
     href: site.social.facebook,
     action: "Open Facebook",
-    className: "min-h-40 md:col-span-1",
-    face: "bg-white text-[#023e8a]",
+    Icon: FacebookIcon,
+    accent: "from-[#4c8bf5] to-[#1659c7]",
   },
   {
     name: "WhatsApp",
@@ -34,43 +38,63 @@ const channels = [
     text: "A message to the Province office. No chat history is shown here.",
     href: site.social.whatsapp,
     action: "Write on WhatsApp",
-    className: "min-h-40 md:col-span-1",
-    face: "bg-[#e7fbff] text-[#023e8a]",
+    Icon: WhatsAppIcon,
+    accent: "from-[#3ddc84] to-[#128c4b]",
   },
 ] as const
 
 export function SocialSignals() {
   return (
-    <section id="social-signals" className="scroll-mt-80 border-t border-[#90e0ef] bg-white px-4 py-10 text-[#023e8a] sm:px-6 sm:py-14 lg:px-8">
+    <section id="social-signals" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
       <div className="mx-auto max-w-6xl">
-        <p className="flex items-center gap-3 font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">
-          <span className="signal-live inline-block size-3 rounded-full bg-[#26ae83]" aria-hidden="true" />
-          Live channels
-        </p>
-        <h2 className="mt-3 max-w-2xl text-sm font-semibold tracking-[0.18em] text-[#0077b6] uppercase">
-          Four doors, one mission
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5c6b7a] sm:text-base">
-          Facebook, Instagram, YouTube and WhatsApp. Each tile opens the real Province address. Posts and follower counts stay on those sites.
-        </p>
-        <div className="mt-6 grid gap-3 md:grid-cols-4">
-          {channels.map((channel) => (
-            <a
-              key={channel.name}
-              href={channel.href}
-              target="_blank"
-              rel="noreferrer"
-              className={`media-in flex flex-col justify-between rounded-3xl border-2 border-[#90e0ef] p-5 transition duration-300 hover:-translate-y-1 ${channel.className} ${channel.face}`}
-            >
-              <span>
-                <span className="text-xs font-semibold tracking-[0.22em] uppercase">{channel.name}</span>
-                <span className="mt-3 block font-heading text-2xl font-semibold sm:text-3xl">{channel.handle}</span>
-                <span className="mt-3 block max-w-md text-sm leading-6 opacity-80">{channel.text}</span>
+        <Reveal from="up" className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="flex items-center gap-2 text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">
+              <span className="relative flex size-2.5" aria-hidden="true">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#17b3c6] opacity-60" />
+                <span className="relative inline-flex size-2.5 rounded-full bg-[#17b3c6]" />
               </span>
-              <span className="mt-6 text-sm font-semibold">{channel.action}</span>
-            </a>
+              Live channels
+            </p>
+            <h2 className="mt-3 font-heading text-4xl font-semibold sm:text-5xl">Four doors, one mission</h2>
+          </div>
+          <p className="max-w-md leading-7 text-[#3d4b59]">
+            Each card opens the real Province account. Posts and follower counts stay on those sites.
+          </p>
+        </Reveal>
+
+        <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {channels.map(({ Icon, ...channel }, index) => (
+            <Reveal key={channel.name} as="li" from="up" delay={index * 90} className="h-full">
+              <a
+                href={channel.href}
+                target="_blank"
+                rel="noreferrer"
+                className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white p-6 ring-1 ring-[#d9eef3] shadow-[0_18px_40px_-30px_rgba(2,62,138,0.45)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_28px_60px_-30px_rgba(2,62,138,0.6)] hover:ring-[#17b3c6]/60"
+              >
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-[#17b3c6] to-[#ffbf00] transition duration-500 group-hover:scale-x-100"
+                />
+                <span
+                  className={`flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg transition duration-300 group-hover:scale-110 group-hover:rotate-3 ${channel.accent}`}
+                >
+                  <Icon />
+                </span>
+                <span className="mt-5 text-xs font-bold tracking-[0.2em] text-[#0e98ac] uppercase">{channel.name}</span>
+                <span className="mt-1 font-heading text-xl font-semibold text-[#023e8a]">{channel.handle}</span>
+                <span className="mt-2 flex-1 text-sm leading-6 text-[#5c6b7a]">{channel.text}</span>
+                <span className="mt-6 flex items-center justify-between border-t border-[#e2f2f6] pt-4 text-sm font-semibold text-[#023e8a]">
+                  {channel.action}
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="size-4 transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#17b3c6]"
+                  />
+                </span>
+              </a>
+            </Reveal>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   )
