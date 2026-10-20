@@ -1,12 +1,12 @@
 import { HomeSections } from "@/components/sections/home/home-sections"
 import { HeroSection } from "@/components/sections/hero/hero-section"
-import { getHomeContent } from "@/lib/cms"
+import { getBlock, getHomeContent } from "@/lib/cms"
 
 export default async function HomePage() {
-  const { hero } = await getHomeContent()
+  const [{ hero }, banner] = await Promise.all([getHomeContent(), getBlock("home")])
   return (
     <>
-      <HeroSection hero={hero} />
+      <HeroSection hero={hero} media={banner.hero} />
       <HomeSections />
     </>
   )

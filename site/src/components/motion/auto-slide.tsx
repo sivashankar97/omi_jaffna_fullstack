@@ -2,17 +2,19 @@
 
 import { useEffect, useState } from "react"
 
-import { showcaseSlides } from "@/content/slides"
 import { cn } from "cn"
 
+export type Slide = { src: string; alt: string; fit: string }
+
 type AutoSlideProps = {
+  slides: readonly Slide[]
   className?: string
   label?: string
   cover?: boolean
 }
 
-export function AutoSlide({ className, label = "Province images", cover = false }: AutoSlideProps) {
-  const slides = [...showcaseSlides, showcaseSlides[0]]
+export function AutoSlide({ slides: showcaseSlides, className, label = "Province images", cover = false }: AutoSlideProps) {
+  const slides = showcaseSlides.length ? [...showcaseSlides, showcaseSlides[0]] : []
   const [index, setIndex] = useState(0)
   const [animate, setAnimate] = useState(true)
 
@@ -33,7 +35,7 @@ export function AutoSlide({ className, label = "Province images", cover = false 
       setIndex(0)
     }, 700)
     return () => window.clearTimeout(timer)
-  }, [index])
+  }, [index, showcaseSlides.length])
 
   return (
     <div
@@ -75,7 +77,7 @@ export function AutoSlide({ className, label = "Province images", cover = false 
       <div className="absolute right-4 bottom-4 flex gap-1.5">
         {showcaseSlides.map((slide, dot) => (
           <span
-            key={slide.src}
+            key={`${dot}-${slide.src}`}
             className={cn(
               "h-2 rounded-full bg-white/70 transition-all",
               (index % showcaseSlides.length) === dot ? "w-6 bg-white" : "w-2"

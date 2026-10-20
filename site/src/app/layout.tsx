@@ -5,10 +5,11 @@ import { cookies } from "next/headers"
 import { PageTheme } from "@/components/layout/page-theme"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
+import { SiteInfoProvider } from "@/components/layout/site-info"
 import { ProvinceMap } from "@/components/map/province-map"
 import { buildNavigation } from "@/config/navigation"
 import { site } from "@/config/site"
-import { getFormationHouses, getMapLocations, getMinistries, getParishes } from "@/lib/cms"
+import { getFormationHouses, getMapLocations, getMinistries, getParishes, getSiteInfo } from "@/lib/cms"
 
 import "./globals.css"
 
@@ -29,11 +30,12 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const theme = (await cookies()).get("omi-theme")?.value
-  const [ministries, parishes, formationHouses, mapLocations] = await Promise.all([
+  const [ministries, parishes, formationHouses, mapLocations, siteInfo] = await Promise.all([
     getMinistries(),
     getParishes(),
     getFormationHouses(),
     getMapLocations(),
+    getSiteInfo(),
   ])
   const navigation = buildNavigation({ ministries, parishes, formationHouses })
 
@@ -44,12 +46,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col font-sans">
-        <SiteHeader navigation={navigation} />
-        <main className="flex-1">
-          <PageTheme>{children}</PageTheme>
-        </main>
-        <ProvinceMap locations={mapLocations} />
-        <SiteFooter navigation={navigation} />
+        <SiteInfoProvider value={siteInfo}>
+          <SiteHeader navigation={navigation} />
+          <main className="flex-1">
+            <PageTheme>{children}</PageTheme>
+          </main>
+          <ProvinceMap locations={mapLocations} />
+          <SiteFooter navigation={navigation} info={siteInfo} />
+        </SiteInfoProvider>
       </body>
     </html>
   )

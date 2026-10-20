@@ -8,7 +8,7 @@ import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { NewsCard, NewsCategory, NewsCompact, readingMinutes } from "@/components/sections/news/news-card"
 import { ShareButtons } from "@/components/sections/news/share-buttons"
 import { newsSectionTitle } from "@/content/news"
-import { getNews, getNewsArticle } from "@/lib/cms"
+import { getNews, getNewsArticle, getSiteInfo } from "@/lib/cms"
 
 type NewsPageProps = {
   params: Promise<{ slug: string }>
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: NewsPageProps): Promise<Metad
 
 export default async function NewsArticlePage({ params }: NewsPageProps) {
   const { slug } = await params
-  const article = await getNewsArticle(slug)
+  const [article, siteInfo] = await Promise.all([getNewsArticle(slug), getSiteInfo()])
   if (!article) notFound()
 
   const allNews = await getNews()
@@ -81,7 +81,7 @@ export default async function NewsArticlePage({ params }: NewsPageProps) {
         >
           <div className="flex items-center gap-3">
             <img
-              src="/logos/logo_2.png"
+              src={siteInfo.logos.emblemImage}
               alt=""
               className="size-10 rounded-full bg-white object-contain ring-1 ring-[#e1e8ee]"
             />

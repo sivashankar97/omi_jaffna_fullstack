@@ -5,8 +5,8 @@ import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { MinistryExplorer } from "@/components/sections/ministries/ministry-explorer"
 import { PageBanner } from "@/components/sections/page-banner"
 import { SectionHeading } from "@/components/sections/section-heading"
-import { parishAnchor } from "@/config/navigation"
-import { getMinistries, getParishes } from "@/lib/cms"
+import { anchorId, parishAnchor } from "@/config/navigation"
+import { getMinistries, getParishes, getSchools } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "Ministries",
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 }
 
 export default async function MinistriesPage() {
-  const [ministries, parishes] = await Promise.all([getMinistries(), getParishes()])
+  const [ministries, parishes, schools] = await Promise.all([getMinistries(), getParishes(), getSchools()])
   return (
     <>
       <ScrollProgress />
@@ -70,6 +70,38 @@ export default async function MinistriesPage() {
           </ol>
         </div>
       </section>
+
+      {schools.length > 0 ? (
+        <section id="schools" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-20 text-[#023e8a] sm:px-8 sm:py-24">
+          <div className="mx-auto max-w-5xl">
+            <SectionHeading
+              kicker="Schools and education"
+              title="Schools served by the Oblates"
+              subtitle="Schools where Oblates teach, lead or accompany students and staff."
+            />
+            <ul className="mt-12 grid gap-3 sm:grid-cols-2">
+              {schools.map((school, index) => (
+                <Reveal
+                  key={school.name}
+                  id={`school-${anchorId(school.name)}`}
+                  as="li"
+                  from={index % 2 === 0 ? "left" : "right"}
+                  delay={(index % 4) * 60}
+                  className="flex scroll-mt-80 items-center gap-4 rounded-2xl border border-[#d5dee6] bg-white px-4 py-3 shadow-sm"
+                >
+                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#0a5062] to-[#17b3c6] font-heading text-base text-white">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span>
+                    <span className="block font-semibold">{school.name}</span>
+                    {school.place ? <span className="block text-sm text-[#5c6b7a]">{school.place}</span> : null}
+                  </span>
+                </Reveal>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
     </>
   )
 }

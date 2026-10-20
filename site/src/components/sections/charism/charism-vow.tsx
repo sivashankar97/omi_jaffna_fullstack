@@ -2,10 +2,9 @@
 
 import { useEffect, useRef, useState } from "react"
 
-import { charismMotto } from "@/content/charism"
 import { cn } from "cn"
 
-export function CharismVow() {
+export function CharismVow({ motto: charismMotto, crossImage }: { motto: string; crossImage: string }) {
   const ref = useRef<HTMLElement>(null)
   const [shown, setShown] = useState(false)
 
@@ -32,7 +31,7 @@ export function CharismVow() {
     <section id="mission-vision" ref={ref} className={cn("scroll-mt-80 px-4 py-16 sm:px-8", shown && "charism-vow-on")}>
       <div className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
         <img
-          src="/Herosection/Cross_vision.png?v=3"
+          src={crossImage}
           alt="Oblate cross"
           className="charism-cross mx-auto h-auto max-h-[32rem] w-full max-w-sm object-contain"
         />

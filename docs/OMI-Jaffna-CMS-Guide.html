@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OMI Jaffna CMS Guide</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #10263a; font-size: 10.5pt; line-height: 1.5; margin: 0; }
+  h1, h2, h3 { color: #023e8a; line-height: 1.2; margin: 0; }
+  h2 { font-size: 17pt; margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 2px solid #48cae4; }
+  h3 { font-size: 12pt; margin: 5mm 0 2mm; }
+  p { margin: 0 0 2.5mm; }
+  .cover { break-after: page; }
+  .page + .page:not(.cover) > h2:first-child { margin-top: 7mm; }
+  h2, h3, .tag { break-after: avoid; }
+  thead { display: table-header-group; }
+  .muted { color: #5c6b7a; }
+  .small { font-size: 9pt; }
+
+  .cover { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover-band { background: linear-gradient(135deg, #03202b, #0a5062); color: #fff; border-radius: 6mm; padding: 18mm 14mm; }
+  .cover-band .eyebrow { color: #ffcf4a; letter-spacing: .2em; font-size: 9pt; font-weight: 700; text-transform: uppercase; }
+  .cover-band h1 { color: #fff; font-size: 30pt; margin: 4mm 0 3mm; }
+  .cover-band p { color: rgba(255,255,255,.85); font-size: 12pt; max-width: 140mm; }
+  .cover-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .card { border: 1px solid #d5e6ee; border-radius: 4mm; padding: 5mm; background: #f6fbfd; }
+  .card b { color: #023e8a; }
+
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 0; }
+  .steps li { counter-increment: step; position: relative; padding: 0 0 3.2mm 11mm; }
+  .steps li::before { content: counter(step); position: absolute; left: 0; top: -.4mm; width: 7mm; height: 7mm; border-radius: 50%; background: #023e8a; color: #ffcf4a; font-weight: 700; display: grid; place-items: center; font-size: 9.5pt; }
+
+  .tree { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .tree .group { border-radius: 4mm; padding: 4mm 5mm; background: #f6fbfd; border: 1px solid #d5e6ee; break-inside: avoid; }
+  .tree .group h4 { margin: 0 0 1.5mm; font-size: 10.5pt; color: #023e8a; }
+  .tree ul { margin: 0; padding-left: 4.5mm; }
+  .tree li { margin: .6mm 0; }
+  .tag { display: inline-block; font-size: 8pt; font-weight: 700; letter-spacing: .12em; color: #0e98ac; text-transform: uppercase; margin: 2mm 0 2mm; }
+
+  table { width: 100%; border-collapse: collapse; margin: 1mm 0 3mm; font-size: 9.5pt; }
+  th { text-align: left; background: #023e8a; color: #fff; padding: 2mm 2.5mm; font-weight: 600; }
+  td { padding: 2mm 2.5mm; border-bottom: 1px solid #e2edf2; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fcfd; }
+  td:first-child { width: 30%; font-weight: 600; color: #10263a; }
+  td:nth-child(2) { width: 30%; color: #0a5062; }
+  tr, .tree .group, .card, .note { break-inside: avoid; }
+  .path { font-family: Menlo, monospace; font-size: 8.8pt; background: #eef7fa; padding: .3mm 1.5mm; border-radius: 1mm; color: #023e8a; white-space: nowrap; }
+
+  .note { border-left: 4px solid #ffbf00; background: #fff8e6; padding: 3mm 4mm; border-radius: 0 3mm 3mm 0; margin: 3mm 0; }
+  .note.blue { border-color: #48cae4; background: #eefaff; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .footer-line { margin-top: 6mm; font-size: 8.5pt; color: #8a97a3; }
+</style>
+</head>
+<body>
+
+<!-- 1. Cover -->
+<section class="page cover">
+  <div class="cover-band">
+    <div class="eyebrow">Oblate Province of Jaffna · Website CMS</div>
+    <h1>CMS Guide &amp; Map</h1>
+    <p>Where every part of the website is edited, what each screen changes, and how to add text, photos and new entries.</p>
+  </div>
+  <div class="cover-grid">
+    <div class="card"><b>Open the CMS</b><br>https://omi-jaffna.netlify.app/admin<br><span class="muted small">Sign in with your CMS account. Ask the administrator for an account. Never share passwords.</span></div>
+    <div class="card"><b>The one rule to remember</b><br>The CMS menu follows the website menu. Open the page you want to change, edit it, save, then click <b>View on website</b> to check it.</div>
+    <div class="card"><b>What visitors see</b><br>Only entries that are <b>Published</b>. Changes show on the website straight away (refresh the page).</div>
+    <div class="card"><b>Photos</b><br>Every photo and logo can be replaced. Uploaded photos must be approved in <b>File Uploads</b> before visitors can see them.</div>
+  </div>
+  <p class="footer-line">Guide version: October 2026.</p>
+</section>
+
+<!-- 2. Quick start + map -->
+<section class="page">
+  <h2>1. Quick start: change anything in 6 steps</h2>
+  <ol class="steps">
+    <li><b>Find the page</b> in the left menu under <b>Website pages</b> (same order as the website menu). Things that appear on several pages are under <b>On several pages</b>.</li>
+    <li><b>Open a screen</b>. The line "Shown on:" at the top says exactly where it appears on the website.</li>
+    <li><b>Click the pencil</b> on an entry to edit it, or <b>Add …</b> (e.g. "Add story") to add one.</li>
+    <li><b>Change the text or photo.</b> Each field label says where it shows. Empty text in page sections keeps the original wording.</li>
+    <li><b>Set the status</b>: Publication status = <b>Published</b>, Verified by Province = <b>Verified</b>, and a <b>Last verified</b> date. Then <b>Save changes</b>.</li>
+    <li><b>Check it</b>: click <b>View on website</b> (or the arrow icon on the row). It opens the exact spot on the page.</li>
+  </ol>
+  <div class="note blue"><b>Tip:</b> the <b>Overview</b> screen has a panel <b>"Where to edit each page"</b> with the same map as below. Click any item to jump to it.</div>
+
+  <h2 style="margin-top:6mm">2. Map of the CMS menu</h2>
+  <div class="tag">Website pages</div>
+  <div class="tree">
+    <div class="group"><h4>Home</h4><ul><li>Top banner &amp; welcome</li><li>Rest of the Home page</li><li>Calendar events</li></ul></div>
+    <div class="group"><h4>History</h4><ul><li>History page (all sections)</li></ul><h4 style="margin-top:2mm">Charism</h4><ul><li>Charism page (all sections)</li></ul></div>
+    <div class="group"><h4>Leadership</h4><ul><li>Provincial Superior</li><li>Provincial Council</li><li>Former Provincials</li><li>Oblate Priests</li></ul></div>
+    <div class="group"><h4>Ministries</h4><ul><li>Ministries (cards + popups)</li><li>Parishes</li><li>Schools &amp; Education</li></ul></div>
+    <div class="group"><h4>Vocations</h4><ul><li>Formation Houses</li></ul><h4 style="margin-top:2mm">International</h4><ul><li>Mission Countries</li><li>Formation Abroad</li></ul></div>
+    <div class="group"><h4>News · Media · Contact</h4><ul><li>News: News stories</li><li>Media: Media page photos, Publications, Historical archive</li><li>Contact: Banner slideshow</li></ul></div>
+  </div>
+  <div class="tag">On several pages</div>
+  <div class="tree">
+    <div class="group"><h4>Logos &amp; contact details</h4><ul><li>Header logo and Province emblem</li><li>Address, phone, email, map link</li><li>Facebook, Instagram, YouTube, WhatsApp</li><li>Default news photo</li></ul></div>
+    <div class="group"><h4>Mission map · Our journey</h4><ul><li>Mission map: pins at the bottom of every page</li><li>Our journey timeline: Home and History pages</li></ul></div>
+  </div>
+  <div class="tag">Files &amp; management</div>
+  <p class="small">File Uploads (approve photos) · Contact Directory · Enquiries (messages from the contact form) · Team &amp; Roles (CMS accounts) · Site Settings.</p>
+</section>
+
+<!-- 3. Page by page -->
+<section class="page">
+  <h2>3. Page by page: what to edit where</h2>
+
+  <h3>Home</h3>
+  <table>
+    <thead><tr><th>On the website</th><th>In the CMS</th><th>What you can change</th></tr></thead>
+    <tr><td>Big banner at the top (video, title, quote)</td><td>Home › Top banner &amp; welcome</td><td>Banner image and video link, small line above the title, main title, years, tagline, quote, line under the quote. The quote and line also show on Media › Homilies and reflections.</td></tr>
+    <tr><td>Welcome paragraphs</td><td>Home › Top banner &amp; welcome</td><td>"Welcome paragraphs" (leave a blank line between paragraphs).</td></tr>
+    <tr><td>Welcome stats + photo, Our calling, Ministries / News headings, the three cards, Media tiles, Oblate family, Join us, Contact us</td><td>Home › Rest of the Home page</td><td>Every heading, text, card, link, stat and photo of these sections. Lists can be added to, removed and reordered.</td></tr>
+    <tr><td>Province calendar</td><td>Home › Calendar events</td><td>One entry per event: name, summary, place, start date, last day, date as shown.</td></tr>
+    <tr><td>Ministry cards and Latest news on Home</td><td>Ministries › Ministries · News › News stories</td><td>Come from those screens automatically.</td></tr>
+  </table>
+
+  <h3>History and Charism</h3>
+  <table>
+    <thead><tr><th>On the website</th><th>In the CMS</th><th>What you can change</th></tr></thead>
+    <tr><td>History page: Who we are, stats, Oblate family, commitments, Brief history chapters, Development</td><td>History › History page</td><td>All text, chapters and lists, plus the photos (top banner, "Oblate family" photo, history background).</td></tr>
+    <tr><td>"Our journey" timeline</td><td>On several pages › Our journey timeline</td><td>Eras and their years/events. Shows on Home and History.</td></tr>
+    <tr><td>Charism page: heading, summary, ways of living it, Who we are, arrival, mission</td><td>Charism › Charism page (top fields)</td><td>Main heading, small heading, summary, ways (one per line), "Who we are" heading and paragraphs (one per line), arrival sentence, mission paragraph.</td></tr>
+    <tr><td>Charism page: identity, priorities, motto, photos</td><td>Charism › Charism page › "Charism page sections"</td><td>Our identity text and quote, the three priorities, motto, "Our identity" photo, mission &amp; vision cross image.</td></tr>
+  </table>
+
+  <h3>Leadership</h3>
+  <table>
+    <thead><tr><th>On the website</th><th>In the CMS</th><th>What you can change</th></tr></thead>
+    <tr><td>Our Provincial Leader</td><td>Leadership › Provincial Superior</td><td>Name, position "Provincial Superior", term, in office since, appointments (one line per term: <span class="path">First term | appointed | installed</span>), biography, portrait.</td></tr>
+    <tr><td>Provincial Council cards</td><td>Leadership › Provincial Council</td><td>Name, position (1st–5th Councillor, Bursar), term, photo. The first member's term is the council heading.</td></tr>
+    <tr><td>Former Provincials timeline</td><td>Leadership › Former Provincials</td><td>Name and term (e.g. 1984–1991).</td></tr>
+    <tr><td>Oblate priests directory</td><td>Leadership › Oblate Priests</td><td>Name, where serving (Sri Lanka / outside Sri Lanka / out of province), photo.</td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <h3>Ministries, Vocations, International</h3>
+  <table>
+    <thead><tr><th>On the website</th><th>In the CMS</th><th>What you can change</th></tr></thead>
+    <tr><td>Ministry cards (Ministries page and Home)</td><td>Ministries › Ministries</td><td>Name, where, summary, card photo. "Order on the website" is the ministry number (1 = 01).</td></tr>
+    <tr><td>Ministry popup (click a card)</td><td>Same entry › "Ministry details"</td><td>Tagline, overview, focus points, highlights, scripture. No details = no popup.</td></tr>
+    <tr><td>Parish directory</td><td>Ministries › Parishes</td><td>Parish name and place.</td></tr>
+    <tr><td>Schools list</td><td>Ministries › Schools &amp; Education</td><td>School name (optionally "Name — District") and place.</td></tr>
+    <tr><td>Formation houses</td><td>Vocations › Formation Houses</td><td>House name and place.</td></tr>
+    <tr><td>Countries where Oblates serve / Formation abroad</td><td>International › Mission Countries / Formation Abroad</td><td>Country or place name. The "List" field decides which of the two lists it joins.</td></tr>
+  </table>
+
+  <h3>News, Media, Contact</h3>
+  <table>
+    <thead><tr><th>On the website</th><th>In the CMS</th><th>What you can change</th></tr></thead>
+    <tr><td>News page and each article</td><td>News › News stories</td><td>Headline, summary, article (blank line between paragraphs), place, date, category, date as shown, cover photo, extra gallery photos. The latest also show on Home and Media.</td></tr>
+    <tr><td>Media page photos</td><td>Media › Media page photos</td><td>Top photo, video tile photo, and the photo gallery (add, remove, reorder, captions).</td></tr>
+    <tr><td>Publications (Yazha-Thoni, Zeal)</td><td>Media › Publications</td><td>Title written as <span class="path">Title — Subtitle</span>, description, link to the latest issue (PDF or web address).</td></tr>
+    <tr><td>Historical archive tab</td><td>Media › Historical archive</td><td>Year (or "Year or date shown") and what happened.</td></tr>
+    <tr><td>Contact page banner slideshow</td><td>Contact › Banner slideshow</td><td>Slides: image, description, image fit.</td></tr>
+  </table>
+
+  <h3>On several pages</h3>
+  <table>
+    <thead><tr><th>On the website</th><th>In the CMS</th><th>What you can change</th></tr></thead>
+    <tr><td>Header logo, Province emblem (header, footer, sign-in page, news articles)</td><td>Logos &amp; contact details</td><td>Upload new logos. Default news photo for stories without a cover.</td></tr>
+    <tr><td>Address, phone, email, map link, social buttons</td><td>Logos &amp; contact details</td><td>Used by the footer, Contact page, Home "Contact us", News and Media.</td></tr>
+    <tr><td>Mission map (bottom of every page)</td><td>Mission map</td><td>Name — District, address, shown as (house / parish / ministry / formation), what happens here, contact, phone, email, latitude and longitude.</td></tr>
+  </table>
+</section>
+
+<!-- 4. How to -->
+<section class="page">
+  <h2>4. How to …</h2>
+  <div class="two">
+    <div>
+      <h3>Replace a photo or logo</h3>
+      <ol class="steps">
+        <li>Open the entry and find the photo field (it shows a small preview).</li>
+        <li>Click <b>Upload a new image</b> (JPEG, PNG or WebP, up to 12 MB).</li>
+        <li>Go to <b>File Uploads</b> and <b>approve</b> the new image.</li>
+        <li>Come back, set Published + Verified and <b>Save</b>.</li>
+      </ol>
+      <h3>Add a new item</h3>
+      <p>Open the screen (e.g. News stories, Parishes, Oblate Priests) and click <b>Add …</b> (e.g. "Add story", "Add parish"). Fill the fields, choose Published + Verified with a date, and save.</p>
+      <h3>Hide an item without deleting</h3>
+      <p>Set Publication status to <b>Draft</b> and save. It disappears from the website but stays in the CMS.</p>
+      <h3>Delete an item</h3>
+      <p>Use the bin icon on the row. This cannot be undone.</p>
+    </div>
+    <div>
+      <h3>Change the order</h3>
+      <p>Each entry has <b>Order on the website (1 = first)</b>. The CMS list is shown in the same order as the website.</p>
+      <h3>Edit lists inside page sections</h3>
+      <p>In page sections (Home, History, Charism, slideshow, journey, Media photos), each list has <b>Add</b>, <b>Move up / down</b> and <b>Remove</b> buttons. Click a list item to open it.</p>
+      <h3>See your change</h3>
+      <p>Click <b>View on website</b> in the editor, or the arrow icon on any row. Map locations open the map with that pin selected.</p>
+      <h3>Who can publish</h3>
+      <p><b>Editors</b> can write and save drafts. <b>Publishers</b> and <b>Admins</b> can publish. Admins manage accounts in Team &amp; Roles.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:6mm">5. Field rules worth knowing</h2>
+  <table>
+    <thead><tr><th>Field</th><th>Where</th><th>Rule</th></tr></thead>
+    <tr><td>Paragraphs</td><td>Welcome, articles, biographies</td><td>Leave one blank line between paragraphs.</td></tr>
+    <tr><td>"One per line" fields</td><td>Ways of living it, Who we are</td><td>Each line becomes one item or paragraph.</td></tr>
+    <tr><td>Position</td><td>Leadership</td><td>Exactly "Provincial Superior", "Former Provincial", or a council role such as "2nd Councillor" or "Bursar".</td></tr>
+    <tr><td>Name — District</td><td>Map locations, schools</td><td>Use a long dash with spaces: <span class="path">St Patrick’s College — Jaffna</span>.</td></tr>
+    <tr><td>Latitude / Longitude</td><td>Mission map</td><td>Right-click the place in Google Maps and copy the numbers (e.g. 9.6615, 80.0255).</td></tr>
+    <tr><td>Phone link</td><td>Logos &amp; contact details</td><td>Starts with <span class="path">tel:+94</span>.</td></tr>
+    <tr><td>Links</td><td>Cards and buttons</td><td>Website pages start with <span class="path">/</span> (e.g. /charism). Outside sites start with https://.</td></tr>
+    <tr><td>Verification</td><td>Parishes, map, leadership, international, formation, timeline</td><td>These need Verified + a Last verified date before they can be published.</td></tr>
+  </table>
+
+  <h2 style="margin-top:6mm">6. Not in the CMS yet</h2>
+  <p class="small">Media page wording (desk descriptions, FAQ), Vocations and International page wording, the Join us form questions, page colours and fonts. Ask the developer to change these. Uploading a new banner <b>video</b> file also needs the developer (the CMS takes a link to the video).</p>
+</section>
+
+</body>
+</html>

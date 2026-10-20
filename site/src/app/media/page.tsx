@@ -2,10 +2,11 @@ import type { Metadata } from "next"
 import Image from "next/image"
 
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
-import { defaultPublications, MediaPublications } from "@/components/sections/media/media-publications"
+import { MediaPublications } from "@/components/sections/media/media-publications"
 import { MediaStudio } from "@/components/sections/media/media-studio"
 import { SocialSignals } from "@/components/sections/media/social-signals"
-import { getMinistries, getNews, getPublications, getTimeline } from "@/lib/cms"
+import { isUpload } from "@/content/site-info"
+import { getBlock, getHomeContent, getMinistries, getNews, getPublications, getTimeline } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "Media",
@@ -13,11 +14,13 @@ export const metadata: Metadata = {
 }
 
 export default async function MediaPage() {
-  const [news, ministries, timeline, publications] = await Promise.all([
+  const [news, ministries, timeline, publications, { hero }, photos] = await Promise.all([
     getNews(),
     getMinistries(),
     getTimeline(),
-    getPublications(defaultPublications),
+    getPublications(),
+    getHomeContent(),
+    getBlock("media-page"),
   ])
   return (
     <>
@@ -69,8 +72,9 @@ export default async function MediaPage() {
             <div className="charism-float relative overflow-hidden rounded-[2rem] bg-white p-3 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)] ring-1 ring-white/20">
               <div className="group relative aspect-square overflow-hidden rounded-[1.5rem]">
                 <Image
-                  src="/Herosection/Welcome.jpeg"
-                  alt="Oblate Media Ministry, OMI Jaffna Province"
+                  src={photos.topImage}
+                  alt={photos.topImageAlt}
+                  unoptimized={isUpload(photos.topImage)}
                   fill
                   priority
                   sizes="(min-width: 1024px) 28rem, 90vw"
@@ -83,7 +87,15 @@ export default async function MediaPage() {
         </div>
       </header>
       <SocialSignals />
-      <MediaStudio news={news} ministries={ministries} timeline={timeline} />
+      <MediaStudio
+        news={news}
+        ministries={ministries}
+        timeline={timeline}
+        quote={hero.quote}
+        lede={hero.lede}
+        photos={photos.gallery}
+        videoImage={photos.videoImage}
+      />
       <MediaPublications publications={publications} />
     </>
   )

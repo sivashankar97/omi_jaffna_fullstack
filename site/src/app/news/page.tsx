@@ -6,24 +6,22 @@ import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { NewsCard, NewsCategory, NewsCompact } from "@/components/sections/news/news-card"
 import { NewsTicker } from "@/components/sections/news/news-ticker"
-import { site } from "@/config/site"
 import { newsSections } from "@/content/news"
-import { getNews } from "@/lib/cms"
+import { getNews, getSiteInfo } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "News",
   description: "News, feasts and pastoral updates from the Oblate Province of Jaffna.",
 }
 
-const follow = [
-  { label: "Facebook", href: site.social.facebook },
-  { label: "Instagram", href: site.social.instagram },
-  { label: "YouTube", href: site.social.youtube },
-  { label: "WhatsApp", href: site.social.whatsapp },
-]
-
 export default async function NewsPage() {
-  const newsArticles = await getNews()
+  const [newsArticles, site] = await Promise.all([getNews(), getSiteInfo()])
+  const follow = [
+    { label: "Facebook", href: site.social.facebook },
+    { label: "Instagram", href: site.social.instagram },
+    { label: "YouTube", href: site.social.youtube },
+    { label: "WhatsApp", href: site.social.whatsapp },
+  ]
   const [featured, ...others] = [...newsArticles].sort((a, b) => Number(Boolean(a.sample)) - Number(Boolean(b.sample)))
   const topStories = others.slice(0, 4)
 

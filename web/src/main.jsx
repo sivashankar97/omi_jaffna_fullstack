@@ -10,48 +10,80 @@ import {
 } from 'lucide-react';
 import seed from './demo.json';
 import CoverImageUpload from './CoverImageUpload.jsx';
+import {AutoFields,mergeContent,useCmsBlocks} from './AutoFields.jsx';
 import './style.css';
 
 const TYPE_INFO={page:['Website Pages',PanelsTopLeft],ministry:['Ministries',HeartHandshake],parish:['Parishes',Church],formation:['Formation Houses',GraduationCap],location:['Map Locations',MapPin],leadership:['Leadership',Users],priest:['Oblate Priests',UserRound],international:['International Mission',Globe2],school:['Schools & Education',School],timeline:['History Timeline',History],news:['News & Stories',Newspaper],event:['Feasts & Events',CalendarDays],publication:['Publications',BookOpen],media:['Media Library',Images]};
 const notLeadershipRole='provincial superior,former provincial';
 // Each CMS screen is one content type, optionally narrowed to the entries one website section uses.
 const VIEWS={
- 'page-home':{type:'page',label:'Home page text',query:'slug=home',single:true,where:'Home: hero and welcome text',link:'/'},
- event:{type:'event',item:'event',label:'Feasts & Events',where:'Home: province calendar',link:'/#calendar'},
- location:{type:'location',item:'location',label:'Mission map locations',where:'Home and footer: mission map',link:'/#mission-map'},
- 'page-history':{type:'page',label:'History page text',query:'slug=history,who-we-are',single:true,where:'History and Charism: "Who we are" and history text',link:'/history'},
- timeline:{type:'timeline',item:'timeline entry',label:'History Timeline',where:'Media page: history timeline',link:'/media'},
- 'page-charism':{type:'page',label:'Charism page text',query:'slug=charism',single:true,where:'Charism: heading, summary and ways of living it',link:'/charism'},
+ 'page-home':{type:'page',label:'Top banner & welcome',query:'slug=home',single:true,slugs:[['home','Home page']],where:'Home: banner video and image, title, tagline and welcome text at the top',link:'/'},
+ 'block-home-sections':{type:'page',label:'Rest of the Home page',query:'slug=home-sections',single:true,slugs:[['home-sections','Home page sections']],where:'Home: welcome stats and photo, Our calling, section headings, the three cards, Media, Oblate family, Join us, Contact us',link:'/#welcome'},
+ 'block-slides':{type:'page',label:'Banner slideshow',query:'slug=home-slides',single:true,slugs:[['home-slides','Banner slideshow']],where:'Contact: slideshow in the top banner',link:'/contact'},
+ 'block-journey':{type:'page',label:'Our journey timeline',query:'slug=journey',single:true,slugs:[['journey','Our journey timeline']],where:'Home and History pages: "Our journey" timeline',link:'/#journey'},
+ event:{type:'event',item:'event',label:'Calendar events',where:'Home: province calendar',link:'/#calendar'},
+ location:{type:'location',item:'location',label:'Mission map',where:'Bottom of every page: mission map pins and place cards',link:'/#mission-map'},
+ 'page-history':{type:'page',label:'History page',query:'slug=history',single:true,slugs:[['history','History page']],where:'History: every section of the page',link:'/history'},
+ 'block-media-page':{type:'page',label:'Media page photos',query:'slug=media-page',single:true,slugs:[['media-page','Media page photos']],where:'Media: top photo, video tile photo and the photo gallery',link:'/media'},
+ timeline:{type:'timeline',item:'timeline entry',label:'Historical archive',where:'Media: "Historical archive" tab',link:'/media#historical-archive'},
+ 'page-charism':{type:'page',label:'Charism page',query:'slug=charism',single:true,slugs:[['charism','Charism page']],where:'Charism: every section of the page',link:'/charism'},
+ 'block-site-info':{type:'page',label:'Logos, address & social links',query:'slug=site-info',single:true,slugs:[['site-info','Contact and social links']],where:'Header and footer logos on every page, default news photo, footer, Contact page, Home "Contact us", News and Media social buttons',link:'/contact'},
  'leadership-superior':{type:'leadership',item:'Provincial Superior',label:'Provincial Superior',query:'meta_key=role&meta_like=provincial superior',defaults:{role:'Provincial Superior'},where:'Leadership: Provincial Superior section',link:'/leadership#provincial-superior'},
  'leadership-council':{type:'leadership',item:'council member',label:'Provincial Council',query:`meta_key=role&meta_not=${notLeadershipRole}`,where:'Leadership: Provincial Council cards',link:'/leadership#council'},
  'leadership-former':{type:'leadership',item:'former Provincial',label:'Former Provincials',query:'meta_key=role&meta_like=former provincial',defaults:{role:'Former Provincial'},where:'Leadership: Former Provincials timeline',link:'/leadership#former-provincials'},
- priest:{type:'priest',item:'priest',label:'Oblate Priests',where:'Leadership: Oblate priests directory',link:'/leadership'},
+ priest:{type:'priest',item:'priest',label:'Oblate Priests',where:'Leadership: Oblate priests directory',link:'/leadership#priests'},
  ministry:{type:'ministry',item:'ministry',label:'Ministries',where:'Ministries page and Home',link:'/ministries'},
  parish:{type:'parish',item:'parish',label:'Parishes',where:'Ministries: parish directory',link:'/ministries#parish-directory'},
- school:{type:'school',item:'school',label:'Schools & Education',where:'Not shown on the website yet'},
+ school:{type:'school',item:'school',label:'Schools & Education',where:'Ministries: schools list',link:'/ministries#schools'},
  formation:{type:'formation',item:'formation house',label:'Formation Houses',where:'Vocations: formation houses',link:'/vocations'},
  'international-mission':{type:'international',item:'country',label:'Mission Countries',query:'meta_key=kind&meta_not=formation',where:'International: countries where Oblates serve',link:'/international'},
  'international-formation':{type:'international',item:'formation place',label:'Formation Abroad',query:'meta_key=kind&meta_like=formation',defaults:{kind:'formation'},where:'International: formation abroad',link:'/international'},
- news:{type:'news',item:'story',label:'News & Stories',where:'News page, Media page and Home',link:'/news'},
+ news:{type:'news',item:'story',label:'News stories',where:'News page; the latest also show on Home and Media',link:'/news'},
  publication:{type:'publication',item:'publication',label:'Publications',where:'Media: publications',link:'/media#publications'},
- media:{type:'media',item:'media item',label:'Media Library',where:'Media page'},
  page:{type:'page',item:'page',label:'All website pages',where:'Every page text entry'},
 };
+// Same order as the website menu. A page with one screen opens it directly.
 const NAV=[
  {label:'WORKSPACE',items:[['overview','Overview',LayoutDashboard]]},
  {label:'WEBSITE PAGES',pages:[
-  {label:'Home',icon:Home,views:['page-home','event','location']},
-  {label:'History',icon:History,views:['page-history','timeline']},
+  {label:'Home',icon:Home,views:['page-home','block-home-sections','event']},
+  {label:'History',icon:History,views:['page-history']},
   {label:'Charism',icon:Sparkles,views:['page-charism']},
   {label:'Leadership',icon:Users,views:['leadership-superior','leadership-council','leadership-former','priest']},
   {label:'Ministries',icon:HeartHandshake,views:['ministry','parish','school']},
   {label:'Vocations',icon:GraduationCap,views:['formation']},
   {label:'International',icon:Globe2,views:['international-mission','international-formation']},
-  {label:'Media & News',icon:Newspaper,views:['news','publication','media']},
-  {label:'All pages',icon:PanelsTopLeft,views:['page']},
+  {label:'News',icon:Newspaper,views:['news']},
+  {label:'Media',icon:Images,views:['block-media-page','publication','timeline']},
+  {label:'Contact',icon:Mail,views:['block-slides']},
+ ]},
+ {label:'ON SEVERAL PAGES',pages:[
+  {label:'Logos & contact details',icon:ContactRound,views:['block-site-info']},
+  {label:'Mission map',icon:MapPin,views:['location']},
+  {label:'Our journey timeline',icon:CalendarDays,views:['block-journey']},
  ]},
  {label:'FILES & MANAGEMENT',items:[['assets','File Uploads',FolderOpen],['contacts','Contact Directory',ContactRound],['inquiries','Enquiries',MessageCircle],['users','Team & Roles',ShieldCheck],['settings','Site Settings',Settings2]]}
 ];
+const anchorId=s=>String(s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const PAGE_LINKS={home:'/','home-sections':'/#welcome',journey:'/#journey','home-slides':'/contact','site-info':'/contact',history:'/history','media-page':'/media',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/media#historical-archive'};
+/** Website address where an entry's changes can be seen. */
+function itemLink(item,view){
+ const {type,slug}=item;
+ if(type==='page')return PAGE_LINKS[slug]||view?.link;
+ if(type==='news')return slug?`/news/${slug}`:'/news';
+ if(type==='ministry')return item.sort_order?`/ministries#ministry-${String(item.sort_order).padStart(2,'0')}`:'/ministries';
+ if(type==='parish')return `/ministries#parish-${anchorId(item.title_en)}`;
+ if(type==='publication')return `/media#${anchorId(String(item.title_en).split(/\s+[—–-]\s+/)[0])}`;
+ if(type==='school')return `/ministries#school-${anchorId(String(item.title_en).split(/\s+—\s+/)[0])}`;
+ if(type==='formation')return `/vocations#house-${anchorId(item.title_en)}`;
+ if(type==='international')return `/international#${item.metadata?.kind==='formation'?'abroad':'country'}-${anchorId(item.title_en)}`;
+ if(type==='location')return `/#place-${slug}`;
+ if(type==='timeline')return '/media#historical-archive';
+ if(type==='event')return '/#calendar';
+ if(type==='priest')return '/leadership#priests';
+ if(type==='leadership'){const role=String(item.metadata?.role||'');return /provincial superior/i.test(role)?'/leadership#provincial-superior':/former provincial/i.test(role)?`/leadership#former-${anchorId(item.title_en)}`:`/leadership#council-${anchorId(item.title_en)}`;}
+ return view?.link||viewFor(type)?.link;
+}
 const pageOf=Object.fromEntries(NAV.flatMap(g=>(g.pages||[]).flatMap(p=>p.views.map(id=>[id,p]))));
 /** Screen for a section id; a bare content type (e.g. from "Recently updated") opens its first screen. */
 const viewFor=section=>VIEWS[section]?{id:section,...VIEWS[section]}:Object.entries(VIEWS).map(([id,v])=>({id,...v})).find(v=>v.type===section);
@@ -124,6 +156,7 @@ function Sidebar({section,setSection,mobileOpen,setMobileOpen,user,onLogout}){
  const nav=<div className="overflow-y-auto overscroll-contain scroll-slim flex-1 px-4 pt-6 pb-7">{NAV.map(group=><div key={group.label} className="mb-7"><p className="px-3 mb-3 text-[10px] font-bold tracking-[.17em] text-slate-500">{group.label}</p><div className="space-y-1">
   {(group.items||[]).map(([id,label,Icon])=><NavButton key={id} id={id} label={label} Icon={Icon} section={section} go={go}/>)}
   {(group.pages||[]).map(page=>{const expanded=open.has(page.label),here=current===page.label,Icon=page.icon;
+   if(page.views.length===1)return <NavButton key={page.label} id={page.views[0]} label={page.label} Icon={Icon} section={section} go={go}/>;
    return <div key={page.label}><button onClick={()=>toggle(page.label)} aria-expanded={expanded} className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold ${here?'text-white':'text-slate-300 hover:bg-white/5 hover:text-white'}`}><Icon size={17} strokeWidth={1.9} className={here?'text-gold-400':'text-slate-500 group-hover:text-gold-400'}/><span className="flex-1 truncate">{page.label}</span><ChevronDown size={15} className={`text-slate-500 transition-transform ${expanded?'rotate-180':''}`}/></button>
     {expanded&&<div className="ml-5 mt-1 space-y-0.5 border-l border-white/10 pl-2">{page.views.map(id=><NavButton key={id} id={id} label={VIEWS[id].label} section={section} go={go} nested/>)}</div>}</div>})}
  </div></div>)}</div>;
@@ -145,13 +178,12 @@ function Overview({setSection,user,notify}){
  const [data,setData]=useState(null);
  useEffect(()=>{api('/api/dashboard').then(setData).catch(e=>notify(e.message,'error'))},[]);
  const counts=data?.counts||[],n=counts.reduce((a,b)=>a+b.count,0),draft=counts.filter(x=>x.status==='draft').reduce((a,b)=>a+b.count,0),published=counts.filter(x=>x.status==='published').reduce((a,b)=>a+b.count,0),review=counts.filter(x=>x.status==='review').reduce((a,b)=>a+b.count,0),inquiries=data?.inquiries?.find(x=>x.status==='new')?.count||0;
- const rows=[['Ministries','ministry',17],['Parishes','parish',12],['Website Pages','page',17],['Locations','location',31]];
  return <div className="space-y-7 ">
   <div className="relative flex flex-col lg:flex-row justify-between lg:items-center gap-6 rounded-[22px] overflow-hidden bg-navy-900 px-7 sm:px-9 py-9 sm:py-10 text-white"><div className="absolute inset-0 opacity-40 pointer-events-none" style={{background:'radial-gradient(circle at 90% 20%,#67c7f488,transparent 34%),linear-gradient(108deg,transparent 53%,#8edaff22)'}}/><div className="relative max-w-xl"><div className="text-[11px] font-semibold uppercase tracking-[.21em] text-gold-400">Digital Mission · Province of Jaffna</div><h2 className="font-display text-[28px] sm:text-[34px] leading-tight mt-3">A mission worth sharing.<br/><i className="text-gold-400">A story worth preserving.</i></h2><p className="mt-3 text-sm text-slate-300 leading-6">Manage every ministry, parish, publication and story with clarity and care.</p><button onClick={()=>setSection('news')} className="mt-6 inline-flex gap-2 items-center bg-gold-400 hover:bg-gold-500 text-navy-950 px-4 py-2.5 rounded-xl font-bold text-xs">Manage news & stories <ArrowRight size={15}/></button></div><div className="relative hidden xl:flex items-center justify-center w-[210px] h-[175px]"><div className="absolute h-44 w-44 rounded-full border border-white/20"/><div className="absolute h-32 w-32 rounded-full border border-white/20"/><div className="absolute h-20 w-20 rounded-full bg-gold-400/15 grid place-items-center"><Compass className="text-gold-400" size={45} strokeWidth={1}/></div><span className="absolute bottom-0 text-[10px] text-gold-200 tracking-[.15em]">1847 — 2026</span></div></div>
   <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5"><StatCard label="Total content entries" value={data?n:'—'} note="Across 13 collections" Icon={PanelsTopLeft} tint="bg-blue-50 text-blue-600"/><StatCard label="Published records" value={data?published:'—'} note="Visible on public website" Icon={CheckCircle2} tint="bg-emerald-50 text-emerald-600"/><StatCard label="Awaiting editorial work" value={data?draft+review:'—'} note={`${draft} drafts · ${review} in review`} Icon={Clock3} tint="bg-amber-50 text-amber-600"/><StatCard label="New enquiries" value={data?inquiries:'—'} note="Need a response" Icon={MessageCircle} tint="bg-rose-50 text-rose-600"/></div>
-  <div className="grid xl:grid-cols-[1.45fr_1fr] gap-5"><div className="panel p-6 sm:p-7"><div className="flex justify-between items-center mb-6"><div><h3 className="section-title">Content overview</h3><p className="subcopy mt-1">Key collections from the 2026 website blueprint</p></div><span className="rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-slate-500">Source-aligned</span></div><div className="space-y-6">{rows.map(([name,type,base])=>{const a=counts.filter(x=>x.type===type).reduce((sum,x)=>sum+x.count,0);const ok=counts.filter(x=>x.type===type&&x.status==='published').reduce((sum,x)=>sum+x.count,0);return <button onClick={()=>setSection(type)} key={type} className="w-full text-left group"><div className="flex justify-between items-center text-sm mb-2"><span className="font-semibold text-navy-900 group-hover:text-gold-600">{name} <ArrowUpRight size={13} className="inline opacity-0 group-hover:opacity-100"/></span><span className="text-xs text-slate-500">{a} records · {ok} live</span></div><div className="h-2.5 rounded-full bg-slate-100 overflow-hidden"><div style={{width:`${a?ok/a*100:0}%`}} className="h-full rounded-full bg-gold-400 "/></div></button>})}</div><div className="mt-7 rounded-xl bg-blue-50 p-4 flex gap-3 text-xs leading-5 text-navy-700"><Info size={18} className="shrink-0 mt-0.5 text-blue-600"/><span><b>Publication policy:</b> Seeded records begin as drafts. Verify names, schedules, rights and assignments before publishing.</span></div></div>
+  <div className="grid xl:grid-cols-[1.45fr_1fr] gap-5"><div className="panel p-6 sm:p-7"><h3 className="section-title">Where to edit each page</h3><p className="subcopy mt-1">Same order as the website menu. Each entry has a link icon that opens it on the website.</p><div className="mt-5 divide-y divide-slate-100">{NAV.filter(g=>g.pages).map(group=><div key={group.label} className="py-3 first:pt-0"><p className="mb-2 text-[10px] font-bold tracking-[.17em] text-slate-400">{group.label}</p><div className="space-y-2">{group.pages.map(page=>{const Icon=page.icon;return <div key={page.label} className="flex flex-wrap items-center gap-2"><span className="flex w-44 shrink-0 items-center gap-2 text-sm font-semibold text-navy-900"><Icon size={15} className="text-gold-600"/>{page.label}</span>{page.views.map(id=><button key={id} onClick={()=>setSection(id)} className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-600 hover:border-gold-400 hover:text-navy-900">{VIEWS[id].label}</button>)}</div>})}</div></div>)}</div></div>
    <div className="panel p-6 sm:p-7"><div className="flex items-center justify-between"><div><h3 className="section-title">Editorial pipeline</h3><p className="subcopy mt-1">Current publication status</p></div><div className="h-10 w-10 bg-gold-100 grid place-items-center text-gold-600 rounded-xl"><Radio size={18}/></div></div><div className="mt-9 mb-7 flex items-center justify-center"><div className="relative h-44 w-44 rounded-full grid place-items-center" style={{background:`conic-gradient(#38aee8 0% ${n?published/n*100:0}%,#e9f4fa ${n?published/n*100:0}% 100%)`}}><div className="h-32 w-32 rounded-full bg-white grid place-items-center text-center"><div><div className="text-3xl font-bold text-navy-900">{n}</div><p className="text-[10px] uppercase tracking-[.1em] text-slate-400">Total records</p></div></div></div></div><div className="space-y-3">{[['Published',published,'bg-gold-400'],['In review',review,'bg-amber-300'],['Drafts',draft,'bg-slate-300']].map(([label,count,cls])=><div key={label} className="flex items-center justify-between text-xs"><div className="flex items-center gap-2"><span className={`h-2.5 w-2.5 rounded-full ${cls}`}/><span className="text-slate-500">{label}</span></div><strong className="text-navy-900">{count}</strong></div>)}</div></div></div>
-  <div className="grid xl:grid-cols-[1.4fr_1fr] gap-5"><div className="panel overflow-hidden"><div className="flex justify-between items-center px-6 sm:px-7 py-6 border-b border-slate-100"><div><h3 className="section-title">Recently updated</h3><p className="subcopy mt-1">Your latest content entries</p></div><button className="text-xs font-bold text-gold-600" onClick={()=>setSection('page')}>Browse pages <ArrowRight size={13} className="inline"/></button></div><div>{(data?.recent||[]).slice(0,6).map(x=>{const Icon=iconFor[x.type]||FileText;return <button key={x.id} onClick={()=>setSection(x.type)} className="flex w-full gap-3.5 items-center border-b border-slate-100 px-6 sm:px-7 py-4 hover:bg-slate-50 text-left"><div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-navy-800"><Icon size={17}/></div><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-navy-900 truncate">{x.title_en}</p><p className="mt-0.5 text-[11px] text-slate-400 capitalize">{labels[x.type]||x.type} · {datePretty(x.updated_at)}</p></div><Tag value={x.status}/></button>})}{!data?.recent?.length&&<div className="p-8 text-center text-sm text-slate-400">No content has been added yet.</div>}</div></div>
+  <div className="grid xl:grid-cols-[1.4fr_1fr] gap-5"><div className="panel overflow-hidden"><div className="flex justify-between items-center px-6 sm:px-7 py-6 border-b border-slate-100"><div><h3 className="section-title">Recently updated</h3><p className="subcopy mt-1">Your latest content entries</p></div></div><div>{(data?.recent||[]).slice(0,6).map(x=>{const Icon=iconFor[x.type]||FileText;return <button key={x.id} onClick={()=>setSection(x.type)} className="flex w-full gap-3.5 items-center border-b border-slate-100 px-6 sm:px-7 py-4 hover:bg-slate-50 text-left"><div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-navy-800"><Icon size={17}/></div><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-navy-900 truncate">{x.title_en}</p><p className="mt-0.5 text-[11px] text-slate-400 capitalize">{labels[x.type]||x.type} · {datePretty(x.updated_at)}</p></div><Tag value={x.status}/></button>})}{!data?.recent?.length&&<div className="p-8 text-center text-sm text-slate-400">No content has been added yet.</div>}</div></div>
    <div className="panel p-6 sm:p-7"><h3 className="section-title">Quick access</h3><p className="subcopy mt-1 mb-6">Common tasks for the Province team</p><div className="grid grid-cols-2 gap-3">{[['ministry','Ministries',HeartHandshake],['parish','Parish directory',Church],['news','Publish a story',Newspaper],['assets','Upload media',UploadCloud],['contacts','Contact approval',ContactRound],['inquiries','View enquiries',Mail]].map(([id,name,Icon])=><button key={id} onClick={()=>setSection(id)} className="flex flex-col items-start rounded-xl border border-slate-200 p-4 gap-3 hover:border-gold-400 hover:bg-gold-100/30 "><Icon size={19} className="text-gold-600"/><span className="text-xs font-bold text-navy-900 text-left">{name}</span></button>)}</div></div></div>
  </div>
 }
@@ -159,8 +191,50 @@ const leadershipRoles=['Provincial Superior','1st Councillor','2nd Councillor','
 const priestPlaces=[['sri-lanka','Serving in Sri Lanka'],['abroad','Serving outside Sri Lanka'],['out-of-province','Serving out of province']];
 const termsToText=terms=>Array.isArray(terms)?terms.map(t=>[t?.label,t?.appointed,t?.installed].map(v=>v||'').join(' | ')).join('\n'):'';
 const textToTerms=text=>text.split('\n').map(line=>line.split('|').map(v=>v.trim())).filter(([label])=>label).map(([label,appointed='',installed=''])=>({label,appointed,installed}));
-function MetaFields({type,meta,setMeta}){
+const META_SPECS={
+ location:[['kind','Shown on the map as',{options:[['house','Community / house'],['parish','Parish'],['ministry','Ministry'],['formation','Formation house']]}],['district','District'],['purpose','What happens here',{long:true}],['contact','Contact person'],['phone','Phone'],['email','Email'],['lat','Latitude',{number:true,hint:'e.g. 9.6615. Right-click the place in Google Maps to copy it.'}],['lng','Longitude',{number:true,hint:'e.g. 80.0255'}]],
+ event:[['end_date','Last day (events over several days)',{date:true}],['date_display','Date as shown on the website (optional)',{hint:'e.g. 21–23 August 2026. Leave empty to show the event date.'}]],
+ news:[['section','Category',{options:'news'}],['date_display','Date as shown (optional)',{hint:'Leave empty to show the event / publication date.'}]],
+ publication:[['subtitle','Subtitle']],
+ timeline:[['date_display','Year or date shown',{hint:'e.g. 1847. Leave empty to use the title.'}]],
+ international:[['kind','List',{options:[['','Countries where Oblates serve'],['formation','Formation abroad']]}]],
+};
+const PAGE_SPECS={
+ home:{note:'Top of the Home page. The quote and the line under it also appear on the Media page (Homilies and reflections).',fields:[['eyebrow','Small line above the title'],['headline','Main title'],['years','Years'],['quote','Quote'],['lede','Line under the quote']]},
+ charism:{note:'Everything on the Charism page. More sections are below in "Charism page sections".',fields:[['headline','Main heading'],['ways','Ways of living it (one per line)',{lines:true}],['about_heading','"Who we are" heading'],['about','"Who we are" paragraphs (one paragraph per line)',{lines:true}],['arrival','Arrival sentence',{long:true}],['mission','Mission paragraph',{long:true}]]},
+};
+function SpecFields({specs,meta,setMeta,newsSections}){
+ return <div className="grid sm:grid-cols-2 gap-5">{specs.map(([key,label,opt={}])=>{
+  const value=meta[key];const wide=opt.long||opt.lines?'sm:col-span-2':'';
+  const options=opt.options==='news'?(newsSections||[]).map(s=>[s.id,s.title]):opt.options;
+  return <div key={key} className={wide}><label className="form-label">{label}</label>
+   {options?<select className="field mt-2" value={value??options[0]?.[0]??''} onChange={e=>setMeta(key,e.target.value)}>{options.map(([id,name])=><option key={id} value={id}>{name}</option>)}</select>
+   :opt.lines?<textarea rows={6} className="field mt-2" value={Array.isArray(value)?value.join('\n'):value||''} onChange={e=>setMeta(key,e.target.value.split('\n'))}/>
+   :opt.long?<textarea rows={3} className="field mt-2" value={value||''} onChange={e=>setMeta(key,e.target.value)}/>
+   :<input className="field mt-2" type={opt.date?'date':opt.number?'number':'text'} step={opt.number?'any':undefined} value={value??''} onChange={e=>setMeta(key,opt.number&&e.target.value!==''?Number(e.target.value):e.target.value)}/>}
+   {opt.hint&&<p className="mt-1 text-[11px] text-slate-400">{opt.hint}</p>}</div>})}</div>;
+}
+const emptyMinistryDetail={tagline:'',overview:[''],focus:[''],highlights:[{value:'',label:''}],scripture:{text:'',reference:''}};
+/** Website sections stored on this entry: page blocks (meta.sections) and ministry popups (meta.detail). */
+function SectionFields({form,meta,setMeta,upload}){
+ const {data,error}=useCmsBlocks();
+ if(form.type!=='page'&&form.type!=='ministry')return null;
+ if(error)return <p className="rounded-xl bg-rose-50 px-4 py-3 text-xs text-rose-700">{error}</p>;
+ if(!data)return <p className="text-xs text-slate-400">Loading website sections…</p>;
+ let title,base,key;
+ if(form.type==='page'){const block=data.blocks[form.slug];if(!block)return null;title=block.label;base=block.defaults;key='sections';}
+ else{title='Ministry details (popup on the Ministries page)';base=emptyMinistryDetail;key='detail';}
+ return <div className="rounded-xl border border-sky-200 bg-sky-50/40 p-4 space-y-4"><div><p className="text-sm font-bold text-navy-900">{title}</p><p className="mt-1 text-[11px] leading-5 text-slate-500">Shows the website's current text. Edit, add, remove or reorder items, then save. Empty text keeps the original wording. Uploaded images must be approved in File Uploads before visitors can see them.</p></div>
+  <AutoFields value={mergeContent(base,meta[key])} template={base} onChange={v=>setMeta(key,v)} upload={upload}/>
+ </div>;
+}
+function MetaFields({type,slug,meta,setMeta,upload}){
  const [termsText,setTermsText]=useState(()=>termsToText(meta.terms));
+ const {data}=useCmsBlocks();
+ const page=type==='page'&&PAGE_SPECS[slug];
+ if(page)return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Page details</p><p className="text-[11px] leading-5 text-slate-400">{page.note}</p><SpecFields specs={page.fields} meta={meta} setMeta={setMeta}/></div>;
+ if(META_SPECS[type])return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Details</p><SpecFields specs={META_SPECS[type]} meta={meta} setMeta={setMeta} newsSections={data?.newsSections}/>
+  {type==='news'&&<AutoFields name="gallery" value={Array.isArray(meta.gallery)?meta.gallery:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('gallery',v.length?v:'')} upload={upload} depth={1}/>}</div>;
  if(type==='priest')return <div><label className="form-label">Where serving</label><select className="field mt-2" value={meta.place||'sri-lanka'} onChange={e=>setMeta('place',e.target.value)}>{priestPlaces.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select><p className="mt-1 text-[11px] text-slate-400">Sets the filter group on the Leadership page. Photo: use the cover image below.</p></div>;
  if(type!=='leadership')return null;
  const role=meta.role||'',superior=/provincial superior/i.test(role),former=/former provincial/i.test(role);
@@ -172,11 +246,38 @@ function MetaFields({type,meta,setMeta}){
   <p className="text-[11px] text-slate-400 leading-5">{superior?'Shown as the Provincial Superior. Biography: "Full page content". Portrait: cover image (a cut-out PNG looks best).':former?'Shown in the Former Provincials timeline using the name and term.':'Shown as a Provincial Council card. Photo: cover image (a cut-out PNG looks best). The term of the first member is used as the council heading.'}</p>
  </div>;
 }
-function ContentEditor({value,onClose,onSaved,notify,role}){
- const [form,setForm]=useState({...emptyItem(value.type),...value,metadata:value.metadata||{}}),[lang,setLang]=useState('en'),[busy,setBusy]=useState(false),[advanced,setAdvanced]=useState(false),[jsonMeta,setJsonMeta]=useState(JSON.stringify(value.metadata||{},null,2));
+// Fields the website reads for each type, with the label shown in the editor. Fields not listed are hidden.
+const FIELDS={
+ ministry:{title:'Ministry name',location_text:'Where (shown on the card)',excerpt:'Summary on the card',image:'Card photo'},
+ parish:{title:'Parish name',location_text:'Place'},
+ school:{title:'School name (optionally "Name — District")',location_text:'Place (leave empty to use the district from the name)'},
+ formation:{title:'House name',location_text:'Place'},
+ international:{title:'Country or place'},
+ timeline:{title:'Year (used when "Year or date shown" is empty)',excerpt:'What happened'},
+ leadership:{title:'Name',body:'Biography (Provincial Superior only)',image:'Photo'},
+ priest:{title:'Name',image:'Photo'},
+ location:{title:'Name — District',location_text:'Address'},
+ news:{title:'Headline',excerpt:'Summary on news cards',body:'Article (blank line between paragraphs)',location_text:'Place',event_date:'Date',image:'Cover photo'},
+ event:{title:'Event name',excerpt:'Summary',location_text:'Place',event_date:'Start date'},
+ publication:{title:'Title — Subtitle',excerpt:'Description',media_url:'Link to the latest issue (PDF or web address)'},
+};
+const PAGE_FIELDS={
+ home:{title:'Entry name',excerpt:'Tagline under the title',body:'Welcome paragraphs (blank line between paragraphs)'},
+ charism:{title:'Entry name',excerpt:'Small heading at the top',body:'Summary paragraph'},
+};
+const fieldsFor=form=>form.type==='page'?(PAGE_FIELDS[form.slug]||{title:'Entry name'}):(FIELDS[form.type]||{title:'Title',excerpt:'Short description',body:'Full content',location_text:'Location',event_date:'Date',image:'Cover image',media_url:'Media URL'});
+function ContentEditor({value,view,onClose,onSaved,notify,role}){
+ const [form,setForm]=useState({...emptyItem(value.type),...value,metadata:value.metadata||{}}),[lang]=useState('en'),[busy,setBusy]=useState(false),[advanced,setAdvanced]=useState(false),[jsonMeta,setJsonMeta]=useState(JSON.stringify(value.metadata||{},null,2));
  const [imageBusy,setImageBusy]=useState(false);
- const isNew=!value.id;const canPublish=['admin','publisher'].includes(role);
+ const isNew=!value.id;const canPublish=['admin','publisher'].includes(role);const fields=fieldsFor(form);
  const set=(name,content)=>setForm(a=>({...a,[name]:content}));
+ async function uploadImage(file){
+  if(demo){notify('Visual demo is read-only.','error');return '';}
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){notify('Choose a JPEG, PNG or WebP image.','error');return '';}
+  if(file.size>12*1024*1024){notify('Choose an image smaller than 12 MB.','error');return '';}
+  try{const data=new FormData();data.append('file',file);const {item}=await api('/api/assets',{method:'POST',body:data});notify('Image uploaded. Approve it in File Uploads, then save this entry.','success');return item.url;}
+  catch(err){notify(err.message,'error');return '';}
+ }
  const meta=(()=>{try{const m=JSON.parse(jsonMeta);return m&&typeof m==='object'&&!Array.isArray(m)?m:{}}catch{return {}}})();
  const setMeta=(key,content)=>setJsonMeta(s=>{let m;try{m=JSON.parse(s)}catch{return s}if(!m||typeof m!=='object'||Array.isArray(m))m={};if(content===''||content==null)delete m[key];else m[key]=content;return JSON.stringify(m,null,2)});
  const validStatus=requiresVerification.has(form.type);
@@ -191,21 +292,21 @@ function ContentEditor({value,onClose,onSaved,notify,role}){
   notify(isNew?'Content entry created.':'Changes saved successfully.','success');onSaved(result.item);
  }catch(err){notify(err.message,'error')}finally{setBusy(false)}}
  return <div data-dialog className="fixed inset-0 z-[70] flex justify-end"><div className="absolute inset-0 bg-navy-950/50 backdrop-blur-[3px]" onClick={onClose}/><div className="relative flex h-full w-full max-w-[690px] flex-col bg-white shadow-2xl">
-  <div className="flex items-start justify-between gap-5 border-b border-slate-100 px-6 sm:px-8 py-5"><div><div className="text-[10px] uppercase tracking-[.18em] text-gold-600 font-bold">{isNew?'New content entry':'Edit content'}</div><h2 className="text-xl font-bold text-navy-900 mt-1">{form.title_en||labels[form.type]}</h2><p className="text-xs text-slate-400 mt-1">{labels[form.type]} · English / தமிழ் / සිංහල</p></div><IconButton onClick={onClose} title="Close editor"><X size={20}/></IconButton></div>
+  <div className="flex items-start justify-between gap-5 border-b border-slate-100 px-6 sm:px-8 py-5"><div><div className="text-[10px] uppercase tracking-[.18em] text-gold-600 font-bold">{isNew?'New content entry':'Edit content'}</div><h2 className="text-xl font-bold text-navy-900 mt-1">{form.title_en||labels[form.type]}</h2><p className="text-xs text-slate-400 mt-1">{view?.where||labels[form.type]}</p></div><div className="flex items-center gap-1">{!isNew&&itemLink(form,view)&&<a href={itemLink(form,view)} target="_blank" rel="noreferrer" title="Open on website" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-gold-600 hover:bg-slate-100"><ExternalLink size={16}/> View on website</a>}<IconButton onClick={onClose} title="Close editor"><X size={20}/></IconButton></div></div>
   <form onSubmit={save} className="flex-1 min-h-0 flex flex-col"><div className="flex-1 overflow-y-auto px-6 sm:px-8 py-6 scroll-slim space-y-6">
    <div className="grid sm:grid-cols-2 gap-5"><div><label className="form-label">Publication status</label><select className="field mt-2" value={form.status} onChange={e=>set('status',e.target.value)}><option value="draft">Draft</option><option value="review">In review</option>{canPublish&&<option value="published">Published</option>}</select></div><div><label className="form-label">Verified by Province</label><select className="field mt-2" value={form.verification_status} onChange={e=>set('verification_status',e.target.value)}><option value="pending">Pending verification</option><option value="verified">Verified</option></select></div></div>
    {validStatus&&<div className="rounded-xl bg-amber-50 border border-amber-100 px-4 py-3 text-xs text-amber-800 flex gap-2"><ShieldAlert size={17} className="shrink-0"/>For this category, live publication requires Province verification and a last-verified date.</div>}
    <div><label className="form-label">Last verified</label><input className="field mt-2" type="date" value={dateInput(form.last_verified_at)} onChange={e=>set('last_verified_at',e.target.value||null)}/></div>
-   <div className="border-b border-slate-200 flex gap-1">{[['en','English'],['ta','தமிழ்'],['si','සිංහල']].map(([id,name])=><button key={id} type="button" onClick={()=>setLang(id)} className={`px-4 py-3 text-xs font-bold border-b-2 ${lang===id?'border-gold-500 text-navy-900':'border-transparent text-slate-400 hover:text-navy-800'}`}>{name}</button>)}</div>
-   <div><label className="form-label">Title {lang==='en'?'*':''}</label><input className="field mt-2" value={form[`title_${lang}`]||''} onChange={e=>{const v=e.target.value;setForm(f=>({...f,[`title_${lang}`]:v,...(lang==='en'&&(!value.id||f.slug===slugify(f.title_en))?{slug:slugify(v)}:{})}))}} placeholder="Enter title" required={lang==='en'}/></div>
+   <div><label className="form-label">{fields.title} *</label><input className="field mt-2" value={form[`title_${lang}`]||''} onChange={e=>{const v=e.target.value;setForm(f=>({...f,[`title_${lang}`]:v,...(lang==='en'&&(!value.id||f.slug===slugify(f.title_en))?{slug:slugify(v)}:{})}))}} placeholder="Enter title" required={lang==='en'}/></div>
    {lang==='en'&&<div><label className="form-label">URL slug</label><input className="field mt-2" value={form.slug} onChange={e=>set('slug',slugify(e.target.value))} placeholder="page-name" required/><p className="mt-1 text-[11px] text-slate-400">Unique, lowercase and hyphen-separated.</p></div>}
-   <div><label className="form-label">Short description</label><textarea className="field mt-2 min-h-24" value={form[`excerpt_${lang}`]||''} onChange={e=>set(`excerpt_${lang}`,e.target.value)} rows={3} placeholder="Summary used on cards and website listings"/></div>
-   <div><label className="form-label">Full page / article content</label><textarea className="field mt-2 min-h-44" value={form[`body_${lang}`]||''} onChange={e=>set(`body_${lang}`,e.target.value)} rows={7} placeholder="Write the full content here…"/><p className="mt-1 text-[11px] text-slate-400">Plain text. Rich-text formatting is a future enhancement.</p></div>
-   <div className="grid sm:grid-cols-2 gap-5"><div><label className="form-label">Location / address</label><input value={form.location_text} onChange={e=>set('location_text',e.target.value)} className="field mt-2" placeholder="e.g. Jaffna"/></div><div><label className="form-label">Event / publication date</label><input type="datetime-local" value={form.event_date?String(form.event_date).slice(0,16):''} onChange={e=>set('event_date',e.target.value?new Date(e.target.value).toISOString():null)} className="field mt-2"/></div></div>
-   <MetaFields type={form.type} meta={meta} setMeta={setMeta}/>
-   <CoverImageUpload value={form.image_url} onChange={url=>set('image_url',url)} api={api} canPublish={canPublish} notify={notify} onBusy={setImageBusy} demo={demo}/>
-   <div><label className="form-label">Video / PDF / audio URL</label><input type="text" value={form.media_url} onChange={e=>set('media_url',e.target.value)} className="field mt-2" placeholder="https://…"/></div>
-   <div className="flex items-center justify-between"><label className="flex gap-2.5 items-center cursor-pointer text-sm text-navy-900 font-medium"><input type="checkbox" checked={form.featured} onChange={e=>set('featured',e.target.checked)} className="accent-gold-500 h-4 w-4"/> Feature on website</label><div className="flex items-center gap-2"><span className="text-xs text-slate-500">Display order</span><input className="field w-20" type="number" value={form.sort_order} onChange={e=>set('sort_order',e.target.value)}/></div></div>
+   {fields.excerpt&&<div><label className="form-label">{fields.excerpt}</label><textarea className="field mt-2 min-h-24" value={form[`excerpt_${lang}`]||''} onChange={e=>set(`excerpt_${lang}`,e.target.value)} rows={3}/></div>}
+   {fields.body&&<div><label className="form-label">{fields.body}</label><textarea className="field mt-2 min-h-44" value={form[`body_${lang}`]||''} onChange={e=>set(`body_${lang}`,e.target.value)} rows={7}/><p className="mt-1 text-[11px] text-slate-400">Plain text.</p></div>}
+   {(fields.location_text||fields.event_date)&&<div className="grid sm:grid-cols-2 gap-5">{fields.location_text&&<div><label className="form-label">{fields.location_text}</label><input value={form.location_text} onChange={e=>set('location_text',e.target.value)} className="field mt-2" placeholder="e.g. Jaffna"/></div>}{fields.event_date&&<div><label className="form-label">{fields.event_date}</label><input type="datetime-local" value={form.event_date?String(form.event_date).slice(0,16):''} onChange={e=>set('event_date',e.target.value?new Date(e.target.value).toISOString():null)} className="field mt-2"/></div>}</div>}
+   <MetaFields type={form.type} slug={form.slug} meta={meta} setMeta={setMeta} upload={uploadImage}/>
+   <SectionFields form={form} meta={meta} setMeta={setMeta} upload={uploadImage}/>
+   {fields.image&&<CoverImageUpload label={fields.image} value={form.image_url} onChange={url=>set('image_url',url)} api={api} canPublish={canPublish} notify={notify} onBusy={setImageBusy} demo={demo}/>}
+   {fields.media_url&&<div><label className="form-label">{fields.media_url}</label><input type="text" value={form.media_url} onChange={e=>set('media_url',e.target.value)} className="field mt-2" placeholder="https://…"/></div>}
+   <div className="flex items-center justify-end gap-2"><span className="text-xs text-slate-500">Order on the website (1 = first)</span><input className="field w-20" type="number" value={form.sort_order} onChange={e=>set('sort_order',e.target.value)}/></div>
    <div className="rounded-xl border border-slate-200"><button type="button" onClick={()=>setAdvanced(v=>!v)} className="w-full px-4 py-3 flex justify-between items-center text-xs font-bold text-slate-600">Advanced data (JSON metadata) <ChevronDown size={16} className={advanced?'rotate-180':''}/></button>{advanced&&<div className="p-4 border-t border-slate-200"><textarea spellCheck="false" value={jsonMeta} onChange={e=>setJsonMeta(e.target.value)} rows={8} className="field font-mono text-xs"/><p className="text-[11px] mt-2 text-slate-400">Optional category-specific fields. Avoid sensitive personal information here.</p></div>}</div>
   </div><div className="border-t border-slate-100 bg-white px-6 sm:px-8 py-4 flex justify-end gap-3"><button type="button" className="btn-outline" onClick={onClose}>Cancel</button><button className="btn-primary" type="submit" disabled={busy||imageBusy}>{busy?<RefreshCw  size={16}/>:<Save size={16}/>} {isNew?'Create entry':'Save changes'}</button></div></form>
  </div></div>
@@ -219,11 +320,12 @@ function ContentManager({view,notify,user}){
  useEffect(()=>{const t=setTimeout(reload,160);return ()=>clearTimeout(t)},[view.id,status,q,page]);
  async function remove(it){if(!window.confirm(`Permanently delete "${it.title_en}"?`))return;try{await api(`/api/items/${it.id}`,{method:'DELETE'});notify('Record deleted.','success');reload()}catch(e){notify(e.message,'error')}}
  const Icon=iconFor[type]||FileText;
- return <div className="space-y-6 "><div className="flex flex-wrap gap-4 justify-between items-center"><div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500"><span className="inline-flex items-center gap-1.5"><Eye size={15} className="text-gold-600"/>Shown on: <b className="font-semibold text-navy-900">{view.where}</b></span>{view.link&&<a href={view.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold-600 hover:underline">View on website <ExternalLink size={12}/></a>}</div>{!view.single&&<button className="btn-primary" onClick={()=>setEdit({...emptyItem(type),metadata:{...view.defaults}})}><Plus size={16}/> Add {view.item}</button>}</div>
+ return <div className="space-y-6 "><div className="flex flex-wrap gap-4 justify-between items-center"><div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500"><span className="inline-flex items-center gap-1.5"><Eye size={15} className="text-gold-600"/>Shown on: <b className="font-semibold text-navy-900">{view.where}</b></span>{view.link&&<a href={view.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold-600 hover:underline">View on website <ExternalLink size={12}/></a>}</div>{!view.single&&<button className="btn-primary" onClick={()=>setEdit({...emptyItem(type),metadata:{...view.defaults}})}><Plus size={16}/> Add {view.item}</button>}{view.single&&!loading&&!q&&!status&&(view.slugs||[]).filter(([slug])=>!data.items.some(x=>x.slug===slug)).map(([slug,title])=><button key={slug} className="btn-primary" onClick={()=>setEdit({...emptyItem(type),slug,title_en:title})}><Plus size={16}/> Create {title}</button>)}</div>
+  {view.single&&data.items.some(x=>x.status!=='published')&&<div className="rounded-xl bg-amber-50 border border-amber-100 px-4 py-3 text-xs text-amber-800 flex gap-2"><Info size={16} className="shrink-0"/>Entries that are not <b>Published</b> are not used by the website. Open the entry, set Publication status to Published and save.</div>}
   <div className="panel overflow-hidden"><div className="flex flex-col sm:flex-row justify-between gap-3 px-5 sm:px-6 py-5 border-b border-slate-100"><div className="relative w-full sm:max-w-sm"><Search size={17} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"/><input placeholder={`Search ${name.toLowerCase()}…`} className="field pl-10" value={q} onChange={e=>{setQ(e.target.value);setPage(1)}}/></div><div className="flex items-center gap-2"><span className="text-xs text-slate-400 hidden sm:inline">Show:</span><select className="field min-w-36" value={status} onChange={e=>{setStatus(e.target.value);setPage(1)}}><option value="">All statuses</option><option value="draft">Draft</option><option value="review">In review</option><option value="published">Published</option></select><IconButton title="Refresh" onClick={reload}><RefreshCw size={17}/></IconButton></div></div>
-   <div className="overflow-x-auto"><table className="w-full min-w-[790px] text-left"><thead className="bg-[#f9fafc] text-[10px] uppercase tracking-wider text-slate-400"><tr><th className="px-6 py-4 font-bold">Content</th><th className="px-4 py-4 font-bold">Status</th><th className="px-4 py-4 font-bold">Verification</th><th className="px-4 py-4 font-bold">Updated</th><th className="px-6 py-4 font-bold text-right">Actions</th></tr></thead><tbody className="divide-y divide-slate-100">{data.items.map(x=><tr key={x.id} className="group hover:bg-slate-50/75"><td className="px-6 py-4"><div className="flex items-center gap-3"><div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50 text-navy-700 grid place-items-center"><Icon size={17}/></div><div className="min-w-0"><p className="text-[13px] font-semibold text-navy-900 truncate max-w-sm">{x.title_en}</p><p className="mt-1 text-[11px] text-slate-400 truncate max-w-sm">{type==='leadership'&&x.metadata?.role?[x.metadata.role,x.metadata.term].filter(Boolean).join(' · '):x.location_text||x.excerpt_en||`/${type}/${x.slug}`}</p></div></div></td><td className="px-4 py-4"><Tag value={x.status}/></td><td className="px-4 py-4"><Tag value={x.verification_status}/></td><td className="px-4 py-4 text-[11px] text-slate-500">{datePretty(x.updated_at)}</td><td className="px-6 py-4"><div className="flex justify-end gap-1"><IconButton title="Edit" onClick={()=>setEdit(x)}><Edit3 size={16}/></IconButton>{user.role==='admin'&&<IconButton title="Delete" onClick={()=>remove(x)}><Trash2 size={16}/></IconButton>}</div></td></tr>)}</tbody></table>{!loading&&data.items.length===0&&<div className="py-20 text-center"><div className="mx-auto mb-4 h-14 w-14 bg-slate-100 rounded-2xl grid place-items-center text-slate-400"><FolderOpen size={24}/></div><h3 className="text-sm font-bold text-navy-900">No matching entries</h3><p className="text-xs text-slate-400 mt-2">Try a different filter or add new content.</p></div>}{loading&&<div className="p-8 text-center text-xs text-slate-400">Loading content…</div>}</div>
+   <div className="overflow-x-auto"><table className="w-full min-w-[790px] text-left"><thead className="bg-[#f9fafc] text-[10px] uppercase tracking-wider text-slate-400"><tr><th className="px-6 py-4 font-bold">Content</th><th className="px-4 py-4 font-bold">Status</th><th className="px-4 py-4 font-bold">Verification</th><th className="px-4 py-4 font-bold">Updated</th><th className="px-6 py-4 font-bold text-right">Actions</th></tr></thead><tbody className="divide-y divide-slate-100">{data.items.map(x=><tr key={x.id} className="group hover:bg-slate-50/75"><td className="px-6 py-4"><div className="flex items-center gap-3"><div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50 text-navy-700 grid place-items-center"><Icon size={17}/></div><div className="min-w-0"><p className="text-[13px] font-semibold text-navy-900 truncate max-w-sm">{x.title_en}</p><p className="mt-1 text-[11px] text-slate-400 truncate max-w-sm">{type==='leadership'&&x.metadata?.role?[x.metadata.role,x.metadata.term].filter(Boolean).join(' · '):x.location_text||x.excerpt_en||`/${type}/${x.slug}`}</p></div></div></td><td className="px-4 py-4"><Tag value={x.status}/></td><td className="px-4 py-4"><Tag value={x.verification_status}/></td><td className="px-4 py-4 text-[11px] text-slate-500">{datePretty(x.updated_at)}</td><td className="px-6 py-4"><div className="flex justify-end gap-1">{itemLink(x,view)&&<a href={itemLink(x,view)} target="_blank" rel="noreferrer" title={x.status==='published'?'Open on website':'Open on website (not published yet, so changes are not shown)'} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-navy-900"><ExternalLink size={16}/></a>}<IconButton title="Edit" onClick={()=>setEdit(x)}><Edit3 size={16}/></IconButton>{user.role==='admin'&&<IconButton title="Delete" onClick={()=>remove(x)}><Trash2 size={16}/></IconButton>}</div></td></tr>)}</tbody></table>{!loading&&data.items.length===0&&<div className="py-20 text-center"><div className="mx-auto mb-4 h-14 w-14 bg-slate-100 rounded-2xl grid place-items-center text-slate-400"><FolderOpen size={24}/></div><h3 className="text-sm font-bold text-navy-900">No matching entries</h3><p className="text-xs text-slate-400 mt-2">Try a different filter or add new content.</p></div>}{loading&&<div className="p-8 text-center text-xs text-slate-400">Loading content…</div>}</div>
    <div className="px-6 py-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400"><span>{data.total} entries · Page {data.page} of {data.pages}</span><div className="flex gap-2"><button disabled={page<=1} onClick={()=>setPage(v=>v-1)} className="btn-outline !px-3 !py-1.5 disabled:opacity-40">Previous</button><button disabled={page>=data.pages} onClick={()=>setPage(v=>v+1)} className="btn-outline !px-3 !py-1.5 disabled:opacity-40">Next</button></div></div>
-  </div>{edit&&<ContentEditor value={edit} role={user.role} notify={notify} onClose={()=>setEdit(null)} onSaved={()=>{setEdit(null);reload()}}/>}</div>
+  </div>{edit&&<ContentEditor value={edit} view={view} role={user.role} notify={notify} onClose={()=>setEdit(null)} onSaved={()=>{setEdit(null);reload()}}/>}</div>
 }
 function Contacts({notify,user}){
  const [items,setItems]=useState([]),[current,setCurrent]=useState(null),[busy,setBusy]=useState(false);

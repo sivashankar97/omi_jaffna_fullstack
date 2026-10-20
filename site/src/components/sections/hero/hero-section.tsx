@@ -2,9 +2,10 @@ import Link from "next/link"
 import { ArrowDown, ArrowUpRight } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import type { BlockContent } from "@/content/blocks"
 import type { HomeContent } from "@/lib/cms"
 
-export function HeroSection({ hero }: { hero: HomeContent["hero"] }) {
+export function HeroSection({ hero, media }: { hero: HomeContent["hero"]; media: BlockContent<"home">["hero"] }) {
   return (
     <section id="hero" className="relative isolate flex min-h-[calc(100svh-17rem)] scroll-mt-80 flex-col justify-center overflow-hidden bg-[#092f3d] text-white">
       <video
@@ -13,11 +14,12 @@ export function HeroSection({ hero }: { hero: HomeContent["hero"] }) {
         loop
         playsInline
         preload="auto"
-        poster="/Herosection/Heroimage_4.jpg"
+        poster={media.posterImage}
+        key={media.video}
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[center_42%]"
       >
-        <source src="/video/Hero_section.mp4" type="video/mp4" />
+        {media.video ? <source src={media.video} type="video/mp4" /> : null}
       </video>
       <div
         className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(4,31,42,0.94)_0%,rgba(4,31,42,0.76)_46%,rgba(4,31,42,0.35)_100%)]"

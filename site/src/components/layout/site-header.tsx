@@ -20,15 +20,19 @@ import {
 import { mainNavigation as defaultNavigation } from "@/config/navigation"
 import type { NavItem } from "@/types"
 import { site } from "@/config/site"
+import { useSiteInfo } from "@/components/layout/site-info"
+import { isUpload } from "@/content/site-info"
 import { cn } from "cn"
 
 export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: { navigation?: NavItem[] }) {
+  const siteInfo = useSiteInfo()
   const pathname = usePathname()
   const [query, setQuery] = useState("")
   const [openHref, setOpenHref] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState<string | null>(null)
   const [expanded, setExpanded] = useState(true)
   const headerRef = useRef<HTMLElement>(null)
+  const shellRef = useRef<HTMLDivElement>(null)
   const navRef = useRef<HTMLElement>(null)
   const expandedRef = useRef(true)
 
@@ -47,9 +51,28 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
 
   useEffect(() => {
     const header = headerRef.current
-    if (!header) return
+    const shell = shellRef.current
+    if (!header || !shell) return
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     let frame = 0
+    let resizeFrame = 0
+
+    // The header is fixed and shrinks on scroll; the shell reserves its full
+    // expanded height so the page never shifts (shifting caused a scroll loop).
+    const measure = () => {
+      resizeFrame = 0
+      const tuck = header.style.getPropertyValue("--tuck")
+      const wasExpanded = header.classList.contains("is-expanded")
+      header.style.setProperty("--tuck", "0")
+      header.classList.add("is-expanded")
+      shell.style.height = `${header.offsetHeight}px`
+      header.style.setProperty("--tuck", tuck || "0")
+      if (!wasExpanded) header.classList.remove("is-expanded")
+    }
+
+    const onResize = () => {
+      if (!resizeFrame) resizeFrame = requestAnimationFrame(measure)
+    }
 
     const apply = () => {
       frame = 0
@@ -67,10 +90,14 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
       if (!frame) frame = requestAnimationFrame(apply)
     }
     apply()
+    measure()
     window.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("resize", onResize)
     return () => {
       window.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onResize)
       if (frame) cancelAnimationFrame(frame)
+      if (resizeFrame) cancelAnimationFrame(resizeFrame)
     }
   }, [])
 
@@ -91,17 +118,20 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
   }, [openHref])
 
   return (
+    <>
+    <div ref={shellRef} className="site-header-shell shrink-0" aria-hidden="true" />
     <header
       ref={headerRef}
       className={cn(
-        "site-header sticky top-0 z-40 bg-white text-[#102a43] shadow-[0_5px_18px_-14px_rgba(8,47,61,0.65)] dark:bg-[#071422] dark:text-[#e7fbff]",
+        "site-header fixed inset-x-0 top-0 z-40 bg-white text-[#102a43] shadow-[0_5px_18px_-14px_rgba(8,47,61,0.65)] dark:bg-[#071422] dark:text-[#e7fbff]",
         expanded && "is-expanded"
       )}
     >
       <div className="header-logo-row mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 overflow-x-hidden px-3 sm:gap-4 sm:px-6">
         <Link href="/" className="justify-self-start" aria-label={site.name}>
           <Image
-            src={site.assets.logos.left}
+            src={siteInfo.logos.headerImage}
+            unoptimized={isUpload(siteInfo.logos.headerImage)}
             alt="Missionary Oblates of Mary Immaculate"
             width={520}
             height={140}
@@ -132,7 +162,8 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
               className="header-logo-right flex items-center justify-center"
             >
               <Image
-                src={site.assets.logos.right}
+                src={siteInfo.logos.emblemImage}
+                unoptimized={isUpload(siteInfo.logos.emblemImage)}
                 alt="Oblate Province of Jaffna emblem"
                 width={500}
                 height={500}
@@ -314,6 +345,7 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
         </div>
       </nav>
     </header>
+    </>
   )
 }
 

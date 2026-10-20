@@ -1,17 +1,18 @@
 "use client"
 
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 
-import { journeyEras } from "@/content/journey"
+import type { JourneyEra } from "@/content/journey"
 import { cn } from "cn"
-
-const stops = journeyEras.flatMap((era) => era.years.map((year) => ({ ...year, era })))
-const eraStart = journeyEras.map((era) => stops.findIndex((stop) => stop.era.id === era.id))
 
 const INTERVAL = 3800
 
-export function JourneyPath() {
+export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[] }) {
+  const { stops, eraStart } = useMemo(() => {
+    const stops = journeyEras.flatMap((era) => era.years.map((year) => ({ ...year, era })))
+    return { stops, eraStart: journeyEras.map((era) => stops.findIndex((stop) => stop.era === era)) }
+  }, [journeyEras])
   const [active, setActive] = useState(0)
   const [hovered, setHovered] = useState(false)
   const [playing, setPlaying] = useState(true)
@@ -26,7 +27,7 @@ export function JourneyPath() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     const id = window.setTimeout(() => setActive((index) => (index + 1) % stops.length), INTERVAL)
     return () => window.clearTimeout(id)
-  }, [active, playing, hovered])
+  }, [active, playing, hovered, stops.length])
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -44,6 +45,7 @@ export function JourneyPath() {
   }, [active])
 
   const go = (index: number) => setActive((index + stops.length) % stops.length)
+  if (!current) return null
 
   return (
     <section
@@ -71,10 +73,10 @@ export function JourneyPath() {
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
           {journeyEras.map((era, index) => {
-            const on = current.era.id === era.id
+            const on = current.era === era
             return (
               <button
-                key={era.id}
+                key={`${index}-${era.title}`}
                 type="button"
                 onClick={() => go(eraStart[index])}
                 aria-pressed={on}

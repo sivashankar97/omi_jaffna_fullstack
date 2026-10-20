@@ -8,8 +8,8 @@ import { CharismVow } from "@/components/sections/charism/charism-vow"
 import { CharismWays } from "@/components/sections/charism/charism-ways"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { SectionHeading } from "@/components/sections/section-heading"
-import { charismHero, charismIdentity, charismPriorities } from "@/content/charism"
-import { getCharismContent } from "@/lib/cms"
+import { isUpload } from "@/content/site-info"
+import { getBlock, getCharismContent } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "Charism",
@@ -20,7 +20,8 @@ export const metadata: Metadata = {
 const priorityIcons = [Flame, Users, Compass]
 
 export default async function CharismPage() {
-  const content = await getCharismContent()
+  const [content, sections] = await Promise.all([getCharismContent(), getBlock("charism")])
+  const { hero: charismHero, identity: charismIdentity, priorities: charismPriorities } = sections
   return (
     <>
       <ScrollProgress />
@@ -104,8 +105,9 @@ export default async function CharismPage() {
             />
             <div className="group relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-[0_30px_60px_-30px_rgba(2,62,138,0.55)] sm:aspect-[4/3] lg:aspect-[4/5]">
               <Image
-                src="/Herosection/Heroimage_4.jpg"
-                alt="Oblate church in Jaffna"
+                src={sections.images.identityImage}
+                alt={sections.images.identityImageAlt}
+                unoptimized={isUpload(sections.images.identityImage)}
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover transition duration-[1200ms] ease-out group-hover:scale-105"
@@ -132,7 +134,7 @@ export default async function CharismPage() {
           />
           <div className="mt-14 grid gap-6 md:grid-cols-3">
             {charismPriorities.items.map((item, index) => {
-              const Icon = priorityIcons[index]
+              const Icon = priorityIcons[index % priorityIcons.length]
               return (
                 <Reveal
                   key={item.title}
@@ -158,7 +160,7 @@ export default async function CharismPage() {
 
       <CharismWays ways={content.ways} />
       <CharismJoin tone="ways" />
-      <CharismVow />
+      <CharismVow motto={sections.motto} crossImage={sections.images.crossImage} />
       <CharismJoin tone="vow" />
       <section id="about" className="scroll-mt-80 bg-white px-4 py-20 text-[#023e8a] sm:px-8">
         <div className="mx-auto max-w-5xl">

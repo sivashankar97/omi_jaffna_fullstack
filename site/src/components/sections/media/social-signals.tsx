@@ -1,6 +1,6 @@
-import { site } from "@/config/site"
+import { getSiteInfo } from "@/lib/cms"
 
-const channels = [
+const channelList = (site: { social: Record<"youtube" | "instagram" | "facebook" | "whatsapp", string>; contact: { phone: string } }) => [
   {
     name: "YouTube",
     handle: "Oblate Jaffna TV",
@@ -30,16 +30,17 @@ const channels = [
   },
   {
     name: "WhatsApp",
-    handle: "021-2222721",
+    handle: site.contact.phone,
     text: "A message to the Province office. No chat history is shown here.",
     href: site.social.whatsapp,
     action: "Write on WhatsApp",
     className: "min-h-40 md:col-span-1",
     face: "bg-[#e7fbff] text-[#023e8a]",
   },
-] as const
+]
 
-export function SocialSignals() {
+export async function SocialSignals() {
+  const channels = channelList(await getSiteInfo())
   return (
     <section id="social-signals" className="scroll-mt-80 border-t border-[#90e0ef] bg-white px-4 py-10 text-[#023e8a] sm:px-6 sm:py-14 lg:px-8">
       <div className="mx-auto max-w-6xl">

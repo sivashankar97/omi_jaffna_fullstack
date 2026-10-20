@@ -8,7 +8,8 @@ import { CountUp } from "@/components/sections/history/count-up"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { JourneyPath } from "@/components/sections/home/journey-path"
 import { SectionHeading } from "@/components/sections/section-heading"
-import { briefHistory, development, whoWeAre } from "@/content/history"
+import { isUpload } from "@/content/site-info"
+import { getBlock } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "History",
@@ -19,7 +20,12 @@ export const metadata: Metadata = {
 const statIcons = [CalendarDays, Users, MapPin]
 const commitmentIcons = [Church, HeartHandshake, Globe]
 
-export default function HistoryPage() {
+export default async function HistoryPage() {
+  const [{ images, whoWeAre, briefHistory, development }, journey] = await Promise.all([
+    getBlock("history"),
+    getBlock("journey"),
+  ])
+  const chapters = briefHistory.chapters.map((chapter, index) => ({ ...chapter, id: chapter.id || `chapter-${index + 1}` }))
   return (
     <>
       <ScrollProgress />
@@ -29,10 +35,11 @@ export default function HistoryPage() {
       >
         <div aria-hidden="true" className="history-kenburns absolute inset-0 -z-20">
           <Image
-            src="/Herosection/Heroimage_4.jpg"
+            src={images.heroImage}
             alt=""
             fill
             priority
+            unoptimized={isUpload(images.heroImage)}
             sizes="100vw"
             className="object-cover object-[center_35%]"
           />
@@ -67,7 +74,7 @@ export default function HistoryPage() {
       <section aria-label="Province at a glance" className="relative z-10 -mt-24 px-4 sm:-mt-28 sm:px-8">
         <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-3 sm:gap-6">
           {whoWeAre.stats.map((stat, index) => {
-            const Icon = statIcons[index]
+            const Icon = statIcons[index % statIcons.length]
             return (
               <Reveal
                 key={stat.label}
@@ -107,8 +114,9 @@ export default function HistoryPage() {
               />
               <div className="group relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-[0_30px_60px_-30px_rgba(2,62,138,0.55)]">
                 <Image
-                  src="/Administration.jpg"
-                  alt="Oblates united in prayer around the Word of God"
+                  src={images.familyImage}
+                  alt={images.familyImageAlt}
+                  unoptimized={isUpload(images.familyImage)}
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
                   className="object-cover transition duration-[1200ms] ease-out group-hover:scale-105"
@@ -129,7 +137,7 @@ export default function HistoryPage() {
           />
           <div className="mt-14 grid gap-6 md:grid-cols-3">
             {whoWeAre.commitments.items.map((item, index) => {
-              const Icon = commitmentIcons[index]
+              const Icon = commitmentIcons[index % commitmentIcons.length]
               return (
                 <Reveal
                   key={item.title}
@@ -158,7 +166,14 @@ export default function HistoryPage() {
         className="relative isolate scroll-mt-80 overflow-hidden bg-[#03202b] px-4 py-20 text-white sm:px-8 sm:py-28"
       >
         <div aria-hidden="true" className="history-kenburns absolute inset-0 -z-20">
-          <Image src="/Herosection/Heroimage_2.jpg" alt="" fill sizes="100vw" className="object-cover" />
+          <Image
+            src={images.historyImage}
+            alt=""
+            fill
+            sizes="100vw"
+            unoptimized={isUpload(images.historyImage)}
+            className="object-cover"
+          />
         </div>
         <div
           aria-hidden="true"
@@ -182,11 +197,11 @@ export default function HistoryPage() {
 
           <div className="mt-16 grid gap-12 lg:grid-cols-[16rem_1fr] lg:gap-16">
             <aside className="hidden lg:block">
-              <ChapterNav chapters={briefHistory.chapters} />
+              <ChapterNav chapters={chapters} />
             </aside>
 
             <div className="space-y-14">
-              {briefHistory.chapters.map((chapter, index) => (
+              {chapters.map((chapter, index) => (
                 <Reveal key={chapter.id} from="up" id={chapter.id} className="scroll-mt-32">
                   <article className="relative border-b border-[#e2f2f6] pb-14 last:border-b-0 last:pb-0">
                     <div className="flex flex-wrap items-center gap-4">
@@ -202,7 +217,7 @@ export default function HistoryPage() {
                     </h3>
                     <div className="mt-5 space-y-5 text-base leading-8 text-[#3d4b59] sm:text-[17px]">
                       {chapter.paragraphs.map((paragraph) => (
-                        <p key={paragraph.slice(0, 40)}>{paragraph}</p>
+                        <p key={paragraph}>{paragraph}</p>
                       ))}
                     </div>
                   </article>
@@ -213,7 +228,7 @@ export default function HistoryPage() {
         </div>
       </section>
 
-      <JourneyPath />
+      <JourneyPath eras={journey.eras} />
 
       <section id="development" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-20 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-6xl">

@@ -11,67 +11,27 @@ import { JoinUs } from "@/components/sections/home/join-us"
 import { MediaHighlights } from "@/components/sections/home/media-highlights"
 import { ProvinceCalendar } from "@/components/sections/home/province-calendar"
 import { NewsMarquee } from "@/components/sections/news/news-marquee"
-import { sampleNews } from "@/content/news"
-import { getEvents, getHomeContent, getMinistries, getNews } from "@/lib/cms"
+import { getBlock, getEvents, getHomeContent, getMinistries, getNews } from "@/lib/cms"
 
-const pillars = [
-  {
-    title: "Charism",
-    text: "Evangelizing the poor. Presence, accompaniment, education, compassion, justice, reconciliation and service.",
-    icon: HandHeart,
-    href: "/charism",
-  },
-  {
-    title: "Mission",
-    text: "Empowered by the Good News, we work for a healing society in and through the light of the Good News.",
-    icon: Compass,
-    href: "/charism#mission",
-  },
-  {
-    title: "Vision",
-    text: "A life towards a renewed, just and free society.",
-    icon: Eye,
-    href: "/charism#vision",
-  },
-] as const
+const pillarIcons = [HandHeart, Compass, Eye]
 
-const paths = [
-  {
-    id: "formation",
-    href: "/vocations",
-    kicker: "Formation",
-    title: "A life given to mission",
-    text: "Prayer, study and community at Colombuthurai, Keeri and Ampitiya, and formation houses abroad.",
-    accent: "#8cc8ff",
-    shape: "3rem 0.75rem 3rem 0.75rem",
-  },
-  {
-    id: "beyond",
-    href: "/international",
-    kicker: "Beyond the island",
-    title: "Missionaries sent abroad",
-    text: "Oblates of this Province serve in Mexico, Kenya, Europe, Australia, Pakistan and other missions.",
-    accent: "#ffb98f",
-    shape: "10rem 10rem 1.5rem 1.5rem",
-  },
-  {
-    id: "office",
-    href: "/contact",
-    kicker: "Province office",
-    title: "Write to Jaffna",
-    text: "657/1 Hospital Road, Jaffna. The Province office answers vocation, parish and publication enquiries.",
-    accent: "#bfe58a",
-    shape: "0.75rem 3rem 0.75rem 3rem",
-  },
-] as const
+const pathStyles = [
+  { id: "formation", accent: "#8cc8ff", shape: "3rem 0.75rem 3rem 0.75rem" },
+  { id: "beyond", accent: "#ffb98f", shape: "10rem 10rem 1.5rem 1.5rem" },
+  { id: "office", accent: "#bfe58a", shape: "0.75rem 3rem 0.75rem 3rem" },
+]
 
 export async function HomeSections() {
-  const [ministries, latestNews, events, { welcome }] = await Promise.all([
+  const [ministries, latestNews, events, { welcome }, home, journey] = await Promise.all([
     getMinistries(),
-    getNews(sampleNews),
+    getNews(),
     getEvents(),
     getHomeContent(),
+    getBlock("home-sections"),
+    getBlock("journey"),
   ])
+  const pillars = home.pillars.items.map((item, index) => ({ ...item, icon: pillarIcons[index % pillarIcons.length] }))
+  const paths = home.paths.map((path, index) => ({ ...pathStyles[index % pathStyles.length], ...path }))
   return (
     <>
       <section id="welcome" className="welcome-stage relative scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
@@ -80,7 +40,7 @@ export async function HomeSections() {
           <div className="px-7 py-10 sm:px-12 sm:py-14">
             <p className="welcome-ink font-heading text-4xl leading-tight font-semibold sm:text-5xl">Welcome</p>
             <h2 className="welcome-soft mt-3 text-sm font-semibold tracking-[0.22em] uppercase">
-              Island-wide and abroad
+              {home.welcome.kicker}
             </h2>
             {welcome.map((paragraph) => (
               <p key={paragraph} className="welcome-soft mt-5 max-w-xl text-base leading-7">
@@ -88,11 +48,7 @@ export async function HomeSections() {
               </p>
             ))}
             <dl className="mt-7 grid max-w-md grid-cols-3 gap-3">
-              {[
-                { label: "Ceylon", value: "1847" },
-                { label: "Jaffna", value: "1848" },
-                { label: "Ministries", value: "17" },
-              ].map((stat) => (
+              {home.welcome.stats.map((stat) => (
                 <div key={stat.label} className="welcome-stat rounded-2xl px-3 py-3">
                   <dt className="welcome-soft text-[11px] tracking-[0.16em] uppercase">{stat.label}</dt>
                   <dd className="welcome-ink mt-1 font-heading text-2xl font-semibold sm:text-3xl">{stat.value}</dd>
@@ -110,8 +66,8 @@ export async function HomeSections() {
           </div>
           <div className="welcome-photo flex items-center justify-center p-6 sm:p-10">
             <img
-              src="/Herosection/Welcome.jpeg"
-              alt="Oblate Media Ministry of the Oblate Province of Jaffna"
+              src={home.welcome.image}
+              alt={home.welcome.imageAlt}
               className="welcome-float h-auto max-h-[26rem] w-full rounded-[1.4rem] object-contain"
             />
           </div>
@@ -121,8 +77,8 @@ export async function HomeSections() {
       <section id="pillars" className="pillar-stage scroll-mt-80 overflow-hidden px-4 py-20 sm:px-8">
         <div className="mx-auto max-w-6xl text-center">
           <Reveal from="up">
-            <p className="pillar-kicker text-sm font-semibold tracking-[0.22em] uppercase">What guides us</p>
-            <h2 className="pillar-title mt-2 font-heading text-4xl font-semibold sm:text-5xl">Our calling</h2>
+            <p className="pillar-kicker text-sm font-semibold tracking-[0.22em] uppercase">{home.pillars.kicker}</p>
+            <h2 className="pillar-title mt-2 font-heading text-4xl font-semibold sm:text-5xl">{home.pillars.title}</h2>
             <span className="pillar-rule mx-auto mt-5 block" aria-hidden="true" />
           </Reveal>
           <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
@@ -160,10 +116,10 @@ export async function HomeSections() {
         <div className="relative mx-auto max-w-6xl">
           <Reveal from="left">
             <p className="ministry-heading font-heading text-4xl leading-tight font-semibold sm:text-5xl">
-              Ministries
+              {home.ministries.title}
             </p>
             <h2 className="ministry-sub mt-2 text-sm font-semibold tracking-[0.22em] uppercase">
-              Seventeen ways of serving
+              {home.ministries.kicker}
             </h2>
           </Reveal>
           <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -229,7 +185,7 @@ export async function HomeSections() {
           <div className="relative mx-auto grid max-w-6xl gap-6 lg:grid-cols-3 lg:items-stretch">
             {paths.map((path, index) => (
               <Reveal
-                key={path.href}
+                key={path.id}
                 from={index === 0 ? "left" : index === 2 ? "right" : "up"}
                 delay={index === 1 ? 0 : 150}
                 className="h-full"
@@ -267,29 +223,26 @@ export async function HomeSections() {
 
       <section id="latest-news" className="scroll-mt-80 bg-[#f7fbff] pt-4 pb-16">
         <Reveal from="up" className="mx-auto mb-6 max-w-6xl px-4 sm:px-8">
-          <h2 className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">Latest news</h2>
-          <p className="mt-2 text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">From the Province</p>
+          <h2 className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">{home.news.title}</h2>
+          <p className="mt-2 text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">{home.news.kicker}</p>
         </Reveal>
         <NewsMarquee articles={latestNews} />
       </section>
 
-      <MediaHighlights />
+      <MediaHighlights content={home.media} />
 
-      <JourneyPath />
+      <JourneyPath eras={journey.eras} />
 
       <section id="family" className="scroll-mt-80 bg-[#f7fbff] px-4 py-16 text-[#023e8a] sm:px-8">
         <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-[1.2fr_1fr] md:items-center">
           <Reveal>
             <p className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">
-              One congregation
+              {home.family.title}
             </p>
             <h2 className="mt-3 text-sm font-semibold tracking-[0.18em] text-[#0077b6] uppercase">
-              Jaffna, with the wider Oblate family
+              {home.family.kicker}
             </h2>
-            <p className="mt-4 max-w-xl leading-7 text-[#5c6b7a]">
-              Official notices from this Province are published on the News page.
-              The General Administration and the Colombo Province each keep their own sites.
-            </p>
+            <p className="mt-4 max-w-xl leading-7 text-[#5c6b7a]">{home.family.text}</p>
           </Reveal>
           <Reveal delay={120} className="grid gap-3">
             <Link
@@ -315,8 +268,8 @@ export async function HomeSections() {
       </section>
 
       <ProvinceCalendar events={events} />
-      <JoinUs />
-      <HomeContact />
+      <JoinUs content={home.joinUs} />
+      <HomeContact content={home.contact} />
     </>
   )
 }

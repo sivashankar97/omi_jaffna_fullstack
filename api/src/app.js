@@ -99,7 +99,7 @@ app.get('/api/items',auth,cmsOnly,asyncRoute(async(req,res)=>{
   if(not.length){args.push(not);conditions.push(`NOT (${field} ILIKE ANY($${args.length}))`);}
  }
  const where=conditions.join(' AND ');const total=(await query(`SELECT count(*)::int AS total FROM content_items WHERE ${where}`,args)).rows[0].total;
- const list=await query(`SELECT * FROM content_items WHERE ${where} ORDER BY sort_order ASC,updated_at DESC LIMIT 50 OFFSET $${args.length+1}`,[...args,(page-1)*50]);
+ const list=await query(`SELECT * FROM content_items WHERE ${where} ORDER BY sort_order ASC,COALESCE(event_date,created_at) DESC LIMIT 50 OFFSET $${args.length+1}`,[...args,(page-1)*50]);
  res.json({items:list.rows,total,page,pages:Math.max(1,Math.ceil(total/50))});
 }));
 app.post('/api/items',auth,allow('admin','editor','publisher'),asyncRoute(async(req,res)=>{
@@ -138,7 +138,7 @@ app.delete('/api/items/:id',auth,allow('admin'),asyncRoute(async(req,res)=>{
 const PUBLIC_META_KEYS=[
  'role','term','term_in_source','since','terms','section','end_date','date_display','subtitle','kind','place',
  'district','purpose','contact','phone','email','lat','lng',
- 'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample'
+ 'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample','sections','detail','about_heading','about','mission'
 ];
 app.get('/api/public/items',asyncRoute(async(req,res)=>{
  const type=String(req.query.type||'page');if(!TYPES[type])return bad(res,'Invalid type');

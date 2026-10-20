@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { LayerGroup, Map as LeafletMap } from "leaflet"
 
-import { mapLocations as defaultLocations, type MapKind, type MapLocation } from "@/content/map-locations"
-import { site } from "@/config/site"
+import type { MapKind, MapLocation } from "@/content/map-locations"
+import { useSiteInfo } from "@/components/layout/site-info"
 import { cn } from "cn"
 
 const filters: { id: "all" | MapKind; label: string }[] = [
@@ -40,12 +40,11 @@ type LeafletApi = {
   layer: LayerGroup
 }
 
-export function ProvinceMap({ locations: mapLocations = defaultLocations }: { locations?: MapLocation[] }) {
-  const provincialHouse =
-    mapLocations.find((place) => /provincial house/i.test(place.name)) ?? mapLocations[0] ?? defaultLocations[0]
+export function ProvinceMap({ locations: mapLocations }: { locations: MapLocation[] }) {
+  const provincialHouse = mapLocations.find((place) => /provincial house/i.test(place.name)) ?? mapLocations[0]
   const [query, setQuery] = useState("")
   const [kind, setKind] = useState<(typeof filters)[number]["id"]>("all")
-  const [selectedId, setSelectedId] = useState(provincialHouse.id)
+  const [selectedId, setSelectedId] = useState(provincialHouse?.id ?? "")
   const [ready, setReady] = useState(false)
   const mapNode = useRef<HTMLDivElement>(null)
   const apiRef = useRef<LeafletApi | null>(null)
@@ -68,6 +67,23 @@ export function ProvinceMap({ locations: mapLocations = defaultLocations }: { lo
 
   const selected = results.find((place) => place.id === selectedId) ?? results[0]
   const resultKey = results.map((place) => place.id).join("|")
+
+  useEffect(() => {
+    const openFromHash = () => {
+      const id = decodeURIComponent(window.location.hash.replace(/^#place-/, ""))
+      if (id === window.location.hash.slice(1) || !mapLocations.some((place) => place.id === id)) return
+      setKind("all")
+      setQuery("")
+      setSelectedId(id)
+      document.getElementById("mission-map")?.scrollIntoView({ behavior: "smooth" })
+    }
+    const frame = window.requestAnimationFrame(openFromHash)
+    window.addEventListener("hashchange", openFromHash)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener("hashchange", openFromHash)
+    }
+  }, [mapLocations])
 
   useEffect(() => {
     let alive = true
@@ -164,7 +180,7 @@ export function ProvinceMap({ locations: mapLocations = defaultLocations }: { lo
             </p>
           </div>
           <a
-            href={mapsSearch(provincialHouse.address)}
+            href={mapsSearch(provincialHouse?.address ?? "")}
             target="_blank"
             rel="noreferrer"
             className="rounded-full border-2 border-[#023e8a] bg-white px-4 py-2 text-sm font-semibold text-[#023e8a] transition hover:bg-[#e7fbff]"
@@ -242,6 +258,7 @@ export function ProvinceMap({ locations: mapLocations = defaultLocations }: { lo
 }
 
 function PlaceCard({ place }: { place: MapLocation }) {
+  const site = useSiteInfo()
   return (
     <article className="grid overflow-hidden rounded-3xl bg-white shadow-md lg:grid-cols-[1fr_1.2fr]">
       <div className="p-5">

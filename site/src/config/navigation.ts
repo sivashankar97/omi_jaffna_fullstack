@@ -1,4 +1,3 @@
-import { formationHouses as builtInHouses, ministries as builtInMinistries, parishes as builtInParishes } from "@/content/province"
 import type { NavItem } from "@/types"
 
 type NavigationData = {
@@ -183,11 +182,7 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
   ]
 }
 
-export const mainNavigation = buildNavigation({
-  ministries: builtInMinistries,
-  parishes: builtInParishes,
-  formationHouses: builtInHouses,
-})
+export const mainNavigation = buildNavigation({ ministries: [], parishes: [], formationHouses: [] })
 
 export const locales = [
   { code: "en", label: "English" },

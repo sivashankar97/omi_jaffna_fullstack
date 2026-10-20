@@ -373,6 +373,29 @@
   /* Header size follows the scroll position. */
 }
 
+/* Pre-hydration estimate of the expanded header; JS sets the exact height. */
+.site-header-shell {
+  height: 78px;
+}
+
+@media (min-width: 640px) {
+  .site-header-shell {
+    height: 84px;
+  }
+}
+
+@media (min-width: 768px) {
+  .site-header-shell {
+    height: 92px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-header-shell {
+    height: 154px;
+  }
+}
+
 .header-logo-row {
   padding-top: calc(0.625rem - 0.25rem * var(--tuck));
   padding-bottom: calc(0.625rem - 0.25rem * var(--tuck));

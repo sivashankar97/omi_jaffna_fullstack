@@ -3,6 +3,8 @@
 import { ArrowUpRight, Check, X } from "lucide-react"
 import { FormEvent, useState } from "react"
 
+import { useSiteInfo } from "@/components/layout/site-info"
+import type { HomeSectionsContent } from "@/content/blocks"
 import { cn } from "cn"
 
 type Field = {
@@ -22,92 +24,71 @@ type Path = {
   tagline: string
   text: string
   close: string
-  steps?: string[]
+  steps?: readonly string[]
+  interests?: readonly string[]
   fields: Field[]
 }
 
-const paths: Path[] = [
-  {
-    id: "oblate",
-    label: "Be an Oblate",
-    title: "Be an Oblate",
-    tagline: "Answer the call. Serve the most abandoned.",
-    text: "Do you feel a calling to walk alongside the poor, the marginalized and those who long for hope? The Missionary Oblates of Mary Immaculate invite young men to discern a life of purpose and brotherhood. Whether called to serve as a priest or a religious brother, becoming an Oblate means giving your life to the Gospel in the spirit of St. Eugene de Mazenod.",
-    close: "Take the first step in your discernment journey today.",
-    steps: [
-      "“Come and See” vocation camp",
-      "The Juniorate",
-      "The Pre-Novitiate",
-      "The Novitiate",
-      "The Scholasticate",
-    ],
-    fields: [
-      { name: "Full name", label: "Full name", required: true, autoComplete: "name" },
-      {
-        name: "Date of birth / Age",
-        label: "Date of birth / Age",
-        hint: "Helps us direct you to the right formation stage",
-        required: true,
-      },
-      { name: "Email", label: "Email address", type: "email", autoComplete: "email" },
-      { name: "Phone / WhatsApp", label: "Phone / WhatsApp number", type: "tel", required: true, autoComplete: "tel" },
-      { name: "City / Diocese", label: "City / Diocese of residence", required: true },
-      {
-        name: "Highest qualification",
-        label: "Highest educational qualification",
-        hint: "e.g. O/Ls, A/Ls, Degree",
-        required: true,
-      },
-      { name: "Occupation / Studies", label: "Current occupation / studies", required: true },
-      {
-        name: "Message",
-        label: "Message",
-        hint: "Tell us a little about yourself and why you are interested in the Oblates",
-        type: "textarea",
-      },
-    ],
-  },
-  {
-    id: "associate",
-    label: "Be an Oblate Lay Associate",
-    title: "Be an Oblate Lay Associate",
-    tagline: "Live the charism in your everyday life.",
-    text: "You do not need to take religious vows to share in our mission. We warmly invite laypeople, men and women, married and single, to join the wider Oblate family as Lay Associates. As an Associate you carry the spirit of St. Eugene de Mazenod into your family, your workplace and your community, through prayer, support for youth ministry, or work for justice and the poor.",
-    close: "Come, share in our mission and walk the Emmaus journey with us.",
-    fields: [
-      { name: "Full name", label: "Full name", required: true, autoComplete: "name" },
-      { name: "Email", label: "Email address", type: "email", autoComplete: "email" },
-      { name: "Phone / WhatsApp", label: "Phone / WhatsApp number", type: "tel", required: true, autoComplete: "tel" },
-      { name: "City / Parish", label: "City / Parish of residence", required: true },
-      { name: "Profession / Occupation", label: "Profession / Occupation", required: true },
-      {
-        name: "Area of interest",
-        label: "Area of interest",
-        type: "select",
-        required: true,
-        options: ["Prayer and spiritual life", "Youth ministry", "Justice and the poor", "Parish service", "Other"],
-      },
-      {
-        name: "Message",
-        label: "Message",
-        hint: "Tell us how you would like to collaborate or what drew you to the Oblate charism",
-        type: "textarea",
-      },
-    ],
-  },
-]
+const formFields: Record<Path["id"], Field[]> = {
+  oblate: [
+    { name: "Full name", label: "Full name", required: true, autoComplete: "name" },
+    {
+      name: "Date of birth / Age",
+      label: "Date of birth / Age",
+      hint: "Helps us direct you to the right formation stage",
+      required: true,
+    },
+    { name: "Email", label: "Email address", type: "email", autoComplete: "email" },
+    { name: "Phone / WhatsApp", label: "Phone / WhatsApp number", type: "tel", required: true, autoComplete: "tel" },
+    { name: "City / Diocese", label: "City / Diocese of residence", required: true },
+    {
+      name: "Highest qualification",
+      label: "Highest educational qualification",
+      hint: "e.g. O/Ls, A/Ls, Degree",
+      required: true,
+    },
+    { name: "Occupation / Studies", label: "Current occupation / studies", required: true },
+    {
+      name: "Message",
+      label: "Message",
+      hint: "Tell us a little about yourself and why you are interested in the Oblates",
+      type: "textarea",
+    },
+  ],
+  associate: [
+    { name: "Full name", label: "Full name", required: true, autoComplete: "name" },
+    { name: "Email", label: "Email address", type: "email", autoComplete: "email" },
+    { name: "Phone / WhatsApp", label: "Phone / WhatsApp number", type: "tel", required: true, autoComplete: "tel" },
+    { name: "City / Parish", label: "City / Parish of residence", required: true },
+    { name: "Profession / Occupation", label: "Profession / Occupation", required: true },
+    {
+      name: "Area of interest",
+      label: "Area of interest",
+      type: "select",
+      required: true,
+      options: ["Prayer and spiritual life", "Youth ministry", "Justice and the poor", "Parish service", "Other"],
+    },
+    {
+      name: "Message",
+      label: "Message",
+      hint: "Tell us how you would like to collaborate or what drew you to the Oblate charism",
+      type: "textarea",
+    },
+  ],
+}
 
 const inputClass =
   "w-full rounded-xl border border-[#cfe9ef] bg-white px-4 py-2.5 text-sm text-[#023e8a] outline-none transition focus:border-[#17b3c6] focus:ring-3 focus:ring-[#17b3c6]/25"
 
 function JoinForm({ path }: { path: Path }) {
+  const { contact } = useSiteInfo()
   const [sent, setSent] = useState(false)
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
     const body = path.fields.map((field) => `${field.label}: ${String(data.get(field.name) ?? "")}`).join("\n")
-    window.location.href = `mailto:omi.jafprovince@gmail.com?subject=${encodeURIComponent(path.title)}&body=${encodeURIComponent(body)}`
+    window.location.href = `mailto:${contact.email}?subject=${encodeURIComponent(path.title)}&body=${encodeURIComponent(body)}`
     setSent(true)
   }
 
@@ -161,7 +142,11 @@ function JoinForm({ path }: { path: Path }) {
   )
 }
 
-export function JoinUs() {
+export function JoinUs({ content }: { content: HomeSectionsContent["joinUs"] }) {
+  const paths: Path[] = [
+    { id: "oblate", ...content.oblate, fields: formFields.oblate },
+    { id: "associate", ...content.associate, fields: formFields.associate },
+  ]
   const [openId, setOpenId] = useState<Path["id"] | null>(null)
   const open = paths.find((path) => path.id === openId) ?? null
 
@@ -173,10 +158,8 @@ export function JoinUs() {
       />
       <div className="relative mx-auto max-w-6xl">
         <div className="text-center">
-          <h2 className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">Join us</h2>
-          <p className="mt-2 text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">
-            Walk with the Oblates
-          </p>
+          <h2 className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">{content.title}</h2>
+          <p className="mt-2 text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">{content.kicker}</p>
         </div>
 
         <div className="mt-10 grid gap-4 sm:mx-auto sm:max-w-3xl sm:grid-cols-2">
@@ -221,7 +204,7 @@ export function JoinUs() {
               <p className="mt-3 text-sm font-bold tracking-wide text-[#5c6b7a] uppercase">{open.tagline}</p>
               <p className="mt-6 text-[15px] leading-7 text-[#3d4b59]">{open.text}</p>
               <p className="mt-4 font-semibold text-[#023e8a]">{open.close}</p>
-              {open.steps ? (
+              {open.steps?.length ? (
                 <ol className="mt-6 divide-y divide-[#e3f1f4] border-y border-[#e3f1f4]">
                   {open.steps.map((step, index) => (
                     <li key={step} className="flex items-center gap-3 py-3.5 text-[15px] font-semibold text-[#023e8a]">
@@ -234,7 +217,7 @@ export function JoinUs() {
                 </ol>
               ) : (
                 <ul className="mt-6 grid gap-2.5">
-                  {["Prayer", "Youth ministry", "Justice and the poor"].map((item) => (
+                  {(open.interests ?? []).map((item) => (
                     <li key={item} className="flex items-center gap-2 text-[15px] font-semibold text-[#023e8a]">
                       <Check className="size-4 text-[#17b3c6]" />
                       {item}

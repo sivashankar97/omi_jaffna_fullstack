@@ -6,10 +6,11 @@ import { CheckCircle2, ChevronLeft, ChevronRight, MapPin, Quote, X } from "lucid
 import { Dialog } from "radix-ui"
 
 import { Reveal } from "@/components/motion/reveal"
-import { MinistryCard, ministryImages } from "@/components/sections/ministry-card"
+import { MinistryCard } from "@/components/sections/ministry-card"
 import { ministryAnchor } from "@/config/navigation"
-import { ministryDetails } from "@/content/ministry-details"
 import type { Ministry } from "@/lib/cms"
+
+const detailOf = (ministry: Ministry) => ministry.detail
 
 export function MinistryExplorer({ ministries }: { ministries: Ministry[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
@@ -18,12 +19,12 @@ export function MinistryExplorer({ ministries }: { ministries: Ministry[] }) {
     const match = window.location.hash.match(/^#ministry-(\d+)$/)
     if (!match) return
     const index = ministries.findIndex((ministry) => ministry.number === match[1])
-    if (index >= 0 && ministryDetails[ministries[index].number]) setOpenIndex(index)
+    if (index >= 0 && detailOf(ministries[index])) setOpenIndex(index)
   }, [ministries])
 
   const active = openIndex === null ? null : ministries[openIndex]
-  const detail = active ? ministryDetails[active.number] : undefined
-  const image = active ? (active.image ?? ministryImages[active.title]) : undefined
+  const detail = active ? detailOf(active) : undefined
+  const image = active?.image
 
   const step = (delta: number) =>
     setOpenIndex((current) => (current === null ? null : (current + delta + ministries.length) % ministries.length))

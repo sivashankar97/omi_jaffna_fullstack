@@ -4,41 +4,28 @@ import Link from "next/link"
 import { mainNavigation as defaultNavigation } from "@/config/navigation"
 import type { NavItem } from "@/types"
 import { site } from "@/config/site"
+import { isUpload, siteInfoDefaults, type SiteInfo } from "@/content/site-info"
 
-const social = [
-  {
-    label: "Facebook",
-    href: site.social.facebook,
-    external: true,
-    icon: FacebookIcon,
-  },
-  {
-    label: "Instagram",
-    href: site.social.instagram,
-    external: true,
-    icon: InstagramIcon,
-  },
-  {
-    label: "YouTube",
-    href: site.social.youtube,
-    external: true,
-    icon: YouTubeIcon,
-  },
-  {
-    label: "WhatsApp",
-    href: site.social.whatsapp,
-    external: true,
-    icon: WhatsAppIcon,
-  },
-] as const
-
-export function SiteFooter({ navigation: mainNavigation = defaultNavigation }: { navigation?: NavItem[] }) {
+export function SiteFooter({
+  navigation: mainNavigation = defaultNavigation,
+  info = siteInfoDefaults,
+}: {
+  navigation?: NavItem[]
+  info?: SiteInfo
+}) {
+  const social = [
+    { label: "Facebook", href: info.social.facebook, external: true, icon: FacebookIcon },
+    { label: "Instagram", href: info.social.instagram, external: true, icon: InstagramIcon },
+    { label: "YouTube", href: info.social.youtube, external: true, icon: YouTubeIcon },
+    { label: "WhatsApp", href: info.social.whatsapp, external: true, icon: WhatsAppIcon },
+  ]
   return (
     <footer className="border-t border-white/40 bg-[#17b3c6] text-white">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-10 sm:grid-cols-2 sm:px-6 sm:py-12 lg:grid-cols-4">
         <div className="min-w-0">
           <Image
-            src={site.assets.logos.right}
+            src={info.logos.emblemImage}
+            unoptimized={isUpload(info.logos.emblemImage)}
             alt=""
             width={72}
             height={72}
@@ -47,14 +34,14 @@ export function SiteFooter({ navigation: mainNavigation = defaultNavigation }: {
           <p className="mt-4 font-heading text-xl font-semibold">{site.name}</p>
           <p className="mt-2 text-sm leading-6 text-white/85">{site.tagline}</p>
           <p className="mt-4 text-sm leading-6 break-words text-white">
-            {site.contact.address}
+            {info.contact.address}
             <br />
-            <a className="hover:underline" href={site.contact.phoneHref}>
-              {site.contact.phone}
+            <a className="hover:underline" href={info.contact.phoneHref}>
+              {info.contact.phone}
             </a>
             <br />
-            <a className="hover:underline" href={`mailto:${site.contact.email}`}>
-              {site.contact.email}
+            <a className="hover:underline" href={`mailto:${info.contact.email}`}>
+              {info.contact.email}
             </a>
           </p>
         </div>

@@ -6,23 +6,24 @@ import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
 import { FacebookIcon, InstagramIcon, WhatsAppIcon, YouTubeIcon } from "@/components/layout/site-footer"
+import { useSiteInfo } from "@/components/layout/site-info"
 import { Reveal } from "@/components/motion/reveal"
-import { site } from "@/config/site"
+import type { HomeSectionsContent } from "@/content/blocks"
 import { cn } from "cn"
 
-const socials = [
-  { label: "YouTube", href: site.social.youtube, icon: YouTubeIcon, background: "#ff0000" },
-  { label: "WhatsApp", href: site.social.whatsapp, icon: WhatsAppIcon, background: "#25d366" },
-  {
-    label: "Instagram",
-    href: site.social.instagram,
-    icon: InstagramIcon,
-    background: "linear-gradient(45deg, #f9ce34, #ee2a7b 50%, #6228d7)",
-  },
-  { label: "Facebook", href: site.social.facebook, icon: FacebookIcon, background: "#1877f2" },
-]
-
 function SocialRail({ shown }: { shown: boolean }) {
+  const { social } = useSiteInfo()
+  const socials = [
+    { label: "YouTube", href: social.youtube, icon: YouTubeIcon, background: "#ff0000" },
+    { label: "WhatsApp", href: social.whatsapp, icon: WhatsAppIcon, background: "#25d366" },
+    {
+      label: "Instagram",
+      href: social.instagram,
+      icon: InstagramIcon,
+      background: "linear-gradient(45deg, #f9ce34, #ee2a7b 50%, #6228d7)",
+    },
+    { label: "Facebook", href: social.facebook, icon: FacebookIcon, background: "#1877f2" },
+  ]
   return (
     <nav
       aria-label="Province social media"
@@ -52,7 +53,8 @@ function SocialRail({ shown }: { shown: boolean }) {
   )
 }
 
-export function MediaHighlights() {
+export function MediaHighlights({ content }: { content: HomeSectionsContent["media"] }) {
+  const { social } = useSiteInfo()
   const ref = useRef<HTMLElement>(null)
   const [inView, setInView] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -73,10 +75,8 @@ export function MediaHighlights() {
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <Reveal from="left">
-            <h2 className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">Media</h2>
-            <p className="mt-2 text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">
-              Live · Events · Photos
-            </p>
+            <h2 className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">{content.title}</h2>
+            <p className="mt-2 text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">{content.kicker}</p>
           </Reveal>
           <Reveal from="right" delay={120}>
             <Link
@@ -92,14 +92,14 @@ export function MediaHighlights() {
         <div className="mt-8 grid gap-4 md:h-[26rem] md:grid-cols-[1.4fr_1fr] md:grid-rows-2">
           <Reveal from="left" className="md:row-span-2">
             <a
-              href={site.social.youtube}
+              href={social.youtube}
               target="_blank"
               rel="noreferrer"
               className="group relative flex h-72 overflow-hidden rounded-[1.75rem] md:h-full"
             >
               <img
-                src="/Herosection/ministry_2.jpg"
-                alt="Cross against the sky"
+                src={content.liveImage}
+                alt=""
                 className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105"
               />
               <span className="absolute inset-0 bg-gradient-to-t from-[#03202b] via-[#03202b]/40 to-transparent" />
@@ -109,8 +109,8 @@ export function MediaHighlights() {
                     <span className="size-2 rounded-full bg-white motion-safe:animate-pulse" />
                     Live
                   </span>
-                  <span className="mt-3 block font-heading text-3xl font-semibold sm:text-4xl">Oblate Jaffna TV</span>
-                  <span className="mt-1 block text-sm text-white/80">Watch on the official YouTube channel of the Province</span>
+                  <span className="mt-3 block font-heading text-3xl font-semibold sm:text-4xl">{content.liveTitle}</span>
+                  <span className="mt-1 block text-sm text-white/80">{content.liveText}</span>
                 </span>
                 <span className="grid size-12 shrink-0 place-items-center rounded-full bg-white text-[#ff0000] transition group-hover:rotate-45">
                   <Radio className="size-5" />
@@ -125,8 +125,8 @@ export function MediaHighlights() {
               className="group relative flex h-48 overflow-hidden rounded-[1.75rem] md:h-full"
             >
               <img
-                src="/news/img_2.jpg"
-                alt="Province event"
+                src={content.eventsImage}
+                alt=""
                 className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105"
               />
               <span className="absolute inset-0 bg-gradient-to-r from-[#023e8a]/85 to-transparent" />
@@ -135,8 +135,8 @@ export function MediaHighlights() {
                   <CalendarDays className="size-5" />
                 </span>
                 <span>
-                  <span className="block font-heading text-2xl font-semibold">Events</span>
-                  <span className="text-sm text-white/80">Feasts, gatherings and celebrations</span>
+                  <span className="block font-heading text-2xl font-semibold">{content.eventsTitle}</span>
+                  <span className="text-sm text-white/80">{content.eventsText}</span>
                 </span>
               </span>
             </Link>
@@ -147,9 +147,9 @@ export function MediaHighlights() {
               href="/media"
               className="group relative grid h-48 grid-cols-3 gap-1.5 overflow-hidden rounded-[1.75rem] bg-[#17b3c6] p-1.5 md:h-full"
             >
-              {["/news/img_4.jpg", "/news/img_6.jpg", "/news/img_8.jpg"].map((src, index) => (
+              {content.photos.slice(0, 3).map((src, index) => (
                 <img
-                  key={src}
+                  key={`${index}-${src}`}
                   src={src}
                   alt=""
                   className={cn(

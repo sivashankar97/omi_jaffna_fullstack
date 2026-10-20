@@ -1,4 +1,5 @@
 import { AutoSlide } from "@/components/motion/auto-slide"
+import { getBlock } from "@/lib/cms"
 import { cn } from "cn"
 
 const light = "bg-gradient-to-br from-white via-[#e7fbff] to-[#caf0f8] text-[#023e8a]"
@@ -18,13 +19,14 @@ type PageHeroProps = {
   tone?: keyof typeof tones
 }
 
-export function PageHero({
+export async function PageHero({
   id,
   kicker,
   title,
   summary,
   tone = "white",
 }: PageHeroProps) {
+  const { slides } = await getBlock("home-slides")
   return (
     <header id={id} className={cn("scroll-mt-80 overflow-hidden px-4 py-14 sm:px-8 sm:py-20", tones[tone])}>
       <div className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-[1.15fr_0.85fr]">
@@ -35,7 +37,7 @@ export function PageHero({
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-7 sm:text-lg">{summary}</p>
         </div>
-        <AutoSlide className="h-64 w-full sm:h-80" label={title} />
+        <AutoSlide slides={slides} className="h-64 w-full sm:h-80" label={title} />
       </div>
     </header>
   )

@@ -6,6 +6,8 @@ import { Eye, EyeOff } from "lucide-react"
 import { FormEvent, useEffect, useState } from "react"
 
 import { site } from "@/config/site"
+import { useSiteInfo } from "@/components/layout/site-info"
+import { isUpload } from "@/content/site-info"
 
 type Mode = "login" | "register"
 
@@ -39,6 +41,7 @@ function errorMessage(error: unknown, fallback: string) {
 }
 
 export function MemberAccess({ mode }: { mode: Mode }) {
+  const siteInfo = useSiteInfo()
   const [notice, setNotice] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -127,7 +130,8 @@ export function MemberAccess({ mode }: { mode: Mode }) {
     <section className="grid min-h-[70vh] bg-white lg:grid-cols-[minmax(16rem,0.9fr)_1.1fr]">
       <div className="flex flex-col items-center justify-center gap-4 bg-gradient-to-b from-[#e7fbff] to-[#caf0f8] px-8 py-12 text-center">
         <Image
-          src={site.assets.logos.right}
+          src={siteInfo.logos.emblemImage}
+          unoptimized={isUpload(siteInfo.logos.emblemImage)}
           alt="Oblate Province of Jaffna"
           width={220}
           height={220}

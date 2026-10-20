@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 
-export default function CoverImageUpload({value,onChange,api,canPublish,notify,onBusy,demo}) {
+export default function CoverImageUpload({value,onChange,api,canPublish,notify,onBusy,demo,label='Cover image'}) {
  const [asset,setAsset]=useState(null),[busy,setBusy]=useState(false),[alt,setAlt]=useState(''),[rights,setRights]=useState(false),[failed,setFailed]=useState(false);
  useEffect(()=>{
   let active=true;setAsset(null);setRights(false);setAlt('');setFailed(false);
@@ -22,8 +22,8 @@ export default function CoverImageUpload({value,onChange,api,canPublish,notify,o
   try{const {item}=await api(`/api/assets/${asset.id}`,{method:'PATCH',body:JSON.stringify({status:'published',rights_confirmed:rights,alt_text:alt})});setAsset(item);notify('Image approved for the public website.','success');}
   catch(error){notify(error.message,'error');}finally{uploading(false);}
  }
- return <section className="space-y-3 rounded-xl border border-slate-200 p-4" aria-label="Cover image">
-  <label className="form-label" htmlFor="cover-image-file">Cover image</label>
+ return <section className="space-y-3 rounded-xl border border-slate-200 p-4" aria-label={label}>
+  <label className="form-label" htmlFor="cover-image-file">{label}</label>
   {value&&!failed&&<img src={value} alt={asset?.alt_text||'Cover image preview'} onError={()=>setFailed(true)} className="h-48 w-full rounded-lg bg-slate-100 object-contain"/>}
   {failed&&<p role="alert" className="text-xs text-rose-600">This image could not be loaded. Upload another image or check its URL.</p>}
   <input id="cover-image-file" type="file" accept="image/jpeg,image/png,image/webp" disabled={busy||demo} onChange={upload} className="block w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:p-3"/>

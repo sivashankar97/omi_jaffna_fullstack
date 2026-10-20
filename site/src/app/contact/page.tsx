@@ -2,13 +2,15 @@ import type { Metadata } from "next"
 
 import { ContactForm } from "@/components/contact/contact-form"
 import { PageHero } from "@/components/layout/page-hero"
+import { getSiteInfo } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "Contact",
   description: "Contact the Oblate Province of Jaffna at Thodarpaham, Hospital Road.",
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const { contact } = await getSiteInfo()
   return (
     <>
       <PageHero
@@ -16,7 +18,7 @@ export default function ContactPage() {
         tone="cyan"
         kicker="Provincial House"
         title="Thodarpaham, Jaffna"
-        summary="657/1 Hospital Road, Jaffna, Sri Lanka. Telephone 021-2222721. Email omi.jafprovince@gmail.com."
+        summary={`${contact.address}. Telephone ${contact.phone}. Email ${contact.email}.`}
       />
       <section className="grid lg:grid-cols-2">
         <div id="visit" className="scroll-mt-80 bg-[#f7fbff] px-6 py-14 text-[#023e8a]">
@@ -24,25 +26,22 @@ export default function ContactPage() {
           <dl className="mt-6 space-y-4 text-lg">
             <div>
               <dt className="text-xs tracking-[0.2em] text-[#0077b6] uppercase">Address</dt>
-              <dd className="mt-1">657/1 Hospital Road, Jaffna, Sri Lanka</dd>
+              <dd className="mt-1">{contact.address}</dd>
             </div>
             <div>
               <dt className="text-xs tracking-[0.2em] text-[#0077b6] uppercase">Telephone</dt>
               <dd className="mt-1">
-                <a href="tel:+94212222721">021-2222721</a>
+                <a href={contact.phoneHref}>{contact.phone}</a>
               </dd>
             </div>
             <div>
               <dt className="text-xs tracking-[0.2em] text-[#0077b6] uppercase">Email</dt>
               <dd className="mt-1">
-                <a href="mailto:omi.jafprovince@gmail.com">omi.jafprovince@gmail.com</a>
+                <a href={`mailto:${contact.email}`}>{contact.email}</a>
               </dd>
             </div>
           </dl>
-          <a
-            className="mt-8 inline-block text-primary underline"
-            href="https://www.google.com/maps/search/?api=1&query=657%2F1+Hospital+Road+Jaffna"
-          >
+          <a className="mt-8 inline-block text-primary underline" href={contact.mapLink}>
             Open in Google Maps
           </a>
         </div>

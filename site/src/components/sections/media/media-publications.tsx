@@ -1,21 +1,6 @@
 import { Reveal } from "@/components/motion/reveal"
 import type { Publication } from "@/lib/cms"
 
-export const defaultPublications: Publication[] = [
-  {
-    id: "yazha-thoni",
-    title: "Yazha-Thoni",
-    subtitle: "The Lyre Boat",
-    text: "The official news bulletin of the Oblate Province of Jaffna.",
-  },
-  {
-    id: "zeal",
-    title: "Zeal",
-    subtitle: "Annual magazine",
-    text: "A scholastic publication of reflections, articles and community news.",
-  },
-]
-
 const tones = [
   "bg-gradient-to-br from-[#0f9fb4] via-[#17b3c6] to-[#0e98ac] text-white",
   "bg-[#f7fbff] text-[#023e8a] ring-1 ring-[#cfe9ef]",

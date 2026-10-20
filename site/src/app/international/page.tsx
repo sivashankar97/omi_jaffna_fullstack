@@ -6,6 +6,7 @@ import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { PageBanner } from "@/components/sections/page-banner"
 import { SectionHeading } from "@/components/sections/section-heading"
+import { anchorId } from "@/config/navigation"
 import { getFormationAbroad, getMissionCountries } from "@/lib/cms"
 
 export const metadata: Metadata = {
@@ -58,7 +59,14 @@ export default async function InternationalPage() {
         />
         <ul className="mx-auto mt-14 grid max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {missionCountries.map((country, index) => (
-            <Reveal key={country} as="li" from="up" delay={(index % 4) * 100} className="h-full">
+            <Reveal
+              key={country}
+              id={`country-${anchorId(country)}`}
+              as="li"
+              from="up"
+              delay={(index % 4) * 100}
+              className="h-full scroll-mt-80"
+            >
               <article className="group relative h-full overflow-hidden rounded-[1.5rem] border border-[#d5dee6] bg-white p-6 transition duration-500 hover:-translate-y-1.5 hover:border-[#17b3c6] hover:shadow-[0_28px_56px_-30px_rgba(10,80,98,0.6)]">
                 <Globe2
                   aria-hidden="true"
@@ -92,7 +100,7 @@ export default async function InternationalPage() {
         />
         <div className="mx-auto mt-14 grid max-w-5xl gap-6 sm:grid-cols-3">
           {formationAbroad.map((place, index) => (
-            <Reveal key={place} from="zoom" delay={index * 120} className="h-full">
+            <Reveal key={place} id={`abroad-${anchorId(place)}`} from="zoom" delay={index * 120} className="h-full scroll-mt-80">
               <article className="group h-full rounded-[1.75rem] bg-white p-7 text-center shadow-[0_20px_50px_-35px_rgba(10,80,98,0.6)] ring-1 ring-[#d5dee6] transition duration-500 hover:-translate-y-2 hover:ring-[#17b3c6]">
                 <span className="mx-auto grid size-16 place-items-center rounded-full bg-[#ffcf4a]/20 text-[#b07d00] transition duration-500 group-hover:scale-110 group-hover:bg-[#ffcf4a]">
                   <GraduationCap className="size-8" strokeWidth={1.6} />

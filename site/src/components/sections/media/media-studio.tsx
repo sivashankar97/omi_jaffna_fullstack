@@ -4,9 +4,8 @@ import Link from "next/link"
 import { useEffect, useLayoutEffect, useState } from "react"
 
 import type { NewsArticle } from "@/content/news"
-import { homeContent } from "@/content/home"
 import type { Ministry, TimelineEntry } from "@/lib/cms"
-import { site } from "@/config/site"
+import { useSiteInfo } from "@/components/layout/site-info"
 import { cn } from "cn"
 
 const desks = [
@@ -22,45 +21,14 @@ const desks = [
 
 type DeskId = (typeof desks)[number]["id"]
 
-const photos = [
-  {
-    src: "/Herosection/Heroimage_2.jpg",
-    alt: "A jubilee arch of the Oblate Province of Jaffna",
-    caption: "Jubilee arch marked OMI 200. Province collection.",
-  },
-  {
-    src: "/Herosection/Heroimage_3.jpg",
-    alt: "The flag of the Oblate Province of Jaffna",
-    caption: "The flag of the Oblate Province of Jaffna.",
-  },
-  {
-    src: "/Herosection/Missionary_section.jpg",
-    alt: "The missionary emblem of the Oblate Province of Jaffna",
-    caption: "Missionary emblem with the Oblate seal.",
-  },
-  {
-    src: "/Herosection/Heroimage_1.jpg",
-    alt: "Oblate cross and the words Evangelizare pauperibus misit me",
-    caption: "The Oblate cross and the words Evangelizare pauperibus misit me.",
-  },
-  {
-    src: "/Herosection/Welcome.jpeg",
-    alt: "Oblate Media Ministry of the Oblate Province of Jaffna",
-    caption: "Mark of the Oblate Media Ministry.",
-  },
-  {
-    src: "/logos/logo_2.png",
-    alt: "Emblem of the Oblate Province of Jaffna",
-    caption: "Emblem of the Oblate Province of Jaffna.",
-  },
-] as const
+export type MediaPhoto = { src: string; alt: string; caption: string }
 
 const listens = [
   {
     kicker: "Watch",
     title: "Oblate Jaffna TV",
     text: "The official YouTube channel of the Province. New programmes are published there.",
-    href: site.social.youtube,
+    href: "youtube",
     external: true,
   },
   {
@@ -106,15 +74,9 @@ const answers = [
   },
 ] as const
 
-const readings = [
-  {
-    kicker: "The sending",
-    text: homeContent.hero.quote,
-  },
-  {
-    kicker: "The journey",
-    text: homeContent.hero.lede,
-  },
+type Reading = { kicker: string; text: string }
+
+const fixedReadings: Reading[] = [
   {
     kicker: "Charism",
     text: "Evangelizing the poor. Presence, accompaniment, education, compassion, justice, reconciliation and service.",
@@ -127,7 +89,7 @@ const readings = [
     kicker: "Vision",
     text: "A life towards a renewed, just and free society.",
   },
-] as const
+]
 
 function isDesk(value: string): value is DeskId {
   return desks.some((desk) => desk.id === value)
@@ -137,13 +99,21 @@ export function MediaStudio({
   news,
   ministries,
   timeline,
+  quote,
+  lede,
+  photos,
+  videoImage,
 }: {
   news: NewsArticle[]
   ministries: Ministry[]
   timeline: TimelineEntry[]
+  quote: string
+  lede: string
+  photos: MediaPhoto[]
+  videoImage: string
 }) {
   const [active, setActive] = useState<DeskId>("photo-gallery")
-  const [photo, setPhoto] = useState<(typeof photos)[number] | null>(null)
+  const [photo, setPhoto] = useState<MediaPhoto | null>(null)
 
   useLayoutEffect(() => {
     const openFromHash = () => {
@@ -218,12 +188,12 @@ export function MediaStudio({
           aria-labelledby={active}
           className="media-panel mt-8"
         >
-          {active === "photo-gallery" ? <Gallery onOpen={setPhoto} /> : null}
-          {active === "video" ? <VideoStage /> : null}
+          {active === "photo-gallery" ? <Gallery photos={photos} onOpen={setPhoto} /> : null}
+          {active === "video" ? <VideoStage image={videoImage} /> : null}
           {active === "podcasts" ? <Playlist /> : null}
           {active === "articles" ? <Magazine newsArticles={news} /> : null}
           {active === "interviews" ? <Dialogue /> : null}
-          {active === "homilies-and-reflections" ? <Readings /> : null}
+          {active === "homilies-and-reflections" ? <Readings quote={quote} lede={lede} /> : null}
           {active === "testimonials" ? <Witnesses ministries={ministries} /> : null}
           {active === "historical-archive" ? <Archive timeline={timeline} /> : null}
         </div>
@@ -252,7 +222,7 @@ export function MediaStudio({
   )
 }
 
-function Gallery({ onOpen }: { onOpen: (photo: (typeof photos)[number]) => void }) {
+function Gallery({ photos, onOpen }: { photos: MediaPhoto[]; onOpen: (photo: MediaPhoto) => void }) {
   return (
     <div>
       <p className="text-sm leading-6 text-[#5c6b7a]">
@@ -276,7 +246,8 @@ function Gallery({ onOpen }: { onOpen: (photo: (typeof photos)[number]) => void 
   )
 }
 
-function VideoStage() {
+function VideoStage({ image }: { image: string }) {
+  const site = useSiteInfo()
   return (
     <div className="grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
       <a
@@ -286,7 +257,7 @@ function VideoStage() {
         className="media-in relative flex min-h-64 items-end overflow-hidden rounded-3xl border-2 border-[#90e0ef] bg-[#023e8a] p-6 text-white sm:min-h-80"
       >
         <img
-          src="/Herosection/Heroimage_2.jpg"
+          src={image}
           alt=""
           className="absolute inset-0 h-full w-full object-cover opacity-50"
         />
@@ -321,6 +292,7 @@ function VideoStage() {
 }
 
 function Playlist() {
+  const { social } = useSiteInfo()
   return (
     <div>
       <p className="text-sm leading-6 text-[#5c6b7a]">
@@ -330,7 +302,7 @@ function Playlist() {
         {listens.map((item, index) => (
           <li key={item.title} className="media-in bg-white" style={{ animationDelay: `${index * 60}ms` }}>
             {item.external ? (
-              <a href={item.href} target="_blank" rel="noreferrer" className="flex items-center gap-4 px-4 py-5 transition hover:bg-[#e7fbff] sm:px-6">
+              <a href={social[item.href]} target="_blank" rel="noreferrer" className="flex items-center gap-4 px-4 py-5 transition hover:bg-[#e7fbff] sm:px-6">
                 <RowBody index={index} item={item} />
               </a>
             ) : (
@@ -417,7 +389,12 @@ function Dialogue() {
   )
 }
 
-function Readings() {
+function Readings({ quote, lede }: { quote: string; lede: string }) {
+  const readings = [
+    { kicker: "The sending", text: quote },
+    { kicker: "The journey", text: lede },
+    ...fixedReadings,
+  ].filter((item) => item.text)
   return (
     <div className="mx-auto max-w-3xl">
       <p className="text-sm leading-6 text-[#5c6b7a]">

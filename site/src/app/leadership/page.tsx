@@ -6,7 +6,7 @@ import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { PriestDirectory } from "@/components/sections/leadership/priest-directory"
 import { SectionHeading } from "@/components/sections/section-heading"
-import { councilImages, provincialSuperior } from "@/content/leadership"
+import { anchorId } from "@/config/navigation"
 import { getFormerProvincials, getLeadership, getPriests } from "@/lib/cms"
 
 export const metadata: Metadata = {
@@ -19,16 +19,6 @@ function initials(name: string) {
   return `${words[0]?.[0] ?? ""}${words.length > 1 ? words[words.length - 1][0] : ""}`.toUpperCase()
 }
 
-const plainName = (name: string) =>
-  name
-    .replace(/^(very\s+)?rev\.?\s*(fr\.?)?\s*/i, "")
-    .replace(/,?\s*omi\s*$/i, "")
-    .trim()
-    .toLowerCase()
-
-const builtInCouncilPhoto = (name: string) =>
-  Object.entries(councilImages).find(([key]) => plainName(key) === plainName(name))?.[1]
-
 /** CMS uploads are served by the API, which the image optimizer cannot fetch on Netlify. */
 const isUpload = (src: string) => src.startsWith("/api/")
 
@@ -38,16 +28,7 @@ export default async function LeadershipPage() {
     getFormerProvincials(),
     getPriests(),
   ])
-  const cmsSuperior = leadership.superior
-  const superior = {
-    name: cmsSuperior?.name || provincialSuperior.name,
-    role: cmsSuperior?.role || provincialSuperior.role,
-    term: cmsSuperior?.term || provincialSuperior.term,
-    since: cmsSuperior?.since || provincialSuperior.since,
-    bio: cmsSuperior?.bio || provincialSuperior.bio,
-    image: cmsSuperior?.image || provincialSuperior.image,
-    terms: cmsSuperior?.terms.length ? cmsSuperior.terms : provincialSuperior.terms,
-  }
+  const { superior } = leadership
   const council = leadership.council
   const councilTerm = council.find((person) => person.term)?.term ?? "2026 – 2029"
 
@@ -87,6 +68,7 @@ export default async function LeadershipPage() {
         </div>
       </header>
 
+      {superior ? (
       <section id="provincial-superior" className="scroll-mt-80 overflow-hidden bg-white px-4 py-20 sm:px-8 sm:py-28">
         <div className="mx-auto max-w-6xl">
           <SectionHeading kicker="Provincial Superior" title="Our Provincial Leader" />
@@ -103,15 +85,17 @@ export default async function LeadershipPage() {
                   className="absolute bottom-[4%] left-1/2 aspect-square w-[84%] -translate-x-1/2 rounded-full bg-gradient-to-br from-[#caf0f8] via-[#48cae4] to-[#0e6a68] shadow-[0_40px_80px_-30px_rgba(14,106,104,0.65)]"
                 />
                 <div className="absolute inset-x-0 bottom-[4%] top-0 overflow-hidden rounded-b-full">
-                  <Image
-                    src={superior.image}
-                    alt={superior.name}
-                    fill
-                    priority
-                    unoptimized={isUpload(superior.image)}
-                    sizes="(min-width: 1024px) 28rem, 90vw"
-                    className="object-contain object-bottom drop-shadow-[0_20px_30px_rgba(3,32,43,0.35)]"
-                  />
+                  {superior.image ? (
+                    <Image
+                      src={superior.image}
+                      alt={superior.name}
+                      fill
+                      priority
+                      unoptimized={isUpload(superior.image)}
+                      sizes="(min-width: 1024px) 28rem, 90vw"
+                      className="object-contain object-bottom drop-shadow-[0_20px_30px_rgba(3,32,43,0.35)]"
+                    />
+                  ) : null}
                 </div>
               </div>
               <div className="charism-float absolute right-0 bottom-10 rounded-2xl bg-white px-5 py-3 shadow-[0_20px_45px_-20px_rgba(2,62,138,0.5)] ring-1 ring-[#e2f2f6] sm:-right-4">
@@ -165,6 +149,7 @@ export default async function LeadershipPage() {
           </div>
         </div>
       </section>
+      ) : null}
 
       <section id="council" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-20 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-6xl">
@@ -175,9 +160,15 @@ export default async function LeadershipPage() {
           />
           <div className="mx-auto mt-16 grid max-w-5xl gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {council.map((person, index) => {
-              const photo = person.image || builtInCouncilPhoto(person.name)
+              const photo = person.image
               return (
-                <Reveal key={`${person.role}-${person.name}`} from="up" delay={(index % 3) * 120} className="group">
+                <Reveal
+                  key={`${person.role}-${person.name}`}
+                  id={`council-${anchorId(person.name)}`}
+                  from="up"
+                  delay={(index % 3) * 120}
+                  className="group scroll-mt-80"
+                >
                   <article className="relative mx-auto aspect-[4/5] w-full max-w-xs transition duration-500 group-hover:-translate-y-2">
                     <div
                       aria-hidden="true"
@@ -243,10 +234,11 @@ export default async function LeadershipPage() {
               return (
                 <Reveal
                   key={`${person.name}-${person.dates}`}
+                  id={`former-${anchorId(person.name)}`}
                   as="li"
                   from={right ? "right" : "left"}
                   delay={60}
-                  className={`relative pl-12 sm:w-1/2 sm:pl-0 ${right ? "sm:ml-auto sm:pl-10" : "sm:pr-10"}`}
+                  className={`relative scroll-mt-80 pl-12 sm:w-1/2 sm:pl-0 ${right ? "sm:ml-auto sm:pl-10" : "sm:pr-10"}`}
                 >
                   <span
                     aria-hidden="true"

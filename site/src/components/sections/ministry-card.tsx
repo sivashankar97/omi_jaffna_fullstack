@@ -52,15 +52,6 @@ const icons = [
   Home,
 ] as const
 
-export const ministryImages: Record<string, string> = {
-  Administration: "/Administration.jpg",
-  "Mission Preaching": "/ministries/mission_Preaching.jpg",
-  "Hospital & Prison Chaplaincy": "/ministries/Hospital & Prison Chaplaincy.jpeg",
-  "Formal Education": "/ministries/Formal Education.jpg",
-  "Non-Formal Education": "/ministries/Non-Formal Education.jpg",
-  "Youth Animation": "/ministries/Youth Animation.jpg",
-}
-
 export function MinistryCard({
   ministry,
   index,
@@ -75,7 +66,7 @@ export function MinistryCard({
   const tone = tones[index % tones.length]
   const Icon = icons[index % icons.length]
   const curveRight = index % 2 === 1
-  const image = ministry.image ?? ministryImages[ministry.title]
+  const image = ministry.image
 
   return (
     <article className="ministry-tile group flex h-full flex-col overflow-hidden rounded-[1.75rem]">

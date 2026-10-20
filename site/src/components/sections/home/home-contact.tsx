@@ -2,19 +2,16 @@ import { Mail, MapPin, Phone } from "lucide-react"
 
 import { ContactForm } from "@/components/contact/contact-form"
 import { Reveal } from "@/components/motion/reveal"
+import type { HomeSectionsContent } from "@/content/blocks"
+import { getSiteInfo } from "@/lib/cms"
 
-const details = [
-  {
-    icon: MapPin,
-    label: "Address",
-    value: "657/1 Hospital Road, Jaffna, Sri Lanka",
-    href: "https://www.google.com/maps/search/?api=1&query=657%2F1+Hospital+Road+Jaffna",
-  },
-  { icon: Phone, label: "Telephone", value: "021-2222721", href: "tel:+94212222721" },
-  { icon: Mail, label: "Email", value: "omi.jafprovince@gmail.com", href: "mailto:omi.jafprovince@gmail.com" },
-]
-
-export function HomeContact() {
+export async function HomeContact({ content }: { content: HomeSectionsContent["contact"] }) {
+  const { contact } = await getSiteInfo()
+  const details = [
+    { icon: MapPin, label: "Address", value: contact.address, href: contact.mapLink },
+    { icon: Phone, label: "Telephone", value: contact.phone, href: contact.phoneHref },
+    { icon: Mail, label: "Email", value: contact.email, href: `mailto:${contact.email}` },
+  ]
   return (
     <section id="contact-us" className="scroll-mt-80 bg-[#f7fbff] px-4 pb-20 sm:px-8">
       <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-[0_24px_60px_rgb(2_62_138/0.1)] ring-1 ring-[#cfe9ef] lg:grid-cols-[22rem_minmax(0,1fr)]">
@@ -27,9 +24,9 @@ export function HomeContact() {
             className="pointer-events-none absolute -right-20 -bottom-20 size-64 rounded-full bg-white/15 blur-2xl"
           />
           <div className="relative">
-            <p className="text-xs font-semibold tracking-[0.24em] text-white/80 uppercase">Provincial House</p>
-            <h2 className="mt-3 font-heading text-4xl font-semibold">Contact us</h2>
-            <p className="mt-3 text-sm leading-6 text-white/85">Thodarpaham, Jaffna. Write to us or visit the Province office.</p>
+            <p className="text-xs font-semibold tracking-[0.24em] text-white/80 uppercase">{content.kicker}</p>
+            <h2 className="mt-3 font-heading text-4xl font-semibold">{content.title}</h2>
+            <p className="mt-3 text-sm leading-6 text-white/85">{content.text}</p>
             <ul className="mt-8 grid gap-5">
               {details.map(({ icon: Icon, label, value, href }) => (
                 <li key={label}>

@@ -3,6 +3,9 @@ description: Use the Obsidian notes vault (via the obsidian MCP server) as share
 alwaysApply: true
 ---
 
+# Git and deploys
+Do not commit, push or deploy to Netlify. The user commits and deploys manually; only do it when explicitly asked in that message.
+
 # Obsidian notes
 
 The `notes/` folder is an Obsidian vault exposed through the `obsidian` MCP server (vault id `notes`).
