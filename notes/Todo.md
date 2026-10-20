@@ -14,5 +14,7 @@ Write website changes here as checkboxes. Ask Cursor: "do the tasks in my Todo n
 - [x] Seed the site's built-in text into the CMS (blocks, History/Who we are, ministry popups 01–06, publications) and remove duplicates, unused page drafts, sample news and example events; built-in list fallbacks removed from code. Backup of the table before this: `/tmp/omi-backup/` (local only).
 - [x] CMS coverage gaps (audit 20 Oct 2026): History, Home sections, Charism, Our journey, slideshow, ministry details, contact + social links now editable; proper form fields replace raw JSON; Schools shown on Ministries; Media Library hidden.
 - [ ] Not yet editable: Media page text (`sections/media/*`), Vocations / International page wording.
+- [ ] After deploying the `merge/ministry-details` branch: run `node ~/omi-jaffna-backups/merge-ministry-details/apply-on-deploy.mjs` (switches the Province emblem and Home welcome photo to the new Jaffna logo). Not before: the logo file only exists on the live site after that deploy.
+- [ ] Check priest names in the CMS that look like test edits: "Rev. Fr. C. S. Cro", "Rev. Fr. F. L. N. Croos OMI efefef", "Rev. Fr. Louis Ponniah OMILs".
 
 ## Done

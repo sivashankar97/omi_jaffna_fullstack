@@ -138,7 +138,7 @@ app.delete('/api/items/:id',auth,allow('admin'),asyncRoute(async(req,res)=>{
 const PUBLIC_META_KEYS=[
  'role','term','term_in_source','since','terms','section','end_date','date_display','subtitle','kind','place',
  'district','purpose','contact','phone','email','lat','lng',
- 'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample','sections','detail','about_heading','about','mission'
+ 'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample','sections','detail','about_heading','about','mission','fit'
 ];
 app.get('/api/public/items',asyncRoute(async(req,res)=>{
  const type=String(req.query.type||'page');if(!TYPES[type])return bad(res,'Invalid type');

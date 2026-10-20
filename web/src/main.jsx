@@ -19,20 +19,19 @@ const notLeadershipRole='provincial superior,former provincial';
 const VIEWS={
  'page-home':{type:'page',label:'Top banner & welcome',query:'slug=home',single:true,slugs:[['home','Home page']],where:'Home: banner video and image, title, tagline and welcome text at the top',link:'/'},
  'block-home-sections':{type:'page',label:'Rest of the Home page',query:'slug=home-sections',single:true,slugs:[['home-sections','Home page sections']],where:'Home: welcome stats and photo, Our calling, section headings, the three cards, Media, Oblate family, Join us, Contact us',link:'/#welcome'},
- 'block-slides':{type:'page',label:'Banner slideshow',query:'slug=home-slides',single:true,slugs:[['home-slides','Banner slideshow']],where:'Contact: slideshow in the top banner',link:'/contact'},
  'block-journey':{type:'page',label:'Our journey timeline',query:'slug=journey',single:true,slugs:[['journey','Our journey timeline']],where:'Home and History pages: "Our journey" timeline',link:'/#journey'},
  event:{type:'event',item:'event',label:'Calendar events',where:'Home: province calendar',link:'/#calendar'},
- location:{type:'location',item:'location',label:'Mission map',where:'Bottom of every page: mission map pins and place cards',link:'/#mission-map'},
+ location:{type:'location',item:'location',label:'Mission map',where:'Home and Contact: mission map pins and place cards',link:'/#mission-map'},
  'page-history':{type:'page',label:'History page',query:'slug=history',single:true,slugs:[['history','History page']],where:'History: every section of the page',link:'/history'},
  'block-media-page':{type:'page',label:'Media page photos',query:'slug=media-page',single:true,slugs:[['media-page','Media page photos']],where:'Media: top photo, video tile photo and the photo gallery',link:'/media'},
  timeline:{type:'timeline',item:'timeline entry',label:'Historical archive',where:'Media: "Historical archive" tab',link:'/media#historical-archive'},
  'page-charism':{type:'page',label:'Charism page',query:'slug=charism',single:true,slugs:[['charism','Charism page']],where:'Charism: every section of the page',link:'/charism'},
- 'block-site-info':{type:'page',label:'Logos, address & social links',query:'slug=site-info',single:true,slugs:[['site-info','Contact and social links']],where:'Header and footer logos on every page, default news photo, footer, Contact page, Home "Contact us", News and Media social buttons',link:'/contact'},
+ 'block-site-info':{type:'page',label:'Logos, address & social links',query:'slug=site-info',single:true,slugs:[['site-info','Contact and social links']],where:'Header and footer logos on every page, Home welcome photo, default news photo, footer, Contact page, Home "Contact us", ministry pages, News and Media social buttons',link:'/contact'},
  'leadership-superior':{type:'leadership',item:'Provincial Superior',label:'Provincial Superior',query:'meta_key=role&meta_like=provincial superior',defaults:{role:'Provincial Superior'},where:'Leadership: Provincial Superior section',link:'/leadership#provincial-superior'},
  'leadership-council':{type:'leadership',item:'council member',label:'Provincial Council',query:`meta_key=role&meta_not=${notLeadershipRole}`,where:'Leadership: Provincial Council cards',link:'/leadership#council'},
  'leadership-former':{type:'leadership',item:'former Provincial',label:'Former Provincials',query:'meta_key=role&meta_like=former provincial',defaults:{role:'Former Provincial'},where:'Leadership: Former Provincials timeline',link:'/leadership#former-provincials'},
  priest:{type:'priest',item:'priest',label:'Oblate Priests',where:'Leadership: Oblate priests directory',link:'/leadership#priests'},
- ministry:{type:'ministry',item:'ministry',label:'Ministries',where:'Ministries page and Home',link:'/ministries'},
+ ministry:{type:'ministry',item:'ministry',label:'Ministries',where:'Ministries page, Home and each ministry\'s own page',link:'/ministries'},
  parish:{type:'parish',item:'parish',label:'Parishes',where:'Ministries: parish directory',link:'/ministries#parish-directory'},
  school:{type:'school',item:'school',label:'Schools & Education',where:'Ministries: schools list',link:'/ministries#schools'},
  formation:{type:'formation',item:'formation house',label:'Formation Houses',where:'Vocations: formation houses',link:'/vocations'},
@@ -55,7 +54,7 @@ const NAV=[
   {label:'International',icon:Globe2,views:['international-mission','international-formation']},
   {label:'News',icon:Newspaper,views:['news']},
   {label:'Media',icon:Images,views:['block-media-page','publication','timeline']},
-  {label:'Contact',icon:Mail,views:['block-slides']},
+  {label:'Contact',icon:Mail,views:['block-site-info']},
  ]},
  {label:'ON SEVERAL PAGES',pages:[
   {label:'Logos & contact details',icon:ContactRound,views:['block-site-info']},
@@ -65,13 +64,13 @@ const NAV=[
  {label:'FILES & MANAGEMENT',items:[['assets','File Uploads',FolderOpen],['contacts','Contact Directory',ContactRound],['inquiries','Enquiries',MessageCircle],['users','Team & Roles',ShieldCheck],['settings','Site Settings',Settings2]]}
 ];
 const anchorId=s=>String(s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const PAGE_LINKS={home:'/','home-sections':'/#welcome',journey:'/#journey','home-slides':'/contact','site-info':'/contact',history:'/history','media-page':'/media',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/media#historical-archive'};
+const PAGE_LINKS={home:'/','home-sections':'/#welcome',journey:'/#journey','site-info':'/contact',history:'/history','media-page':'/media',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/media#historical-archive'};
 /** Website address where an entry's changes can be seen. */
 function itemLink(item,view){
  const {type,slug}=item;
  if(type==='page')return PAGE_LINKS[slug]||view?.link;
  if(type==='news')return slug?`/news/${slug}`:'/news';
- if(type==='ministry')return item.sort_order?`/ministries#ministry-${String(item.sort_order).padStart(2,'0')}`:'/ministries';
+ if(type==='ministry')return item.sort_order?`/ministries/${String(item.sort_order).padStart(2,'0')}-${anchorId(item.title_en)}`:'/ministries';
  if(type==='parish')return `/ministries#parish-${anchorId(item.title_en)}`;
  if(type==='publication')return `/media#${anchorId(String(item.title_en).split(/\s+[—–-]\s+/)[0])}`;
  if(type==='school')return `/ministries#school-${anchorId(String(item.title_en).split(/\s+—\s+/)[0])}`;
@@ -214,8 +213,8 @@ function SpecFields({specs,meta,setMeta,newsSections}){
    :<input className="field mt-2" type={opt.date?'date':opt.number?'number':'text'} step={opt.number?'any':undefined} value={value??''} onChange={e=>setMeta(key,opt.number&&e.target.value!==''?Number(e.target.value):e.target.value)}/>}
    {opt.hint&&<p className="mt-1 text-[11px] text-slate-400">{opt.hint}</p>}</div>})}</div>;
 }
-const emptyMinistryDetail={tagline:'',overview:[''],focus:[''],highlights:[{value:'',label:''}],scripture:{text:'',reference:''}};
-/** Website sections stored on this entry: page blocks (meta.sections) and ministry popups (meta.detail). */
+const emptyMinistryDetail={tagline:'',overview:[''],focus:[''],highlights:[{value:'',label:''}],scripture:{text:'',reference:''},stories:[{heading:'',paragraphs:['']}]};
+/** Website sections stored on this entry: page blocks (meta.sections) and ministry pages (meta.detail). */
 function SectionFields({form,meta,setMeta,upload}){
  const {data,error}=useCmsBlocks();
  if(form.type!=='page'&&form.type!=='ministry')return null;
@@ -223,7 +222,7 @@ function SectionFields({form,meta,setMeta,upload}){
  if(!data)return <p className="text-xs text-slate-400">Loading website sections…</p>;
  let title,base,key;
  if(form.type==='page'){const block=data.blocks[form.slug];if(!block)return null;title=block.label;base=block.defaults;key='sections';}
- else{title='Ministry details (popup on the Ministries page)';base=emptyMinistryDetail;key='detail';}
+ else{title='Ministry page (opens when a ministry card is clicked)';base=emptyMinistryDetail;key='detail';}
  return <div className="rounded-xl border border-sky-200 bg-sky-50/40 p-4 space-y-4"><div><p className="text-sm font-bold text-navy-900">{title}</p><p className="mt-1 text-[11px] leading-5 text-slate-500">Shows the website's current text. Edit, add, remove or reorder items, then save. Empty text keeps the original wording. Uploaded images must be approved in File Uploads before visitors can see them.</p></div>
   <AutoFields value={mergeContent(base,meta[key])} template={base} onChange={v=>setMeta(key,v)} upload={upload}/>
  </div>;
@@ -243,7 +242,8 @@ function MetaFields({type,slug,meta,setMeta,upload}){
   <div><label className="form-label">Term</label><input className="field mt-2" value={meta.term||''} onChange={e=>setMeta('term',e.target.value)} placeholder={former?'e.g. 1984–1991':superior?'e.g. 2023 – Present':'e.g. 2026 – 2029'}/></div></div>
   {superior&&<><div><label className="form-label">In office since (year)</label><input className="field mt-2" value={meta.since||''} onChange={e=>setMeta('since',e.target.value)} placeholder="2023"/></div>
   <div><label className="form-label">Appointments</label><textarea rows={3} className="field mt-2 font-mono text-xs" value={termsText} onChange={e=>{setTermsText(e.target.value);setMeta('terms',textToTerms(e.target.value))}} placeholder={'First term | 10 January 2023 | 17 February 2023'}/><p className="mt-1 text-[11px] text-slate-400">One line per term: name | appointed date | installed date.</p></div></>}
-  <p className="text-[11px] text-slate-400 leading-5">{superior?'Shown as the Provincial Superior. Biography: "Full page content". Portrait: cover image (a cut-out PNG looks best).':former?'Shown in the Former Provincials timeline using the name and term.':'Shown as a Provincial Council card. Photo: cover image (a cut-out PNG looks best). The term of the first member is used as the council heading.'}</p>
+  {!superior&&!former&&<div><label className="form-label">Photo fit</label><select className="field mt-2" value={meta.fit||'contain'} onChange={e=>setMeta('fit',e.target.value==='contain'?'':e.target.value)}><option value="contain">Show the whole photo (cut-out portraits)</option><option value="cover">Fill the card (wide photos with empty edges)</option></select></div>}
+  <p className="text-[11px] text-slate-400 leading-5">{superior?'Shown as the Provincial Superior. Biography: "Full page content". Portrait: cover image (a cut-out PNG looks best).':former?'Shown in the Former Provincials timeline using the name, term and photo (cover image, shown in a circle).':'Shown as a Provincial Council card. Photo: cover image (a cut-out PNG looks best). The term of the first member is used as the council heading.'}</p>
  </div>;
 }
 // Fields the website reads for each type, with the label shown in the editor. Fields not listed are hidden.

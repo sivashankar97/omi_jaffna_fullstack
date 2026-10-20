@@ -27,7 +27,7 @@ export const site = {
   assets: {
     logos: {
       left: "/logos/logo_1.png",
-      right: "/logos/logo_2.png",
+      right: "/logos/Logo%20-%20OMI%20-%20Jaffna.png",
     },
     video: {
       hero: "/video/hero.mp4",

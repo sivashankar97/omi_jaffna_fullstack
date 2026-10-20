@@ -2,7 +2,6 @@ import { charismHero, charismIdentity, charismMotto, charismPriorities } from "@
 import { briefHistory, development, whoWeAre } from "@/content/history"
 import { journeyEras } from "@/content/journey"
 import { siteInfoDefaults } from "@/content/site-info"
-import { showcaseSlides } from "@/content/slides"
 
 /**
  * Website text the CMS can edit. Each block is stored on the CMS "page" entry whose slug is the
@@ -153,7 +152,6 @@ export const blocks = {
   },
   "site-info": { label: "Footer, contact and social links", defaults: siteInfoDefaults },
   "home-sections": { label: "Home page sections", defaults: homeSectionsDefaults },
-  "home-slides": { label: "Page banner slideshow", defaults: { slides: showcaseSlides } },
   journey: { label: "Our journey timeline", defaults: { eras: journeyEras } },
   "media-page": { label: "Media page photos", defaults: mediaPageDefaults },
   history: {

@@ -16,6 +16,10 @@ const reasons = [
   { label: "Safeguarding / pastoral concerns", category: "safeguarding" },
 ] as const
 
+const labelClass = "text-xs font-bold tracking-[0.14em] text-[#0e98ac] uppercase"
+const fieldClass =
+  "h-12 w-full rounded-xl border border-[#d9eef3] bg-[#f8fdfe] px-4 text-sm text-[#023e8a] outline-none transition focus-visible:border-[#17b3c6] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#17b3c6]/15"
+
 type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent"; message: string } | { kind: "error"; message: string }
 
 export function ContactForm() {
@@ -56,50 +60,77 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4">
-      <div className="grid gap-2">
-        <Label htmlFor="name">Name</Label>
-        <Input id="name" name="name" required minLength={2} autoComplete="name" />
+    <form onSubmit={onSubmit} className="grid gap-5">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-2">
+          <Label htmlFor="name" className={labelClass}>
+            Name
+          </Label>
+          <Input id="name" name="name" required minLength={2} autoComplete="name" className={fieldClass} />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="email" className={labelClass}>
+            Email
+          </Label>
+          <Input id="email" name="email" type="email" required autoComplete="email" className={fieldClass} />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="phone" className={labelClass}>
+            Phone (optional)
+          </Label>
+          <Input id="phone" name="phone" type="tel" maxLength={40} autoComplete="tel" className={fieldClass} />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="reason" className={labelClass}>
+            Reason for enquiry
+          </Label>
+          <select id="reason" name="reason" required className={`${fieldClass} px-3`}>
+            {reasons.map((reason) => (
+              <option key={reason.category} value={reason.category}>
+                {reason.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required autoComplete="email" />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="phone">Phone (optional)</Label>
-        <Input id="phone" name="phone" type="tel" maxLength={40} autoComplete="tel" />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="reason">Reason for enquiry</Label>
-        <select
-          id="reason"
-          name="reason"
+        <Label htmlFor="message" className={labelClass}>
+          Message
+        </Label>
+        <Textarea
+          id="message"
+          name="message"
           required
-          className="h-10 rounded-lg border border-input bg-white px-3 text-sm"
-        >
-          {reasons.map((reason) => (
-            <option key={reason.category} value={reason.category}>
-              {reason.label}
-            </option>
-          ))}
-        </select>
+          minLength={10}
+          rows={5}
+          className="rounded-xl border-[#d9eef3] bg-[#f8fdfe] px-4 py-3 text-[#023e8a] transition focus-visible:border-[#17b3c6] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#17b3c6]/15"
+        />
       </div>
-      <div className="grid gap-2">
-        <Label htmlFor="message">Message</Label>
-        <Textarea id="message" name="message" required minLength={10} rows={5} />
-      </div>
-      <label className="flex items-start gap-2 text-sm leading-5">
-        <input name="consent" type="checkbox" required className="mt-1" />
+      <label className="flex items-start gap-3 text-sm leading-5 text-[#3d4b59]">
+        <input name="consent" type="checkbox" required className="mt-0.5 size-4 accent-[#0e98ac]" />
         I agree that the Province office may store these details to answer my enquiry.
       </label>
-      <Button type="submit" className="w-fit" disabled={status.kind === "sending"}>
-        {status.kind === "sending" ? "Sending…" : "Send enquiry"}
-      </Button>
-      {status.kind === "sent" || status.kind === "error" ? (
-        <p role="status" className={status.kind === "error" ? "text-sm text-[#b42318]" : "text-sm"}>
-          {status.message}
-        </p>
-      ) : null}
+      <div className="flex flex-wrap items-center gap-4">
+        <Button
+          type="submit"
+          disabled={status.kind === "sending"}
+          className="h-12 rounded-full bg-gradient-to-r from-[#17b3c6] to-[#06394a] px-8 text-sm font-semibold text-white shadow-[0_14px_30px_-14px_rgba(6,57,74,0.9)] transition hover:-translate-y-0.5 hover:brightness-110"
+        >
+          {status.kind === "sending" ? "Sending…" : "Send enquiry"}
+        </Button>
+        {status.kind === "sent" || status.kind === "error" ? (
+          <p
+            role="status"
+            className={
+              status.kind === "error"
+                ? "rounded-xl bg-[#fdecea] px-4 py-2 text-sm text-[#b42318]"
+                : "rounded-xl bg-[#e6f7ef] px-4 py-2 text-sm text-[#146c43]"
+            }
+          >
+            {status.message}
+          </p>
+        ) : null}
+      </div>
     </form>
   )
 }

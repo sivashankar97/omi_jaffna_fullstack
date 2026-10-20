@@ -64,11 +64,11 @@ export function HeroSection({ hero, media }: { hero: HomeContent["hero"]; media:
             </div>
             <div className="flex flex-col">
               <dt className="order-2 mt-1 text-xs text-white/75 sm:text-sm">Jaffna</dt>
-              <dd className="order-1 font-heading text-2xl font-semibold text-[#ffcf4a] sm:text-3xl">1848</dd>
+              <dd className="order-1 font-heading text-2xl font-semibold text-[#ffcf4a] sm:text-3xl">1847</dd>
             </div>
             <div className="flex flex-col">
               <dt className="order-2 mt-1 text-xs text-white/75 sm:text-sm">Ministries</dt>
-              <dd className="order-1 font-heading text-2xl font-semibold text-[#ffcf4a] sm:text-3xl">17</dd>
+              <dd className="order-1 font-heading text-2xl font-semibold text-[#ffcf4a] sm:text-3xl">17+</dd>
             </div>
           </dl>
         </div>

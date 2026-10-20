@@ -53,8 +53,8 @@ export type Ministry = {
 }
 export type Parish = { name: string; place: string }
 export type TimelineEntry = { year: string; text: string }
-export type CouncilMember = { role: string; name: string; image?: string; term?: string }
-export type FormerProvincial = { name: string; dates: string }
+export type CouncilMember = { role: string; name: string; image?: string; cover?: boolean; term?: string }
+export type FormerProvincial = { name: string; dates: string; image?: string }
 export type FormationHouse = { name: string; place: string }
 export type Publication = { id: string; title: string; subtitle: string; text: string; href?: string }
 export type Gathering = {
@@ -267,6 +267,7 @@ export const getLeadership = () =>
             role: text(item, "role") || "Council",
             name: item.title,
             image: item.image_url || undefined,
+            cover: text(item, "fit") === "cover",
             term: text(item, "term") || text(item, "term_in_source") || undefined,
           })),
       }
@@ -277,7 +278,12 @@ export const getLeadership = () =>
 export const getFormerProvincials = () =>
   fromCms<FormerProvincial[]>(
     "leadership",
-    (items) => items.map((item) => ({ name: item.title, dates: text(item, "term") || item.excerpt })),
+    (items) =>
+      items.map((item) => ({
+        name: item.title,
+        dates: text(item, "term") || item.excerpt,
+        image: item.image_url || undefined,
+      })),
     isFormerProvincial
   )
 

@@ -26,3 +26,5 @@ cd site && netlify deploy --prod --site 8d7f41ed-0371-41b7-9acf-32544300ea3c
 ```
 
 Takes about 3–10 minutes (longer when large files like the hero video change).
+
+The CLI builds on this Mac, so `NETLIFY` is not set during the build. The local proxy rewrites in `site/next.config.ts` (`/api`, `/admin`, fallback to the CMS dev server) are therefore limited to `next dev`; otherwise unknown pages return 500 on the live site.

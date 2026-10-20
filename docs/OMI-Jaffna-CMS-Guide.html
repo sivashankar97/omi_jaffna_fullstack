@@ -90,14 +90,14 @@
     <div class="group"><h4>Home</h4><ul><li>Top banner &amp; welcome</li><li>Rest of the Home page</li><li>Calendar events</li></ul></div>
     <div class="group"><h4>History</h4><ul><li>History page (all sections)</li></ul><h4 style="margin-top:2mm">Charism</h4><ul><li>Charism page (all sections)</li></ul></div>
     <div class="group"><h4>Leadership</h4><ul><li>Provincial Superior</li><li>Provincial Council</li><li>Former Provincials</li><li>Oblate Priests</li></ul></div>
-    <div class="group"><h4>Ministries</h4><ul><li>Ministries (cards + popups)</li><li>Parishes</li><li>Schools &amp; Education</li></ul></div>
+    <div class="group"><h4>Ministries</h4><ul><li>Ministries (cards + each ministry page)</li><li>Parishes</li><li>Schools &amp; Education</li></ul></div>
     <div class="group"><h4>Vocations</h4><ul><li>Formation Houses</li></ul><h4 style="margin-top:2mm">International</h4><ul><li>Mission Countries</li><li>Formation Abroad</li></ul></div>
-    <div class="group"><h4>News · Media · Contact</h4><ul><li>News: News stories</li><li>Media: Media page photos, Publications, Historical archive</li><li>Contact: Banner slideshow</li></ul></div>
+    <div class="group"><h4>News · Media · Contact</h4><ul><li>News: News stories</li><li>Media: Media page photos, Publications, Historical archive</li><li>Contact: Logos &amp; contact details</li></ul></div>
   </div>
   <div class="tag">On several pages</div>
   <div class="tree">
     <div class="group"><h4>Logos &amp; contact details</h4><ul><li>Header logo and Province emblem</li><li>Address, phone, email, map link</li><li>Facebook, Instagram, YouTube, WhatsApp</li><li>Default news photo</li></ul></div>
-    <div class="group"><h4>Mission map · Our journey</h4><ul><li>Mission map: pins at the bottom of every page</li><li>Our journey timeline: Home and History pages</li></ul></div>
+    <div class="group"><h4>Mission map · Our journey</h4><ul><li>Mission map: Home and Contact pages</li><li>Our journey timeline: Home and History pages</li></ul></div>
   </div>
   <div class="tag">Files &amp; management</div>
   <p class="small">File Uploads (approve photos) · Contact Directory · Enquiries (messages from the contact form) · Team &amp; Roles (CMS accounts) · Site Settings.</p>
@@ -130,8 +130,8 @@
   <table>
     <thead><tr><th>On the website</th><th>In the CMS</th><th>What you can change</th></tr></thead>
     <tr><td>Our Provincial Leader</td><td>Leadership › Provincial Superior</td><td>Name, position "Provincial Superior", term, in office since, appointments (one line per term: <span class="path">First term | appointed | installed</span>), biography, portrait.</td></tr>
-    <tr><td>Provincial Council cards</td><td>Leadership › Provincial Council</td><td>Name, position (1st–5th Councillor, Bursar), term, photo. The first member's term is the council heading.</td></tr>
-    <tr><td>Former Provincials timeline</td><td>Leadership › Former Provincials</td><td>Name and term (e.g. 1984–1991).</td></tr>
+    <tr><td>Provincial Council cards</td><td>Leadership › Provincial Council</td><td>Name, position (1st–5th Councillor, Bursar), term, photo, photo fit (whole photo or fill the card). The first member's term is the council heading.</td></tr>
+    <tr><td>Former Provincials timeline</td><td>Leadership › Former Provincials</td><td>Name, term (e.g. 1984–1991) and photo (shown in a circle).</td></tr>
     <tr><td>Oblate priests directory</td><td>Leadership › Oblate Priests</td><td>Name, where serving (Sri Lanka / outside Sri Lanka / out of province), photo.</td></tr>
   </table>
 </section>
@@ -141,7 +141,7 @@
   <table>
     <thead><tr><th>On the website</th><th>In the CMS</th><th>What you can change</th></tr></thead>
     <tr><td>Ministry cards (Ministries page and Home)</td><td>Ministries › Ministries</td><td>Name, where, summary, card photo. "Order on the website" is the ministry number (1 = 01).</td></tr>
-    <tr><td>Ministry popup (click a card)</td><td>Same entry › "Ministry details"</td><td>Tagline, overview, focus points, highlights, scripture. No details = no popup.</td></tr>
+    <tr><td>Ministry page (click a card, e.g. /ministries/03-hospital-and-prison-chaplaincy)</td><td>Same entry › "Ministry page"</td><td>Tagline, overview, focus points, highlights, scripture, and "History &amp; details" (sections with a heading and paragraphs). When history is filled in, it replaces the overview.</td></tr>
     <tr><td>Parish directory</td><td>Ministries › Parishes</td><td>Parish name and place.</td></tr>
     <tr><td>Schools list</td><td>Ministries › Schools &amp; Education</td><td>School name (optionally "Name — District") and place.</td></tr>
     <tr><td>Formation houses</td><td>Vocations › Formation Houses</td><td>House name and place.</td></tr>
@@ -155,7 +155,7 @@
     <tr><td>Media page photos</td><td>Media › Media page photos</td><td>Top photo, video tile photo, and the photo gallery (add, remove, reorder, captions).</td></tr>
     <tr><td>Publications (Yazha-Thoni, Zeal)</td><td>Media › Publications</td><td>Title written as <span class="path">Title — Subtitle</span>, description, link to the latest issue (PDF or web address).</td></tr>
     <tr><td>Historical archive tab</td><td>Media › Historical archive</td><td>Year (or "Year or date shown") and what happened.</td></tr>
-    <tr><td>Contact page banner slideshow</td><td>Contact › Banner slideshow</td><td>Slides: image, description, image fit.</td></tr>
+    <tr><td>Contact page (address, phone, email, WhatsApp, social buttons, Provincial Superior)</td><td>Contact › Logos &amp; contact details; Leadership › Provincial Superior</td><td>Contact details and social links; the Superior's name comes from Leadership.</td></tr>
   </table>
 
   <h3>On several pages</h3>
@@ -163,7 +163,7 @@
     <thead><tr><th>On the website</th><th>In the CMS</th><th>What you can change</th></tr></thead>
     <tr><td>Header logo, Province emblem (header, footer, sign-in page, news articles)</td><td>Logos &amp; contact details</td><td>Upload new logos. Default news photo for stories without a cover.</td></tr>
     <tr><td>Address, phone, email, map link, social buttons</td><td>Logos &amp; contact details</td><td>Used by the footer, Contact page, Home "Contact us", News and Media.</td></tr>
-    <tr><td>Mission map (bottom of every page)</td><td>Mission map</td><td>Name — District, address, shown as (house / parish / ministry / formation), what happens here, contact, phone, email, latitude and longitude.</td></tr>
+    <tr><td>Mission map (Home and Contact pages)</td><td>Mission map</td><td>Name — District, address, shown as (house / parish / ministry / formation), what happens here, contact, phone, email, latitude and longitude.</td></tr>
   </table>
 </section>
 
@@ -190,7 +190,7 @@
       <h3>Change the order</h3>
       <p>Each entry has <b>Order on the website (1 = first)</b>. The CMS list is shown in the same order as the website.</p>
       <h3>Edit lists inside page sections</h3>
-      <p>In page sections (Home, History, Charism, slideshow, journey, Media photos), each list has <b>Add</b>, <b>Move up / down</b> and <b>Remove</b> buttons. Click a list item to open it.</p>
+      <p>In page sections (Home, History, Charism, journey, Media photos, ministry pages), each list has <b>Add</b>, <b>Move up / down</b> and <b>Remove</b> buttons. Click a list item to open it.</p>
       <h3>See your change</h3>
       <p>Click <b>View on website</b> in the editor, or the arrow icon on any row. Map locations open the map with that pin selected.</p>
       <h3>Who can publish</h3>

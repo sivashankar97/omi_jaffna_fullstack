@@ -3,7 +3,7 @@ import { ArrowRight, Compass, Eye, HandHeart } from "lucide-react"
 
 import { Reveal } from "@/components/motion/reveal"
 import { MinistryCard } from "@/components/sections/ministry-card"
-import { ministryAnchor } from "@/config/navigation"
+import { ministryHref } from "@/config/navigation"
 import { Button } from "@/components/ui/button"
 import { JourneyPath } from "@/components/sections/home/journey-path"
 import { HomeContact } from "@/components/sections/home/home-contact"
@@ -133,7 +133,7 @@ export async function HomeSections() {
                 <MinistryCard
                   ministry={ministry}
                   index={index}
-                  href={`/ministries#${ministryAnchor(ministry.number)}`}
+                  href={ministryHref(ministry)}
                 />
               </Reveal>
             ))}
