@@ -52,7 +52,7 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 
 ## CMS (`web/`, served at `/admin`)
 - Almost everything is in one file: `web/src/main.jsx`
-  - Menu groups: `GROUPS` · login: `Login` · dashboard: `Overview` · content list: `ContentManager` · edit form: `ContentEditor`
+  - Menu is organised by website page: `NAV` (page groups) + `VIEWS` (one screen = content type + optional filter by page slug or metadata field, e.g. Leadership › Provincial Council = `leadership` where role is not Superior/Former). Adding a website section = add a `VIEWS` entry and list it under its page in `NAV`. The filters are handled by `/api/items` (`slug`, `meta_key`, `meta_like`, `meta_not`) in `api/src/app.js`. · login: `Login` · dashboard: `Overview` · content list: `ContentManager` · edit form: `ContentEditor`
   - Media uploads page: `Assets` · users: `Team` · enquiries: `Inquiries` · priest self-profile: `FatherProfile` · settings: `SiteSettings`
 - Cover image upload in the edit form: `web/src/CoverImageUpload.jsx`
 - Styles: `web/src/style.css`

@@ -87,6 +87,17 @@ app.get('/api/items',auth,cmsOnly,asyncRoute(async(req,res)=>{
  const conditions=['type=$1'];const args=[type];
  if(status){args.push(status);conditions.push(`status=$${args.length}`);}
  if(search){args.push(`%${search}%`);conditions.push(`(title_en ILIKE $${args.length} OR location_text ILIKE $${args.length} OR slug ILIKE $${args.length})`);}
+ // CMS screens split one content type by page slug or by a metadata field (e.g. leadership role).
+ const csv=name=>String(req.query[name]||'').split(',').map(v=>v.trim()).filter(Boolean).slice(0,10);
+ const slugs=csv('slug');if(slugs.length){args.push(slugs);conditions.push(`slug=ANY($${args.length})`);}
+ const metaKey=String(req.query.meta_key||'');
+ if(metaKey){
+  if(!/^[a-z_]{1,40}$/.test(metaKey))return bad(res,'Invalid metadata filter');
+  args.push(metaKey);const field=`COALESCE(metadata->>$${args.length},'')`;
+  const like=csv('meta_like').map(v=>`%${v}%`),not=csv('meta_not').map(v=>`%${v}%`);
+  if(like.length){args.push(like);conditions.push(`${field} ILIKE ANY($${args.length})`);}
+  if(not.length){args.push(not);conditions.push(`NOT (${field} ILIKE ANY($${args.length}))`);}
+ }
  const where=conditions.join(' AND ');const total=(await query(`SELECT count(*)::int AS total FROM content_items WHERE ${where}`,args)).rows[0].total;
  const list=await query(`SELECT * FROM content_items WHERE ${where} ORDER BY sort_order ASC,updated_at DESC LIMIT 50 OFFSET $${args.length+1}`,[...args,(page-1)*50]);
  res.json({items:list.rows,total,page,pages:Math.max(1,Math.ceil(total/50))});
