@@ -7,7 +7,7 @@ import type { MapKind, MapLocation } from "@/content/map-locations"
 import { newsSections, type NewsArticle, type NewsSectionId } from "@/content/news"
 import type { Priest, PriestPlace } from "@/content/priests"
 
-const API_ORIGIN = process.env.API_ORIGIN ?? process.env.URL ?? "http://localhost:4000"
+const API_ORIGIN = process.env.API_ORIGIN ?? process.env.URL ?? "http://127.0.0.1:4000"
 const TIME_ZONE = "Asia/Colombo"
 
 type CmsType =
@@ -105,12 +105,14 @@ const fetchItems = cache(async (type: CmsType): Promise<CmsItem[] | null> => {
   try {
     const response = await fetch(`${API_ORIGIN}/api/public/items?type=${type}&lang=en`, {
       cache: "no-store",
-      signal: AbortSignal.timeout(4000),
+      signal: AbortSignal.timeout(15000),
     })
     if (!response.ok) return null
     const data = (await response.json()) as { items: CmsItem[] }
     return data.items
-  } catch {
+  } catch (err) {
+    if ((err as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") throw err
+    console.error(`[cms] Failed to fetch ${type}:`, err)
     return null
   }
 })

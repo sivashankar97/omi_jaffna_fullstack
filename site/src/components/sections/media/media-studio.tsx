@@ -452,8 +452,8 @@ function Witnesses({ ministries }: { ministries: Ministry[] }) {
 }
 
 function Archive({ timeline }: { timeline: TimelineEntry[] }) {
-  const [year, setYear] = useState<string>(timeline[timeline.length - 1].year)
-  const current = timeline.find((item) => item.year === year) ?? timeline[0]
+  const [year, setYear] = useState<string>(timeline[timeline.length - 1]?.year ?? "")
+  const current = timeline.find((item) => item.year === year) ?? timeline[0] ?? { year: "", text: "" }
 
   return (
     <div>
