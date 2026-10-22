@@ -21,7 +21,16 @@ if(process.env.TRUST_PROXY)app.set('trust proxy',Number(process.env.TRUST_PROXY)
 // Netlify may hand the function its own path instead of the original /api/... URL.
 app.use((req,_res,next)=>{if(req.url.startsWith('/.netlify/functions/api'))req.url='/api'+req.url.slice('/.netlify/functions/api'.length);next();});
 app.use(helmet({crossOriginResourcePolicy:{policy:'same-origin'}}));
-app.use(cors({origin:process.env.FRONTEND_ORIGIN?.split(',').map(s=>s.trim())||'http://localhost:5173',credentials:true}));
+const configuredOrigins = process.env.FRONTEND_ORIGIN?.split(',').map(s => s.trim()) || ['http://localhost:5173'];
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || configuredOrigins.includes(origin) || (process.env.VERCEL && (origin.endsWith('.vercel.app') || origin.includes(process.env.VERCEL_URL || '')))) {
+      return callback(null, true);
+    }
+    return callback(null, origin);
+  },
+  credentials: true,
+}));
 app.use(express.json({limit:'600kb'}));
 app.use(cookieParser());
 const limitOptions={windowMs:15*60*1000,standardHeaders:'draft-7',legacyHeaders:false,keyGenerator:req=>req.headers['x-nf-client-connection-ip']||req.ip||'unknown',validate:{ip:false}};
@@ -213,3 +222,5 @@ app.use((err,_req,res,_next)=>{
  if(err?.message?.startsWith('Only JPEG'))return bad(res,err.message);
  return bad(res,process.env.NODE_ENV==='production'?'Unexpected server error':(err.message||'Server error'),500);
 });
+
+export default app;

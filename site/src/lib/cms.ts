@@ -7,7 +7,12 @@ import type { MapKind, MapLocation } from "@/content/map-locations"
 import { newsSections, type NewsArticle, type NewsSectionId } from "@/content/news"
 import type { Priest, PriestPlace } from "@/content/priests"
 
-const API_ORIGIN = process.env.API_ORIGIN ?? process.env.URL ?? "http://127.0.0.1:4000"
+const API_ORIGIN = (
+  process.env.API_URL ||
+  process.env.API_ORIGIN ||
+  process.env.URL ||
+  "http://127.0.0.1:4000"
+).replace(/\/+$/, "")
 const TIME_ZONE = "Asia/Colombo"
 
 type CmsType =

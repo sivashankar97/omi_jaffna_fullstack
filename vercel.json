@@ -1,0 +1,64 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "api": {
+      "root": "api",
+      "framework": "express",
+      "entrypoint": "src/app.js"
+    },
+    "site": {
+      "root": "site",
+      "framework": "nextjs",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "api",
+          "format": "url",
+          "env": "API_URL"
+        }
+      ]
+    },
+    "web": {
+      "root": "web",
+      "framework": "vite"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "api"
+      }
+    },
+    {
+      "source": "/admin",
+      "destination": {
+        "service": "web"
+      }
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": {
+        "service": "web"
+      }
+    },
+    {
+      "source": "/demo",
+      "destination": {
+        "service": "web"
+      }
+    },
+    {
+      "source": "/demo/(.*)",
+      "destination": {
+        "service": "web"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "site"
+      }
+    }
+  ]
+}
