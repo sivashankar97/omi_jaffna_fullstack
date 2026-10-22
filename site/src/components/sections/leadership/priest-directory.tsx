@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 
 import type { Priest, PriestPlace } from "@/content/priests"
 import { cn } from "cn"
+import { OblateFatherCard } from "./oblate-father-card"
 
 const filters = [
   { id: "all", label: "All" },
@@ -114,27 +115,14 @@ export function PriestDirectory({ priests }: { priests: Priest[] }) {
             return (
               <div key={group.id} className="mt-10">
                 <h3 className="font-heading text-xl">{group.title}</h3>
-                <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <ul className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {people.map((priest) => (
-                    <li
-                      key={priest.name}
-                      className="rounded-2xl border border-[#d5dee6] bg-[#f7fbff] px-3 py-4 text-center"
-                    >
-                      {priest.image ? (
-                        <img
-                          src={priest.image}
-                          alt={priest.name}
-                          className="mx-auto size-24 rounded-full object-cover ring-4 ring-white"
-                        />
-                      ) : (
-                        <div
-                          aria-hidden="true"
-                          className="mx-auto flex size-24 items-center justify-center rounded-full bg-[#e7fbff] font-heading text-2xl font-semibold text-[#023e8a] ring-4 ring-white"
-                        >
-                          {portraitInitials(priest.name)}
-                        </div>
-                      )}
-                      <p className="mt-3 text-sm leading-5 font-semibold">{priest.name}</p>
+                    <li key={priest.name} className="flex justify-center">
+                      <OblateFatherCard
+                        name={priest.name}
+                        place={priest.place}
+                        image={priest.image}
+                      />
                     </li>
                   ))}
                 </ul>

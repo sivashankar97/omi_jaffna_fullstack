@@ -15,6 +15,7 @@ For which file to change, see [[Code map]]. Open tasks: [[Todo]].
 - Database – Supabase Postgres (Tokyo).
 
 ## Run locally
+- From the repo root: `npm run dev` (`scripts/dev-all.mjs`). It starts all three and stops them together with Ctrl+C.
 - Site http://localhost:5173 (CMS at `/admin`, its dev server is on 5174), API http://localhost:4000
 - Login details are in `LOCAL-LOGIN.txt` (not in git).
 
