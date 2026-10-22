@@ -4,7 +4,7 @@ tags: [project, overview]
 # OMI Jaffna website
 
 GitHub: https://github.com/sivashankar97/omi_jaffna_fullstack (branch `main`)
-Live: https://omi-jaffna.netlify.app
+Live: https://omi-jaffna.netlify.app (Netlify only — no Vercel)
 
 For which file to change, see [[Code map]]. Open tasks: [[Todo]].
 

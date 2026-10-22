@@ -24,7 +24,7 @@ app.use(helmet({crossOriginResourcePolicy:{policy:'same-origin'}}));
 const configuredOrigins = process.env.FRONTEND_ORIGIN?.split(',').map(s => s.trim()) || ['http://localhost:5173'];
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || configuredOrigins.includes(origin) || (process.env.VERCEL && (origin.endsWith('.vercel.app') || origin.includes(process.env.VERCEL_URL || '')))) {
+    if (!origin || configuredOrigins.includes(origin)) {
       return callback(null, true);
     }
     return callback(null, origin);

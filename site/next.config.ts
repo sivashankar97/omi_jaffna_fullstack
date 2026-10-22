@@ -14,8 +14,8 @@ const nextConfig: NextConfig = {
     },
   },
   async rewrites() {
-    // Dev only: in production builds (Vercel services or Netlify) /api, /admin and /demo are routed by vercel.json/netlify.toml.
-    if (process.env.NETLIFY || process.env.VERCEL || process.env.NODE_ENV !== "development") return [];
+    // Dev only: on Netlify, /api, /admin and /demo are routed by netlify.toml.
+    if (process.env.NETLIFY || process.env.NODE_ENV !== "development") return [];
     return {
       beforeFiles: [
         { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },

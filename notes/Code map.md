@@ -83,6 +83,6 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 - Local server start: `api/src/index.js`; Netlify function: `api/netlify/functions/api.mjs`
 
 ## Deploy and config
-- Netlify build: `netlify.toml` (repo root); deploy from `site/` (see [[Project overview]])
+- Hosting is Netlify only (`netlify.toml` at the repo root). Deploy from `site/` (see [[Project overview]]).
 - Next.js config (upload size, local API proxy): `site/next.config.ts`
 - Local dev starter: `scripts/dev.mjs`
