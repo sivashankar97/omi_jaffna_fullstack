@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
 import { FormEvent, useEffect, useState } from "react"
 
+import { notifyAuthChanged, signOutSession } from "@/components/auth/session"
 import { site } from "@/config/site"
 import { useSiteInfo } from "@/components/layout/site-info"
 import { isUpload } from "@/content/site-info"
@@ -18,11 +19,23 @@ type Member = {
   father_id: string | null
 }
 
-const fieldClass =
-  "mt-2 w-full rounded-xl border border-[#d5dee6] bg-[#f7fafc] px-3 py-2.5 text-base text-[#023e8a] outline-none placeholder:text-[#8aa0b2] focus:border-[#0077b6]"
+/** Register / login palette */
+const C = {
+  lightest: "#EDFBFD",
+  light: "#D6F6FA",
+  soft: "#ACEEF6",
+  bright: "#75E2F0",
+  primary: "#3ED7EA",
+  gold: "#FFCF4A",
+  ink: "#023e8a",
+  muted: "#3d5a6c",
+}
 
-const buttonClass =
-  "rounded-full border-2 border-[#023e8a] bg-white px-6 py-2.5 text-sm font-semibold text-[#023e8a] transition hover:bg-[#e7fbff] disabled:opacity-60"
+const fieldClass =
+  "mt-1.5 w-full rounded-lg border border-[#ACEEF6] bg-[#EDFBFD] px-3 py-2.5 text-base text-[#023e8a] outline-none placeholder:text-[#5a7a8a] focus:border-[#3ED7EA] focus:bg-white focus:ring-2 focus:ring-[#75E2F0]/50"
+
+const primaryBtn =
+  "inline-flex w-full items-center justify-center rounded-lg bg-[#3ED7EA] px-5 py-3 text-sm font-bold text-[#023e8a] transition hover:bg-[#75E2F0] disabled:opacity-60 sm:w-auto sm:min-w-40"
 
 function errorMessage(error: unknown, fallback: string) {
   if (typeof error === "string") return error
@@ -49,19 +62,26 @@ export function MemberAccess({ mode }: { mode: Mode }) {
   const register = mode === "register"
 
   useEffect(() => {
-    fetch("/api/auth/me", { credentials: "same-origin" })
+    fetch("/api/auth/me", { credentials: "same-origin", cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
-      .then((data) => setMember(data?.user ?? null))
+      .then((data) => {
+        const user = data?.user as Member | undefined
+        if (user?.role === "father") {
+          window.location.assign("/dashboard")
+          return
+        }
+        setMember(user ?? null)
+      })
       .catch(() => setMember(null))
   }, [])
 
   function signedIn(user: Member) {
+    notifyAuthChanged(user)
     if (user.role !== "father") {
       window.location.assign("/admin")
       return
     }
-    setMember(user)
-    setNotice("")
+    window.location.assign("/dashboard")
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -90,7 +110,7 @@ export function MemberAccess({ mode }: { mode: Mode }) {
     } else {
       body = { identifier: value("identity"), password: String(data.get("password") ?? "") }
       if (!body.identifier || !body.password) {
-        setNotice("Add your Father ID or email, and your password.")
+        setNotice("Add your Father ID and password.")
         return
       }
     }
@@ -122,142 +142,221 @@ export function MemberAccess({ mode }: { mode: Mode }) {
   }
 
   async function signOut() {
-    await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }).catch(() => null)
+    await signOutSession()
     setMember(null)
   }
 
   return (
-    <section className="grid min-h-[70vh] bg-white lg:grid-cols-[minmax(16rem,0.9fr)_1.1fr]">
-      <div className="flex flex-col items-center justify-center gap-4 bg-gradient-to-b from-[#e7fbff] to-[#caf0f8] px-8 py-12 text-center">
-        <Image
-          src={siteInfo.logos.emblemImage}
-          unoptimized={isUpload(siteInfo.logos.emblemImage)}
-          alt="Oblate Province of Jaffna"
-          width={220}
-          height={220}
-          className="h-40 w-40 object-contain sm:h-52 sm:w-52"
-          priority
-        />
-        <p className="font-heading text-2xl font-semibold text-[#023e8a]">{site.name}</p>
-        <p className="max-w-xs text-sm leading-6 text-[#5c6b7a]">{site.tagline}</p>
-      </div>
+    <section className="min-h-[calc(100svh-4.5rem)] w-full" style={{ backgroundColor: C.lightest }}>
+      <div className="flex min-h-[calc(100svh-4.5rem)] w-full flex-col lg:flex-row">
+        {/* Brand — full height, no side gaps */}
+        <aside
+          className="flex w-full shrink-0 flex-col items-center justify-center gap-3 px-6 py-10 text-center sm:px-10 lg:w-[36%] lg:py-16"
+          style={{ background: `linear-gradient(165deg, ${C.primary} 0%, ${C.bright} 45%, ${C.soft} 100%)` }}
+        >
+          <Image
+            src={siteInfo.logos.emblemImage}
+            unoptimized={isUpload(siteInfo.logos.emblemImage)}
+            alt="Oblate Province of Jaffna"
+            width={120}
+            height={120}
+            className="size-24 object-contain sm:size-28"
+            priority
+          />
+          <p className="font-heading text-xl font-semibold sm:text-2xl" style={{ color: C.ink }}>
+            {site.name}
+          </p>
+          <p className="max-w-xs text-sm" style={{ color: C.muted }}>
+            {site.tagline}
+          </p>
+          <span
+            className="mt-2 inline-block rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase"
+            style={{ backgroundColor: C.gold, color: C.ink }}
+          >
+            {register ? "New account" : "Members"}
+          </span>
+        </aside>
 
-      <div className="flex items-center bg-white px-6 py-12 sm:px-12">
-        {member ? (
-          <div className="w-full max-w-lg">
-            <p className="font-heading text-4xl font-semibold text-[#023e8a]">Welcome</p>
-            <h1 className="mt-2 text-sm font-semibold tracking-[0.18em] text-[#0077b6] uppercase">Signed in</h1>
-            <p className="mt-6 text-lg font-medium text-[#023e8a]">{member.name}</p>
-            {member.father_id ? <p className="mt-1 text-sm text-[#5c6b7a]">Father ID {member.father_id}</p> : null}
-            <p className="mt-1 text-sm text-[#5c6b7a]">{member.email}</p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              {member.role === "father" ? (
-                <Link href="/" className={buttonClass}>
-                  Go to the home page
-                </Link>
-              ) : (
-                <a href="/admin" className={buttonClass}>
-                  Open the CMS
-                </a>
-              )}
-              <button type="button" onClick={signOut} className="text-sm font-semibold text-[#0077b6] hover:underline">
-                Sign out
-              </button>
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={onSubmit} className="w-full max-w-lg" noValidate>
-            <p className="font-heading text-4xl font-semibold text-[#023e8a]">
-              {register ? "New member" : "Members"}
-            </p>
-            <h1 className="mt-2 text-sm font-semibold tracking-[0.18em] text-[#0077b6] uppercase">
-              {register ? "Father registration" : "Sign in"}
-            </h1>
-            <p className="mt-3 max-w-md text-sm leading-6 text-[#5c6b7a]">
-              {register
-                ? "Create a Father account with your Father ID. You can sign in with it straight away."
-                : "Fathers sign in with their Father ID. Province staff sign in with their email."}
-            </p>
-
-            {register ? (
-              <div className="mt-8 grid gap-5">
-                <label className="block text-sm font-medium text-[#5c6b7a]">
-                  Full name
-                  <input name="name" autoComplete="name" className={fieldClass} />
-                </label>
-                <label className="block text-sm font-medium text-[#5c6b7a]">
-                  Father ID
-                  <input name="father_id" autoComplete="username" placeholder="Your OMI / oblation number" className={fieldClass} />
-                </label>
-                <label className="block text-sm font-medium text-[#5c6b7a]">
-                  Date of birth
-                  <input name="date_of_birth" type="date" autoComplete="bday" className={fieldClass} />
-                </label>
-                <label className="block text-sm font-medium text-[#5c6b7a]">
-                  Email
-                  <input name="email" type="email" autoComplete="email" placeholder="name@email.com" className={fieldClass} />
-                </label>
-                <label className="block text-sm font-medium text-[#5c6b7a]">
-                  Mobile number
-                  <input name="mobile_number" type="tel" autoComplete="tel" className={fieldClass} />
-                </label>
-              </div>
-            ) : (
-              <div className="mt-8 grid gap-5">
-                <label className="block text-sm font-medium text-[#5c6b7a]">
-                  Father ID or email
-                  <input name="identity" autoComplete="username" placeholder="Father ID or staff email" className={fieldClass} />
-                </label>
-              </div>
-            )}
-
-            <label className="mt-5 block text-sm font-medium text-[#5c6b7a]">
-              Password
-              <span className="relative mt-2 block">
-                <input
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete={register ? "new-password" : "current-password"}
-                  placeholder={register ? "At least 12 characters" : "Enter password"}
-                  className={`${fieldClass} mt-0 pr-11`}
-                />
+        {/* Form — fills remaining width */}
+        <div
+          className="flex w-full flex-1 flex-col justify-center px-5 py-8 sm:px-10 sm:py-12 lg:px-16 lg:py-16"
+          style={{ backgroundColor: "#ffffff" }}
+        >
+          {member ? (
+            <div className="w-full max-w-xl">
+              <h1 className="font-heading text-3xl font-semibold" style={{ color: C.ink }}>
+                Welcome
+              </h1>
+              <p className="mt-1 text-sm" style={{ color: C.muted }}>
+                You are signed in
+              </p>
+              <p className="mt-6 text-lg font-medium" style={{ color: C.ink }}>
+                {member.name}
+              </p>
+              {member.father_id ? (
+                <p className="mt-1 text-sm" style={{ color: C.muted }}>
+                  Father ID {member.father_id}
+                </p>
+              ) : null}
+              <p className="text-sm" style={{ color: C.muted }}>
+                {member.email}
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                {member.role === "father" ? (
+                  <Link href="/dashboard" className={primaryBtn}>
+                    Open profile
+                  </Link>
+                ) : (
+                  <a href="/admin" className={primaryBtn}>
+                    Open the CMS
+                  </a>
+                )}
                 <button
                   type="button"
-                  onClick={() => setShowPassword((open) => !open)}
-                  className="absolute top-1/2 right-3 -translate-y-1/2 text-[#0077b6]"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  aria-pressed={showPassword}
+                  onClick={signOut}
+                  className="text-sm font-semibold hover:underline"
+                  style={{ color: C.ink }}
                 >
-                  {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                  Sign out
                 </button>
-              </span>
-            </label>
-            {register ? null : (
-              <div className="mt-4 text-sm">
-                <Link href="/contact" className="font-semibold text-[#0077b6] hover:underline">
-                  Forgot password?
-                </Link>
               </div>
-            )}
-
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <button type="submit" disabled={busy} className={buttonClass}>
-                {busy ? "Please wait…" : register ? "Register" : "Log in"}
-              </button>
-              <Link
-                href={register ? "/login" : "/register"}
-                className="text-sm font-semibold text-[#0077b6] hover:underline"
-              >
-                {register ? "Log in" : "Create an account"}
-              </Link>
             </div>
-            {notice ? (
-              <p role="alert" className="mt-4 max-w-md text-sm leading-6 text-[#b42318]">
-                {notice}
+          ) : (
+            <form onSubmit={onSubmit} className="w-full max-w-3xl" noValidate>
+              <h1 className="font-heading text-3xl font-semibold sm:text-4xl" style={{ color: C.ink }}>
+                {register ? "Register" : "Login"}
+              </h1>
+              <p className="mt-2 text-sm leading-6" style={{ color: C.muted }}>
+                {register
+                  ? "Create a Father account with your Father ID. All fields are required."
+                  : "Sign in with your Father ID and password."}
               </p>
-            ) : null}
-          </form>
-        )}
+
+              {register ? (
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm font-medium sm:col-span-2" style={{ color: C.muted }}>
+                    Full name
+                    <input name="name" autoComplete="name" required className={fieldClass} />
+                  </label>
+                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
+                    Father ID
+                    <input
+                      name="father_id"
+                      autoComplete="username"
+                      required
+                      placeholder="OMI / oblation number"
+                      className={fieldClass}
+                    />
+                  </label>
+                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
+                    Date of birth
+                    <input name="date_of_birth" type="date" autoComplete="bday" required className={fieldClass} />
+                  </label>
+                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
+                    Email
+                    <input
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      placeholder="name@email.com"
+                      className={fieldClass}
+                    />
+                  </label>
+                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
+                    Mobile number
+                    <input name="mobile_number" type="tel" autoComplete="tel" required className={fieldClass} />
+                  </label>
+                  <label className="block text-sm font-medium sm:col-span-2" style={{ color: C.muted }}>
+                    Password
+                    <span className="relative mt-1.5 block">
+                      <input
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        required
+                        minLength={12}
+                        placeholder="At least 12 characters"
+                        className={`${fieldClass} mt-0 pr-11`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((open) => !open)}
+                        className="absolute top-1/2 right-3 -translate-y-1/2"
+                        style={{ color: C.ink }}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-pressed={showPassword}
+                      >
+                        {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                      </button>
+                    </span>
+                  </label>
+                </div>
+              ) : (
+                <div className="mt-8 grid max-w-md gap-4">
+                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
+                    Father ID
+                    <input
+                      name="identity"
+                      autoComplete="username"
+                      required
+                      placeholder="Your Father ID"
+                      className={fieldClass}
+                    />
+                  </label>
+                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
+                    Password
+                    <span className="relative mt-1.5 block">
+                      <input
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
+                        required
+                        placeholder="Enter password"
+                        className={`${fieldClass} mt-0 pr-11`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((open) => !open)}
+                        className="absolute top-1/2 right-3 -translate-y-1/2"
+                        style={{ color: C.ink }}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-pressed={showPassword}
+                      >
+                        {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                      </button>
+                    </span>
+                  </label>
+                  <Link href="/contact" className="text-sm font-semibold hover:underline" style={{ color: C.ink }}>
+                    Forgot password?
+                  </Link>
+                </div>
+              )}
+
+              {notice ? (
+                <p role="alert" className="mt-5 text-sm leading-6 text-[#b42318]">
+                  {notice}
+                </p>
+              ) : null}
+
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+                <button type="submit" disabled={busy} className={primaryBtn}>
+                  {busy ? "Please wait…" : register ? "Register" : "Log in"}
+                </button>
+                <p className="text-sm" style={{ color: C.muted }}>
+                  {register ? "Already have an account?" : "New Father?"}{" "}
+                  <Link
+                    href={register ? "/login" : "/register"}
+                    className="font-bold hover:underline"
+                    style={{ color: C.ink }}
+                  >
+                    {register ? "Log in" : "Register"}
+                  </Link>
+                </p>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </section>
   )

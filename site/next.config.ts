@@ -4,6 +4,9 @@ const apiOrigin = (process.env.API_URL || process.env.API_ORIGIN || "http://127.
 const cmsOrigin = process.env.CMS_ORIGIN ?? "http://localhost:5174";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    agentUpgrade: "security",
+  },
   devIndicators: false,
   turbopack: {
     rules: {

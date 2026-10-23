@@ -9,6 +9,7 @@ const pageThemes: Record<string, string> = {
   "/publications": "moon",
   "/login": "slate",
   "/register": "harbor",
+  "/dashboard": "harbor",
 }
 
 export function PageTheme({ children }: { children: React.ReactNode }) {

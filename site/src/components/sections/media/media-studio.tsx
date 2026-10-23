@@ -2,14 +2,12 @@
 
 import Link from "next/link"
 import { useEffect, useLayoutEffect, useState } from "react"
-import { Archive as ArchiveIcon, BookOpen, CirclePlay, Images, MessagesSquare, Mic, Newspaper, Quote } from "lucide-react"
+import { BookOpen, CirclePlay, Images, MessagesSquare, Mic, Newspaper, Quote } from "lucide-react"
 
 import type { NewsArticle } from "@/content/news"
-import type { Ministry, TimelineEntry } from "@/lib/cms"
+import type { Ministry } from "@/lib/cms"
 import { useSiteInfo } from "@/components/layout/site-info"
 import { cn } from "cn"
-
-import { NecrologyRegister } from "./necrology-register"
 
 const desks = [
   { id: "photo-gallery", label: "Photo gallery", Icon: Images },
@@ -19,7 +17,6 @@ const desks = [
   { id: "interviews", label: "Interviews", Icon: MessagesSquare },
   { id: "homilies-and-reflections", label: "Homilies and reflections", Icon: BookOpen },
   { id: "testimonials", label: "Testimonials", Icon: Quote },
-  { id: "historical-archive", label: "Historical archive", Icon: ArchiveIcon },
 ] as const
 
 type DeskId = (typeof desks)[number]["id"]
@@ -108,7 +105,6 @@ function isDesk(value: string): value is DeskId {
 export function MediaStudio({
   news,
   ministries,
-  timeline,
   quote,
   lede,
   photos,
@@ -116,7 +112,6 @@ export function MediaStudio({
 }: {
   news: NewsArticle[]
   ministries: Ministry[]
-  timeline: TimelineEntry[]
   quote: string
   lede: string
   photos: MediaPhoto[]
@@ -157,7 +152,7 @@ export function MediaStudio({
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">Media desks</p>
-            <h2 className="mt-3 font-heading text-4xl font-semibold sm:text-5xl">Eight ways into the same mission</h2>
+            <h2 className="mt-3 font-heading text-4xl font-semibold sm:text-5xl">Seven ways into the same mission</h2>
           </div>
           <p className="max-w-md leading-7 text-[#3d4b59]">
             Choose a desk. Photographs are from the Province collection, not frames of one event.
@@ -208,7 +203,6 @@ export function MediaStudio({
           {active === "interviews" ? <Dialogue /> : null}
           {active === "homilies-and-reflections" ? <Readings quote={quote} lede={lede} /> : null}
           {active === "testimonials" ? <Witnesses ministries={ministries} /> : null}
-          {active === "historical-archive" ? <Archive timeline={timeline} /> : null}
         </div>
       </div>
 
@@ -451,37 +445,3 @@ function Witnesses({ ministries }: { ministries: Ministry[] }) {
   )
 }
 
-function Archive({ timeline }: { timeline: TimelineEntry[] }) {
-  const [year, setYear] = useState<string>(timeline[timeline.length - 1]?.year ?? "")
-  const current = timeline.find((item) => item.year === year) ?? timeline[0] ?? { year: "", text: "" }
-
-  return (
-    <div>
-      <NecrologyRegister />
-      <h3 className="mt-12 font-heading text-2xl font-semibold">The journey, year by year</h3>
-      <p className="mt-2 text-sm leading-6 text-[#5c6b7a]">
-        Open a year. The line is the published journey of the Oblate Province of Jaffna, from 1816 to 2026.
-      </p>
-      <div className="mt-5 flex gap-2 overflow-x-auto pb-2">
-        {timeline.map((item) => (
-          <button
-            key={item.year}
-            type="button"
-            onClick={() => setYear(item.year)}
-            aria-pressed={item.year === year}
-            className={cn(
-              "shrink-0 rounded-2xl border-2 px-4 py-3 font-heading text-xl font-semibold",
-              item.year === year ? "border-[#023e8a] bg-[#023e8a] text-white" : "border-[#90e0ef] bg-white text-[#023e8a]"
-            )}
-          >
-            {item.year}
-          </button>
-        ))}
-      </div>
-      <article key={current.year} className="media-in mt-4 rounded-3xl ring-1 ring-[#d9eef3] bg-[#f4fbfd] p-6 sm:p-8">
-        <p className="font-heading text-5xl font-semibold sm:text-7xl">{current.year}</p>
-        <p className="mt-4 max-w-2xl text-lg leading-8">{current.text}</p>
-      </article>
-    </div>
-  )
-}

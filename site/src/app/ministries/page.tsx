@@ -6,7 +6,7 @@ import { MinistryExplorer } from "@/components/sections/ministries/ministry-expl
 import { PageBanner } from "@/components/sections/page-banner"
 import { SectionHeading } from "@/components/sections/section-heading"
 import { anchorId, parishAnchor } from "@/config/navigation"
-import { getMinistries, getParishes, getSchools } from "@/lib/cms"
+import { getBlock, getMinistries, getParishes, getSchools } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "Ministries",
@@ -14,19 +14,25 @@ export const metadata: Metadata = {
 }
 
 export default async function MinistriesPage() {
-  const [ministries, parishes, schools] = await Promise.all([getMinistries(), getParishes(), getSchools()])
+  const [ministries, parishes, schools, sections] = await Promise.all([
+    getMinistries(),
+    getParishes(),
+    getSchools(),
+    getBlock("ministries"),
+  ])
+  const { hero } = sections
   return (
     <>
       <ScrollProgress />
       <PageBanner
         id="all-ministries"
-        kicker="Our ministries"
-        title="Many places. One mission."
-        summary="From parishes and schools to youth centres, counselling, rehabilitation, peacebuilding, community development, formation and diaspora ministry."
+        kicker={hero.kicker}
+        title={hero.title}
+        summary={hero.summary}
         stats={[
-          { value: String(ministries.length), label: "Ministries" },
-          { value: String(parishes.length), label: "Parishes" },
-          { value: "1", label: "Mission" },
+          { value: String(ministries.length), label: hero.ministriesLabel },
+          { value: String(parishes.length), label: hero.parishesLabel },
+          { value: hero.missionValue, label: hero.missionName },
         ]}
       />
 

@@ -1,4 +1,11 @@
-import { charismHero, charismIdentity, charismMotto, charismPriorities } from "@/content/charism"
+import {
+  charismHero,
+  charismIdentity,
+  charismMission,
+  charismMotto,
+  charismPriorities,
+  charismVision,
+} from "@/content/charism"
 import { briefHistory, development, whoWeAre } from "@/content/history"
 import { journeyEras } from "@/content/journey"
 import { siteInfoDefaults } from "@/content/site-info"
@@ -166,6 +173,25 @@ export const blocks = {
       whoWeAre,
       briefHistory,
       development,
+      archive: {
+        kicker: "Historical archive",
+        title: "Remembering those who went before",
+        subtitle: "The Province necrology and the published year-by-year journey of the Oblates in Sri Lanka.",
+        journeyTitle: "The journey, year by year",
+        journeyIntro: "Open a year. The line is the published journey of the Oblate Province of Jaffna.",
+      },
+      necrology: {
+        kicker: "In memoriam",
+        title: "Oblates who served in Ceylon and Jaffna",
+        lede: "The register of {count} Oblate bishops, priests, brothers and scholastics who gave their lives to the mission on this island, from {first} to {last}. Eternal rest grant unto them, O Lord.",
+        countLabel: "Oblates",
+        firstLabel: "First entry",
+        latestLabel: "Latest",
+        footnote: "Scroll inside the register to see every name. Dates are written day, month, year, as in the Province list.",
+        emptyTitle: "No name matches that search.",
+        emptyHint: "Check the spelling, or try a place such as Jaffna or Mannar.",
+        emptyFilteredHint: "A role or era filter is also on. Search the whole register instead.",
+      },
     },
   },
   charism: {
@@ -179,7 +205,39 @@ export const blocks = {
       hero: charismHero,
       identity: charismIdentity,
       priorities: charismPriorities,
+      mission: charismMission,
+      vision: charismVision,
       motto: charismMotto,
+    },
+  },
+  leadership: {
+    label: "Leadership page sections",
+    defaults: {
+      hero: {
+        kicker: "Province leadership",
+        title: "Leadership",
+        summary:
+          "From Thodarpaham in Jaffna, the Provincial Superior and Council coordinate the missionary life of the Province. Administration exists to enable mission.",
+      },
+      superior: {
+        kicker: "Provincial Superior",
+        title: "Our Provincial Leader",
+      },
+    },
+  },
+  ministries: {
+    label: "Ministries page sections",
+    defaults: {
+      hero: {
+        kicker: "Our ministries",
+        title: "Many places. One mission.",
+        summary:
+          "From parishes and schools to youth centres, counselling, rehabilitation, peacebuilding, community development, formation and diaspora ministry.",
+        ministriesLabel: "Ministries",
+        parishesLabel: "Parishes",
+        missionValue: "1",
+        missionName: "Mission",
+      },
     },
   },
 }

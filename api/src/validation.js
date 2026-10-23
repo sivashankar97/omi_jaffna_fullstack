@@ -62,8 +62,41 @@ export const fatherProfileSchema=z.object({
  email:z.string().trim().email().max(180).transform(v=>v.toLowerCase()).optional(),
  date_of_birth:z.string().date().optional(),
  mobile_number:z.string().trim().min(1).max(40).optional(),
+ bio:z.string().max(4000).optional(),
+ place:z.string().max(255).optional(),
+ photo_url:z.string().max(2000).optional(),
  password:userFieldsSchema.shape.password.optional()
 }).strict().refine(data=>Object.keys(data).length>0,'Provide at least one profile field');
+export const fatherItemKinds=z.enum(['document','gallery','action','news']);
+export const fatherItemSchema=z.object({
+ kind:fatherItemKinds,
+ title:z.string().trim().min(1).max(255),
+ body:z.string().max(20000).default(''),
+ file_url:z.string().max(2000).default(''),
+ status:z.enum(['open','done','draft','published']).default('open'),
+ sort_order:z.coerce.number().int().min(-9999).max(9999).default(0),
+ metadata:z.record(z.unknown()).default({})
+}).strict();
+export const fatherItemUpdateSchema=fatherItemSchema.partial().refine(data=>Object.keys(data).length>0,'Provide at least one field');
+export const fatherDispatchSchema=z.object({
+ title:z.string().trim().min(1).max(255),
+ body:z.string().max(20000).default(''),
+ file_url:z.string().trim().min(1).max(2000),
+ target_user_id:z.union([z.string().uuid(),z.literal(''),z.null()]).optional().transform(v=>v||null)
+}).strict();
+export const fatherNewsSchema=z.object({
+ title:z.string().trim().min(2).max(255),
+ excerpt:z.string().max(4000).default(''),
+ body:z.string().trim().min(1).max(150000),
+ location_text:z.string().max(1000).default(''),
+ image_url:z.string().max(2000).default(''),
+ section:z.string().trim().max(80).default('province-events'),
+ gallery:z.array(z.object({
+  src:z.string().min(1).max(2000),
+  alt:z.string().max(500).default(''),
+  caption:z.string().max(1000).default('')
+ }).strict()).max(24).default([])
+}).strict();
 export const assetSchema=z.object({status:z.enum(['draft','published']).default('draft'),
  rights_confirmed:z.boolean().default(false),alt_text:z.string().trim().max(2000).default(''),caption:z.string().max(10000).default('')}).strict();
 export const adminInquirySchema=inquirySchema.extend({status:z.enum(['new','in_progress','closed']).default('new')});

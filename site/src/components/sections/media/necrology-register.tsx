@@ -1,14 +1,12 @@
 "use client"
 
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
+import { useDeferredValue, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Cross, Search, X } from "lucide-react"
 
-import { necrology } from "@/content/necrology"
+import type { NecrologyPerson, NecrologyRole } from "@/lib/cms"
 import { cn } from "cn"
 
-type Role = "bishop" | "father" | "brother" | "scholastic"
-
-const roles: { id: "all" | Role; label: string }[] = [
+const roles: { id: "all" | NecrologyRole; label: string }[] = [
   { id: "all", label: "All" },
   { id: "bishop", label: "Bishops" },
   { id: "father", label: "Fathers" },
@@ -23,36 +21,41 @@ const eras = [
   { id: "2000", label: "2000s" },
 ] as const
 
-const roleLabel: Record<Role, string> = {
+const roleLabel: Record<NecrologyRole, string> = {
   bishop: "Bishop",
   father: "Father",
   brother: "Brother",
   scholastic: "Scholastic",
 }
 
-function roleOf(name: string): Role {
-  if (/^(Rt\.|Mgr\.)/.test(name)) return "bishop"
-  if (name.startsWith("Bro.")) return "brother"
-  if (name.startsWith("Sch.")) return "scholastic"
-  return "father"
+export type NecrologyCopy = {
+  kicker: string
+  title: string
+  lede: string
+  countLabel: string
+  firstLabel: string
+  latestLabel: string
+  footnote: string
+  emptyTitle: string
+  emptyHint: string
+  emptyFilteredHint: string
 }
 
 function yearOf(date: string) {
-  return Number(date.slice(-4))
+  const year = Number(date.slice(-4))
+  return Number.isFinite(year) ? year : 0
 }
 
 function normalize(value: string) {
   return value.toLowerCase().replace(/[.,]/g, " ").replace(/\s+/g, " ").trim()
 }
 
-const people = necrology.map((person) => ({
-  ...person,
-  role: roleOf(person.name),
-  search: normalize(`${person.name} ${person.bornAt} ${person.diedAt} ${person.born} ${person.died}`),
-}))
-
-const firstYear = Math.min(...people.map((person) => yearOf(person.died)))
-const lastYear = Math.max(...people.map((person) => yearOf(person.died)))
+function fillLede(template: string, count: number, first: number, last: number) {
+  return template
+    .replaceAll("{count}", String(count))
+    .replaceAll("{first}", String(first || "—"))
+    .replaceAll("{last}", String(last || "—"))
+}
 
 function Highlight({ text, terms }: { text: string; terms: string[] }) {
   if (terms.length === 0) return text
@@ -68,7 +71,7 @@ function Highlight({ text, terms }: { text: string; terms: string[] }) {
   )
 }
 
-export function NecrologyRegister() {
+export function NecrologyRegister({ people, copy }: { people: NecrologyPerson[]; copy: NecrologyCopy }) {
   const [query, setQuery] = useState("")
   const [role, setRole] = useState<(typeof roles)[number]["id"]>("all")
   const [era, setEra] = useState<(typeof eras)[number]["id"]>("all")
@@ -77,17 +80,30 @@ export function NecrologyRegister() {
   const listRef = useRef<HTMLOListElement>(null)
   const registerRef = useRef<HTMLDivElement>(null)
 
+  const indexed = useMemo(
+    () =>
+      people.map((person) => ({
+        ...person,
+        search: normalize(`${person.name} ${person.bornAt} ${person.diedAt} ${person.born} ${person.died}`),
+      })),
+    [people]
+  )
+
+  const deathYears = indexed.map((person) => yearOf(person.died)).filter((year) => year > 0)
+  const firstYear = deathYears.length ? Math.min(...deathYears) : 0
+  const lastYear = deathYears.length ? Math.max(...deathYears) : 0
+
   const visible = useMemo(
     () =>
-      people.filter((person) => {
+      indexed.filter((person) => {
         if (role !== "all" && person.role !== role) return false
         if (era !== "all" && Math.floor(yearOf(person.died) / 100) * 100 !== Number(era)) return false
         return terms.every((term) => person.search.includes(term))
       }),
-    [terms, role, era]
+    [indexed, terms, role, era]
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     listRef.current?.scrollTo({ top: 0 })
   }, [terms, role, era])
 
@@ -104,6 +120,8 @@ export function NecrologyRegister() {
     setEra("all")
   }
 
+  if (!people.length) return null
+
   return (
     <div>
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0a3d7a] via-[#0a5062] to-[#06394a] p-6 text-white sm:p-8">
@@ -118,21 +136,20 @@ export function NecrologyRegister() {
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <p className="flex items-center gap-2 text-xs font-bold tracking-[0.22em] text-[#ffcf4a] uppercase">
-              <Cross aria-hidden="true" className="size-4" /> In memoriam
+              <Cross aria-hidden="true" className="size-4" /> {copy.kicker}
             </p>
             <h3 className="mt-3 font-heading text-3xl font-semibold sm:text-4xl" style={{ color: "#ffffff" }}>
-              Oblates who served in Ceylon and Jaffna
+              {copy.title}
             </h3>
             <p className="mt-3 text-sm leading-6 text-white/80 sm:text-base">
-              The register of {people.length} Oblate bishops, priests, brothers and scholastics who gave their lives to
-              the mission on this island, from {firstYear} to {lastYear}. Eternal rest grant unto them, O Lord.
+              {fillLede(copy.lede, people.length, firstYear, lastYear)}
             </p>
           </div>
           <dl className="grid grid-cols-3 gap-3 text-center lg:min-w-80">
             {[
-              [String(people.length), "Oblates"],
-              [String(firstYear), "First entry"],
-              [String(lastYear), "Latest"],
+              [String(people.length), copy.countLabel],
+              [String(firstYear || "—"), copy.firstLabel],
+              [String(lastYear || "—"), copy.latestLabel],
             ].map(([value, label]) => (
               <div key={label} className="rounded-2xl bg-white/10 px-3 py-3 ring-1 ring-white/15 backdrop-blur">
                 <dt className="sr-only">{label}</dt>
@@ -240,14 +257,13 @@ export function NecrologyRegister() {
           <span>No</span>
           <span>Name</span>
           <span>Born</span>
-          <span>Called home</span>        </div>
+          <span>Called home</span>
+        </div>
         {visible.length === 0 ? (
           <div className="px-5 py-12 text-center">
-            <p className="font-heading text-lg font-semibold text-[#0a3d7a]">No name matches that search.</p>
+            <p className="font-heading text-lg font-semibold text-[#0a3d7a]">{copy.emptyTitle}</p>
             <p className="mt-1 text-sm text-[#55697a]">
-              {role !== "all" || era !== "all"
-                ? "A role or era filter is also on. Search the whole register instead."
-                : "Check the spelling, or try a place such as Jaffna or Mannar."}
+              {role !== "all" || era !== "all" ? copy.emptyFilteredHint : copy.emptyHint}
             </p>
             {role !== "all" || era !== "all" ? (
               <button
@@ -264,8 +280,10 @@ export function NecrologyRegister() {
           </div>
         ) : (
           <ol
+            key={`${role}-${era}-${search}`}
             ref={listRef}
-            className="max-h-[min(68svh,40rem)] divide-y divide-[#e2f2f6] overflow-y-auto overscroll-contain [scrollbar-color:#5cc6d8_transparent] [scrollbar-width:thin]">
+            className="h-[min(68svh,40rem)] divide-y divide-[#e2f2f6] overflow-y-scroll overscroll-contain [scrollbar-color:#5cc6d8_transparent] [scrollbar-width:thin]"
+          >
             {visible.map((person) => (
               <li
                 key={person.no}
@@ -310,9 +328,7 @@ export function NecrologyRegister() {
           </ol>
         )}
       </div>
-      <p className="mt-3 text-xs text-[#55697a]">
-        Scroll inside the register to see every name. Dates are written day, month, year, as in the Province list.
-      </p>
+      <p className="mt-3 text-xs text-[#55697a]">{copy.footnote}</p>
     </div>
   )
 }

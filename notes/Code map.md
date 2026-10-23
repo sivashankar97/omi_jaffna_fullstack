@@ -10,18 +10,20 @@ Paths are from the repo root. `sections/` = `site/src/components/sections/`.
 | Page | Page file | Main components | CMS data (`site/src/lib/cms.ts`) |
 |---|---|---|---|
 | Home `/` | `page.tsx` | `sections/hero/hero-section.tsx`, `sections/home/*` (home-sections, join-us, journey-path, media-highlights, province-calendar, home-contact) | `getHomeContent`; `home-sections.tsx` also loads `getEvents`, `getMinistries`, `getNews` |
-| History `/history` | `history/page.tsx` | `sections/history/*` (chapter-nav, count-up, scroll-progress), `sections/home/journey-path.tsx` | none, static `site/src/content/history.ts` |
-| Charism `/charism` | `charism/page.tsx` | `sections/charism/*` (charism-join, charism-vow, charism-ways) | `getCharismContent` (all from the `charism` page entry: excerpt, body, headline, ways, about_heading, about, arrival, mission) + `getBlock("charism")` |
-| Leadership `/leadership` | `leadership/page.tsx` | `sections/leadership/priest-directory.tsx` (priest cards, filters, search) | `getLeadership`, `getFormerProvincials`, `getPriests` |
-| Ministries `/ministries` | `ministries/page.tsx` | `sections/ministries/ministry-explorer.tsx` (cards link to each ministry page), `sections/ministry-card.tsx`, `sections/page-banner.tsx` | `getMinistries`, `getParishes`, `getSchools` |
+| History `/history` | `history/page.tsx` | `sections/history/*` (chapter-nav, count-up, scroll-progress, bishop-profiles, historical-archive, year-journey), `sections/media/necrology-register.tsx`, `sections/home/journey-path.tsx` | `getBlock("history")` (incl. `archive` + `necrology` copy), `getBlock("journey")`, `getTimeline`, `getNecrology`, `getBishops` |
+| Bishop profile `/history/bishops/<slug>` | `history/bishops/[slug]/page.tsx` (`bishopHref()` in `config/navigation.ts`) | — | `getBishops` / `getBishop` (CMS type `bishop`) |
+| Charism `/charism` | `charism/page.tsx` | `sections/charism/*` (charism-join, charism-vow, charism-ways) | `getCharismContent` (page entry: excerpt, body, headline, ways, about_heading, about, arrival, mission) + `getBlock("charism")` (hero, identity, priorities, **mission**, **vision**, motto, images) |
+| Leadership `/leadership` | `leadership/page.tsx` | `sections/leadership/priest-directory.tsx` (priest cards, filters, search) | `getBlock("leadership")` (hero + superior section titles), `getLeadership`, `getFormerProvincials`, `getPriests` |
+| Ministries `/ministries` | `ministries/page.tsx` | `sections/ministries/ministry-explorer.tsx` (cards link to each ministry page), `sections/ministry-card.tsx`, `sections/page-banner.tsx` | `getBlock("ministries")` (hero + mission name), `getMinistries`, `getParishes`, `getSchools` |
 | Ministry page `/ministries/NN-name` | `ministries/[slug]/page.tsx` (slug = `ministrySlug()` in `config/navigation.ts`) | — | `getMinistries` (`detail` incl. `stories`), `getSiteInfo` |
 | Vocations `/vocations` | `vocations/page.tsx` | `sections/page-banner.tsx` | `getFormationHouses` |
 | International `/international` | `international/page.tsx` | `sections/page-banner.tsx` | `getMissionCountries`, `getFormationAbroad` |
-| Media `/media` | `media/page.tsx` | `sections/media/*` (media-studio, media-publications, social-signals, necrology-register = archive register of deceased Oblates, data in `content/necrology.ts`, not in the CMS) | `getNews`, `getPublications`, `getMinistries`, `getTimeline`, `getHomeContent` (quote/lede in Readings) |
+| Media `/media` | `media/page.tsx` | `sections/media/*` (media-studio, media-publications, social-signals) | `getNews`, `getPublications`, `getMinistries`, `getHomeContent` (quote/lede in Readings), `getBlock("media-page")` |
 | News `/news` | `news/page.tsx` | `sections/news/*` (news-card, news-ticker, news-marquee) | `getNews` (sections list: `content/news.ts`) |
 | News article `/news/[slug]` | `news/[slug]/page.tsx` | `sections/news/news-card.tsx`, `share-buttons.tsx` | `getNewsArticle`, `getNews` |
 | Contact `/contact` | `contact/page.tsx` | `site/src/components/contact/contact-form.tsx`, `sections/page-banner.tsx` | `getSiteInfo`, `getLeadership` (Superior name); form posts to `/api/public/inquiries` |
-| Login / Register | `login/`, `register/page.tsx` | `site/src/components/auth/member-access.tsx` | `/api/auth/*` |
+| Login / Register | `login/`, `register/page.tsx` | `site/src/components/auth/member-access.tsx` | `/api/auth/*` — fathers redirect to `/dashboard` |
+| Father dashboard `/dashboard` | `dashboard/page.tsx` | `components/auth/father-dashboard.tsx` | `/api/father/dashboard` (incl. admin reports + my news), `/api/father/items`, `/api/father/news` (creates news in `review`), `/api/father/upload`, `/api/auth/profile` |
 
 Leadership page data (CMS type `leadership`, one entry per person, told apart by the Position field `meta.role`):
 - Provincial Superior: Position "Provincial Superior"; term, since, appointments (`meta.terms`), bio = full content, portrait = cover image. No entry = section hidden.
@@ -33,7 +35,7 @@ Leadership page data (CMS type `leadership`, one entry per person, told apart by
 Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-directory`, `/publications` to `/media#publications`.
 
 ## Shared site pieces
-- Header / menu: `site/src/components/layout/site-header.tsx`; menu items and in-page links: `site/src/config/navigation.ts`
+- Header / menu: `site/src/components/layout/site-header.tsx` (auth chip: `components/auth/member-menu.tsx` — Login/Register or Father name + Profile); menu items and in-page links: `site/src/config/navigation.ts`
   - Header is `fixed` and shrinks on scroll (`--tuck` CSS var); a `.site-header-shell` spacer holds its full height so the page doesn't shift (a shifting sticky header caused a scroll flicker)
 - Footer: `site/src/components/layout/site-footer.tsx`
 - Site name, contact details: `site/src/config/site.ts`
@@ -49,8 +51,8 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 
 ## Content: CMS vs. static files
 - Fetched from the CMS: everything via `site/src/lib/cms.ts` (one `get...` function per content type, all `cache: "no-store"`). There are no built-in lists any more: if the CMS has nothing published (or the API is down) the section is empty.
-- `site/src/content/*.ts`: only block defaults (history, charism, journey, site-info, blocks), types (news sections, priests, map-locations, ministry-details), Former Provincial face crops (`leadership.ts`, keyed by image path) and the necrology register (`necrology.ts`).
-- Editable page text and images ("blocks"): `site/src/content/blocks.ts` lists each block with its default text. Block ids = CMS page slugs: `home` (hero video + poster), `site-info` (contact, social, logos, default news photo; defaults in `content/site-info.ts`), `home-sections`, `home-slides`, `journey`, `media-page` (top photo, video tile, gallery), `history` (+ `images`), `charism` (+ `images`).
+- `site/src/content/*.ts`: only block defaults (history, charism, journey, site-info, blocks), types (news sections, priests, map-locations, ministry-details), Former Provincial face crops (`leadership.ts`, keyed by image path) and the necrology seed list (`necrology.ts` — imported into CMS type `necrology` via `npm run import:necrology`; live site reads CMS).
+- Editable page text and images ("blocks"): `site/src/content/blocks.ts` lists each block with its default text. Block ids = CMS page slugs: `home` (hero video + poster), `site-info` (contact, social, logos, default news photo; defaults in `content/site-info.ts`), `home-sections`, `home-slides`, `journey`, `media-page` (top photo, video tile, gallery), `history` (+ `images`), `charism` (+ `images`), `leadership` (hero + "Our Provincial Leader" titles), `ministries` (hero + mission name).
   - Images: every picture on the site comes from the CMS (blocks, or `image_url` on entries such as ministries, leadership, priests, news). Image fields are any block key named `src`/`image`/`photo` or ending in `Image` (CMS shows upload + preview). Uploaded files are `/api/files/…`: pass `unoptimized={isUpload(src)}` (`content/site-info.ts`) to `next/image`. Hero video is a link (uploads accept only JPEG/PNG/WebP/PDF up to 12 MB). Edits live in that page entry's `metadata.sections`; the site loads them with `getBlock(id)` (lists replace whole, empty text keeps default).
   - The CMS builds the forms from the defaults served at `/cms-blocks` (`site/src/app/cms-blocks/route.ts`); form code: `web/src/AutoFields.jsx`. To make new text editable: add it to a block's defaults, read it via `getBlock`.
   - Contact details/social links on the client: `useSiteInfo()` from `components/layout/site-info.tsx` (provider in `app/layout.tsx`); server: `getSiteInfo()`.
@@ -61,6 +63,7 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 - Images in `site/public/`: hero `Herosection/`, council photos `Leadership_img/`, `ministries/`, `news/`, `slides/`, `logos/`, hero video `video/Hero_section.mp4` (33 MB).
 
 ## CMS (`web/`, served at `/admin`)
+- Staff only (admin / publisher / editor). Fathers never use `/admin`: a Father session is sent to `/dashboard` on the public site. CMS login accepts **staff email** only; Fathers use `/login` on the website.
 - Almost everything is in one file: `web/src/main.jsx`
   - Menu follows the website menu order: `NAV` group "Website pages" (one entry per page; a page with one screen opens it directly) + group "On several pages" (footer/contact details, mission map, Our journey). The Overview shows the same map ("Where to edit each page"). `NAV` (page groups) + `VIEWS` (one screen = content type + optional filter by page slug or metadata field, e.g. Leadership › Provincial Council = `leadership` where role is not Superior/Former). Adding a website section = add a `VIEWS` entry and list it under its page in `NAV`. The filters are handled by `/api/items` (`slug`, `meta_key`, `meta_like`, `meta_not`) in `api/src/app.js`. · login: `Login` · dashboard: `Overview` · content list: `ContentManager` · edit form: `ContentEditor`
   - "Open on website" icon on each row and in the editor: `itemLink()` + `PAGE_LINKS` in `main.jsx`. Every entry links to its own spot: news `/news/slug`, ministries `/ministries/NN-name`, `#parish-`, `#school-`, `#house-`, `#country-` / `#abroad-`, `#council-` / `#former-`, publications, map pins `/#place-<slug>` (handled in `province-map.tsx`). Anchor ids use `anchorId()` (same in `config/navigation.ts` and `main.jsx`).
@@ -76,8 +79,11 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 ## API (`api/`)
 - Routes: `api/src/app.js` (auth, `/api/items` CRUD, `/api/public/*` for the site, `/api/assets` uploads, `/api/files/:id`)
 - Generic content CRUD and asset delete: `api/src/crud.js`
-- Content types list (page, ministry, parish, priest, news, ...): `api/src/constants.js` (`TYPES`)
+- Content types list (page, ministry, parish, priest, bishop, necrology, timeline, news, ...): `api/src/constants.js` (`TYPES`); migrations `api/db/004_bishop_type.sql`, `005_necrology_type.sql`, `006_father_portal.sql` (father bio/place/photo + `father_items`); seed via `npm run import:bishops` / `npm run import:necrology` in `api/`
+- Father portal API: `/api/father/dashboard`, `/api/father/items`, `/api/father/news`, `/api/father/upload`, `/api/father/dispatches` (CMS admin→father PDFs) in `api/src/app.js`; CMS screens: **Father reports**, **News › Father news submissions** (`web/src/main.jsx`)
+- Father-submitted news stays `status=review` until an admin/publisher publishes it; public site only shows published news
 - Database connection: `api/src/db.js`; schema: `api/db/*.sql`; migrate/seed: `api/scripts/`
+- History CMS screens: Necrology register = type `necrology`; Year-by-year = type `timeline`; Bishop profiles = type `bishop`; section titles/lede under History page block (`archive`, `necrology`) in `web/src/main.jsx`
 - File storage: `api/src/storage.js`. Local and live both use the same Netlify Blobs store `media` (local needs `MEDIA_STORE=blobs`, `NETLIFY_SITE_ID`, `NETLIFY_BLOBS_TOKEN` in `api/.env`), so uploads from either side show on both. Without those vars it falls back to `api/uploads/` on disk, which the live site cannot see.
 - Login security, roles: `api/src/security.js`; input checks: `api/src/validation.js`
 - Local server start: `api/src/index.js`; Netlify function: `api/netlify/functions/api.mjs`

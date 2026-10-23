@@ -34,6 +34,10 @@ export function houseAnchor(name: string) {
   return `house-${anchorId(name)}`
 }
 
+export function bishopHref(bishop: { slug: string }) {
+  return `/history/bishops/${bishop.slug}`
+}
+
 export const mediaSections = [
   "Photo gallery",
   "Video",
@@ -42,7 +46,6 @@ export const mediaSections = [
   "Interviews",
   "Homilies and reflections",
   "Testimonials",
-  "Historical archive",
 ] as const
 
 export function buildNavigation({ ministries, parishes, formationHouses }: NavigationData): NavItem[] {
@@ -76,6 +79,8 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
         { label: "Core commitments", id: "core-commitments" },
         { label: "Brief history", id: "brief-history" },
         { label: "The journey", id: "journey" },
+        { label: "Bishops", id: "bishops" },
+        { label: "Historical archive", id: "historical-archive" },
         { label: "Development", id: "development" },
       ],
     },

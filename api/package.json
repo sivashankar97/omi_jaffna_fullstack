@@ -9,6 +9,8 @@
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js",
     "import:site": "node --no-warnings scripts/import-site-content.js",
+    "import:bishops": "node --no-warnings scripts/import-bishops.js",
+    "import:necrology": "node --no-warnings scripts/import-necrology.js",
     "test": "node --test"
   },
   "dependencies": {

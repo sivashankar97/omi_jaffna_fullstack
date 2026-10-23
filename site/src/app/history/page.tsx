@@ -3,13 +3,15 @@ import Image from "next/image"
 import { CalendarDays, Church, Globe, HeartHandshake, MapPin, Users } from "lucide-react"
 
 import { Reveal } from "@/components/motion/reveal"
+import { BishopProfiles } from "@/components/sections/history/bishop-profiles"
 import { ChapterNav } from "@/components/sections/history/chapter-nav"
 import { CountUp } from "@/components/sections/history/count-up"
+import { HistoricalArchive } from "@/components/sections/history/historical-archive"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { JourneyPath } from "@/components/sections/home/journey-path"
 import { SectionHeading } from "@/components/sections/section-heading"
 import { isUpload } from "@/content/site-info"
-import { getBlock } from "@/lib/cms"
+import { getBlock, getNecrology, getTimeline } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "History",
@@ -21,10 +23,8 @@ const statIcons = [CalendarDays, Users, MapPin]
 const commitmentIcons = [Church, HeartHandshake, Globe]
 
 export default async function HistoryPage() {
-  const [{ images, whoWeAre, briefHistory, development }, journey] = await Promise.all([
-    getBlock("history"),
-    getBlock("journey"),
-  ])
+  const [{ images, whoWeAre, briefHistory, development, archive, necrology }, journey, timeline, people] =
+    await Promise.all([getBlock("history"), getBlock("journey"), getTimeline(), getNecrology()])
   const chapters = briefHistory.chapters.map((chapter, index) => ({ ...chapter, id: chapter.id || `chapter-${index + 1}` }))
   return (
     <>
@@ -229,6 +229,9 @@ export default async function HistoryPage() {
       </section>
 
       <JourneyPath eras={journey.eras} />
+
+      <BishopProfiles />
+      <HistoricalArchive timeline={timeline} people={people} archive={archive} necrology={necrology} />
 
       <section id="development" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-20 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-6xl">

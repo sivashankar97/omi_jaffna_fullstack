@@ -15,6 +15,7 @@ export const site = {
   familyPortal: {
     login: "/login",
     register: "/register",
+    dashboard: "/dashboard",
     colombo: "https://omicolombo.org/",
     world: "https://www.omiworld.org/",
   },

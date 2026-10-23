@@ -7,6 +7,15 @@ export type DeceasedOblate = {
   diedAt: string
 }
 
+export type OblateRole = "bishop" | "father" | "brother" | "scholastic"
+
+export function roleOf(name: string): OblateRole {
+  if (/^(Rt\.|Mgr\.)/.test(name)) return "bishop"
+  if (name.startsWith("Bro.")) return "brother"
+  if (name.startsWith("Sch.")) return "scholastic"
+  return "father"
+}
+
 /** Oblates who served in Ceylon and Jaffna and have died, numbers 1 to 557 from List 2. */
 export const necrology: DeceasedOblate[] = [
   { no: 1, name: "Fr. Felix F. Leydier", born: "17.05.1821", bornAt: "France", died: "16.06.1851", diedAt: "Jaffna" },
@@ -567,3 +576,6 @@ export const necrology: DeceasedOblate[] = [
   { no: 556, name: "Fr. Jerome Lambert", born: "02.02.1950", bornAt: "Pesalai, Mannar", died: "20.05.2026", diedAt: "Jaffna" },
   { no: 557, name: "Bro. Thomas Wilfred Fonseka", born: "16.10.1936", bornAt: "Wattala", died: "28.05.2026", diedAt: "Colombo" },
 ]
+
+/** Oblate bishops and archbishops from the necrology, for separate History page profiles. */
+export const bishops = necrology.filter((person) => roleOf(person.name) === "bishop")

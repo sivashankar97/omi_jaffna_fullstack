@@ -7,8 +7,15 @@ const useBlobs=process.env.MEDIA_STORE==='blobs';
 // Resolved lazily: import.meta is empty when the function bundler emits CommonJS.
 let dir;
 const uploadDir=()=>dir??=process.env.UPLOAD_DIR||path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../uploads');
-// Off Netlify (local dev), Blobs needs an explicit site id and token.
-const blobOptions=()=>process.env.NETLIFY_BLOBS_TOKEN?{name:'media',siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_BLOBS_TOKEN}:'media';
+// On Netlify Functions, use the automatic store (connectLambda in api.mjs). Explicit
+// siteID+token is only for local/dev — and a bad token overrides the live store with 401s.
+const onNetlify=Boolean(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const blobOptions=()=>{
+ if(!onNetlify && process.env.NETLIFY_BLOBS_TOKEN && process.env.NETLIFY_SITE_ID){
+  return {name:'media',siteID:process.env.NETLIFY_SITE_ID,token:process.env.NETLIFY_BLOBS_TOKEN};
+ }
+ return 'media';
+};
 const blobs=async()=>(await import('@netlify/blobs')).getStore(blobOptions());
 const missing=()=>Object.assign(new Error('File not found'),{code:'ENOENT'});
 

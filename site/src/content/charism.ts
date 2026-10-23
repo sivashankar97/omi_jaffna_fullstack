@@ -37,5 +37,10 @@ export const charismPriorities = {
   ],
 } as const
 
+export const charismMission =
+  "Empowered by the Good News, we work for a healing society in and through the light of the Good News."
+
+export const charismVision = "A life towards a renewed, just and free society."
+
 export const charismMotto =
   "Evangelizing the poor. Presence, accompaniment, education, compassion, justice, reconciliation and service."

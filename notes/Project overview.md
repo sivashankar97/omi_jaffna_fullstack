@@ -4,7 +4,7 @@ tags: [project, overview]
 # OMI Jaffna website
 
 GitHub: https://github.com/sivashankar97/omi_jaffna_fullstack (branch `main`)
-Live: https://omi-jaffna.netlify.app (Netlify only — no Vercel)
+Live: https://omi-jaffna-province.netlify.app (Netlify only — no Vercel)
 
 For which file to change, see [[Code map]]. Open tasks: [[Todo]].
 
@@ -23,9 +23,11 @@ For which file to change, see [[Code map]]. Open tasks: [[Todo]].
 Run from `site/`, not the repo root:
 
 ```sh
-cd site && netlify deploy --prod --site 8d7f41ed-0371-41b7-9acf-32544300ea3c
+cd site && netlify deploy --prod --site 92088e06-0697-4abc-9929-a507a370000e
 ```
 
 Takes about 3–10 minutes (longer when large files like the hero video change).
 
 The CLI builds on this Mac, so `NETLIFY` is not set during the build. The local proxy rewrites in `site/next.config.ts` (`/api`, `/admin`, fallback to the CMS dev server) are therefore limited to `next dev`; otherwise unknown pages return 500 on the live site.
+
+CMS uploads live in Netlify Blobs store `media` on this site. Do **not** set `NETLIFY_BLOBS_TOKEN` on Netlify (only in local `api/.env` for offline access); a bad token makes `/api/files/…` return 401. After changing sites, re-upload missing images in the CMS — Blobs do not move automatically.

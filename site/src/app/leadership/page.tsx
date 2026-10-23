@@ -9,7 +9,7 @@ import { SectionHeading } from "@/components/sections/section-heading"
 import { anchorId } from "@/config/navigation"
 import { portraitCrops, type PortraitCrop } from "@/content/leadership"
 import { isUpload } from "@/content/site-info"
-import { getFormerProvincials, getLeadership, getPriests } from "@/lib/cms"
+import { getBlock, getFormerProvincials, getLeadership, getPriests } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "Leadership",
@@ -34,14 +34,16 @@ function cropStyle(crop: PortraitCrop): React.CSSProperties {
 }
 
 export default async function LeadershipPage() {
-  const [leadership, formerProvincials, priests] = await Promise.all([
+  const [leadership, formerProvincials, priests, sections] = await Promise.all([
     getLeadership(),
     getFormerProvincials(),
     getPriests(),
+    getBlock("leadership"),
   ])
   const { superior } = leadership
   const council = leadership.council
   const councilTerm = council.find((person) => person.term)?.term ?? "2026 – 2029"
+  const { hero, superior: superiorHeading } = sections
 
   return (
     <>
@@ -61,20 +63,19 @@ export default async function LeadershipPage() {
             style={{ "--rise-delay": "100ms" } as React.CSSProperties}
           >
             <span aria-hidden="true" className="history-line h-px w-10 bg-[#ffcf4a]" />
-            Province leadership
+            {hero.kicker}
           </p>
           <h1
             className="history-rise mt-4 font-heading text-5xl leading-[1.05] font-semibold sm:text-7xl"
             style={{ "--rise-delay": "250ms" } as React.CSSProperties}
           >
-            Leadership
+            {hero.title}
           </h1>
           <p
             className="history-rise mt-6 max-w-2xl text-base leading-8 text-white/85 sm:text-xl sm:leading-9"
             style={{ "--rise-delay": "450ms" } as React.CSSProperties}
           >
-            From Thodarpaham in Jaffna, the Provincial Superior and Council coordinate the missionary life of the
-            Province. Administration exists to enable mission.
+            {hero.summary}
           </p>
         </div>
       </header>
@@ -82,7 +83,7 @@ export default async function LeadershipPage() {
       {superior ? (
       <section id="provincial-superior" className="scroll-mt-80 overflow-hidden bg-white px-4 py-20 sm:px-8 sm:py-28">
         <div className="mx-auto max-w-6xl">
-          <SectionHeading kicker="Provincial Superior" title="Our Provincial Leader" />
+          <SectionHeading kicker={superiorHeading.kicker} title={superiorHeading.title} />
 
           <div className="mt-16 grid items-center gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
             <Reveal from="zoom" className="relative mx-auto w-full max-w-md">

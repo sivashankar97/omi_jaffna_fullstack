@@ -28,6 +28,8 @@ type CmsType =
   | "publication"
   | "location"
   | "priest"
+  | "bishop"
+  | "necrology"
   | "school"
 
 export type CmsItem = {
@@ -58,6 +60,28 @@ export type Ministry = {
 }
 export type Parish = { name: string; place: string }
 export type TimelineEntry = { year: string; text: string }
+export type Bishop = {
+  slug: string
+  name: string
+  no: number
+  born: string
+  bornAt: string
+  died: string
+  diedAt: string
+  excerpt: string
+  body: string
+  image?: string
+}
+export type NecrologyRole = "bishop" | "father" | "brother" | "scholastic"
+export type NecrologyPerson = {
+  no: number
+  name: string
+  born: string
+  bornAt: string
+  died: string
+  diedAt: string
+  role: NecrologyRole
+}
 export type CouncilMember = { role: string; name: string; image?: string; cover?: boolean; term?: string }
 export type FormerProvincial = { name: string; dates: string; image?: string }
 export type FormationHouse = { name: string; place: string }
@@ -199,9 +223,58 @@ export const getSchools = () =>
 
 export const getTimeline = () =>
   fromCms<TimelineEntry[]>("timeline", (items) =>
-    items
-      .map((item) => ({ year: text(item, "date_display") || item.title, text: item.excerpt || item.body || item.title }))
-      .sort((left, right) => left.year.localeCompare(right.year))
+    items.map((item) => ({
+      year: text(item, "date_display") || item.title,
+      text: item.excerpt || item.body || item.title,
+    }))
+  )
+
+export const getBishops = () =>
+  fromCms<Bishop[]>("bishop", (items) =>
+    items.map((item) => {
+      const registerNo = Number(text(item, "register_no") || item.sort_order || 0)
+      return {
+        slug: item.slug,
+        name: item.title,
+        no: Number.isFinite(registerNo) ? registerNo : 0,
+        born: text(item, "born"),
+        bornAt: text(item, "born_at"),
+        died: text(item, "died"),
+        diedAt: text(item, "died_at"),
+        excerpt: item.excerpt,
+        body: item.body,
+        image: item.image_url || undefined,
+      }
+    })
+  )
+
+export const getBishop = async (slug: string) =>
+  (await getBishops()).find((bishop) => bishop.slug === slug)
+
+const necrologyRoles = new Set<NecrologyRole>(["bishop", "father", "brother", "scholastic"])
+
+function roleFromName(name: string): NecrologyRole {
+  if (/^(Rt\.|Mgr\.)/.test(name)) return "bishop"
+  if (name.startsWith("Bro.")) return "brother"
+  if (name.startsWith("Sch.")) return "scholastic"
+  return "father"
+}
+
+export const getNecrology = () =>
+  fromCms<NecrologyPerson[]>("necrology", (items) =>
+    items.map((item) => {
+      const registerNo = Number(text(item, "register_no") || item.sort_order || 0)
+      const roleMeta = text(item, "role") as NecrologyRole
+      return {
+        no: Number.isFinite(registerNo) ? registerNo : 0,
+        name: item.title,
+        born: text(item, "born"),
+        bornAt: text(item, "born_at"),
+        died: text(item, "died"),
+        diedAt: text(item, "died_at"),
+        role: necrologyRoles.has(roleMeta) ? roleMeta : roleFromName(item.title),
+      }
+    })
   )
 
 export const getFormationHouses = () =>

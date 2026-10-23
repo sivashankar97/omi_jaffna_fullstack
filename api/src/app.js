@@ -12,7 +12,7 @@ import {auth,allow,issueToken,cookieOptions} from './security.js';
 import {crudRouter} from './crud.js';
 import {TYPES} from './constants.js';
 import {saveFile,readStoredFile,removeFile} from './storage.js';
-import {contentSchema,inquirySchema,publishCheck,fatherRegistrationSchema,fatherProfileSchema} from './validation.js';
+import {contentSchema,inquirySchema,publishCheck,fatherRegistrationSchema,fatherProfileSchema,fatherItemSchema,fatherItemUpdateSchema,fatherItemKinds,fatherDispatchSchema,fatherNewsSchema} from './validation.js';
 
 export const app=express();
 if(!process.env.JWT_SECRET||process.env.JWT_SECRET.length<32)throw new Error('Set JWT_SECRET to a random string of at least 32 characters');
@@ -49,23 +49,31 @@ app.post('/api/auth/login',slowLimit,asyncRoute(async(req,res)=>{
  const identifier=String(req.body?.identifier||req.body?.email||'').trim();
  const password=String(req.body?.password||'');
  const isEmail=identifier.includes('@');
- const r=await query(`SELECT id,name,email,password_hash,role,active,father_id,date_of_birth,mobile_number FROM users WHERE ${isEmail?"email=$1 AND role IN ('admin','editor','publisher')":"lower(father_id)=lower($1) AND role='father'"} LIMIT 1`,[isEmail?identifier.toLowerCase():identifier]);
+ const r=await query(`SELECT id,name,email,password_hash,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url FROM users WHERE ${isEmail?"email=$1 AND role IN ('admin','editor','publisher')":"lower(father_id)=lower($1) AND role='father'"} LIMIT 1`,[isEmail?identifier.toLowerCase():identifier]);
  if(!r.rowCount||!r.rows[0].active||!(await bcrypt.compare(password,r.rows[0].password_hash)))return bad(res,'Invalid email, Father ID or password',401);
  const {password_hash,...user}=r.rows[0];res.cookie('omi_session',issueToken(user),cookieOptions()).json({user});
 }));
 app.post('/api/auth/register',slowLimit,asyncRoute(async(req,res)=>{
  const parsed=fatherRegistrationSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
  const {name,email,password,father_id,date_of_birth,mobile_number}=parsed.data;
+ const taken=await query(
+  `SELECT
+    EXISTS(SELECT 1 FROM users WHERE lower(email)=lower($1)) AS email_taken,
+    EXISTS(SELECT 1 FROM users WHERE father_id IS NOT NULL AND lower(father_id)=lower($2)) AS father_id_taken`,
+  [email,father_id]
+ );
+ if(taken.rows[0].email_taken)return bad(res,'That email is already registered. Sign in with your Father ID, or use a different email.',409);
+ if(taken.rows[0].father_id_taken)return bad(res,'That Father ID is already registered. Sign in instead, or contact the Province if this is a mistake.',409);
  const password_hash=await bcrypt.hash(password,12);
  const result=await query(
-  "INSERT INTO users(name,email,password_hash,role,father_id,date_of_birth,mobile_number) VALUES($1,$2,$3,'father',$4,$5,$6) RETURNING id,name,email,role,active,father_id,date_of_birth,mobile_number",
+  "INSERT INTO users(name,email,password_hash,role,father_id,date_of_birth,mobile_number) VALUES($1,$2,$3,'father',$4,$5,$6) RETURNING id,name,email,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url",
   [name,email,password_hash,father_id,date_of_birth,mobile_number]
  );
  const user=result.rows[0];await audit(user.id,'register','user',user.id);res.cookie('omi_session',issueToken(user),cookieOptions()).status(201).json({user});
 }));
 app.post('/api/auth/logout',(_req,res)=>res.clearCookie('omi_session',{...cookieOptions(),maxAge:undefined}).json({ok:true}));
 app.get('/api/auth/me',auth,asyncRoute(async(req,res)=>{
- const r=await query('SELECT id,name,email,role,active,father_id,date_of_birth,mobile_number FROM users WHERE id=$1',[req.session.sub]);
+ const r=await query('SELECT id,name,email,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url FROM users WHERE id=$1',[req.session.sub]);
  if(!r.rowCount||!r.rows[0].active)return bad(res,'Account unavailable',401);
  res.json({user:r.rows[0]});
 }));
@@ -76,10 +84,138 @@ app.patch('/api/auth/profile',auth,allow('father'),asyncRoute(async(req,res)=>{
  const columns=Object.keys(data);
  const values=columns.map(key=>data[key]);
  const updates=columns.map((key,index)=>`${key}=$${index+1}`);
- const result=await query(`UPDATE users SET ${updates.join(',')} WHERE id=$${columns.length+1} RETURNING id,name,email,role,active,father_id,date_of_birth,mobile_number`,[...values,req.session.sub]);
+ const result=await query(`UPDATE users SET ${updates.join(',')} WHERE id=$${columns.length+1} RETURNING id,name,email,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url`,[...values,req.session.sub]);
  if(!result.rowCount)return bad(res,'Account unavailable',401);
  await audit(req.session.sub,'update','profile',req.session.sub);
  res.json({user:result.rows[0]});
+}));
+
+const fatherOnly=allow('father');
+const fatherUserCols='id,name,email,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url';
+app.get('/api/father/dashboard',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ const user=await query(`SELECT ${fatherUserCols} FROM users WHERE id=$1`,[req.session.sub]);
+ if(!user.rowCount||!user.rows[0].active)return bad(res,'Account unavailable',401);
+ const items=await query('SELECT id,kind,title,body,file_url,status,sort_order,metadata,created_at,updated_at FROM father_items WHERE user_id=$1 ORDER BY sort_order ASC,created_at DESC',[req.session.sub]);
+ const reports=await query(
+  `SELECT d.id,d.title,d.body,d.file_url,d.created_at,u.name AS sent_by
+   FROM father_dispatches d
+   LEFT JOIN users u ON u.id=d.created_by
+   WHERE d.target_user_id IS NULL OR d.target_user_id=$1
+   ORDER BY d.created_at DESC LIMIT 100`,
+  [req.session.sub]
+ );
+ const myNews=await query(
+  `SELECT id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,image_url,location_text,status,published_at,created_at,updated_at,
+    metadata->>'section' AS section,metadata->'gallery' AS gallery
+   FROM content_items WHERE type='news' AND metadata->>'submitted_by'=$1
+   ORDER BY updated_at DESC LIMIT 50`,
+  [req.session.sub]
+ );
+ const news=await query(`SELECT slug,title_en AS title,excerpt_en AS excerpt,image_url,published_at,metadata->>'date_display' AS date_display
+  FROM content_items WHERE type='news' AND status='published' ORDER BY COALESCE(event_date,published_at,created_at) DESC LIMIT 12`);
+ const byKind={document:[],gallery:[],action:[],news:[]};
+ for(const item of items.rows)(byKind[item.kind]||(byKind[item.kind]=[])).push(item);
+ res.json({user:user.rows[0],items:byKind,adminReports:reports.rows,myNews:myNews.rows,provinceNews:news.rows});
+}));
+app.post('/api/father/news',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ const parsed=fatherNewsSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
+ const {title,excerpt,body,location_text,image_url,section,gallery}=parsed.data;
+ const profile=await query('SELECT name,father_id FROM users WHERE id=$1',[req.session.sub]);
+ if(!profile.rowCount)return bad(res,'Account unavailable',401);
+ const base=title.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,140)||'news';
+ const slug=`${base}-${Date.now().toString(36)}`;
+ const metadata={
+  section:section||'province-events',
+  gallery,
+  submitted_by:req.session.sub,
+  author_name:profile.rows[0].name,
+  father_id:profile.rows[0].father_id||'',
+  date_display:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Colombo'})
+ };
+ const r=await query(
+  `INSERT INTO content_items(type,slug,title_en,excerpt_en,body_en,location_text,image_url,status,verification_status,metadata,created_by,updated_by)
+   VALUES('news',$1,$2,$3,$4,$5,$6,'review','pending',$7,$8,$8)
+   RETURNING id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,image_url,location_text,status,published_at,created_at,updated_at,
+    metadata->>'section' AS section,metadata->'gallery' AS gallery`,
+  [slug,title,excerpt||'',body,location_text||'',image_url||'',metadata,req.session.sub]
+ );
+ await audit(req.session.sub,'create','news',r.rows[0].id,{source:'father'});
+ res.status(201).json({item:r.rows[0]});
+}));
+app.post('/api/father/items',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ const parsed=fatherItemSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
+ const {kind,title,body,file_url,status,sort_order,metadata}=parsed.data;
+ const defaults={document:'open',gallery:'published',action:'open',news:'draft'};
+ const r=await query(
+  `INSERT INTO father_items(user_id,kind,title,body,file_url,status,sort_order,metadata)
+   VALUES($1,$2,$3,$4,$5,$6,$7,$8)
+   RETURNING id,kind,title,body,file_url,status,sort_order,metadata,created_at,updated_at`,
+  [req.session.sub,kind,title,body||'',file_url||'',status||defaults[kind]||'open',sort_order||0,metadata||{}]
+ );
+ await audit(req.session.sub,'create','father_item',r.rows[0].id,{kind});
+ res.status(201).json({item:r.rows[0]});
+}));
+app.patch('/api/father/items/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ if(!idValid(req.params.id))return bad(res,'Invalid ID');
+ const parsed=fatherItemUpdateSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
+ if(parsed.data.kind&&!fatherItemKinds.safeParse(parsed.data.kind).success)return bad(res,'Invalid kind');
+ const data=parsed.data;const columns=Object.keys(data);const values=columns.map(key=>data[key]);
+ const updates=columns.map((key,index)=>`${key}=$${index+1}`);
+ updates.push('updated_at=now()');
+ const r=await query(
+  `UPDATE father_items SET ${updates.join(',')} WHERE id=$${columns.length+1} AND user_id=$${columns.length+2}
+   RETURNING id,kind,title,body,file_url,status,sort_order,metadata,created_at,updated_at`,
+  [...values,req.params.id,req.session.sub]
+ );
+ if(!r.rowCount)return bad(res,'Not found',404);
+ await audit(req.session.sub,'update','father_item',req.params.id);
+ res.json({item:r.rows[0]});
+}));
+app.delete('/api/father/items/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ if(!idValid(req.params.id))return bad(res,'Invalid ID');
+ const r=await query('DELETE FROM father_items WHERE id=$1 AND user_id=$2 RETURNING id',[req.params.id,req.session.sub]);
+ if(!r.rowCount)return bad(res,'Not found',404);
+ await audit(req.session.sub,'delete','father_item',req.params.id);
+ res.json({ok:true});
+}));
+
+app.get('/api/father/dispatches',auth,cmsOnly,asyncRoute(async(_req,res)=>{
+ const r=await query(
+  `SELECT d.id,d.title,d.body,d.file_url,d.target_user_id,d.created_at,
+    t.name AS target_name,t.father_id AS target_father_id,c.name AS created_by_name
+   FROM father_dispatches d
+   LEFT JOIN users t ON t.id=d.target_user_id
+   LEFT JOIN users c ON c.id=d.created_by
+   ORDER BY d.created_at DESC LIMIT 200`
+ );
+ res.json({items:r.rows});
+}));
+app.get('/api/father/recipients',auth,cmsOnly,asyncRoute(async(_req,res)=>{
+ const r=await query("SELECT id,name,father_id,email FROM users WHERE role='father' AND active=true ORDER BY name");
+ res.json({items:r.rows});
+}));
+app.post('/api/father/dispatches',auth,allow('admin','publisher'),asyncRoute(async(req,res)=>{
+ const parsed=fatherDispatchSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
+ const {title,body,file_url,target_user_id}=parsed.data;
+ if(target_user_id){
+  const father=await query("SELECT id FROM users WHERE id=$1 AND role='father' AND active=true",[target_user_id]);
+  if(!father.rowCount)return bad(res,'Choose an active Father account');
+ }
+ const r=await query(
+  `INSERT INTO father_dispatches(title,body,file_url,target_user_id,created_by)
+   VALUES($1,$2,$3,$4,$5)
+   RETURNING id,title,body,file_url,target_user_id,created_at`,
+  [title,body||'',file_url,target_user_id,req.session.sub]
+ );
+ await audit(req.session.sub,'create','father_dispatch',r.rows[0].id,{target_user_id});
+ res.status(201).json({item:r.rows[0]});
+}));
+app.delete('/api/father/dispatches/:id',auth,allow('admin','publisher'),asyncRoute(async(req,res)=>{
+ if(!idValid(req.params.id))return bad(res,'Invalid ID');
+ const r=await query('DELETE FROM father_dispatches WHERE id=$1 RETURNING id',[req.params.id]);
+ if(!r.rowCount)return bad(res,'Not found',404);
+ await audit(req.session.sub,'delete','father_dispatch',req.params.id);
+ res.json({ok:true});
 }));
 
 app.get('/api/dashboard',auth,cmsOnly,asyncRoute(async(_req,res)=>{
@@ -106,6 +242,11 @@ app.get('/api/items',auth,cmsOnly,asyncRoute(async(req,res)=>{
   const like=csv('meta_like').map(v=>`%${v}%`),not=csv('meta_not').map(v=>`%${v}%`);
   if(like.length){args.push(like);conditions.push(`${field} ILIKE ANY($${args.length})`);}
   if(not.length){args.push(not);conditions.push(`NOT (${field} ILIKE ANY($${args.length}))`);}
+ }
+ const metaHas=String(req.query.meta_has||'');
+ if(metaHas){
+  if(!/^[a-z_]{1,40}$/.test(metaHas))return bad(res,'Invalid metadata filter');
+  args.push(metaHas);conditions.push(`metadata ? $${args.length}`);
  }
  const where=conditions.join(' AND ');const total=(await query(`SELECT count(*)::int AS total FROM content_items WHERE ${where}`,args)).rows[0].total;
  const list=await query(`SELECT * FROM content_items WHERE ${where} ORDER BY sort_order ASC,COALESCE(event_date,created_at) DESC LIMIT 50 OFFSET $${args.length+1}`,[...args,(page-1)*50]);
@@ -147,7 +288,8 @@ app.delete('/api/items/:id',auth,allow('admin'),asyncRoute(async(req,res)=>{
 const PUBLIC_META_KEYS=[
  'role','term','term_in_source','since','terms','section','end_date','date_display','subtitle','kind','place',
  'district','purpose','contact','phone','email','lat','lng',
- 'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample','sections','detail','about_heading','about','mission','fit'
+ 'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample','sections','detail','about_heading','about','mission','fit',
+ 'born','born_at','died','died_at','register_no'
 ];
 app.get('/api/public/items',asyncRoute(async(req,res)=>{
  const type=String(req.query.type||'page');if(!TYPES[type])return bad(res,'Invalid type');
@@ -155,7 +297,8 @@ app.get('/api/public/items',asyncRoute(async(req,res)=>{
  const slug=req.query.slug?String(req.query.slug).slice(0,180):null;
  const args=[type];const parts=['type=$1',"status='published'"];
  if(slug){args.push(slug);parts.push('slug=$2');}
- const r=await query(`SELECT id,type,slug,title_en,title_ta,title_si,excerpt_en,excerpt_ta,excerpt_si,body_en,body_ta,body_si,location_text,image_url,media_url,event_date,featured,sort_order,published_at,verification_status,last_verified_at,metadata FROM content_items WHERE ${parts.join(' AND ')} ORDER BY sort_order,COALESCE(event_date,created_at) DESC LIMIT 200`,args);
+ // Necrology alone is 500+ rows; keep a high ceiling for other types too.
+ const r=await query(`SELECT id,type,slug,title_en,title_ta,title_si,excerpt_en,excerpt_ta,excerpt_si,body_en,body_ta,body_si,location_text,image_url,media_url,event_date,featured,sort_order,published_at,verification_status,last_verified_at,metadata FROM content_items WHERE ${parts.join(' AND ')} ORDER BY sort_order,COALESCE(event_date,created_at) DESC LIMIT 1000`,args);
  // Metadata can hold editorial notes, so only these keys are public.
  const publicMeta=m=>Object.fromEntries(PUBLIC_META_KEYS.filter(k=>m?.[k]!=null).map(k=>[k,m[k]]));
  res.json({items:r.rows.map(({metadata,...item})=>({...item,meta:publicMeta(metadata),title:item[`title_${lang}`]||item.title_en,excerpt:item[`excerpt_${lang}`]||item.excerpt_en,body:item[`body_${lang}`]||item.body_en}))});
@@ -196,13 +339,37 @@ app.post('/api/assets',auth,allow('admin','editor','publisher'),upload.single('f
  catch(e){await removeFile(filename);throw e;}
  await audit(req.session.sub,'upload','asset',r.rows[0].id);res.status(201).json({item:{...r.rows[0],url:`/api/files/${r.rows[0].id}`}});
 }));
+app.post('/api/father/upload',auth,fatherOnly,upload.single('file'),asyncRoute(async(req,res)=>{
+ if(!req.file)return bad(res,'File required');
+ if(!signatureOK(req.file.buffer.subarray(0,16),req.file.mimetype))return bad(res,'File signature does not match its format');
+ const filename=randomUUID()+allowedMime[req.file.mimetype];
+ await saveFile(filename,req.file.buffer);
+ let r;
+ try{
+  r=await query(
+   `INSERT INTO media_assets(filename,original_name,mime_type,size_bytes,uploaded_by,status,rights_confirmed)
+    VALUES($1,$2,$3,$4,$5,'published',true) RETURNING *`,
+   [filename,req.file.originalname.slice(0,255),req.file.mimetype,req.file.size,req.session.sub]
+  );
+ }catch(e){await removeFile(filename);throw e;}
+ await audit(req.session.sub,'upload','asset',r.rows[0].id,{portal:'father'});
+ res.status(201).json({item:{...r.rows[0],url:`/api/files/${r.rows[0].id}`}});
+}));
 app.get('/api/assets',auth,cmsOnly,asyncRoute(async(_req,res)=>{const r=await query('SELECT * FROM media_assets ORDER BY created_at DESC LIMIT 200');res.json({items:r.rows.map(a=>({...a,url:`/api/files/${a.id}`}))});}));
 app.get('/api/files/:id',asyncRoute(async(req,res)=>{
  if(!idValid(req.params.id))return bad(res,'Invalid ID');
  const r=await query('SELECT * FROM media_assets WHERE id=$1',[req.params.id]);if(!r.rowCount)return bad(res,'Not found',404);
  const a=r.rows[0];if(a.status!=='published'){
-  try{const p=req.cookies?.omi_session;const user=p?((await import('jsonwebtoken')).default.verify(p,process.env.JWT_SECRET)):null;if(!user)return bad(res,'Not available',404);const active=await query("SELECT 1 FROM users WHERE id=$1 AND active=true AND role IN ('admin','editor','publisher')",[user.sub]);if(!active.rowCount)return bad(res,'Not available',404);}
-  catch{return bad(res,'Not available',404);}
+  try{
+   const p=req.cookies?.omi_session;
+   const claims=p?((await import('jsonwebtoken')).default.verify(p,process.env.JWT_SECRET)):null;
+   if(!claims)return bad(res,'Not available',404);
+   const active=await query('SELECT role FROM users WHERE id=$1 AND active=true',[claims.sub]);
+   if(!active.rowCount)return bad(res,'Not available',404);
+   const role=active.rows[0].role;
+   const allowed=['admin','editor','publisher'].includes(role)||a.uploaded_by===claims.sub;
+   if(!allowed)return bad(res,'Not available',404);
+  }catch{return bad(res,'Not available',404);}
  }
  let file;
  try{file=await readStoredFile(a.filename);}catch(e){if(e.code==='ENOENT')return bad(res,'Not found',404);throw e;}
@@ -216,7 +383,14 @@ app.use((err,_req,res,_next)=>{
  if(err.status>=400&&err.status<500)return bad(res,err.details||err.message,err.status);
  console.error(err);
  if(['22P02','22007','22008'].includes(err?.code))return bad(res,'Invalid identifier or date');
- if(err?.code==='23505')return bad(res,'Duplicate slug, Father ID or email',409);
+ if(err?.code==='23505'){
+  const constraint=String(err.constraint||'');
+  const detail=String(err.detail||'');
+  if(constraint.includes('email')||detail.includes('(email)'))return bad(res,'That email is already registered. Sign in instead.',409);
+  if(constraint.includes('father_id')||detail.includes('(father_id)')||detail.includes('father_id'))return bad(res,'That Father ID is already registered. Sign in instead.',409);
+  if(constraint.includes('slug')||detail.includes('(type, slug)')||detail.includes('(slug)'))return bad(res,'That URL slug is already in use. Choose a different one.',409);
+  return bad(res,'That record already exists.',409);
+ }
  if(err?.code==='23503')return bad(res,'Related record prevents this operation',409);
  if(err instanceof multer.MulterError)return bad(res,err.message);
  if(err?.message?.startsWith('Only JPEG'))return bad(res,err.message);

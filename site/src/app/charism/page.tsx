@@ -160,7 +160,12 @@ export default async function CharismPage() {
 
       <CharismWays ways={content.ways} />
       <CharismJoin tone="ways" />
-      <CharismVow motto={sections.motto} crossImage={sections.images.crossImage} />
+      <CharismVow
+        mission={sections.mission}
+        vision={sections.vision}
+        motto={sections.motto}
+        crossImage={sections.images.crossImage}
+      />
       <CharismJoin tone="vow" />
       <section id="about" className="scroll-mt-80 bg-white px-4 py-20 text-[#023e8a] sm:px-8">
         <div className="mx-auto max-w-5xl">

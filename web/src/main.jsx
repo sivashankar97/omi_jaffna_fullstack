@@ -6,14 +6,14 @@ import {
  Search,Plus,ChevronDown,ChevronRight,Menu,X,LogOut,Bell,ExternalLink,ArrowRight,ArrowUpRight,
  CheckCircle2,Clock3,Edit3,Trash2,Save,Eye,UploadCloud,FileText,Image as ImageIcon,
  ShieldAlert,RefreshCw,Filter,LockKeyhole,Calendar,Mail,Phone,Check,AlertCircle,Info,
- Compass,FolderOpen,Radio,Send,CheckCircle,Copy,Download,MoreHorizontal,UserRound,Home,Sparkles
+ Compass,FolderOpen,Radio,Send,CheckCircle,Copy,Download,MoreHorizontal,UserRound,Home,Sparkles,Cross
 } from 'lucide-react';
 import seed from './demo.json';
 import CoverImageUpload from './CoverImageUpload.jsx';
 import {AutoFields,mergeContent,useCmsBlocks} from './AutoFields.jsx';
 import './style.css';
 
-const TYPE_INFO={page:['Website Pages',PanelsTopLeft],ministry:['Ministries',HeartHandshake],parish:['Parishes',Church],formation:['Formation Houses',GraduationCap],location:['Map Locations',MapPin],leadership:['Leadership',Users],priest:['Oblate Priests',UserRound],international:['International Mission',Globe2],school:['Schools & Education',School],timeline:['History Timeline',History],news:['News & Stories',Newspaper],event:['Feasts & Events',CalendarDays],publication:['Publications',BookOpen],media:['Media Library',Images]};
+const TYPE_INFO={page:['Website Pages',PanelsTopLeft],ministry:['Ministries',HeartHandshake],parish:['Parishes',Church],formation:['Formation Houses',GraduationCap],location:['Map Locations',MapPin],leadership:['Leadership',Users],priest:['Oblate Priests',UserRound],bishop:['Oblate Bishops',Cross],necrology:['Necrology Register',BookOpen],international:['International Mission',Globe2],school:['Schools & Education',School],timeline:['History Timeline',History],news:['News & Stories',Newspaper],event:['Feasts & Events',CalendarDays],publication:['Publications',BookOpen],media:['Media Library',Images]};
 const notLeadershipRole='provincial superior,former provincial';
 // Each CMS screen is one content type, optionally narrowed to the entries one website section uses.
 const VIEWS={
@@ -23,14 +23,18 @@ const VIEWS={
  event:{type:'event',item:'event',label:'Calendar events',where:'Home: province calendar',link:'/#calendar'},
  location:{type:'location',item:'location',label:'Mission map',where:'Home and Contact: mission map pins and place cards',link:'/#mission-map'},
  'page-history':{type:'page',label:'History page',query:'slug=history',single:true,slugs:[['history','History page']],where:'History: every section of the page',link:'/history'},
+ timeline:{type:'timeline',item:'timeline entry',label:'Year-by-year journey',where:'History: year buttons under the necrology',link:'/history#historical-archive'},
+ necrology:{type:'necrology',item:'register entry',label:'Necrology register',where:'History: searchable register of deceased Oblates',link:'/history#historical-archive'},
+ bishop:{type:'bishop',item:'bishop',label:'Bishop profiles',where:'History: bishop cards and each bishop’s profile page',link:'/history#bishops'},
  'block-media-page':{type:'page',label:'Media page photos',query:'slug=media-page',single:true,slugs:[['media-page','Media page photos']],where:'Media: top photo, video tile photo and the photo gallery',link:'/media'},
- timeline:{type:'timeline',item:'timeline entry',label:'Historical archive',where:'Media: "Historical archive" tab',link:'/media#historical-archive'},
  'page-charism':{type:'page',label:'Charism page',query:'slug=charism',single:true,slugs:[['charism','Charism page']],where:'Charism: every section of the page',link:'/charism'},
  'block-site-info':{type:'page',label:'Logos, address & social links',query:'slug=site-info',single:true,slugs:[['site-info','Contact and social links']],where:'Header and footer logos on every page, Home welcome photo, default news photo, footer, Contact page, Home "Contact us", ministry pages, News and Media social buttons',link:'/contact'},
+ 'block-leadership':{type:'page',label:'Section titles',query:'slug=leadership',single:true,slugs:[['leadership','Leadership page sections']],where:'Leadership: edit "Provincial Superior" / "Our Provincial Leader" headings (and the top banner text)',link:'/leadership#provincial-superior'},
  'leadership-superior':{type:'leadership',item:'Provincial Superior',label:'Provincial Superior',query:'meta_key=role&meta_like=provincial superior',defaults:{role:'Provincial Superior'},where:'Leadership: Provincial Superior section',link:'/leadership#provincial-superior'},
  'leadership-council':{type:'leadership',item:'council member',label:'Provincial Council',query:`meta_key=role&meta_not=${notLeadershipRole}`,where:'Leadership: Provincial Council cards',link:'/leadership#council'},
  'leadership-former':{type:'leadership',item:'former Provincial',label:'Former Provincials',query:'meta_key=role&meta_like=former provincial',defaults:{role:'Former Provincial'},where:'Leadership: Former Provincials timeline',link:'/leadership#former-provincials'},
  priest:{type:'priest',item:'priest',label:'Oblate Priests',where:'Leadership: Oblate priests directory',link:'/leadership#priests'},
+ 'block-ministries':{type:'page',label:'Hero & titles',query:'slug=ministries',single:true,slugs:[['ministries','Ministries page sections']],where:'Ministries: top hero text and mission name (ministry cards stay under Ministries)',link:'/ministries'},
  ministry:{type:'ministry',item:'ministry',label:'Ministries',where:'Ministries page, Home and each ministry\'s own page',link:'/ministries'},
  parish:{type:'parish',item:'parish',label:'Parishes',where:'Ministries: parish directory',link:'/ministries#parish-directory'},
  school:{type:'school',item:'school',label:'Schools & Education',where:'Ministries: schools list',link:'/ministries#schools'},
@@ -38,6 +42,7 @@ const VIEWS={
  'international-mission':{type:'international',item:'country',label:'Mission Countries',query:'meta_key=kind&meta_not=formation',where:'International: countries where Oblates serve',link:'/international'},
  'international-formation':{type:'international',item:'formation place',label:'Formation Abroad',query:'meta_key=kind&meta_like=formation',defaults:{kind:'formation'},where:'International: formation abroad',link:'/international'},
  news:{type:'news',item:'story',label:'News stories',where:'News page; the latest also show on Home and Media',link:'/news'},
+ 'news-father':{type:'news',item:'submission',label:'Father news submissions',query:'meta_has=submitted_by',fixedStatus:'review',where:'Stories Fathers sent for approval — set status to Published to show on the website',link:'/news'},
  publication:{type:'publication',item:'publication',label:'Publications',where:'Media: publications',link:'/media#publications'},
  page:{type:'page',item:'page',label:'All website pages',where:'Every page text entry'},
 };
@@ -46,14 +51,14 @@ const NAV=[
  {label:'WORKSPACE',items:[['overview','Overview',LayoutDashboard]]},
  {label:'WEBSITE PAGES',pages:[
   {label:'Home',icon:Home,views:['page-home','block-home-sections','event']},
-  {label:'History',icon:History,views:['page-history']},
+  {label:'History',icon:History,views:['page-history','necrology','timeline','bishop']},
   {label:'Charism',icon:Sparkles,views:['page-charism']},
-  {label:'Leadership',icon:Users,views:['leadership-superior','leadership-council','leadership-former','priest']},
-  {label:'Ministries',icon:HeartHandshake,views:['ministry','parish','school']},
+  {label:'Leadership',icon:Users,views:['block-leadership','leadership-superior','leadership-council','leadership-former','priest']},
+  {label:'Ministries',icon:HeartHandshake,views:['block-ministries','ministry','parish','school']},
   {label:'Vocations',icon:GraduationCap,views:['formation']},
   {label:'International',icon:Globe2,views:['international-mission','international-formation']},
-  {label:'News',icon:Newspaper,views:['news']},
-  {label:'Media',icon:Images,views:['block-media-page','publication','timeline']},
+  {label:'News',icon:Newspaper,views:['news','news-father']},
+  {label:'Media',icon:Images,views:['block-media-page','publication']},
   {label:'Contact',icon:Mail,views:['block-site-info']},
  ]},
  {label:'ON SEVERAL PAGES',pages:[
@@ -61,10 +66,10 @@ const NAV=[
   {label:'Mission map',icon:MapPin,views:['location']},
   {label:'Our journey timeline',icon:CalendarDays,views:['block-journey']},
  ]},
- {label:'FILES & MANAGEMENT',items:[['assets','File Uploads',FolderOpen],['contacts','Contact Directory',ContactRound],['inquiries','Enquiries',MessageCircle],['users','Team & Roles',ShieldCheck],['settings','Site Settings',Settings2]]}
+ {label:'FILES & MANAGEMENT',items:[['assets','File Uploads',FolderOpen],['father-reports','Father reports',Send],['contacts','Contact Directory',ContactRound],['inquiries','Enquiries',MessageCircle],['users','Team & Roles',ShieldCheck],['settings','Site Settings',Settings2]]}
 ];
 const anchorId=s=>String(s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const PAGE_LINKS={home:'/','home-sections':'/#welcome',journey:'/#journey','site-info':'/contact',history:'/history','media-page':'/media',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/media#historical-archive'};
+const PAGE_LINKS={home:'/','home-sections':'/#welcome',journey:'/#journey','site-info':'/contact',history:'/history',bishops:'/history#bishops','media-page':'/media',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/history#historical-archive'};
 /** Website address where an entry's changes can be seen. */
 function itemLink(item,view){
  const {type,slug}=item;
@@ -77,7 +82,8 @@ function itemLink(item,view){
  if(type==='formation')return `/vocations#house-${anchorId(item.title_en)}`;
  if(type==='international')return `/international#${item.metadata?.kind==='formation'?'abroad':'country'}-${anchorId(item.title_en)}`;
  if(type==='location')return `/#place-${slug}`;
- if(type==='timeline')return '/media#historical-archive';
+ if(type==='timeline'||type==='necrology')return '/history#historical-archive';
+ if(type==='bishop')return slug?`/history/bishops/${slug}`:'/history#bishops';
  if(type==='event')return '/#calendar';
  if(type==='priest')return '/leadership#priests';
  if(type==='leadership'){const role=String(item.metadata?.role||'');return /provincial superior/i.test(role)?'/leadership#provincial-superior':/former provincial/i.test(role)?`/leadership#former-${anchorId(item.title_en)}`:`/leadership#council-${anchorId(item.title_en)}`;}
@@ -88,7 +94,7 @@ const pageOf=Object.fromEntries(NAV.flatMap(g=>(g.pages||[]).flatMap(p=>p.views.
 const viewFor=section=>VIEWS[section]?{id:section,...VIEWS[section]}:Object.entries(VIEWS).map(([id,v])=>({id,...v})).find(v=>v.type===section);
 const iconFor={...Object.fromEntries(Object.entries(TYPE_INFO).map(([type,[,icon]])=>[type,icon])),...Object.fromEntries(NAV.flatMap(g=>g.items||[]).map(([id,,icon])=>[id,icon]))};
 const labels={...Object.fromEntries(Object.entries(TYPE_INFO).map(([type,[label]])=>[type,label])),...Object.fromEntries(Object.entries(VIEWS).map(([id,v])=>[id,v.label])),...Object.fromEntries(NAV.flatMap(g=>g.items||[]).map(([id,label])=>[id,label]))};
-const collectionTypes=new Set(['page','ministry','parish','formation','location','leadership','international','news','event','publication','media','school','timeline','priest']);
+const collectionTypes=new Set(['page','ministry','parish','formation','location','leadership','international','news','event','publication','media','school','timeline','priest','bishop','necrology']);
 const requiresVerification=new Set(['parish','location','leadership','international','formation','timeline']);
 const demo=location.pathname.startsWith('/demo');
 const datePretty=x=>x?new Date(x).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
@@ -125,20 +131,30 @@ function Tag({value}){
 function Crest({small=false}){return <img src={`${import.meta.env.BASE_URL}images/omi-jaffna-logo.png`} alt="Missionary Oblates of Mary Immaculate, OMI Jaffna" className={`${small?'h-10 w-10':'h-12 w-12'} shrink-0 rounded-md object-contain bg-white shadow-sm`}/>}
 function Login({onLogin,notify}){
  const [identifier,setIdentifier]=useState(''),[password,setPassword]=useState(''),[loading,setLoading]=useState(false);
- async function submit(e){e.preventDefault();setLoading(true);try{const d=await api('/api/auth/login',{method:'POST',body:JSON.stringify({identifier,password})});onLogin(d.user)}catch(err){notify(err.message,'error')}finally{setLoading(false)}}
+ async function submit(e){
+  e.preventDefault();
+  const email=identifier.trim();
+  if(!email.includes('@')){notify('CMS sign-in is for Province staff email only. Fathers use Login on the public website.','error');return;}
+  setLoading(true);
+  try{
+   const d=await api('/api/auth/login',{method:'POST',body:JSON.stringify({identifier:email,password})});
+   if(d.user?.role==='father'){location.replace('/dashboard');return;}
+   onLogin(d.user);
+  }catch(err){notify(err.message,'error')}finally{setLoading(false)}
+ }
  return <div className="min-h-screen grid lg:grid-cols-[1.04fr_.96fr] bg-white">
   <div className="cms-login-art relative hidden lg:flex flex-col justify-between overflow-hidden px-14 py-12 text-white">
    <div className="absolute -right-36 top-12 h-[620px] w-[620px] rounded-full border border-white/10"/><div className="absolute -right-14 top-32 h-[460px] w-[460px] rounded-full border border-white/10"/><div className="absolute right-2 top-56 h-[330px] w-[330px] rounded-full border border-white/10"/>
    <div className="absolute inset-0 pointer-events-none opacity-25" style={{background:'radial-gradient(circle at 80% 50%, #d0a45177, transparent 48%), linear-gradient(128deg,transparent 60%,#ffffff0a)'}}/>
    <div className="relative flex items-center gap-3"><Crest/><div><p className="text-[11px] uppercase tracking-[.25em] text-gold-400 font-bold">Missionary Oblates</p><p className="font-semibold tracking-wide">Province of Jaffna</p></div></div>
-   <div className="relative max-w-xl"><p className="text-gold-400 uppercase tracking-[.3em] font-bold text-xs mb-6">Mission Control · 2026</p><h1 className="font-display text-[clamp(3rem,5.7vw,5.8rem)] leading-[1.07] tracking-tight">One mission.<br/><i className="text-gold-400">Many stories.</i></h1><p className="mt-7 text-lg leading-8 text-slate-300 max-w-md">A thoughtful space to steward the Province's digital presence, people, ministries and stories.</p><div className="mt-10 h-[1px] w-24 bg-gold-400"/></div>
+   <div className="relative max-w-xl"><p className="text-gold-400 uppercase tracking-[.3em] font-bold text-xs mb-6">Content Management · Staff only</p><h1 className="font-display text-[clamp(3rem,5.7vw,5.8rem)] leading-[1.07] tracking-tight">One mission.<br/><i className="text-gold-400">Many stories.</i></h1><p className="mt-7 text-lg leading-8 text-slate-300 max-w-md">Province staff manage the public website here. Oblate Fathers use the public site login and their profile dashboard.</p><div className="mt-10 h-[1px] w-24 bg-gold-400"/></div>
    <div className="relative flex items-center justify-between text-xs text-white/50"><span>1847 — 2026 · Evangelizing the poor</span><span>English · தமிழ் · සිංහල</span></div>
   </div>
   <div className="cms-login-form flex min-h-screen items-center justify-center px-6 sm:px-12"><div className="w-full max-w-[410px]">
    <div className="lg:hidden mb-10 flex items-center gap-3"><Crest small/><strong>OMI Jaffna</strong></div>
-   <div className="mb-10"><div className="inline-flex items-center gap-2 rounded-full bg-gold-100 px-3.5 py-2 text-xs font-bold text-gold-600"><LockKeyhole size={14}/> Secure administration</div><h2 className="mt-6 text-4xl font-semibold tracking-tight text-navy-900">Welcome back</h2><p className="mt-3 text-slate-500">Sign in to manage your province website.</p></div>
-   <form onSubmit={submit} className="space-y-5"><div><label className="form-label">Admin email or Father ID</label><input autoComplete="username" value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="Admin email or Father ID" className="field mt-2" required/></div><div><label className="form-label">Password</label><input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" className="field mt-2" required/></div><button disabled={loading} className="w-full btn-primary justify-center h-12">{loading?'Signing in…':'Sign in'} <ArrowRight size={17}/></button></form>
-   <p className="mt-8 text-xs leading-6 text-slate-500">Admins sign in with their email to open the CMS. Fathers sign in with their Father ID to access the public site and profile.</p><div className="mt-7 flex items-center gap-3 border-t border-slate-200 pt-6"><a className="text-xs font-semibold text-gold-600 hover:underline" href="/demo">Explore visual demo →</a><span className="text-slate-300">·</span><a className="text-xs text-slate-500 hover:underline" href="/">← Return to Public site</a></div>
+   <div className="mb-10"><div className="inline-flex items-center gap-2 rounded-full bg-gold-100 px-3.5 py-2 text-xs font-bold text-gold-600"><LockKeyhole size={14}/> Province staff CMS</div><h2 className="mt-6 text-4xl font-semibold tracking-tight text-navy-900">Staff sign in</h2><p className="mt-3 text-slate-500">Editors and administrators only. This is separate from Father login on the website.</p></div>
+   <form onSubmit={submit} className="space-y-5"><div><label className="form-label">Staff email</label><input type="email" autoComplete="username" value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="you@omi-jaffna.org" className="field mt-2" required/></div><div><label className="form-label">Password</label><input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" className="field mt-2" required/></div><button disabled={loading} className="w-full btn-primary justify-center h-12">{loading?'Signing in…':'Sign in to CMS'} <ArrowRight size={17}/></button></form>
+   <p className="mt-8 text-xs leading-6 text-slate-500">Oblate Father? Use <a className="font-semibold text-gold-600 hover:underline" href="/login">website Login</a> with your Father ID — then open your profile dashboard.</p><div className="mt-7 flex items-center gap-3 border-t border-slate-200 pt-6"><a className="text-xs text-slate-500 hover:underline" href="/">← Public website</a><span className="text-slate-300">·</span><a className="text-xs font-semibold text-gold-600 hover:underline" href="/login">Father login →</a></div>
   </div></div>
  </div>
 }
@@ -196,11 +212,13 @@ const META_SPECS={
  news:[['section','Category',{options:'news'}],['date_display','Date as shown (optional)',{hint:'Leave empty to show the event / publication date.'}]],
  publication:[['subtitle','Subtitle']],
  timeline:[['date_display','Year or date shown',{hint:'e.g. 1847. Leave empty to use the title.'}]],
+ bishop:[['register_no','Register number',{number:true,hint:'Necrology register number, used for order when “Order on the website” is 0.'}],['born','Born (date)',{hint:'e.g. 07.02.1813'}],['born_at','Born at (place)'],['died','Died (date)',{hint:'e.g. 23.01.1868'}],['died_at','Died at (place)']],
+ necrology:[['register_no','Register number',{number:true,hint:'Shown in the list circle. Also set “Order on the website” to the same number.'}],['role','Role',{options:[['father','Father'],['bishop','Bishop'],['brother','Brother'],['scholastic','Scholastic']]}],['born','Born (date)',{hint:'e.g. 17.05.1821'}],['born_at','Born at (place)'],['died','Died (date)',{hint:'e.g. 16.06.1851'}],['died_at','Died at (place)']],
  international:[['kind','List',{options:[['','Countries where Oblates serve'],['formation','Formation abroad']]}]],
 };
 const PAGE_SPECS={
  home:{note:'Top of the Home page. The quote and the line under it also appear on the Media page (Homilies and reflections).',fields:[['eyebrow','Small line above the title'],['headline','Main title'],['years','Years'],['quote','Quote'],['lede','Line under the quote']]},
- charism:{note:'Everything on the Charism page. More sections are below in "Charism page sections".',fields:[['headline','Main heading'],['ways','Ways of living it (one per line)',{lines:true}],['about_heading','"Who we are" heading'],['about','"Who we are" paragraphs (one paragraph per line)',{lines:true}],['arrival','Arrival sentence',{long:true}],['mission','Mission paragraph',{long:true}]]},
+ charism:{note:'Everything on the Charism page. Mission, Vision and Motto for the glass cards are under "Charism page sections".',fields:[['headline','Main heading'],['ways','Ways of living it (one per line)',{lines:true}],['about_heading','"Who we are" heading'],['about','"Who we are" paragraphs (one paragraph per line)',{lines:true}],['arrival','Arrival sentence',{long:true}],['mission','About section — "The mission" card',{long:true}]]},
 };
 function SpecFields({specs,meta,setMeta,newsSections}){
  return <div className="grid sm:grid-cols-2 gap-5">{specs.map(([key,label,opt={}])=>{
@@ -253,7 +271,9 @@ const FIELDS={
  school:{title:'School name (optionally "Name — District")',location_text:'Place (leave empty to use the district from the name)'},
  formation:{title:'House name',location_text:'Place'},
  international:{title:'Country or place'},
- timeline:{title:'Year (used when "Year or date shown" is empty)',excerpt:'What happened'},
+ timeline:{title:'Year (used when "Year or date shown" is empty)',excerpt:'What happened (shown on the archive list)',body:'Longer note (optional)',image:'Photo (optional)'},
+ bishop:{title:'Name',excerpt:'Short line on the card (optional)',body:'Biography on the profile page',image:'Portrait photo'},
+ necrology:{title:'Name (as in the Province list)'},
  leadership:{title:'Name',body:'Biography (Provincial Superior only)',image:'Photo'},
  priest:{title:'Name',image:'Photo'},
  location:{title:'Name — District',location_text:'Address'},
@@ -313,17 +333,18 @@ function ContentEditor({value,view,onClose,onSaved,notify,role}){
 }
 function ContentManager({view,notify,user}){
  const {type}=view,name=view.label;
- const [data,setData]=useState({items:[],total:0,pages:1,page:1}),[status,setStatus]=useState(''),[q,setQ]=useState(''),[page,setPage]=useState(1),[loading,setLoading]=useState(true),[edit,setEdit]=useState(null);
+ const [data,setData]=useState({items:[],total:0,pages:1,page:1}),[status,setStatus]=useState(view.fixedStatus||''),[q,setQ]=useState(''),[page,setPage]=useState(1),[loading,setLoading]=useState(true),[edit,setEdit]=useState(null);
  const filter=view.query?'&'+new URLSearchParams(view.query).toString():'';
  const reload=()=>{setLoading(true);api(`/api/items?type=${type}&status=${status}&q=${encodeURIComponent(q)}&page=${page}${filter}`).then(setData).catch(e=>notify(e.message,'error')).finally(()=>setLoading(false))};
- useEffect(()=>{setPage(1);setQ('');setStatus('')},[view.id]);
+ useEffect(()=>{setPage(1);setQ('');setStatus(view.fixedStatus||'')},[view.id]);
  useEffect(()=>{const t=setTimeout(reload,160);return ()=>clearTimeout(t)},[view.id,status,q,page]);
  async function remove(it){if(!window.confirm(`Permanently delete "${it.title_en}"?`))return;try{await api(`/api/items/${it.id}`,{method:'DELETE'});notify('Record deleted.','success');reload()}catch(e){notify(e.message,'error')}}
  const Icon=iconFor[type]||FileText;
- return <div className="space-y-6 "><div className="flex flex-wrap gap-4 justify-between items-center"><div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500"><span className="inline-flex items-center gap-1.5"><Eye size={15} className="text-gold-600"/>Shown on: <b className="font-semibold text-navy-900">{view.where}</b></span>{view.link&&<a href={view.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold-600 hover:underline">View on website <ExternalLink size={12}/></a>}</div>{!view.single&&<button className="btn-primary" onClick={()=>setEdit({...emptyItem(type),metadata:{...view.defaults}})}><Plus size={16}/> Add {view.item}</button>}{view.single&&!loading&&!q&&!status&&(view.slugs||[]).filter(([slug])=>!data.items.some(x=>x.slug===slug)).map(([slug,title])=><button key={slug} className="btn-primary" onClick={()=>setEdit({...emptyItem(type),slug,title_en:title})}><Plus size={16}/> Create {title}</button>)}</div>
+ return <div className="space-y-6 "><div className="flex flex-wrap gap-4 justify-between items-center"><div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500"><span className="inline-flex items-center gap-1.5"><Eye size={15} className="text-gold-600"/>Shown on: <b className="font-semibold text-navy-900">{view.where}</b></span>{view.link&&<a href={view.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold-600 hover:underline">View on website <ExternalLink size={12}/></a>}</div>{!view.single&&!view.fixedStatus&&<button className="btn-primary" onClick={()=>setEdit({...emptyItem(type),metadata:{...view.defaults}})}><Plus size={16}/> Add {view.item}</button>}{view.single&&!loading&&!q&&!status&&(view.slugs||[]).filter(([slug])=>!data.items.some(x=>x.slug===slug)).map(([slug,title])=><button key={slug} className="btn-primary" onClick={()=>setEdit({...emptyItem(type),slug,title_en:title})}><Plus size={16}/> Create {title}</button>)}</div>
+  {view.id==='news-father'&&<div className="rounded-xl bg-sky-50 border border-sky-100 px-4 py-3 text-xs text-sky-900 flex gap-2"><Info size={16} className="shrink-0"/>Open a submission, review the story and photos, then set Publication status to <b>Published</b> so it appears on the public News page.</div>}
   {view.single&&data.items.some(x=>x.status!=='published')&&<div className="rounded-xl bg-amber-50 border border-amber-100 px-4 py-3 text-xs text-amber-800 flex gap-2"><Info size={16} className="shrink-0"/>Entries that are not <b>Published</b> are not used by the website. Open the entry, set Publication status to Published and save.</div>}
   <div className="panel overflow-hidden"><div className="flex flex-col sm:flex-row justify-between gap-3 px-5 sm:px-6 py-5 border-b border-slate-100"><div className="relative w-full sm:max-w-sm"><Search size={17} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"/><input placeholder={`Search ${name.toLowerCase()}…`} className="field pl-10" value={q} onChange={e=>{setQ(e.target.value);setPage(1)}}/></div><div className="flex items-center gap-2"><span className="text-xs text-slate-400 hidden sm:inline">Show:</span><select className="field min-w-36" value={status} onChange={e=>{setStatus(e.target.value);setPage(1)}}><option value="">All statuses</option><option value="draft">Draft</option><option value="review">In review</option><option value="published">Published</option></select><IconButton title="Refresh" onClick={reload}><RefreshCw size={17}/></IconButton></div></div>
-   <div className="overflow-x-auto"><table className="w-full min-w-[790px] text-left"><thead className="bg-[#f9fafc] text-[10px] uppercase tracking-wider text-slate-400"><tr><th className="px-6 py-4 font-bold">Content</th><th className="px-4 py-4 font-bold">Status</th><th className="px-4 py-4 font-bold">Verification</th><th className="px-4 py-4 font-bold">Updated</th><th className="px-6 py-4 font-bold text-right">Actions</th></tr></thead><tbody className="divide-y divide-slate-100">{data.items.map(x=><tr key={x.id} className="group hover:bg-slate-50/75"><td className="px-6 py-4"><div className="flex items-center gap-3"><div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50 text-navy-700 grid place-items-center"><Icon size={17}/></div><div className="min-w-0"><p className="text-[13px] font-semibold text-navy-900 truncate max-w-sm">{x.title_en}</p><p className="mt-1 text-[11px] text-slate-400 truncate max-w-sm">{type==='leadership'&&x.metadata?.role?[x.metadata.role,x.metadata.term].filter(Boolean).join(' · '):x.location_text||x.excerpt_en||`/${type}/${x.slug}`}</p></div></div></td><td className="px-4 py-4"><Tag value={x.status}/></td><td className="px-4 py-4"><Tag value={x.verification_status}/></td><td className="px-4 py-4 text-[11px] text-slate-500">{datePretty(x.updated_at)}</td><td className="px-6 py-4"><div className="flex justify-end gap-1">{itemLink(x,view)&&<a href={itemLink(x,view)} target="_blank" rel="noreferrer" title={x.status==='published'?'Open on website':'Open on website (not published yet, so changes are not shown)'} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-navy-900"><ExternalLink size={16}/></a>}<IconButton title="Edit" onClick={()=>setEdit(x)}><Edit3 size={16}/></IconButton>{user.role==='admin'&&<IconButton title="Delete" onClick={()=>remove(x)}><Trash2 size={16}/></IconButton>}</div></td></tr>)}</tbody></table>{!loading&&data.items.length===0&&<div className="py-20 text-center"><div className="mx-auto mb-4 h-14 w-14 bg-slate-100 rounded-2xl grid place-items-center text-slate-400"><FolderOpen size={24}/></div><h3 className="text-sm font-bold text-navy-900">No matching entries</h3><p className="text-xs text-slate-400 mt-2">Try a different filter or add new content.</p></div>}{loading&&<div className="p-8 text-center text-xs text-slate-400">Loading content…</div>}</div>
+   <div className="overflow-x-auto"><table className="w-full min-w-[790px] text-left"><thead className="bg-[#f9fafc] text-[10px] uppercase tracking-wider text-slate-400"><tr><th className="px-6 py-4 font-bold">Content</th><th className="px-4 py-4 font-bold">Status</th><th className="px-4 py-4 font-bold">Verification</th><th className="px-4 py-4 font-bold">Updated</th><th className="px-6 py-4 font-bold text-right">Actions</th></tr></thead><tbody className="divide-y divide-slate-100">{data.items.map(x=><tr key={x.id} className="group hover:bg-slate-50/75"><td className="px-6 py-4"><div className="flex items-center gap-3"><div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50 text-navy-700 grid place-items-center"><Icon size={17}/></div><div className="min-w-0"><p className="text-[13px] font-semibold text-navy-900 truncate max-w-sm">{x.title_en}</p><p className="mt-1 text-[11px] text-slate-400 truncate max-w-sm">{type==='leadership'&&x.metadata?.role?[x.metadata.role,x.metadata.term].filter(Boolean).join(' · '):x.metadata?.author_name?`From ${x.metadata.author_name}${x.location_text?` · ${x.location_text}`:''}`:x.location_text||x.excerpt_en||`/${type}/${x.slug}`}</p></div></div></td><td className="px-4 py-4"><Tag value={x.status}/></td><td className="px-4 py-4"><Tag value={x.verification_status}/></td><td className="px-4 py-4 text-[11px] text-slate-500">{datePretty(x.updated_at)}</td><td className="px-6 py-4"><div className="flex justify-end gap-1">{itemLink(x,view)&&<a href={itemLink(x,view)} target="_blank" rel="noreferrer" title={x.status==='published'?'Open on website':'Open on website (not published yet, so changes are not shown)'} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-navy-900"><ExternalLink size={16}/></a>}<IconButton title="Edit" onClick={()=>setEdit(x)}><Edit3 size={16}/></IconButton>{user.role==='admin'&&<IconButton title="Delete" onClick={()=>remove(x)}><Trash2 size={16}/></IconButton>}</div></td></tr>)}</tbody></table>{!loading&&data.items.length===0&&<div className="py-20 text-center"><div className="mx-auto mb-4 h-14 w-14 bg-slate-100 rounded-2xl grid place-items-center text-slate-400"><FolderOpen size={24}/></div><h3 className="text-sm font-bold text-navy-900">No matching entries</h3><p className="text-xs text-slate-400 mt-2">Try a different filter or add new content.</p></div>}{loading&&<div className="p-8 text-center text-xs text-slate-400">Loading content…</div>}</div>
    <div className="px-6 py-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400"><span>{data.total} entries · Page {data.page} of {data.pages}</span><div className="flex gap-2"><button disabled={page<=1} onClick={()=>setPage(v=>v-1)} className="btn-outline !px-3 !py-1.5 disabled:opacity-40">Previous</button><button disabled={page>=data.pages} onClick={()=>setPage(v=>v+1)} className="btn-outline !px-3 !py-1.5 disabled:opacity-40">Next</button></div></div>
   </div>{edit&&<ContentEditor value={edit} view={view} role={user.role} notify={notify} onClose={()=>setEdit(null)} onSaved={()=>{setEdit(null);reload()}}/>}</div>
 }
@@ -343,6 +364,53 @@ function Modal({title,close,children}){return <div data-dialog className="fixed 
 function Inquiries({notify,user}){const [items,setItems]=useState([]);const reload=()=>api('/api/inquiries').then(r=>setItems(r.items)).catch(e=>notify(e.message,'error'));useEffect(()=>{reload();},[]);
  async function update(id,status){try{await api(`/api/inquiries/${id}`,{method:'PATCH',body:JSON.stringify({status})});notify('Enquiry updated.','success');reload()}catch(e){notify(e.message,'error')}}
  return <div className="space-y-6 "><p className="text-sm text-slate-500">Messages submitted through the website contact form. Safeguarding enquiries should be handled through your approved institutional process.</p><div className="grid gap-4">{items.map(item=><div key={item.id} className="panel p-6"><div className="flex gap-3 justify-between flex-wrap"><div><h3 className="font-bold text-navy-900">{item.name} <span className="font-normal text-xs text-slate-400">· {item.email}</span></h3><p className="text-xs text-slate-400 mt-1">{item.category} · {datePretty(item.created_at)}</p></div><Tag value={item.status}/></div><p className="text-sm text-slate-600 leading-6 mt-4 whitespace-pre-wrap break-words">{item.message}</p><div className="mt-5 pt-4 border-t border-slate-100 flex justify-between flex-wrap gap-3 items-center"><a className="text-xs text-gold-600 font-semibold" href={`mailto:${item.email}`}>Reply via email <ArrowUpRight size={13} className="inline"/></a><select disabled={!['admin','publisher'].includes(user.role)} className="field !w-40" value={item.status} onChange={e=>update(item.id,e.target.value)}><option value="new">New</option><option value="in_progress">In progress</option><option value="closed">Closed</option></select></div></div>)}{!items.length&&<div className="panel"><EmptyState text="No enquiries received yet."/></div>}</div></div>}
+function FatherReports({notify,user}){
+ const [items,setItems]=useState([]),[fathers,setFathers]=useState([]),[busy,setBusy]=useState(false);
+ const [form,setForm]=useState({title:'',body:'',file_url:'',target_user_id:''});
+ const canSend=['admin','publisher'].includes(user.role);
+ const reload=()=>Promise.all([
+  api('/api/father/dispatches').then(r=>setItems(r.items)),
+  api('/api/father/recipients').then(r=>setFathers(r.items))
+ ]).catch(e=>notify(e.message,'error'));
+ useEffect(()=>{reload();},[]);
+ async function upload(file){
+  const data=new FormData();data.append('file',file);
+  const {item}=await api('/api/assets',{method:'POST',body:data});
+  if(['admin','publisher'].includes(user.role)){
+   await api(`/api/assets/${item.id}`,{method:'PATCH',body:JSON.stringify({status:'published',rights_confirmed:true,alt_text:file.name,caption:'Father report'})});
+  }
+  return item.url;
+ }
+ async function send(e){
+  e.preventDefault();if(!canSend)return;setBusy(true);
+  try{
+   await api('/api/father/dispatches',{method:'POST',body:JSON.stringify(form)});
+   notify('Report sent to the Father dashboard.','success');
+   setForm({title:'',body:'',file_url:'',target_user_id:''});
+   reload();
+  }catch(err){notify(err.message,'error')}finally{setBusy(false)}
+ }
+ async function remove(id){
+  if(!window.confirm('Remove this report from Father dashboards?'))return;
+  try{await api(`/api/father/dispatches/${id}`,{method:'DELETE'});notify('Report removed.','success');reload()}catch(err){notify(err.message,'error')}
+ }
+ return <div className="space-y-6">
+  <div className="panel p-6 space-y-4">
+   <div><h3 className="section-title">Send a PDF or report to Fathers</h3><p className="subcopy mt-1">Fathers see these in their dashboard Documents section. Choose one Father or send to every Father.</p></div>
+   {!canSend?<p className="text-sm text-slate-500">Only admins and publishers can send reports.</p>:<form onSubmit={send} className="grid gap-4 sm:grid-cols-2">
+    <div className="sm:col-span-2"><label className="form-label">Title *</label><input required className="field mt-2" value={form.title} onChange={e=>setForm(a=>({...a,title:e.target.value}))}/></div>
+    <div className="sm:col-span-2"><label className="form-label">Note (optional)</label><textarea rows={3} className="field mt-2" value={form.body} onChange={e=>setForm(a=>({...a,body:e.target.value}))}/></div>
+    <div><label className="form-label">Send to</label><select className="field mt-2" value={form.target_user_id} onChange={e=>setForm(a=>({...a,target_user_id:e.target.value}))}><option value="">All Fathers</option>{fathers.map(f=><option key={f.id} value={f.id}>{f.name}{f.father_id?` (${f.father_id})`:''}</option>)}</select></div>
+    <div><label className="form-label">PDF or file *</label><input required={!form.file_url} type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="field mt-2 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs" onChange={async e=>{const file=e.target.files?.[0];if(!file)return;try{const url=await upload(file);setForm(a=>({...a,file_url:url}));notify('File uploaded.','success')}catch(err){notify(err.message,'error')}}}/></div>
+    {form.file_url&&<p className="sm:col-span-2 text-xs text-slate-500">Attached: <a className="text-gold-600 font-semibold" href={form.file_url} target="_blank" rel="noreferrer">{form.file_url}</a></p>}
+    <div className="sm:col-span-2"><button disabled={busy||!form.file_url} className="btn-primary"><Send size={16}/> {busy?'Sending…':'Send to Father dashboard'}</button></div>
+   </form>}
+  </div>
+  <div className="panel overflow-x-auto"><table className="w-full min-w-[700px] text-left"><thead className="table-head"><tr><th>Report</th><th>Sent to</th><th>By</th><th>Date</th><th></th></tr></thead><tbody>
+   {items.map(item=><tr className="table-row" key={item.id}><td><p className="font-bold text-navy-900">{item.title}</p><a className="text-xs text-gold-600 font-semibold" href={item.file_url} target="_blank" rel="noreferrer">Open file</a>{item.body?<p className="text-xs text-slate-500 mt-1 line-clamp-2">{item.body}</p>:null}</td><td className="text-xs text-slate-500">{item.target_user_id?(item.target_name||'One Father'):'All Fathers'}</td><td className="text-xs text-slate-500">{item.created_by_name||'—'}</td><td className="text-xs text-slate-500">{datePretty(item.created_at)}</td><td>{canSend&&<IconButton title="Delete" onClick={()=>remove(item.id)}><Trash2 size={16}/></IconButton>}</td></tr>)}
+  </tbody></table>{!items.length&&<EmptyState text="No reports sent yet."/>}</div>
+ </div>;
+}
 function Assets({notify,user}){const [items,setItems]=useState([]),[busy,setBusy]=useState(false),[file,setFile]=useState(null),[modal,setModal]=useState(null);
  const reload=()=>api('/api/assets').then(r=>setItems(r.items)).catch(e=>notify(e.message,'error'));useEffect(()=>{reload();},[]);
  async function upload(e){e.preventDefault();if(!file)return;setBusy(true);try{const d=new FormData();d.append('file',file);const r=await api('/api/assets',{method:'POST',body:d});notify('File uploaded as DRAFT. Approve rights before publishing.','success');setFile(null);document.getElementById('asset-file').value='';reload()}catch(err){notify(err.message,'error')}finally{setBusy(false)}}
@@ -456,16 +524,31 @@ function PublicSite({user,onAuth,onLogout,notify}){
  </div>
 }
 function App(){
- const isCms=demo||location.pathname.startsWith('/admin')||location.pathname.startsWith('/cms')||location.pathname.startsWith('/login');
+ // /admin and /demo are the staff CMS only. Public Father login lives on the Next.js site (/login, /dashboard).
+ const isCms=demo||location.pathname.startsWith('/admin')||location.pathname.startsWith('/cms')||location.pathname.startsWith('/demo');
  const [user,setUser]=useState(demo?{id:'demo',name:'Demo Administrator',role:'admin',email:'demo@example.org'}:null),[ready,setReady]=useState(demo),[section,setSection]=useState('overview'),[mobileOpen,setMobileOpen]=useState(false),[notice,setNotice]=useState(null);
  const notify=(message,type='success')=>{setNotice({message,type});setTimeout(()=>setNotice(null),4800)};
- useEffect(()=>{if(!demo)api('/api/auth/me').then(r=>setUser(r.user)).catch(()=>{}).finally(()=>setReady(true))},[]);
- function acceptAuth(next){setUser(next);if(next.role==='father'){if(isCms)location.assign('/');}else{if(!isCms)location.assign('/admin');}}
+ const isStaff=user&&['admin','editor','publisher'].includes(user.role);
+ useEffect(()=>{
+  if(demo)return;
+  api('/api/auth/me').then(r=>{
+   const next=r.user;
+   // Fathers belong on the public site — never keep them in the CMS shell.
+   if(next?.role==='father'){location.replace('/dashboard');return;}
+   setUser(next||null);
+  }).catch(()=>setUser(null)).finally(()=>setReady(true));
+ },[]);
+ function acceptAuth(next){
+  if(next?.role==='father'){location.replace('/dashboard');return;}
+  setUser(next);
+  if(!isCms)location.assign('/admin');
+ }
  async function logout(){if(!demo)try{await api('/api/auth/logout',{method:'POST'})}catch(err){notify(err.message,'error');return}setUser(null);if(demo||isCms)location.assign('/');}
- if(!isCms||user?.role==='father')return <><PublicSite user={user} onAuth={acceptAuth} onLogout={logout} notify={notify}/>{notice&&<Toast key={notice.message} {...notice}/>}</>;
+ if(!isCms)return <><PublicSite user={user} onAuth={acceptAuth} onLogout={logout} notify={notify}/>{notice&&<Toast key={notice.message} {...notice}/>}</>;
  if(!ready)return <div className="min-h-screen grid place-items-center text-slate-500 text-sm">Loading secure workspace…</div>;
- if(!user)return <><Login onLogin={acceptAuth} notify={notify}/>{notice&&<Toast key={notice.message} {...notice}/>}</>;
- return <div className="cms-shell lg:pl-[270px]"><Sidebar section={section} setSection={setSection} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={user} onLogout={logout}/><Topbar section={section} setMobileOpen={setMobileOpen} user={user} onLogout={logout} setSection={setSection}/><main className="px-4 sm:px-8 lg:px-10 py-7 sm:py-9 max-w-[1750px] mx-auto">{demo&&<div className="mb-6 flex flex-wrap justify-between gap-3 items-center border border-sky-200 rounded-xl bg-sky-50/90 px-4 py-3 text-xs text-sky-900"><span><Info size={15} className="inline mr-2"/><strong>Read-only demo.</strong> 124 source-derived draft records; no connection to the real database.</span><a href="/admin" className="underline font-bold">Go to secure login</a></div>}{section==='overview'?<Overview setSection={setSection} user={user} notify={notify}/>:viewFor(section)?<ContentManager key={viewFor(section).id} view={viewFor(section)} notify={notify} user={user}/>:section==='contacts'?<Contacts notify={notify} user={user}/>:section==='inquiries'?<Inquiries notify={notify} user={user}/>:section==='assets'?<Assets notify={notify} user={user}/>:section==='users'?(user.role==='admin'?<Team notify={notify}/>:<div className="panel p-8">Only admins can manage accounts.</div>):section==='settings'?(user.role==='admin'?<SiteSettings notify={notify}/>:<div className="panel p-8">Only admins can edit settings.</div>):null}<div className="flex justify-between flex-wrap gap-2 text-[11px] text-slate-500 mt-10 pt-6 border-t border-sky-200"><span>© 2026 · Oblate Province of Jaffna · Content Management System</span><span>Built for stewardship, accessibility and safeguarding</span></div></main>{notice&&<Toast key={notice.message} {...notice}/>}</div>;
+ if(user?.role==='father')return <div className="min-h-screen grid place-items-center gap-3 p-8 text-center text-slate-600"><p className="text-sm font-semibold text-navy-900">This area is the staff CMS.</p><p className="text-sm">Opening your Father profile on the public website…</p></div>;
+ if(!isStaff)return <><Login onLogin={acceptAuth} notify={notify}/>{notice&&<Toast key={notice.message} {...notice}/>}</>;
+ return <div className="cms-shell lg:pl-[270px]"><Sidebar section={section} setSection={setSection} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={user} onLogout={logout}/><Topbar section={section} setMobileOpen={setMobileOpen} user={user} onLogout={logout} setSection={setSection}/><main className="px-4 sm:px-8 lg:px-10 py-7 sm:py-9 max-w-[1750px] mx-auto">{demo&&<div className="mb-6 flex flex-wrap justify-between gap-3 items-center border border-sky-200 rounded-xl bg-sky-50/90 px-4 py-3 text-xs text-sky-900"><span><Info size={15} className="inline mr-2"/><strong>Read-only demo.</strong> 124 source-derived draft records; no connection to the real database.</span><a href="/admin" className="underline font-bold">Go to secure login</a></div>}{section==='overview'?<Overview setSection={setSection} user={user} notify={notify}/>:viewFor(section)?<ContentManager key={viewFor(section).id} view={viewFor(section)} notify={notify} user={user}/>:section==='contacts'?<Contacts notify={notify} user={user}/>:section==='inquiries'?<Inquiries notify={notify} user={user}/>:section==='father-reports'?<FatherReports notify={notify} user={user}/>:section==='assets'?<Assets notify={notify} user={user}/>:section==='users'?(user.role==='admin'?<Team notify={notify}/>:<div className="panel p-8">Only admins can manage accounts.</div>):section==='settings'?(user.role==='admin'?<SiteSettings notify={notify}/>:<div className="panel p-8">Only admins can edit settings.</div>):null}<div className="flex justify-between flex-wrap gap-2 text-[11px] text-slate-500 mt-10 pt-6 border-t border-sky-200"><span>© 2026 · Oblate Province of Jaffna · Content Management System</span><span>Built for stewardship, accessibility and safeguarding</span></div></main>{notice&&<Toast key={notice.message} {...notice}/>}</div>;
 }
 function Toast({message,type}){return <div role="status" className={`fixed z-[100] bottom-6 right-6 left-6 sm:left-auto sm:max-w-[400px] rounded-xl shadow-xl px-5 py-4 text-sm font-semibold flex items-center gap-3 ${type==='error'?'bg-rose-700 text-white':'bg-navy-900 text-white'}`}>{type==='error'?<AlertCircle size={19} className="shrink-0"/>:<CheckCircle2 size={19} className="shrink-0 text-gold-400"/>}{message}</div>}
 const root=import.meta.hot?.data.root||createRoot(document.getElementById('root'));

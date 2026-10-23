@@ -6,7 +6,7 @@ import { MediaPublications } from "@/components/sections/media/media-publication
 import { MediaStudio } from "@/components/sections/media/media-studio"
 import { SocialSignals } from "@/components/sections/media/social-signals"
 import { isUpload } from "@/content/site-info"
-import { getBlock, getHomeContent, getMinistries, getNews, getPublications, getTimeline } from "@/lib/cms"
+import { getBlock, getHomeContent, getMinistries, getNews, getPublications } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "Media",
@@ -14,10 +14,9 @@ export const metadata: Metadata = {
 }
 
 export default async function MediaPage() {
-  const [news, ministries, timeline, publications, { hero }, photos] = await Promise.all([
+  const [news, ministries, publications, { hero }, photos] = await Promise.all([
     getNews(),
     getMinistries(),
-    getTimeline(),
     getPublications(),
     getHomeContent(),
     getBlock("media-page"),
@@ -90,7 +89,6 @@ export default async function MediaPage() {
       <MediaStudio
         news={news}
         ministries={ministries}
-        timeline={timeline}
         quote={hero.quote}
         lede={hero.lede}
         photos={photos.gallery}

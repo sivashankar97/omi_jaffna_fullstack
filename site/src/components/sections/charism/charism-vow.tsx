@@ -4,7 +4,17 @@ import { useEffect, useRef, useState } from "react"
 
 import { cn } from "cn"
 
-export function CharismVow({ motto: charismMotto, crossImage }: { motto: string; crossImage: string }) {
+export function CharismVow({
+  mission,
+  vision,
+  motto: charismMotto,
+  crossImage,
+}: {
+  mission: string
+  vision: string
+  motto: string
+  crossImage: string
+}) {
   const ref = useRef<HTMLElement>(null)
   const [shown, setShown] = useState(false)
 
@@ -38,15 +48,11 @@ export function CharismVow({ motto: charismMotto, crossImage }: { motto: string;
         <div className="grid gap-5">
           <div id="mission" className="charism-glass-mission scroll-mt-80 rounded-[2rem] px-7 py-8">
             <h2 className="font-heading text-4xl">Mission</h2>
-            <p className="mt-4 max-w-xl text-lg leading-8">
-              Empowered by the Good News, we work for a healing society in and through the light of the Good News.
-            </p>
+            <p className="mt-4 max-w-xl text-lg leading-8">{mission}</p>
           </div>
           <div id="vision" className="charism-glass-vision scroll-mt-80 rounded-[2rem] px-7 py-8">
             <h2 className="font-heading text-4xl">Vision</h2>
-            <p className="mt-4 max-w-xl text-lg leading-8">
-              A life towards a renewed, just and free society.
-            </p>
+            <p className="mt-4 max-w-xl text-lg leading-8">{vision}</p>
           </div>
           <div id="motto" className="charism-glass-motto scroll-mt-80 rounded-[2rem] px-7 py-8">
             <h2 className="font-heading text-4xl">Motto</h2>
