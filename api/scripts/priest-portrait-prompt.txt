@@ -1,0 +1,34 @@
+Transform the uploaded photograph into an ultra-realistic, professional Catholic Christian priest portrait with a fully transparent background.
+FACE AND IDENTITY:
+Preserve the exact original person's face, identity, facial features, skin tone, hairstyle, eyes, nose, lips, and natural expression. Do not change or regenerate the face. The final result must clearly look like the same person in the uploaded photograph.
+PRIEST CLOTHING:
+Dress the person in an elegant, pure white, long-sleeved Catholic priest's cassock with a traditional white clerical collar. The cassock should have realistic fabric folds, professional tailoring, and natural shadows. Add a wide black cloth sash around the waist, with a long black sash panel hanging vertically on the viewer's right side.
+JESUS CHRIST CROSS AND NECK CHAIN:
+Add a realistic black cord necklace with a traditional gold-bordered, black-centered crucifix featuring a small golden figure of Jesus Christ.
+The necklace must hang naturally from the neck, slightly diagonally toward the viewer's right side. Position the crucifix low, close to the waist, slightly right of center.
+IMPORTANT CROSS POSITIONING:
+- The crucifix must be partially tucked behind the top edge of the black waist sash.
+- Only approximately 30–40% of the upper crucifix should remain visible.
+- The lower 60–70% must be naturally concealed by the black sash.
+- The crucifix should not hang freely in the middle of the chest.
+- Keep the necklace thin, realistic, and naturally positioned.
+- The cross must look modest, elegant, and religiously authentic.
+PROFESSIONAL POSE:
+Position the person standing upright, facing the camera with a calm, confident, welcoming priestly expression.
+The person's right hand (viewer's left) should hold a realistic black leather Holy Bible with golden page edges and the words "HOLY BIBLE" embossed in gold on its cover.
+The person's left hand (viewer's right) should be gently raised in a natural preaching, teaching, or welcoming gesture, with relaxed fingers and realistic hand anatomy.
+PHOTOGRAPHY AND COMPOSITION:
+Create a realistic professional studio photograph with soft, balanced lighting, natural skin texture, sharp facial details, and lifelike clothing.
+Show the person from head to mid-thigh, centered in a vertical portrait composition. Maintain accurate human anatomy, realistic proportions, and natural hand positioning.
+TRANSPARENT BACKGROUND:
+Completely remove the original background and isolate only the priest. Export as a high-resolution PNG with a genuine transparent alpha channel. No white, black, colored, or checkerboard background should be embedded in the final image.
+STRICT REQUIREMENTS:
+- Do not change the original person's facial identity.
+- Do not add a beard or modify the hairstyle unless already present.
+- Do not add extra religious accessories.
+- Do not add logos, decorations, or unnecessary objects.
+- Do not create a cartoon, painting, or AI illustration.
+- Keep the Bible and crucifix realistic.
+- Make the final portrait look like an authentic professional photograph taken with a DSLR camera.
+FINAL OUTPUT:
+A premium-quality, photorealistic Catholic priest portrait of the original person, wearing a beautiful white cassock and black waist sash, holding the Holy Bible, making a gentle welcoming gesture, with a small gold-and-black Jesus Christ crucifix positioned toward the viewer's right and mostly concealed behind the waist sash, isolated on a completely transparent PNG background.

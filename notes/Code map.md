@@ -29,7 +29,7 @@ Leadership page data (CMS type `leadership`, one entry per person, told apart by
 - Provincial Superior: Position "Provincial Superior"; term, since, appointments (`meta.terms`), bio = full content, portrait = cover image. No entry = section hidden.
 - Council: any other position (1st–5th Councillor, Bursar); photo = cover image. Council heading = first member's term.
 - Former Provincials: Position "Former Provincial" + term.
-- Oblate priests: CMS type `priest`, "Where serving" = `meta.place`, photo = cover image.
+- Oblate priests: CMS type `priest`, "Where serving" = `meta.place`, photo = cover image (`/api/files/…` in Netlify Blobs via `media_assets`). Staging cutouts may sit in `site/public/priests/portraits/`; seed into storage with `cd api && npm run seed:priest-portraits` (uses `netlify blobs:set`).
 - CMS form fields for these: `MetaFields` in `web/src/main.jsx`. Extra meta keys must be listed in `PUBLIC_META_KEYS` in `api/src/app.js` or the site never receives them.
 
 Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-directory`, `/publications` to `/media#publications`.
@@ -60,7 +60,7 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
   - Council photo fit: leadership `metadata.fit` = `cover` fills the card (default: whole photo).
   - Schools (CMS type `school`): `getSchools`, list on `/ministries#schools`.
 - Still fixed in code: Media page text (`sections/media/*`), Vocations/International page wording, Join us form fields, page banners/hero video.
-- Images in `site/public/`: hero `Herosection/`, council photos `Leadership_img/`, `ministries/`, `news/`, `slides/`, `logos/`, hero video `video/Hero_section.mp4` (33 MB).
+- Images in `site/public/`: hero `Herosection/`, council photos `Leadership_img/`, Oblate priest studio cutouts `priests/portraits/` (~90 PNGs), `ministries/`, `news/`, `slides/`, `logos/`, hero video `video/Hero_section.mp4` (33 MB).
 
 ## CMS (`web/`, served at `/admin`)
 - Staff only (admin / publisher / editor). Fathers never use `/admin`: a Father session is sent to `/dashboard` on the public site. CMS login accepts **staff email** only; Fathers use `/login` on the website.
@@ -79,7 +79,7 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 ## API (`api/`)
 - Routes: `api/src/app.js` (auth, `/api/items` CRUD, `/api/public/*` for the site, `/api/assets` uploads, `/api/files/:id`)
 - Generic content CRUD and asset delete: `api/src/crud.js`
-- Content types list (page, ministry, parish, priest, bishop, necrology, timeline, news, ...): `api/src/constants.js` (`TYPES`); migrations `api/db/004_bishop_type.sql`, `005_necrology_type.sql`, `006_father_portal.sql` (father bio/place/photo + `father_items`); seed via `npm run import:bishops` / `npm run import:necrology` in `api/`
+- Content types list (page, ministry, parish, priest, bishop, necrology, timeline, news, ...): `api/src/constants.js` (`TYPES`); migrations `api/db/004_bishop_type.sql`, `005_necrology_type.sql`, `006_father_portal.sql` (father bio/place/photo + `father_items`); seed via `npm run import:bishops` / `npm run import:necrology` / `npm run seed:priest-portraits` in `api/`
 - Father portal API: `/api/father/dashboard`, `/api/father/items`, `/api/father/news`, `/api/father/upload`, `/api/father/dispatches` (CMS admin→father PDFs) in `api/src/app.js`; CMS screens: **Father reports**, **News › Father news submissions** (`web/src/main.jsx`)
 - Father-submitted news stays `status=review` until an admin/publisher publishes it; public site only shows published news
 - Database connection: `api/src/db.js`; schema: `api/db/*.sql`; migrate/seed: `api/scripts/`

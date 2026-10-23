@@ -11,6 +11,8 @@
     "import:site": "node --no-warnings scripts/import-site-content.js",
     "import:bishops": "node --no-warnings scripts/import-bishops.js",
     "import:necrology": "node --no-warnings scripts/import-necrology.js",
+    "seed:priest-portraits": "node --no-warnings scripts/seed-priest-portraits.js",
+    "seed:priest-portraits:public": "node --no-warnings scripts/seed-priest-portraits.js --public",
     "test": "node --test"
   },
   "dependencies": {

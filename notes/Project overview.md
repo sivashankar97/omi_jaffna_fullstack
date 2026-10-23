@@ -31,3 +31,5 @@ Takes about 3–10 minutes (longer when large files like the hero video change).
 The CLI builds on this Mac, so `NETLIFY` is not set during the build. The local proxy rewrites in `site/next.config.ts` (`/api`, `/admin`, fallback to the CMS dev server) are therefore limited to `next dev`; otherwise unknown pages return 500 on the live site.
 
 CMS uploads live in Netlify Blobs store `media` on this site. Do **not** set `NETLIFY_BLOBS_TOKEN` on Netlify (only in local `api/.env` for offline access); a bad token makes `/api/files/…` return 401. After changing sites, re-upload missing images in the CMS — Blobs do not move automatically.
+
+Oblate priest studio portraits: stage in `site/public/priests/portraits/`, then `cd api && npm run seed:priest-portraits` uploads them to Netlify Blobs store `media`, inserts `media_assets`, and sets `priest.image_url` to `/api/files/{id}` (same path as CMS uploads). Convert JPGs first with `python3 api/scripts/convert-priest-portraits.py` if needed.
