@@ -212,7 +212,7 @@ const META_SPECS={
  news:[['section','Category',{options:'news'}],['date_display','Date as shown (optional)',{hint:'Leave empty to show the event / publication date.'}]],
  publication:[['subtitle','Subtitle']],
  timeline:[['date_display','Year or date shown',{hint:'e.g. 1847. Leave empty to use the title.'}]],
- bishop:[['register_no','Register number',{number:true,hint:'Necrology register number, used for order when “Order on the website” is 0.'}],['born','Born (date)',{hint:'e.g. 07.02.1813'}],['born_at','Born at (place)'],['died','Died (date)',{hint:'e.g. 23.01.1868'}],['died_at','Died at (place)']],
+ bishop:[['register_no','Register number',{number:true,hint:'Necrology register number, used for order when “Order on the website” is 0.'}],['office','Office / title',{hint:'e.g. Bishop of Jaffna'}],['born','Born (date)',{hint:'e.g. 07.02.1813'}],['born_at','Born at (place)'],['died','Died (date)',{hint:'e.g. 23.01.1868'}],['died_at','Died at (place)']],
  necrology:[['register_no','Register number',{number:true,hint:'Shown in the list circle. Also set “Order on the website” to the same number.'}],['role','Role',{options:[['father','Father'],['bishop','Bishop'],['brother','Brother'],['scholastic','Scholastic']]}],['born','Born (date)',{hint:'e.g. 17.05.1821'}],['born_at','Born at (place)'],['died','Died (date)',{hint:'e.g. 16.06.1851'}],['died_at','Died at (place)']],
  international:[['kind','List',{options:[['','Countries where Oblates serve'],['formation','Formation abroad']]}]],
 };

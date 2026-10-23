@@ -282,6 +282,8 @@ function resolvePriestPhoto(name: string, explicitImage?: string): string | unde
  */
 export function OblateFatherCard({ name, place, image, className }: PriestCardProps) {
   const [imgError, setImgError] = useState(false)
+  const [retryToken, setRetryToken] = useState(0)
+  const retried = useRef(false)
   const [frame, setFrame] = useState<FigureFrame | null>(null)
   const cardRef = useRef<HTMLElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
@@ -291,6 +293,14 @@ export function OblateFatherCard({ name, place, image, className }: PriestCardPr
   const resolvedImage = resolvePriestPhoto(name, image)
   const isWenceslausCutout = resolvedImage === "/images/fr-wenceslaus-cutout.png"
   const hasImage = Boolean(resolvedImage) && !imgError
+
+  // New CMS URL → clear a previous load failure (e.g. after local media came back up).
+  useEffect(() => {
+    setImgError(false)
+    setFrame(null)
+    retried.current = false
+    setRetryToken(0)
+  }, [resolvedImage])
 
   useEffect(() => {
     if (!hasImage || isWenceslausCutout) return
@@ -306,7 +316,17 @@ export function OblateFatherCard({ name, place, image, className }: PriestCardPr
     const observer = new ResizeObserver(measure)
     observer.observe(card)
     return () => observer.disconnect()
-  }, [hasImage, isWenceslausCutout, resolvedImage])
+  }, [hasImage, isWenceslausCutout, resolvedImage, retryToken])
+
+  const onPortraitError = () => {
+    // One automatic retry — first paint often races a cold local media cache.
+    if (!retried.current && resolvedImage) {
+      retried.current = true
+      setRetryToken((n) => n + 1)
+      return
+    }
+    setImgError(true)
+  }
 
   return (
     <article
@@ -368,6 +388,7 @@ export function OblateFatherCard({ name, place, image, className }: PriestCardPr
         >
           {isWenceslausCutout ? (
             <img
+              key={`${resolvedImage}-${retryToken}`}
               src={resolvedImage}
               alt={name}
               className="absolute max-w-none select-none drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
@@ -377,10 +398,11 @@ export function OblateFatherCard({ name, place, image, className }: PriestCardPr
                 left: `${(-SAMPLE.left / SAMPLE.w) * 100}%`,
                 top: `${(-SAMPLE.top / SAMPLE.h) * 100}%`,
               }}
-              onError={() => setImgError(true)}
+              onError={onPortraitError}
             />
           ) : (
             <img
+              key={`${resolvedImage}-${retryToken}`}
               ref={imgRef}
               src={resolvedImage}
               alt={name}
@@ -392,7 +414,7 @@ export function OblateFatherCard({ name, place, image, className }: PriestCardPr
                   if (calculatedFrame) setFrame(calculatedFrame)
                 }
               }}
-              onError={() => setImgError(true)}
+              onError={onPortraitError}
               className="absolute select-none drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
               style={
                 frame

@@ -11,7 +11,7 @@ import {query} from './db.js';
 import {auth,allow,issueToken,cookieOptions} from './security.js';
 import {crudRouter} from './crud.js';
 import {TYPES} from './constants.js';
-import {saveFile,readStoredFile,removeFile} from './storage.js';
+import {saveFile,readStoredFile,removeFile,onNetlify,fetchMediaFromOrigin} from './storage.js';
 import {contentSchema,inquirySchema,publishCheck,fatherRegistrationSchema,fatherProfileSchema,fatherItemSchema,fatherItemUpdateSchema,fatherItemKinds,fatherDispatchSchema,fatherNewsSchema} from './validation.js';
 
 export const app=express();
@@ -20,7 +20,8 @@ app.disable('x-powered-by');
 if(process.env.TRUST_PROXY)app.set('trust proxy',Number(process.env.TRUST_PROXY)||process.env.TRUST_PROXY);
 // Netlify may hand the function its own path instead of the original /api/... URL.
 app.use((req,_res,next)=>{if(req.url.startsWith('/.netlify/functions/api'))req.url='/api'+req.url.slice('/.netlify/functions/api'.length);next();});
-app.use(helmet({crossOriginResourcePolicy:{policy:'same-origin'}}));
+// cross-origin so /api/files images can render on localhost (and other frontends).
+app.use(helmet({crossOriginResourcePolicy:{policy:'cross-origin'}}));
 const configuredOrigins = process.env.FRONTEND_ORIGIN?.split(',').map(s => s.trim()) || ['http://localhost:5173'];
 app.use(cors({
   origin: (origin, callback) => {
@@ -289,7 +290,7 @@ const PUBLIC_META_KEYS=[
  'role','term','term_in_source','since','terms','section','end_date','date_display','subtitle','kind','place',
  'district','purpose','contact','phone','email','lat','lng',
  'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample','sections','detail','about_heading','about','mission','fit',
- 'born','born_at','died','died_at','register_no'
+ 'born','born_at','died','died_at','register_no','office'
 ];
 app.get('/api/public/items',asyncRoute(async(req,res)=>{
  const type=String(req.query.type||'page');if(!TYPES[type])return bad(res,'Invalid type');
@@ -371,13 +372,28 @@ app.get('/api/files/:id',asyncRoute(async(req,res)=>{
    if(!allowed)return bad(res,'Not available',404);
   }catch{return bad(res,'Not available',404);}
  }
+ const sendFile=(buf,type)=>{
+  res.set('Content-Type',type||a.mime_type);
+  res.set('Cache-Control',a.status==='published'?'public, max-age=3600':'no-store');
+  res.set('Cross-Origin-Resource-Policy','cross-origin');
+  res.set('X-Content-Type-Options','nosniff');
+  if((type||a.mime_type)==='application/pdf')res.set('Content-Disposition',`attachment; filename="publication.pdf"`);
+  res.send(buf);
+ };
  let file;
- try{file=await readStoredFile(a.filename);}catch(e){if(e.code==='ENOENT')return bad(res,'Not found',404);throw e;}
- res.set('Content-Type',a.mime_type);
- res.set('Cache-Control',a.status==='published'?'public, max-age=3600':'no-store');
- res.set('X-Content-Type-Options','nosniff');
- if(a.mime_type==='application/pdf')res.set('Content-Disposition',`attachment; filename="publication.pdf"`);
- res.send(file);
+ try{file=await readStoredFile(a.filename);}
+ catch(e){
+  if(e.code==='ENOENT')return bad(res,'Not found',404);
+  // Local: Blobs token often 401/hangs — pull from live site and cache on disk.
+  if(!onNetlify){
+   try{
+    const remote=await fetchMediaFromOrigin(req.params.id,a.filename);
+    if(remote)return sendFile(remote,a.mime_type);
+   }catch(proxyErr){console.error('Media origin fallback failed:',proxyErr.message||proxyErr);}
+  }
+  throw e;
+ }
+ sendFile(file);
 }));
 app.use((err,_req,res,_next)=>{
  if(err.status>=400&&err.status<500)return bad(res,err.details||err.message,err.status);

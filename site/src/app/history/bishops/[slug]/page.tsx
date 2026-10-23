@@ -117,6 +117,14 @@ export default async function BishopProfilePage({ params }: BishopPageProps) {
                 >
                   {bishop.name}
                 </h1>
+                {bishop.office ? (
+                  <p
+                    className="history-rise mt-3 text-base text-[#7fe3ef]"
+                    style={{ "--rise-delay": "320ms" } as React.CSSProperties}
+                  >
+                    {bishop.office}
+                  </p>
+                ) : null}
                 <p
                   className="history-rise mt-3 text-sm text-white/75"
                   style={{ "--rise-delay": "400ms" } as React.CSSProperties}

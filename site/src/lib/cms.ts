@@ -64,6 +64,7 @@ export type Bishop = {
   slug: string
   name: string
   no: number
+  office?: string
   born: string
   bornAt: string
   died: string
@@ -237,6 +238,7 @@ export const getBishops = () =>
         slug: item.slug,
         name: item.title,
         no: Number.isFinite(registerNo) ? registerNo : 0,
+        office: text(item, "office") || undefined,
         born: text(item, "born"),
         bornAt: text(item, "born_at"),
         died: text(item, "died"),

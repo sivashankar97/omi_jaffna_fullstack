@@ -19,4 +19,5 @@ export const siteInfoDefaults = {
 export type SiteInfo = typeof siteInfoDefaults
 
 /** CMS uploads are served by the API, which the Next image optimizer cannot fetch on Netlify. */
-export const isUpload = (src: string) => src.startsWith("/api/")
+export const isUpload = (src: string) =>
+  src.startsWith("/api/") || /\/api\/files\//.test(src)

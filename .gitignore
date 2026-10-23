@@ -10,6 +10,8 @@ web/dist/
 site/public/admin/
 # Priest studio cutouts are staged here then seeded into Netlify Blobs — do not commit.
 site/public/priests/portraits/
+# Generated portraits staged outside public, then seeded to Blobs — do not commit.
+api/.staging/
 .netlify/
 
 .local/

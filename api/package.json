@@ -13,6 +13,7 @@
     "import:necrology": "node --no-warnings scripts/import-necrology.js",
     "seed:priest-portraits": "node --no-warnings scripts/seed-priest-portraits.js",
     "seed:priest-portraits:public": "node --no-warnings scripts/seed-priest-portraits.js --public",
+    "seed:council-portraits": "node --no-warnings scripts/seed-council-portraits.js",
     "test": "node --test"
   },
   "dependencies": {
