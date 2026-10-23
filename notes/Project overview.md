@@ -12,7 +12,7 @@ For which file to change, see [[Code map]]. Open tasks: [[Todo]].
 - `site/` – public website (Next.js 16, Tailwind 4). Pages read content from the API.
 - `web/` – CMS (Vite + React), served at `/admin`.
 - `api/` – Express API. Runs as a Netlify Function in production; images are stored in Netlify Blobs.
-- Database – Supabase Postgres (Tokyo).
+- Database – Supabase Postgres (Tokyo). Local/API use the **transaction** pooler (port `6543`) by default so session-mode’s ~15-client cap is not exhausted; set `PG_POOL_MODE=session` only if you need session features.
 
 ## Run locally
 - From the repo root: `npm run dev` (`scripts/dev-all.mjs`). It starts all three and stops them together with Ctrl+C.
