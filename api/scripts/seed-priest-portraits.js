@@ -1,20 +1,18 @@
-// Match priest portraits → CMS `priest` rows, upload into Netlify Blobs (media store)
+// Match priest portraits → CMS `priest` rows, upload into Supabase Storage
 // + media_assets, set image_url to /api/files/{id}.
-// Source PNGs: site/public/priests/portraits/ (staging only; live site uses Blobs).
+// Source PNGs: site/public/priests/portraits/ (staging only; live site uses Storage).
 // Usage: node scripts/seed-priest-portraits.js [--dry-run] [--public] [--dir path]
-// Default mode: upload to Blobs via `netlify blobs:set` (local NETLIFY_BLOBS_TOKEN is often read-only).
 import { randomUUID } from 'node:crypto';
-import { spawn } from 'node:child_process';
-import { readdir, stat } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool } from '../src/db.js';
+import { initStorage, saveFile } from '../src/storage.js';
 
 const dryRun = process.argv.includes('--dry-run');
 const usePublic = process.argv.includes('--public');
 const dirFlag = process.argv.indexOf('--dir');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const siteDir = path.join(root, 'site');
 const portraitsDir =
   dirFlag >= 0 && process.argv[dirFlag + 1]
     ? path.resolve(process.argv[dirFlag + 1])
@@ -47,27 +45,7 @@ const scoreMatch = (fileName, title) => {
   return shared.length / Math.max(a.length, b.length) + lastBonus;
 };
 
-const run = (cmd, args, cwd) =>
-  new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
-    let out = '';
-    let err = '';
-    child.stdout.on('data', (d) => (out += d));
-    child.stderr.on('data', (d) => (err += d));
-    child.on('error', reject);
-    child.on('close', (code) => {
-      if (code === 0) resolve(out);
-      else reject(new Error(err || out || `exit ${code}`));
-    });
-  });
-
-const uploadBlob = async (key, filePath) => {
-  await run(
-    'npx',
-    ['netlify', 'blobs:set', 'media', key, '--input', filePath, '--force'],
-    siteDir
-  );
-};
+if (!dryRun && !usePublic) await initStorage();
 
 const { rows: priests } = await pool.query(
   `SELECT id, slug, title_en, image_url FROM content_items WHERE type='priest' ORDER BY sort_order, title_en`
@@ -112,6 +90,11 @@ let updated = 0;
 let skipped = 0;
 const queue = matches.filter((m) => m.status === 'matched');
 
+const uploadStored = async (filename, src) => {
+  const buf = await readFile(src);
+  await saveFile(filename, buf);
+};
+
 const work = async (m) => {
   const src = path.join(portraitsDir, m.file);
   if (dryRun) {
@@ -124,7 +107,7 @@ const work = async (m) => {
   } else {
     const info = await stat(src);
     const filename = `${randomUUID()}.png`;
-    await uploadBlob(filename, src);
+    await uploadStored(filename, src);
     const asset = await pool.query(
       `INSERT INTO media_assets(filename,original_name,mime_type,size_bytes,uploaded_by,status,rights_confirmed)
        VALUES($1,$2,'image/png',$3,NULL,'published',true) RETURNING id`,
@@ -149,7 +132,6 @@ for (let i = 0; i < queue.length; i += concurrency) {
   await Promise.all(batch.map((m) => work(m)));
 }
 
-// Crynton typo fallback if still unmatched
 const crynton = matches.find((m) => /crynton/i.test(m.file) && m.status === 'unmatched');
 if (crynton && !dryRun && !usePublic) {
   const priest = priests.find((p) => /cryntan/i.test(p.title_en));
@@ -157,7 +139,7 @@ if (crynton && !dryRun && !usePublic) {
     const src = path.join(portraitsDir, crynton.file);
     const info = await stat(src);
     const filename = `${randomUUID()}.png`;
-    await uploadBlob(filename, src);
+    await uploadStored(filename, src);
     const asset = await pool.query(
       `INSERT INTO media_assets(filename,original_name,mime_type,size_bytes,uploaded_by,status,rights_confirmed)
        VALUES($1,$2,'image/png',$3,NULL,'published',true) RETURNING id`,
@@ -172,6 +154,6 @@ if (crynton && !dryRun && !usePublic) {
 }
 
 console.log(
-  `\nDone. matched=${matches.filter((m) => m.status === 'matched').length} updated=${updated} unmatched=${skipped} dry=${dryRun} mode=${usePublic ? 'public' : 'blobs'}`
+  `\nDone. matched=${matches.filter((m) => m.status === 'matched').length} updated=${updated} unmatched=${skipped} dry=${dryRun} mode=${usePublic ? 'public' : 'supabase'}`
 );
 await pool.end();

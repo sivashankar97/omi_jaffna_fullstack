@@ -10,7 +10,6 @@ for(const name of ['api','web','site'])spawnSync('launchctl',['bootout',`gui/${p
 console.log('\nOMI Jaffna — development terminal\nWebsite: http://localhost:5173\nAdmin CMS: http://localhost:5173/admin\nBackend: http://localhost:4000\nPress Ctrl+C to stop both services.\n');
 const children=[
  spawn(process.execPath,['--watch','src/index.js'],{cwd:path.join(root,'api'),env,stdio:'inherit'}),
- spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','localhost','--port','5174','--strictPort'],{cwd:path.join(root,'web'),env,stdio:'inherit'}),
  spawn(process.execPath,['node_modules/next/dist/bin/next','dev','--hostname','localhost','--port','5173'],{cwd:path.join(root,'site'),env,stdio:'inherit'})
 ];
 let stopping=false;

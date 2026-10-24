@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const apiOrigin = (process.env.API_URL || process.env.API_ORIGIN || "http://127.0.0.1:4000").replace(/\/+$/, "");
-const cmsOrigin = process.env.CMS_ORIGIN ?? "http://localhost:5174";
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -17,19 +16,19 @@ const nextConfig: NextConfig = {
     },
   },
   async rewrites() {
-    // Dev only: on Netlify, /api, /admin and /demo are routed by netlify.toml.
+    // Dev only: on Netlify, /api and /admin are routed by netlify.toml.
+    // CMS is the static build in public/admin (same as production) — no separate Vite port.
     if (process.env.NETLIFY || process.env.NODE_ENV !== "development") return [];
     return {
       beforeFiles: [
         { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },
-        { source: "/admin", destination: `${cmsOrigin}/admin` },
-        { source: "/admin/:path*", destination: `${cmsOrigin}/admin/:path*` },
-        { source: "/demo", destination: `${cmsOrigin}/demo` },
-        { source: "/demo/:path*", destination: `${cmsOrigin}/demo/:path*` },
+        // SPA entry (assets under /admin/assets are served from public/ as-is).
+        { source: "/admin", destination: "/admin/index.html" },
+        { source: "/demo", destination: "/admin/index.html" },
+        { source: "/demo/:path*", destination: "/admin/index.html" },
       ],
       afterFiles: [],
-      // The CMS is a Vite app; its module and asset URLs are served from cmsOrigin.
-      fallback: [{ source: "/:path*", destination: `${cmsOrigin}/:path*` }],
+      fallback: [],
     };
   },
 };

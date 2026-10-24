@@ -27,9 +27,9 @@ Paths are from the repo root. `sections/` = `site/src/components/sections/`.
 
 Leadership page data (CMS type `leadership`, one entry per person, told apart by the Position field `meta.role`):
 - Provincial Superior: Position "Provincial Superior"; term, since, appointments (`meta.terms`), bio = full content, portrait = cover image. No entry = section hidden.
-- Council (1st–5th Councillor, Bursar): photo = cover image (`/api/files/…` in Blobs). Council heading = first member's term. Seed studio portraits with `cd api && npm run seed:council-portraits` from `api/.staging/council-portraits/` (not `public/`).
+- Council (1st–5th Councillor, Bursar) / Superior: photo = cover image (`/api/files/…` via Supabase Storage). Council heading = first member's term. Seed with `cd api && npm run seed:council-portraits` from `api/.staging/council-portraits/` (not `public/`).
 - Former Provincials: Position "Former Provincial" + term.
-- Oblate priests: CMS type `priest`, "Where serving" = `meta.place`, photo = cover image (`/api/files/…` in Netlify Blobs via `media_assets`). Staging cutouts may sit in `site/public/priests/portraits/`; seed into storage with `cd api && npm run seed:priest-portraits` (uses `netlify blobs:set`).
+- Oblate priests: CMS type `priest`, "Where serving" = `meta.place`, photo = cover image (`/api/files/…` via Supabase Storage + `media_assets`). Staging cutouts may sit in `site/public/priests/portraits/`; seed with `cd api && npm run seed:priest-portraits`.
 - CMS form fields for these: `MetaFields` in `web/src/main.jsx`. Extra meta keys must be listed in `PUBLIC_META_KEYS` in `api/src/app.js` or the site never receives them.
 
 Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-directory`, `/publications` to `/media#publications`.
@@ -63,6 +63,7 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 - Images in `site/public/`: hero `Herosection/`, legacy former-provincial face crops `Leadership_img/` (council studio portraits live in Blobs, not public), Oblate priest studio cutouts `priests/portraits/` (~90 PNGs), `ministries/`, `news/`, `slides/`, `logos/`, hero video `video/Hero_section.mp4` (33 MB).
 
 ## CMS (`web/`, served at `/admin`)
+- Built into `site/public/admin` (`npm run cms:build` or Netlify build). Local URL: http://localhost:5173/admin — no separate Vite port.
 - Staff only (admin / publisher / editor). Fathers never use `/admin`: a Father session is sent to `/dashboard` on the public site. CMS login accepts **staff email** only; Fathers use `/login` on the website.
 - Almost everything is in one file: `web/src/main.jsx`
   - Menu follows the website menu order: `NAV` group "Website pages" (one entry per page; a page with one screen opens it directly) + group "On several pages" (footer/contact details, mission map, Our journey). The Overview shows the same map ("Where to edit each page"). `NAV` (page groups) + `VIEWS` (one screen = content type + optional filter by page slug or metadata field, e.g. Leadership › Provincial Council = `leadership` where role is not Superior/Former). Adding a website section = add a `VIEWS` entry and list it under its page in `NAV`. The filters are handled by `/api/items` (`slug`, `meta_key`, `meta_like`, `meta_not`) in `api/src/app.js`. · login: `Login` · dashboard: `Overview` · content list: `ContentManager` · edit form: `ContentEditor`
@@ -79,16 +80,16 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 ## API (`api/`)
 - Routes: `api/src/app.js` (auth, `/api/items` CRUD, `/api/public/*` for the site, `/api/assets` uploads, `/api/files/:id`)
 - Generic content CRUD and asset delete: `api/src/crud.js`
-- Content types list (page, ministry, parish, priest, bishop, necrology, timeline, news, ...): `api/src/constants.js` (`TYPES`); migrations `api/db/004_bishop_type.sql`, `005_necrology_type.sql`, `006_father_portal.sql` (father bio/place/photo + `father_items`); seed via `npm run import:bishops` (base list + biographies from `site/src/content/bishop-details.json`) / `npm run import:necrology` / `npm run seed:priest-portraits` / `npm run seed:council-portraits` in `api/`
+- Content types list (page, ministry, parish, priest, bishop, necrology, timeline, news, ...): `api/src/constants.js` (`TYPES`); migrations `api/db/004_bishop_type.sql`, `005_necrology_type.sql`, `006_father_portal.sql` (father bio/place/photo + `father_items`); seed via `npm run import:bishops` / `import:necrology` / `seed:priest-portraits` / `seed:council-portraits` / `migrate:media` in `api/`
 - Father portal API: `/api/father/dashboard`, `/api/father/items`, `/api/father/news`, `/api/father/upload`, `/api/father/dispatches` (CMS admin→father PDFs) in `api/src/app.js`; CMS screens: **Father reports**, **News › Father news submissions** (`web/src/main.jsx`)
 - Father-submitted news stays `status=review` until an admin/publisher publishes it; public site only shows published news
 - Database connection: `api/src/db.js`; schema: `api/db/*.sql`; migrate/seed: `api/scripts/`
 - History CMS screens: Necrology register = type `necrology`; Year-by-year = type `timeline`; Bishop profiles = type `bishop`; section titles/lede under History page block (`archive`, `necrology`) in `web/src/main.jsx`
-- File storage: `api/src/storage.js`. Local and live both use the same Netlify Blobs store `media` (local needs `MEDIA_STORE=blobs`, `NETLIFY_SITE_ID`, `NETLIFY_BLOBS_TOKEN` in `api/.env`), so uploads from either side show on both. Without those vars it falls back to `api/uploads/` on disk, which the live site cannot see.
+- File storage: `api/src/storage.js` — Supabase Storage bucket `media` when `MEDIA_STORE=supabase` (`SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`). Same store for local and Netlify. Seed: `npm run seed:priest-portraits` / `seed:council-portraits`; migrate old Blobs → Storage: `npm run migrate:media`. Disk fallback only if `MEDIA_STORE` is not `supabase`.
 - Login security, roles: `api/src/security.js`; input checks: `api/src/validation.js`
 - Local server start: `api/src/index.js`; Netlify function: `api/netlify/functions/api.mjs`
 
 ## Deploy and config
 - Hosting is Netlify only (`netlify.toml` at the repo root). Deploy from `site/` (see [[Project overview]]).
-- Next.js config (upload size, local API proxy): `site/next.config.ts`
+- Next.js config (local `/api` → API; `/admin` serves built CMS): `site/next.config.ts`
 - Local dev starter: `scripts/dev.mjs`

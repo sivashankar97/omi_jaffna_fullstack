@@ -14,10 +14,11 @@
     "seed:priest-portraits": "node --no-warnings scripts/seed-priest-portraits.js",
     "seed:priest-portraits:public": "node --no-warnings scripts/seed-priest-portraits.js --public",
     "seed:council-portraits": "node --no-warnings scripts/seed-council-portraits.js",
+    "migrate:media": "node --no-warnings scripts/migrate-blobs-to-supabase.js",
     "test": "node --test"
   },
   "dependencies": {
-    "@netlify/blobs": "^11.1.4",
+    "@supabase/supabase-js": "^2.118.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

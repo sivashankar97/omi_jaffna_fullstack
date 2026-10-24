@@ -1,6 +1,7 @@
 // One command for local work: `npm run dev` from the repo root.
-// Starts the API (4000), the CMS (5174) and the website (5173) together.
-// Ctrl+C stops all three.
+// Starts the API (4000) and the website (5173). CMS is at http://localhost:5173/admin
+// (static build in site/public/admin — rebuild with `npm run cms:build` after CMS code changes).
+// Ctrl+C stops both.
 import { execFile, spawn } from "node:child_process"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
@@ -23,7 +24,6 @@ if (process.platform === "darwin" && process.getuid) {
 
 const services = [
   { name: "api", color: "\x1b[34m", cwd: "api", args: ["run", "dev"] },
-  { name: "cms", color: "\x1b[35m", cwd: "web", args: ["run", "dev"] },
   { name: "site", color: "\x1b[32m", cwd: "site", args: ["run", "dev", "--", "--hostname", "localhost", "--port", "5173"] },
 ]
 
@@ -65,6 +65,8 @@ for (const service of services) {
   })
 }
 
-process.stdout.write("Starting API http://localhost:4000, CMS http://localhost:5174, website http://localhost:5173 (CMS in the site at /admin). Ctrl+C stops all.\n")
+process.stdout.write(
+  "Starting API http://localhost:4000 and website http://localhost:5173 (CMS at /admin). Ctrl+C stops all.\n"
+)
 process.on("SIGINT", stopAll)
 process.on("SIGTERM", stopAll)

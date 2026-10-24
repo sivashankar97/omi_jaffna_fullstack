@@ -2,6 +2,7 @@
   "name": "omi-jaffna-cms",
   "private": true,
   "scripts": {
-    "dev": "node scripts/dev-all.mjs"
+    "dev": "node scripts/dev-all.mjs",
+    "cms:build": "npm run build --prefix web -- --base=/admin/ --outDir ../site/public/admin --emptyOutDir"
   }
 }

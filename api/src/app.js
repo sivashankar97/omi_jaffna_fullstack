@@ -11,7 +11,7 @@ import {query} from './db.js';
 import {auth,allow,issueToken,cookieOptions} from './security.js';
 import {crudRouter} from './crud.js';
 import {TYPES} from './constants.js';
-import {saveFile,readStoredFile,removeFile,onNetlify,fetchMediaFromOrigin} from './storage.js';
+import {saveFile,readStoredFile,removeFile} from './storage.js';
 import {contentSchema,inquirySchema,publishCheck,fatherRegistrationSchema,fatherProfileSchema,fatherItemSchema,fatherItemUpdateSchema,fatherItemKinds,fatherDispatchSchema,fatherNewsSchema} from './validation.js';
 
 export const app=express();
@@ -384,13 +384,6 @@ app.get('/api/files/:id',asyncRoute(async(req,res)=>{
  try{file=await readStoredFile(a.filename);}
  catch(e){
   if(e.code==='ENOENT')return bad(res,'Not found',404);
-  // Local: Blobs token often 401/hangs — pull from live site and cache on disk.
-  if(!onNetlify){
-   try{
-    const remote=await fetchMediaFromOrigin(req.params.id,a.filename);
-    if(remote)return sendFile(remote,a.mime_type);
-   }catch(proxyErr){console.error('Media origin fallback failed:',proxyErr.message||proxyErr);}
-  }
   throw e;
  }
  sendFile(file);

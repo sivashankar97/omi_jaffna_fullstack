@@ -1,18 +1,17 @@
-// Match provincial council portraits → CMS `leadership` rows (councillors + bursar),
-// upload into Netlify Blobs + media_assets, set image_url to /api/files/{id}.
+// Match provincial council portraits → CMS `leadership` rows,
+// upload into Supabase Storage + media_assets, set image_url to /api/files/{id}.
 // Staging only (never site/public): api/.staging/council-portraits/
 // Usage: node scripts/seed-council-portraits.js [--dry-run] [--dir path]
 import { randomUUID } from 'node:crypto';
-import { spawn } from 'node:child_process';
-import { readdir, stat } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool } from '../src/db.js';
+import { initStorage, saveFile } from '../src/storage.js';
 
 const dryRun = process.argv.includes('--dry-run');
 const dirFlag = process.argv.indexOf('--dir');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const siteDir = path.join(root, 'site');
 const portraitsDir =
   dirFlag >= 0 && process.argv[dirFlag + 1]
     ? path.resolve(process.argv[dirFlag + 1])
@@ -51,27 +50,7 @@ const isCouncil = (meta) => {
   return Boolean(role);
 };
 
-const run = (cmd, args, cwd) =>
-  new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
-    let out = '';
-    let err = '';
-    child.stdout.on('data', (d) => (out += d));
-    child.stderr.on('data', (d) => (err += d));
-    child.on('error', reject);
-    child.on('close', (code) => {
-      if (code === 0) resolve(out);
-      else reject(new Error(err || out || `exit ${code}`));
-    });
-  });
-
-const uploadBlob = async (key, filePath) => {
-  await run(
-    'npx',
-    ['netlify', 'blobs:set', 'media', key, '--input', filePath, '--force'],
-    siteDir
-  );
-};
+if (!dryRun) await initStorage();
 
 const { rows: people } = await pool.query(
   `SELECT id, slug, title_en, image_url, metadata FROM content_items WHERE type='leadership' ORDER BY sort_order, title_en`
@@ -127,7 +106,7 @@ const work = async (m) => {
   }
   const info = await stat(src);
   const filename = `${randomUUID()}.png`;
-  await uploadBlob(filename, src);
+  await saveFile(filename, await readFile(src));
   const asset = await pool.query(
     `INSERT INTO media_assets(filename,original_name,mime_type,size_bytes,uploaded_by,status,rights_confirmed)
      VALUES($1,$2,'image/png',$3,NULL,'published',true) RETURNING id`,
@@ -155,6 +134,6 @@ for (let i = 0; i < queue.length; i += concurrency) {
 }
 
 console.log(
-  `\nDone. matched=${queue.length} updated=${updated} unmatched=${skipped} dry=${dryRun} mode=blobs`
+  `\nDone. matched=${queue.length} updated=${updated} unmatched=${skipped} dry=${dryRun} mode=supabase`
 );
 await pool.end();
