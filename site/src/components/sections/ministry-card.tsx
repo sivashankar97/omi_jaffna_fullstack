@@ -1,6 +1,7 @@
 import Link from "next/link"
 import {
   Accessibility,
+  ArrowUpRight,
   BookMarked,
   BookOpen,
   Church,
@@ -20,16 +21,15 @@ import {
 } from "lucide-react"
 
 import type { Ministry } from "@/lib/cms"
+import { cn } from "cn"
 
-const tones = [
-  { deep: "#1e3a8a", glow: "#3557c9", soft: "#e0e7ff" },
-  { deep: "#065f46", glow: "#11906b", soft: "#d5f7e8" },
-  { deep: "#6b21a8", glow: "#9046cf", soft: "#f1e6ff" },
-  { deep: "#9f1239", glow: "#c9395f", soft: "#ffe4e9" },
-  { deep: "#92400e", glow: "#c26a1d", soft: "#fdf0d2" },
-  { deep: "#0f766e", glow: "#18a69b", soft: "#d2f8f2" },
-  { deep: "#1f2937", glow: "#435369", soft: "#e6e9ee" },
-  { deep: "#075985", glow: "#0f86c2", soft: "#dcf0fd" },
+const accents = [
+  { badge: "bg-[#e7fbff] text-[#0e98ac]", bar: "from-[#17b3c6] to-[#0e98ac]" },
+  { badge: "bg-[#fff6d9] text-[#9a6b00]", bar: "from-[#ffcf4a] to-[#e6b422]" },
+  { badge: "bg-[#e8f0ff] text-[#023e8a]", bar: "from-[#023e8a] to-[#0a5062]" },
+  { badge: "bg-[#e7fbff] text-[#06394a]", bar: "from-[#0e98ac] to-[#06394a]" },
+  { badge: "bg-[#fff6d9] text-[#03202b]", bar: "from-[#17b3c6] to-[#ffcf4a]" },
+  { badge: "bg-[#e8f0ff] text-[#0e98ac]", bar: "from-[#06394a] to-[#17b3c6]" },
 ] as const
 
 const icons = [
@@ -63,71 +63,65 @@ export function MinistryCard({
   href?: string
   actionLabel?: string
 }) {
-  const tone = tones[index % tones.length]
+  const accent = accents[index % accents.length]
   const Icon = icons[index % icons.length]
-  const curveRight = index % 2 === 1
   const image = ministry.image
+  const cta = actionLabel ?? "Read more"
 
-  return (
-    <article className="ministry-tile group flex h-full flex-col overflow-hidden rounded-[1.75rem]">
-      <div
-        className="relative flex h-52 items-center justify-center overflow-hidden"
-        style={{ backgroundColor: tone.soft }}
-      >
+  const body = (
+    <>
+      <span aria-hidden="true" className={cn("absolute inset-x-0 top-0 h-1 bg-gradient-to-r", accent.bar)} />
+      <div className="relative h-44 overflow-hidden bg-[#eef6f8] sm:h-48">
         {image ? (
           <img
             src={encodeURI(image)}
-            alt={ministry.title}
-            className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+            alt=""
+            className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105"
           />
         ) : (
-          <>
-            <span
-              aria-hidden="true"
-              className="ministry-tile-orb absolute -top-10 -left-8 size-36 rounded-full"
-              style={{ backgroundColor: tone.deep }}
-            />
-            <span
-              aria-hidden="true"
-              className="ministry-tile-orb absolute -right-6 -bottom-12 size-28 rounded-full"
-              style={{ backgroundColor: tone.deep }}
-            />
-            <Icon
-              aria-hidden="true"
-              className="ministry-tile-icon relative size-16"
-              strokeWidth={1.6}
-              style={{ color: tone.deep }}
-            />
-          </>
+          <span className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#e7fbff] via-[#f4fbfd] to-[#fff6d9]">
+            <Icon aria-hidden="true" className="size-14 text-[#0e98ac]/50" strokeWidth={1.5} />
+          </span>
         )}
+        <span className="absolute inset-0 bg-gradient-to-t from-[#03202b]/25 via-transparent to-transparent" />
+        <span
+          className={cn(
+            "absolute top-3 left-3 flex size-10 items-center justify-center rounded-2xl ring-1 ring-white/60 backdrop-blur-sm",
+            accent.badge
+          )}
+        >
+          <Icon aria-hidden="true" className="size-5" strokeWidth={2} />
+        </span>
+        <span className="absolute top-3 right-3 grid size-8 place-items-center rounded-full bg-white/85 text-[#023e8a] ring-1 ring-[#cfeef4] transition group-hover:rotate-45">
+          <ArrowUpRight className="size-3.5" />
+        </span>
       </div>
-      <div
-        className={`relative -mt-10 flex flex-1 flex-col px-6 pt-8 pb-7 text-left text-white ${
-          curveRight ? "rounded-tr-[3.5rem]" : "rounded-tl-[3.5rem]"
-        }`}
-        style={{ backgroundImage: `linear-gradient(145deg, ${tone.deep} 0%, ${tone.glow} 100%)` }}
-      >
-        <span className="text-[11px] font-semibold tracking-[0.18em] text-white/70 uppercase">
+      <div className="flex flex-1 flex-col px-5 pt-4 pb-5">
+        <span className="text-[10px] font-bold tracking-[0.2em] text-[#0e98ac] uppercase">
           {ministry.number} · {ministry.place}
         </span>
-        <h3 className="mt-2 font-heading text-2xl leading-tight font-semibold text-white">{ministry.title}</h3>
-        <p className="mt-3 text-sm leading-6 text-white/85">{ministry.summary}</p>
-        {href ? (
-          <Link
-            href={href}
-            className="mt-auto inline-block self-start border-b-2 border-[#ffcf4a] pt-5 pb-0.5 text-xs font-bold tracking-[0.16em] text-white uppercase"
-          >
-            Read more
-          </Link>
-        ) : actionLabel ? (
-          <span className="mt-auto inline-flex items-center gap-2 self-start border-b-2 border-[#ffcf4a] pt-5 pb-0.5 text-xs font-bold tracking-[0.16em] text-white uppercase">
-            {actionLabel}
-            <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">
-              →
-            </span>
-          </span>
-        ) : null}
+        <h3 className="mt-2 font-heading text-xl leading-tight font-semibold text-[#023e8a] sm:text-2xl">
+          {ministry.title}
+        </h3>
+        <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#5c6b7a]">{ministry.summary}</p>
+        <span className="mt-auto inline-flex items-center gap-1.5 self-start pt-4 text-sm font-semibold text-[#0e98ac] transition group-hover:gap-2.5 group-hover:text-[#023e8a]">
+          {cta}
+          <ArrowUpRight className="size-3.5" />
+        </span>
       </div>
-    </article>
+    </>
   )
+
+  const shell =
+    "ministry-tile group media-bento-card media-bento-shine calendar-glass relative flex h-full flex-col overflow-hidden rounded-[1.75rem]"
+
+  if (href) {
+    return (
+      <Link href={href} aria-label={`${cta}: ${ministry.title}`} className={shell}>
+        {body}
+      </Link>
+    )
+  }
+
+  return <article className={shell}>{body}</article>
 }

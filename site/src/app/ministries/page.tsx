@@ -36,7 +36,7 @@ export default async function MinistriesPage() {
         ]}
       />
 
-      <section className="bg-[#f4fbfd] px-4 py-20 text-[#023e8a] sm:px-8 sm:py-24">
+      <section className="calendar-stage px-4 py-20 text-[#023e8a] sm:px-8 sm:py-24">
         <SectionHeading
           kicker="Where we serve"
           title="Ministries of the Province"
@@ -47,14 +47,14 @@ export default async function MinistriesPage() {
         </div>
       </section>
 
-      <section id="parish-directory" className="scroll-mt-80 bg-white px-4 py-20 text-[#023e8a] sm:px-8 sm:py-24">
-        <div className="mx-auto max-w-5xl">
+      <section id="parish-directory" className="calendar-stage scroll-mt-80 px-4 py-20 text-[#023e8a] sm:px-8 sm:py-24">
+        <div className="relative mx-auto max-w-5xl">
           <SectionHeading
             kicker="Parish directory"
             title={`${parishes.length} parishes, one pastoral family`}
             subtitle="Each parish is a place of worship, accompaniment and missionary service. Mass times and clergy assignments will be published after confirmation by each parish."
           />
-          <ol className="mt-12 grid gap-3 sm:grid-cols-2">
+          <ol className="mt-12 grid gap-4 sm:grid-cols-2">
             {parishes.map((parish, index) => (
               <Reveal
                 id={parishAnchor(parish.name)}
@@ -62,7 +62,7 @@ export default async function MinistriesPage() {
                 as="li"
                 from={index % 2 === 0 ? "left" : "right"}
                 delay={(index % 4) * 60}
-                className="group flex scroll-mt-80 items-center gap-4 rounded-2xl border border-[#d5dee6] bg-white px-4 py-3 text-[#023e8a] shadow-sm transition hover:border-[#17b3c6] hover:shadow-[0_18px_40px_-24px_rgba(10,80,98,0.6)]"
+                className="group media-bento-card media-bento-shine calendar-glass flex scroll-mt-80 items-center gap-4 overflow-hidden rounded-2xl px-4 py-3.5 text-[#023e8a]"
               >
                 <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#0a5062] to-[#17b3c6] font-heading text-base text-white transition group-hover:scale-110">
                   {String(index + 1).padStart(2, "0")}
@@ -78,14 +78,14 @@ export default async function MinistriesPage() {
       </section>
 
       {schools.length > 0 ? (
-        <section id="schools" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-20 text-[#023e8a] sm:px-8 sm:py-24">
-          <div className="mx-auto max-w-5xl">
+        <section id="schools" className="calendar-stage scroll-mt-80 px-4 py-20 text-[#023e8a] sm:px-8 sm:py-24">
+          <div className="relative mx-auto max-w-5xl">
             <SectionHeading
               kicker="Schools and education"
               title="Schools served by the Oblates"
               subtitle="Schools where Oblates teach, lead or accompany students and staff."
             />
-            <ul className="mt-12 grid gap-3 sm:grid-cols-2">
+            <ul className="mt-12 grid gap-4 sm:grid-cols-2">
               {schools.map((school, index) => (
                 <Reveal
                   key={school.name}
@@ -93,7 +93,7 @@ export default async function MinistriesPage() {
                   as="li"
                   from={index % 2 === 0 ? "left" : "right"}
                   delay={(index % 4) * 60}
-                  className="flex scroll-mt-80 items-center gap-4 rounded-2xl border border-[#d5dee6] bg-white px-4 py-3 shadow-sm"
+                  className="media-bento-card media-bento-shine calendar-glass flex scroll-mt-80 items-center gap-4 overflow-hidden rounded-2xl px-4 py-3.5"
                 >
                   <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#0a5062] to-[#17b3c6] font-heading text-base text-white">
                     {String(index + 1).padStart(2, "0")}

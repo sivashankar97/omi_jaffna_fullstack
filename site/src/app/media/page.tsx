@@ -68,8 +68,8 @@ export default async function MediaPage() {
               aria-hidden="true"
               className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-[#17b3c6]/40 to-[#ffcf4a]/30 blur-2xl"
             />
-            <div className="charism-float relative overflow-hidden rounded-[2rem] bg-white p-3 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)] ring-1 ring-white/20">
-              <div className="group relative aspect-square overflow-hidden rounded-[1.5rem]">
+            <div className="charism-float media-bento-shine calendar-glass relative overflow-hidden rounded-[2rem] p-3">
+              <div className="group relative aspect-square overflow-hidden rounded-[1.5rem] ring-1 ring-[#d7eef3]">
                 <Image
                   src={photos.topImage}
                   alt={photos.topImageAlt}

@@ -4,7 +4,10 @@ import { Reveal } from "@/components/motion/reveal"
 import { FacebookIcon, InstagramIcon, WhatsAppIcon, YouTubeIcon } from "@/components/layout/site-footer"
 import { getSiteInfo } from "@/lib/cms"
 
-const channelList = (site: { social: Record<"youtube" | "instagram" | "facebook" | "whatsapp", string>; contact: { phone: string } }) => [
+const channelList = (site: {
+  social: Record<"youtube" | "instagram" | "facebook" | "whatsapp", string>
+  contact: { phone: string }
+}) => [
   {
     name: "YouTube",
     handle: "Oblate Jaffna TV",
@@ -46,8 +49,8 @@ const channelList = (site: { social: Record<"youtube" | "instagram" | "facebook"
 export async function SocialSignals() {
   const channels = channelList(await getSiteInfo())
   return (
-    <section id="social-signals" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
-      <div className="mx-auto max-w-6xl">
+    <section id="social-signals" className="calendar-stage scroll-mt-80 px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
+      <div className="relative mx-auto max-w-6xl">
         <Reveal from="up" className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="flex items-center gap-2 text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">
@@ -71,7 +74,7 @@ export async function SocialSignals() {
                 href={channel.href}
                 target="_blank"
                 rel="noreferrer"
-                className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white p-6 ring-1 ring-[#d9eef3] shadow-[0_18px_40px_-30px_rgba(2,62,138,0.45)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_28px_60px_-30px_rgba(2,62,138,0.6)] hover:ring-[#17b3c6]/60"
+                className="group media-bento-card media-bento-shine calendar-glass relative flex h-full flex-col overflow-hidden rounded-3xl p-6"
               >
                 <span
                   aria-hidden="true"
@@ -85,7 +88,7 @@ export async function SocialSignals() {
                 <span className="mt-5 text-xs font-bold tracking-[0.2em] text-[#0e98ac] uppercase">{channel.name}</span>
                 <span className="mt-1 font-heading text-xl font-semibold text-[#023e8a]">{channel.handle}</span>
                 <span className="mt-2 flex-1 text-sm leading-6 text-[#5c6b7a]">{channel.text}</span>
-                <span className="mt-6 flex items-center justify-between border-t border-[#e2f2f6] pt-4 text-sm font-semibold text-[#023e8a]">
+                <span className="mt-6 flex items-center justify-between border-t border-[#d7eef3]/80 pt-4 text-sm font-semibold text-[#023e8a]">
                   {channel.action}
                   <ArrowUpRight
                     aria-hidden="true"

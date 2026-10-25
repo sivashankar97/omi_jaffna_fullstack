@@ -13,6 +13,8 @@ export type Priest = {
   role: string
   summary: string
   bio: string
+  /** Birthday as stored in CMS (`YYYY-MM-DD` or `DD.MM.YYYY`). */
+  born?: string
   image?: string
   gallery: PriestPhoto[]
 }

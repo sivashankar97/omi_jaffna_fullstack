@@ -285,6 +285,7 @@ function MetaFields({type,slug,meta,setMeta,upload}){
  if(type==='priest')return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Father profile</p>
   <div><label className="form-label">Where serving</label><select className="field mt-2" value={meta.place||'sri-lanka'} onChange={e=>setMeta('place',e.target.value)}>{priestPlaces.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></div>
   <div><label className="form-label">Role / ministry line</label><input className="field mt-2" value={meta.role||''} onChange={e=>setMeta('role',e.target.value)} placeholder="e.g. Parish priest · St. Mary’s"/><p className="mt-1 text-[11px] text-slate-400">Shown on the profile page under the name. Short description can also go in “Summary”.</p></div>
+  <div><label className="form-label">Birthday</label><input type="date" className="field mt-2" value={meta.born||''} onChange={e=>setMeta('born',e.target.value)}/><p className="mt-1 text-[11px] text-slate-400">Shown on the home calendar every year, and as a floating notice on the home page on that day.</p></div>
   <AutoFields name="gallery" value={Array.isArray(meta.gallery)?meta.gallery:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('gallery',v.length?v:'')} upload={upload} depth={1}/>
   <p className="text-[11px] text-slate-400">Cover image below is the main portrait. Extra photos appear in the gallery on the father profile page. Biography: use “Full page content” / body field.</p>
  </div>;

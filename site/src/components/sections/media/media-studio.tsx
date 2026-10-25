@@ -147,8 +147,8 @@ export function MediaStudio({
   }
 
   return (
-    <section className="bg-white px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
-      <div className="mx-auto max-w-6xl">
+    <section className="calendar-stage px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
+      <div className="relative mx-auto max-w-6xl">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">Media desks</p>
@@ -162,7 +162,7 @@ export function MediaStudio({
         <div
           role="tablist"
           aria-label="Media desks"
-          className="mt-10 flex flex-wrap gap-1.5 rounded-2xl bg-[#f4fbfd] p-1.5 ring-1 ring-[#d9eef3] lg:flex-nowrap lg:gap-1"
+          className="calendar-glass mt-10 flex flex-wrap gap-1.5 rounded-2xl p-1.5 lg:flex-nowrap lg:gap-1"
         >
           {desks.map(({ Icon, ...desk }) => {
             const selected = desk.id === active
@@ -179,7 +179,7 @@ export function MediaStudio({
                   "flex grow scroll-mt-80 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition duration-300 lg:gap-1.5 lg:px-2 lg:text-[0.8rem] xl:px-3 xl:text-sm",
                   selected
                     ? "bg-gradient-to-r from-[#0e98ac] to-[#06394a] text-white shadow-[0_10px_24px_-14px_rgba(6,57,74,0.9)]"
-                    : "text-[#3d4b59] hover:bg-white hover:text-[#023e8a]"
+                    : "text-[#3d4b59] hover:bg-white/80 hover:text-[#023e8a]"
                 )}
               >
                 <Icon aria-hidden="true" className={cn("size-4 shrink-0 lg:max-xl:hidden", selected ? "text-[#ffcf4a]" : "text-[#17b3c6]")} />
@@ -194,7 +194,7 @@ export function MediaStudio({
           role="tabpanel"
           id={`${active}-panel`}
           aria-labelledby={active}
-          className="media-panel mt-10"
+          className="media-panel calendar-glass mt-10 rounded-[1.75rem] p-5 sm:p-7"
         >
           {active === "photo-gallery" ? <Gallery photos={photos} onOpen={setPhoto} /> : null}
           {active === "video" ? <VideoStage image={videoImage} /> : null}
@@ -237,13 +237,13 @@ function Gallery({ photos, onOpen }: { photos: MediaPhoto[]; onOpen: (photo: Med
       </p>
       <ul className="mt-5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-3">
         {photos.map((item, index) => (
-          <li key={item.src} className="media-in" style={{ animationDelay: `${index * 40}ms` }}>
+          <li key={item.src} className="media-in" style={{ animationDelay: `${index * 50}ms` }}>
             <button
               type="button"
               onClick={() => onOpen(item)}
-              className="group block w-full overflow-hidden rounded-2xl ring-1 ring-[#d9eef3] bg-[#e7fbff] text-left"
+              className="group media-bento-card media-bento-shine block w-full overflow-hidden rounded-2xl bg-white/70 text-left ring-1 ring-[#d7eef3]"
             >
-              <img src={item.src} alt="" className="h-44 w-full object-cover transition duration-300 group-hover:scale-[1.03] sm:h-52" />
+              <img src={item.src} alt="" className="h-44 w-full object-cover transition duration-500 group-hover:scale-[1.04] sm:h-52" />
               <span className="block px-3 py-3 text-sm leading-5 text-[#023e8a]">{item.caption}</span>
             </button>
           </li>
@@ -261,15 +261,16 @@ function VideoStage({ image }: { image: string }) {
         href={site.social.youtube}
         target="_blank"
         rel="noreferrer"
-        className="media-in relative flex min-h-64 items-end overflow-hidden rounded-3xl ring-1 ring-[#d9eef3] bg-[#023e8a] p-6 text-white sm:min-h-80"
+        className="media-in media-bento-card media-bento-shine calendar-glass-deep relative flex min-h-64 items-end overflow-hidden rounded-3xl p-6 text-white sm:min-h-80"
       >
         <img
           src={image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-50"
+          className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 hover:scale-105"
         />
+        <span className="absolute inset-0 bg-gradient-to-t from-[#03202b] via-[#03202b]/50 to-transparent" />
         <span className="relative">
-          <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-white text-2xl text-[#023e8a]">
+          <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#ffcf4a] text-2xl text-[#03202b] shadow-lg transition group-hover:scale-105">
             ▶
           </span>
           <span className="mt-4 block font-heading text-3xl font-semibold sm:text-4xl">Oblate Jaffna TV</span>
@@ -286,8 +287,8 @@ function VideoStage({ image }: { image: string }) {
         ].map(([title, text], index) => (
           <article
             key={title}
-            className="media-in rounded-2xl ring-1 ring-[#d9eef3] bg-[#f4fbfd] p-4"
-            style={{ animationDelay: `${index * 50}ms` }}
+            className="media-in media-bento-card calendar-glass rounded-2xl p-4"
+            style={{ animationDelay: `${index * 60}ms` }}
           >
             <h3 className="font-heading text-lg font-semibold">{title}</h3>
             <p className="mt-2 text-sm leading-6 text-[#5c6b7a]">{text}</p>
@@ -305,15 +306,15 @@ function Playlist() {
       <p className="text-sm leading-6 text-[#5c6b7a]">
         A podcast series has not been published. The rows below are the public voices already named by the Province: the channel, the bulletin and the magazines.
       </p>
-      <ol className="mt-5 divide-y divide-[#90e0ef] overflow-hidden rounded-3xl ring-1 ring-[#d9eef3]">
+      <ol className="calendar-glass mt-5 divide-y divide-[#d7eef3]/80 overflow-hidden rounded-3xl">
         {listens.map((item, index) => (
-          <li key={item.title} className="media-in bg-white" style={{ animationDelay: `${index * 60}ms` }}>
+          <li key={item.title} className="media-in" style={{ animationDelay: `${index * 70}ms` }}>
             {item.external ? (
-              <a href={social[item.href]} target="_blank" rel="noreferrer" className="flex items-center gap-4 px-4 py-5 transition hover:bg-[#e7fbff] sm:px-6">
+              <a href={social[item.href]} target="_blank" rel="noreferrer" className="flex items-center gap-4 px-4 py-5 transition hover:bg-white/55 sm:px-6">
                 <RowBody index={index} item={item} />
               </a>
             ) : (
-              <Link href={item.href} className="flex items-center gap-4 px-4 py-5 transition hover:bg-[#e7fbff] sm:px-6">
+              <Link href={item.href} className="flex items-center gap-4 px-4 py-5 transition hover:bg-white/55 sm:px-6">
                 <RowBody index={index} item={item} />
               </Link>
             )}
@@ -349,17 +350,20 @@ function Magazine({ newsArticles }: { newsArticles: NewsArticle[] }) {
     <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
       <Link
         href={`/news/${lead.slug}`}
-        className="media-in flex min-h-72 flex-col justify-end rounded-3xl ring-1 ring-[#d9eef3] bg-[#f4fbfd] p-6"
+        className="media-in media-bento-card media-bento-shine calendar-glass-deep flex min-h-72 flex-col justify-end rounded-3xl p-6 text-white"
       >
-        <p className="text-xs font-semibold tracking-[0.22em] text-[#0077b6] uppercase">{lead.dateLabel}</p>
+        <p className="text-xs font-semibold tracking-[0.22em] text-[#ffcf4a] uppercase">{lead.dateLabel}</p>
         <h3 className="mt-3 font-heading text-3xl font-semibold sm:text-4xl">{lead.title}</h3>
-        <p className="mt-3 max-w-xl text-sm leading-6 text-[#5c6b7a] sm:text-base">{lead.description}</p>
-        <p className="mt-4 text-sm font-semibold">Open the full report</p>
+        <p className="mt-3 max-w-xl text-sm leading-6 text-white/75 sm:text-base">{lead.description}</p>
+        <p className="mt-4 text-sm font-semibold text-[#7fe3ef]">Open the full report</p>
       </Link>
       <ul className="grid gap-3">
         {rest.map((article, index) => (
-          <li key={article.slug} className="media-in" style={{ animationDelay: `${(index + 1) * 50}ms` }}>
-            <Link href={`/news/${article.slug}`} className="block rounded-2xl ring-1 ring-[#d9eef3] bg-white p-4 transition hover:bg-[#e7fbff]">
+          <li key={article.slug} className="media-in" style={{ animationDelay: `${(index + 1) * 60}ms` }}>
+            <Link
+              href={`/news/${article.slug}`}
+              className="media-bento-card calendar-glass block rounded-2xl p-4 transition hover:bg-white/80"
+            >
               <p className="text-xs font-semibold tracking-wide text-[#0077b6]">{article.dateLabel}</p>
               <h3 className="mt-1 font-heading text-lg font-semibold">{article.title}</h3>
               <p className="mt-2 text-sm leading-6 text-[#5c6b7a]">{article.place}</p>
@@ -384,8 +388,10 @@ function Dialogue() {
           </p>
           <p
             className={cn(
-              "mt-1 max-w-xl rounded-2xl ring-1 ring-[#d9eef3] bg-[#e7fbff] px-4 py-3 text-sm leading-6",
-              index % 2 === 0 ? "mr-auto rounded-tl-sm" : "ml-auto rounded-tr-sm bg-white"
+              "media-bento-card mt-1 max-w-xl rounded-2xl px-4 py-3 text-sm leading-6",
+              index % 2 === 0
+                ? "calendar-glass-deep mr-auto rounded-tl-sm text-white"
+                : "calendar-glass ml-auto rounded-tr-sm"
             )}
           >
             {item.a}
@@ -409,7 +415,11 @@ function Readings({ quote, lede }: { quote: string; lede: string }) {
       </p>
       <div className="mt-6 space-y-8">
         {readings.map((item, index) => (
-          <article key={item.kicker} className="media-in border-l-4 border-[#90e0ef] pl-5" style={{ animationDelay: `${index * 45}ms` }}>
+          <article
+            key={item.kicker}
+            className="media-in media-bento-card calendar-glass rounded-2xl border-l-4 border-[#17b3c6] p-5"
+            style={{ animationDelay: `${index * 55}ms` }}
+          >
             <p className="text-xs font-semibold tracking-[0.22em] text-[#0077b6] uppercase">{item.kicker}</p>
             <p className={cn("mt-2 text-[#023e8a]", index === 0 ? "font-heading text-3xl leading-tight font-semibold sm:text-5xl" : "text-lg leading-8")}>
               {item.text}
@@ -431,8 +441,8 @@ function Witnesses({ ministries }: { ministries: Ministry[] }) {
         {ministries.map((item, index) => (
           <li
             key={`${item.number}-${item.title}`}
-            className="media-in rounded-2xl ring-1 ring-[#d9eef3] bg-[#f4fbfd] p-4"
-            style={{ animationDelay: `${Math.min(index, 8) * 30}ms` }}
+            className="media-in media-bento-card media-bento-shine calendar-glass rounded-2xl p-4"
+            style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
           >
             <p className="font-heading text-2xl font-semibold text-[#0077b6]">{item.number}</p>
             <h3 className="mt-2 font-heading text-lg font-semibold">{item.title}</h3>

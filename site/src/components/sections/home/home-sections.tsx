@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Compass, Eye, HandHeart } from "lucide-react"
+import { ArrowRight, ArrowUpRight, Compass, Eye, HandHeart } from "lucide-react"
 
 import { Reveal } from "@/components/motion/reveal"
 import { MinistryCard } from "@/components/sections/ministry-card"
@@ -10,9 +10,10 @@ import { HomeContact } from "@/components/sections/home/home-contact"
 import { JoinUs } from "@/components/sections/home/join-us"
 import { MediaHighlights } from "@/components/sections/home/media-highlights"
 import { ProvinceCalendar } from "@/components/sections/home/province-calendar"
+import { BirthdayFloat } from "@/components/sections/home/birthday-float"
 import { WelcomeScene } from "@/components/sections/home/welcome-scene"
 import { NewsMarquee } from "@/components/sections/news/news-marquee"
-import { getBlock, getEvents, getHomeContent, getMinistries, getNews } from "@/lib/cms"
+import { getBlock, getHomeContent, getMinistries, getNews, getProvinceCalendar, getTodaysBirthdays } from "@/lib/cms"
 
 const pillarIcons = [HandHeart, Compass, Eye]
 
@@ -23,10 +24,11 @@ const pathStyles = [
 ]
 
 export async function HomeSections() {
-  const [ministries, latestNews, events, { welcome }, home, journey] = await Promise.all([
+  const [ministries, latestNews, events, todaysBirthdays, { welcome }, home, journey] = await Promise.all([
     getMinistries(),
     getNews(),
-    getEvents(),
+    getProvinceCalendar(),
+    getTodaysBirthdays(),
     getHomeContent(),
     getBlock("home-sections"),
     getBlock("journey"),
@@ -35,7 +37,8 @@ export async function HomeSections() {
   const paths = home.paths.map((path, index) => ({ ...pathStyles[index % pathStyles.length], ...path }))
   return (
     <>
-      <section id="welcome" className="welcome-stage relative scroll-mt-28 overflow-hidden px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
+      <BirthdayFloat people={todaysBirthdays} />
+      <section id="welcome" className="calendar-stage relative scroll-mt-28 overflow-hidden px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
         <WelcomeScene
           badge={home.welcome.badge}
           eyebrow={home.welcome.eyebrow}
@@ -75,77 +78,125 @@ export async function HomeSections() {
         </section>
       ) : null}
 
-      <section id="pillars" className="pillar-stage scroll-mt-80 overflow-hidden px-4 py-20 sm:px-8">
-        <div className="mx-auto max-w-6xl text-center">
-          <Reveal from="up">
-            <p className="pillar-kicker text-sm font-semibold tracking-[0.22em] uppercase">{home.pillars.kicker}</p>
-            <h2 className="pillar-title mt-2 font-heading text-4xl font-semibold sm:text-5xl">{home.pillars.title}</h2>
-            <span className="pillar-rule mx-auto mt-5 block" aria-hidden="true" />
+      <section id="pillars" className="calendar-stage scroll-mt-80 overflow-hidden px-4 py-16 sm:px-8 sm:py-20">
+        <div className="relative mx-auto max-w-6xl">
+          <Reveal from="up" className="mx-auto max-w-2xl text-center">
+            <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">{home.pillars.kicker}</p>
+            <h2 className="mt-2 font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">{home.pillars.title}</h2>
+            <span className="mx-auto mt-5 block h-1 w-14 rounded-full bg-gradient-to-r from-[#17b3c6] to-[#ffcf4a]" aria-hidden="true" />
           </Reveal>
-          <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
+          <div className="mt-10 grid gap-5 md:grid-cols-3 md:gap-6">
             {pillars.map((item, index) => {
               const Icon = item.icon
+              const deep = index === 1
               return (
                 <Reveal
                   key={item.title}
                   from={index === 0 ? "left" : index === 2 ? "right" : "up"}
-                  delay={index === 1 ? 0 : 150}
+                  delay={index * 110}
                   className="h-full"
                 >
-                  <Link href={item.href} className="pillar-item group flex h-full flex-col items-center px-4 py-6">
-                    <span className="pillar-icon flex size-20 items-center justify-center rounded-full">
-                      <Icon aria-hidden="true" className="size-9" strokeWidth={2.2} />
+                  <Link
+                    href={item.href}
+                    className={
+                      deep
+                        ? "group media-bento-card media-bento-shine calendar-glass-deep relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7"
+                        : "group media-bento-card media-bento-shine calendar-glass relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7"
+                    }
+                  >
+                    <span
+                      className={
+                        deep
+                          ? "absolute top-4 right-4 grid size-8 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 transition group-hover:rotate-45"
+                          : "absolute top-4 right-4 grid size-8 place-items-center rounded-full bg-[#e7fbff] text-[#023e8a] ring-1 ring-[#cfeef4] transition group-hover:rotate-45"
+                      }
+                    >
+                      <ArrowUpRight className="size-3.5" />
                     </span>
-                    <h3 className="pillar-name mt-6 font-heading text-2xl font-semibold">{item.title}</h3>
-                    <p className="pillar-text mt-3 max-w-xs text-sm leading-6">{item.text}</p>
+                    <span
+                      className={
+                        deep
+                          ? "flex size-14 items-center justify-center rounded-2xl bg-[#ffcf4a] text-[#03202b]"
+                          : "flex size-14 items-center justify-center rounded-2xl bg-[#e7fbff] text-[#0e98ac] ring-1 ring-[#cfeef4]"
+                      }
+                    >
+                      <Icon aria-hidden="true" className="size-7" strokeWidth={2.1} />
+                    </span>
+                    <h3
+                      className={
+                        deep
+                          ? "mt-6 font-heading text-2xl font-semibold text-white sm:text-3xl"
+                          : "mt-6 font-heading text-2xl font-semibold text-[#023e8a] sm:text-3xl"
+                      }
+                    >
+                      {item.title}
+                    </h3>
+                    <p className={deep ? "mt-3 flex-1 text-sm leading-6 text-white/75" : "mt-3 flex-1 text-sm leading-6 text-[#5c6b7a]"}>
+                      {item.text}
+                    </p>
+                    <span
+                      className={
+                        deep
+                          ? "mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#7fe3ef] transition group-hover:gap-2.5"
+                          : "mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#0e98ac] transition group-hover:gap-2.5 group-hover:text-[#023e8a]"
+                      }
+                    >
+                      Explore
+                      <ArrowUpRight className="size-3.5" />
+                    </span>
                   </Link>
                 </Reveal>
               )
             })}
           </div>
-          <Reveal from="up" delay={450}>
-            <Link href="/charism" className="pillar-btn mt-10 inline-block rounded-full px-7 py-3 text-sm font-bold tracking-wide uppercase">
+          <Reveal from="up" delay={360} className="mt-10 flex justify-center">
+            <Link
+              href="/charism"
+              className="media-bento-card inline-flex items-center gap-2 rounded-full border border-[#cfeef4] bg-white/95 px-6 py-2.5 text-sm font-bold tracking-wide text-[#0e98ac] uppercase shadow-[0_12px_28px_-18px_rgba(2,62,138,0.45)] backdrop-blur-md transition hover:border-[#17b3c6] hover:text-[#023e8a]"
+            >
               Read more
+              <ArrowUpRight className="size-4" />
             </Link>
           </Reveal>
         </div>
       </section>
 
-      <section id="ministries" className="ministry-stage relative scroll-mt-80 overflow-hidden px-4 pt-20 pb-20 sm:px-8">
-        <span aria-hidden="true" className="ministry-blob ministry-blob-left" />
-        <span aria-hidden="true" className="ministry-blob ministry-blob-right" />
+      <section id="ministries" className="calendar-stage relative scroll-mt-80 overflow-hidden px-4 pt-16 pb-16 sm:px-8 sm:pt-20 sm:pb-20">
         <div className="relative mx-auto max-w-6xl">
-          <Reveal from="left">
-            <p className="ministry-heading font-heading text-4xl leading-tight font-semibold sm:text-5xl">
-              {home.ministries.title}
-            </p>
-            <h2 className="ministry-sub mt-2 text-sm font-semibold tracking-[0.22em] uppercase">
-              {home.ministries.kicker}
-            </h2>
+          <Reveal from="left" className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">{home.ministries.kicker}</p>
+              <h2 className="mt-2 font-heading text-4xl leading-tight font-semibold text-[#023e8a] sm:text-5xl">
+                {home.ministries.title}
+              </h2>
+            </div>
+            <Link
+              href="/ministries"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[#0e98ac] transition hover:text-[#023e8a]"
+            >
+              All ministries
+              <ArrowRight aria-hidden="true" className="ministry-arrow size-4" />
+            </Link>
           </Reveal>
-          <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
             {ministries.slice(0, 6).map((ministry, index) => (
               <Reveal
                 key={`${ministry.number}-${ministry.title}`}
                 from={index % 3 === 0 ? "left" : index % 3 === 2 ? "right" : "zoom"}
-                delay={(index % 3) * 120}
+                delay={(index % 3) * 100}
                 className="h-full"
               >
-                <MinistryCard
-                  ministry={ministry}
-                  index={index}
-                  href={ministryHref(ministry)}
-                />
+                <MinistryCard ministry={ministry} index={index} href={ministryHref(ministry)} />
               </Reveal>
             ))}
           </div>
-          <Reveal from="right" delay={150} className="mt-12 flex justify-end">
+          <Reveal from="up" delay={180} className="mt-10 flex justify-center sm:justify-end">
             <Button
               asChild
-              className="lightning-ring group relative h-auto gap-2 rounded-full border-0 bg-[#17b3c6] px-7 py-3 text-sm font-bold text-white hover:bg-[#0f9fb4]"
+              className="media-bento-card group relative h-auto gap-2 rounded-full border border-[#cfeef4] bg-white/95 px-7 py-3 text-sm font-bold text-[#0e98ac] shadow-[0_12px_28px_-18px_rgba(2,62,138,0.45)] backdrop-blur-md hover:border-[#17b3c6] hover:bg-white hover:text-[#023e8a]"
             >
               <Link href="/ministries">
-                All ministries
+                View all ministries
                 <ArrowRight aria-hidden="true" className="ministry-arrow size-4" />
               </Link>
             </Button>

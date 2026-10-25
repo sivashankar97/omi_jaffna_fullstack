@@ -9,7 +9,7 @@ Paths are from the repo root. `sections/` = `site/src/components/sections/`.
 ## Public site pages (`site/src/app/`)
 | Page | Page file | Main components | CMS data (`site/src/lib/cms.ts`) |
 |---|---|---|---|
-| Home `/` | `page.tsx` | `sections/hero/hero-section.tsx`, `sections/home/*` (welcome-scene 3 photo cards + copy, Daily inspiration quote under welcome, join-us, journey-path, media-highlights, province-calendar, home-contact) | `getHomeContent`; `home-sections.tsx` also loads `getBlock("home-sections")`, `getEvents`, `getMinistries`, `getNews` |
+| Home `/` | `page.tsx` | `sections/hero/hero-section.tsx`, `sections/home/*` (welcome-scene crystal-glass intro + cards, Daily inspiration, birthday-float, province-calendar crystal-glass, Our calling crystal-glass pillars, ministries crystal-glass cards, join-us, journey-path, media-highlights bento crystal-glass, home-contact) | `getHomeContent`; `home-sections.tsx` loads `getBlock("home-sections")`, `getProvinceCalendar`, `getTodaysBirthdays`, `getMinistries`, `getNews` |
 | History `/history` | `history/page.tsx` | `sections/history/*` (chapter-nav, count-up, scroll-progress, bishop-profiles, historical-archive, year-journey), `sections/media/necrology-register.tsx`, `sections/home/journey-path.tsx` | `getBlock("history")` (incl. `archive` + `necrology` copy), `getBlock("journey")`, `getTimeline`, `getNecrology`, `getBishops` |
 | Bishop profile `/history/bishops/<slug>` | `history/bishops/[slug]/page.tsx` (`bishopHref()` in `config/navigation.ts`) | — | `getBishops` / `getBishop` (CMS type `bishop`) |
 | Charism `/charism` | `charism/page.tsx` | `sections/charism/*` (charism-join, charism-vow, charism-ways) | `getCharismContent` (page entry: excerpt, body, headline, ways, about_heading, about, arrival, mission) + `getBlock("charism")` (hero, identity, priorities, **mission**, **vision**, motto, images) |
@@ -17,7 +17,7 @@ Paths are from the repo root. `sections/` = `site/src/components/sections/`.
 | Father profile `/leadership/fathers/slug` | `leadership/fathers/[slug]/page.tsx` | bio + gallery | `getPriest`, `getPriests` |
 | Council profile `/leadership/council/slug` | `leadership/council/[slug]/page.tsx` | `leadership-person-profile.tsx` | `getCouncilMember`, `getLeadership` |
 | Former Provincial `/leadership/former/slug` | `leadership/former/[slug]/page.tsx` | same shared profile | `getFormerProvincial`, `getFormerProvincials` |
-| Ministries `/ministries` | `ministries/page.tsx` | `sections/ministries/ministry-explorer.tsx` (cards link to each ministry page), `sections/ministry-card.tsx`, `sections/page-banner.tsx` | `getBlock("ministries")` (hero + mission name), `getMinistries`, `getParishes`, `getSchools` |
+| Ministries `/ministries` | `ministries/page.tsx` | `sections/ministries/ministry-explorer.tsx` (crystal-glass cards), `sections/ministry-card.tsx` (calendar-glass + media-bento), parish/school glass lists, `sections/page-banner.tsx` | `getBlock("ministries")` (hero + mission name), `getMinistries`, `getParishes`, `getSchools` |
 | Ministry page `/ministries/NN-name` | `ministries/[slug]/page.tsx` | `ministry-place-tabs.tsx` (major sections as tabs) | `getMinistries`, `getSiteInfo` |
 | Ministry section `/ministries/NN-name/section` | `ministries/[slug]/[section]/page.tsx` | `ministry-section-content-tabs.tsx` (History / Articles / Photos / Videos / Events as heading tabs) | `detail.majorSections[]` |
 | Vocations `/vocations` | `vocations/page.tsx` | `sections/page-banner.tsx` | `getFormationHouses` |
@@ -28,7 +28,7 @@ Paths are from the repo root. `sections/` = `site/src/components/sections/`.
 | Libraries `/library/libraries` | `library/libraries/page.tsx` | same | `getLibraryItems("libraries")` |
 | Books `/library/books` | `library/books/page.tsx` | same | `getLibraryItems("books")` |
 | Articles `/library/articles` | `library/articles/page.tsx` | same | `getLibraryItems("articles")` |
-| Media `/media` | `media/page.tsx` | `sections/media/*` (media-studio, media-publications, social-signals) | `getNews`, `getPublications`, `getMinistries`, `getHomeContent` (quote/lede in Readings), `getBlock("media-page")` |
+| Media `/media` | `media/page.tsx` | `sections/media/*` (media-studio, media-publications, social-signals — calendar-stage + crystal-glass cards, media-bento hover/shine) | `getNews`, `getPublications`, `getMinistries`, `getHomeContent` (quote/lede in Readings), `getBlock("media-page")` |
 | News `/news` | `news/page.tsx` | `sections/news/*` (news-card, news-ticker, news-marquee) | `getNews` (sections list: `content/news.ts`) |
 | News article `/news/[slug]` | `news/[slug]/page.tsx` | `sections/news/news-card.tsx`, `share-buttons.tsx` | `getNewsArticle`, `getNews` |
 | Contact `/contact` | `contact/page.tsx` | `site/src/components/contact/contact-form.tsx`, `sections/page-banner.tsx` | `getSiteInfo`, `getLeadership` (Superior name); form posts to `/api/public/inquiries` |
@@ -39,7 +39,7 @@ Leadership page data (CMS type `leadership`, one entry per person, told apart by
 - Provincial Superior: Position "Provincial Superior"; term, since, appointments (`meta.terms`), bio = full content, portrait = cover image. No entry = section hidden.
 - Council (1st–5th Councillor, Bursar): photo = cover image; profile at `/leadership/council/{slug}` (bio = body, summary = excerpt, gallery = `meta.gallery`). Council heading = first member's term. Seed with `cd api && npm run seed:council-portraits` from `api/.staging/council-portraits/` (not `public/`).
 - Former Provincials: Position "Former Provincial" + term; profile at `/leadership/former/{slug}` (same bio/gallery fields).
-- Oblate priests: CMS type `priest`, profile at `/leadership/fathers/{slug}`; "Where serving" = `meta.place`, role = `meta.role`, bio = body, gallery = `meta.gallery`, portrait = cover image. Seed portraits: `cd api && npm run seed:priest-portraits`.
+- Oblate priests: CMS type `priest`, profile at `/leadership/fathers/{slug}`; "Where serving" = `meta.place`, role = `meta.role`, birthday = `meta.born` (home calendar + floating birthday), bio = body, gallery = `meta.gallery`, portrait = cover image. Seed portraits: `cd api && npm run seed:priest-portraits`. Home calendar also uses necrology `born` / `died` (historical archive) and CMS `event` dates via `getProvinceCalendar()`.
 - CMS form fields for these: `MetaFields` in `web/src/main.jsx`. Extra meta keys must be listed in `PUBLIC_META_KEYS` in `api/src/app.js` or the site never receives them.
 
 Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-directory`, `/publications` to `/media#publications`.

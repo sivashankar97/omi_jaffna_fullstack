@@ -111,12 +111,16 @@ export type FormerProvincial = {
 }
 export type FormationHouse = { name: string; place: string }
 export type Publication = { id: string; title: string; subtitle: string; text: string; href?: string }
+export type GatheringKind = "event" | "birthday" | "death-anniversary"
 export type Gathering = {
   id: string
   title: string
   dateLabel: string
   place: string
   summary: string
+  kind: GatheringKind
+  /** Recurring every year on month/day (birthdays & death anniversaries). */
+  annual: boolean
   year: number
   month: number
   day: number
@@ -125,6 +129,7 @@ export type Gathering = {
   endDay: number
   face: string
   ink: string
+  href?: string
 }
 export type SuperiorTerm = { label: string; appointed: string; installed: string }
 export type Leadership = {
@@ -566,6 +571,7 @@ const toPriest = (item: CmsItem): Priest => {
     role: text(item, "role") || item.excerpt,
     summary: item.excerpt,
     bio: item.body,
+    born: text(item, "born") || undefined,
     image: item.image_url || undefined,
     gallery,
   }
@@ -703,6 +709,8 @@ export const getEvents = () =>
           dateLabel: text(item, "date_display") || formatDate(item.event_date!),
           place: item.location_text,
           summary: item.excerpt,
+          kind: "event" as const,
+          annual: false,
           year: start.year,
           month: start.month,
           day: start.day,
@@ -714,3 +722,145 @@ export const getEvents = () =>
       }),
     (item) => Boolean(item.event_date)
   )
+
+/** Parse CMS dates like `17.05.1821`, `7.2.1813`, or `YYYY-MM-DD`. Year-only values are ignored. */
+export function parseOblateDate(value: string): { day: number; month: number; year?: number } | null {
+  const raw = value.trim()
+  if (!raw) return null
+  const dotted = raw.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/)
+  if (dotted) {
+    const day = Number(dotted[1])
+    const month = Number(dotted[2]) - 1
+    const year = Number(dotted[3])
+    if (month < 0 || month > 11 || day < 1 || day > 31) return null
+    return { day, month, year }
+  }
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (iso) {
+    const year = Number(iso[1])
+    const month = Number(iso[2]) - 1
+    const day = Number(iso[3])
+    if (month < 0 || month > 11 || day < 1 || day > 31) return null
+    return { day, month, year }
+  }
+  return null
+}
+
+const monthDayLabel = (month: number, day: number) =>
+  new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", timeZone: TIME_ZONE }).format(
+    new Date(Date.UTC(2024, month, day, 6))
+  )
+
+function annualEntry(
+  partial: Omit<Gathering, "year" | "endYear" | "endMonth" | "endDay" | "month" | "day" | "annual"> & {
+    month: number
+    day: number
+  }
+): Gathering {
+  const baseYear = new Date().getFullYear()
+  return {
+    ...partial,
+    annual: true,
+    year: baseYear,
+    month: partial.month,
+    day: partial.day,
+    endYear: baseYear,
+    endMonth: partial.month,
+    endDay: partial.day,
+  }
+}
+
+/** Province calendar: feasts/events + living fathers’ birthdays + historical archive birthdays & death anniversaries. */
+export async function getProvinceCalendar(): Promise<Gathering[]> {
+  const [events, priests, necrology] = await Promise.all([getEvents(), getPriests(), getNecrology()])
+  const entries: Gathering[] = [...events]
+
+  for (const priest of priests) {
+    const born = priest.born ? parseOblateDate(priest.born) : null
+    if (!born) continue
+    entries.push(
+      annualEntry({
+        id: `birthday-${priest.slug}`,
+        title: `${priest.name} — Birthday`,
+        dateLabel: monthDayLabel(born.month, born.day),
+        place: "Oblate Province of Jaffna",
+        summary: `Birthday of ${priest.name}.`,
+        kind: "birthday",
+        month: born.month,
+        day: born.day,
+        href: `/leadership/fathers/${priest.slug}`,
+        face: "#ffe8a3",
+        ink: "#92400e",
+      })
+    )
+  }
+
+  for (const person of necrology) {
+    const born = parseOblateDate(person.born)
+    if (born) {
+      entries.push(
+        annualEntry({
+          id: `necrology-birthday-${person.no}`,
+          title: `${person.name} — Birthday`,
+          dateLabel: monthDayLabel(born.month, born.day),
+          place: person.bornAt || "Historical archive",
+          summary: `Birthday remembered from the Province necrology register (no. ${person.no}).`,
+          kind: "birthday",
+          month: born.month,
+          day: born.day,
+          href: "/history#necrology",
+          face: "#d4f6fa",
+          ink: "#023e8a",
+        })
+      )
+    }
+    const died = parseOblateDate(person.died)
+    if (died) {
+      entries.push(
+        annualEntry({
+          id: `necrology-death-${person.no}`,
+          title: `${person.name} — Death anniversary`,
+          dateLabel: monthDayLabel(died.month, died.day),
+          place: person.diedAt || "Historical archive",
+          summary: `Death anniversary from the Province necrology register (no. ${person.no}).`,
+          kind: "death-anniversary",
+          month: died.month,
+          day: died.day,
+          href: "/history#necrology",
+          face: "#ece4fb",
+          ink: "#5b21b6",
+        })
+      )
+    }
+  }
+
+  return entries
+}
+
+/** Living Oblate fathers whose birthday is today (Colombo calendar). */
+export async function getTodaysBirthdays(): Promise<
+  { slug: string; name: string; image?: string; href: string }[]
+> {
+  const priests = await getPriests()
+  const stamp = new Intl.DateTimeFormat("en-CA", {
+    timeZone: TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date())
+  const [, monthStr, dayStr] = stamp.split("-")
+  const month = Number(monthStr) - 1
+  const day = Number(dayStr)
+
+  return priests
+    .filter((priest) => {
+      const born = priest.born ? parseOblateDate(priest.born) : null
+      return Boolean(born && born.month === month && born.day === day)
+    })
+    .map((priest) => ({
+      slug: priest.slug,
+      name: priest.name,
+      image: priest.image,
+      href: `/leadership/fathers/${anchorId(priest.slug)}`,
+    }))
+}
