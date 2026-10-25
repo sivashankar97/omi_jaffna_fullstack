@@ -10,7 +10,7 @@ export type WelcomeCard = {
   text?: string
   image: string
   href: string
-  tone?: "teal" | "gold"
+  tone?: string
 }
 
 type WelcomeSceneProps = {
