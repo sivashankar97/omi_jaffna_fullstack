@@ -14,6 +14,9 @@
     "seed:priest-portraits": "node --no-warnings scripts/seed-priest-portraits.js",
     "seed:priest-portraits:public": "node --no-warnings scripts/seed-priest-portraits.js --public",
     "seed:council-portraits": "node --no-warnings scripts/seed-council-portraits.js",
+    "seed:ministry-sections": "node --no-warnings scripts/seed-ministry-sections.js",
+    "seed:international": "node --no-warnings scripts/seed-international-countries.js",
+    "seed:library": "node --no-warnings scripts/seed-library-dummy.js",
     "migrate:media": "node --no-warnings scripts/migrate-blobs-to-supabase.js",
     "test": "node --test"
   },

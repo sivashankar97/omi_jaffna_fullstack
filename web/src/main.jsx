@@ -11,14 +11,17 @@ import {
 import seed from './demo.json';
 import CoverImageUpload from './CoverImageUpload.jsx';
 import {AutoFields,mergeContent,useCmsBlocks} from './AutoFields.jsx';
+import {emptyMinistryDetail,MinistryDetailFields} from './MinistryDetailFields.jsx';
 import './style.css';
 
-const TYPE_INFO={page:['Website Pages',PanelsTopLeft],ministry:['Ministries',HeartHandshake],parish:['Parishes',Church],formation:['Formation Houses',GraduationCap],location:['Map Locations',MapPin],leadership:['Leadership',Users],priest:['Oblate Priests',UserRound],bishop:['Oblate Bishops',Cross],necrology:['Necrology Register',BookOpen],international:['International Mission',Globe2],school:['Schools & Education',School],timeline:['History Timeline',History],news:['News & Stories',Newspaper],event:['Feasts & Events',CalendarDays],publication:['Publications',BookOpen],media:['Media Library',Images]};
+const TYPE_INFO={page:['Website Pages',PanelsTopLeft],ministry:['Ministries',HeartHandshake],parish:['Parishes',Church],formation:['Formation Houses',GraduationCap],location:['Map Locations',MapPin],leadership:['Leadership',Users],priest:['Oblate Priests',UserRound],bishop:['Oblate Bishops',Cross],necrology:['Necrology Register',BookOpen],international:['International Mission',Globe2],school:['Schools & Education',School],timeline:['History Timeline',History],news:['News & Stories',Newspaper],event:['Feasts & Events',CalendarDays],publication:['Publications',BookOpen],media:['Media Library',Images],library:['Library',BookOpen]};
+const MAGAZINE_CATS=[['year-thoni','Year Thoni'],['naan','Naan'],['zeal','Zeal'],['koinonia','Koinonia'],['vaanavil','Vaanavil'],['malai-loran-versus-katru','Malai Loran Versus Katru']];
+const LIBRARY_CATS=[['gaanapairkasiyar','Gaanapairkasiyar Library'],['anna-illam','Anna Illam Library'],['de-mazoned-scholasticate','De Mazoned Scholasticate Library'],['malarum-mullai','Malarum Mullai Library']];
 const notLeadershipRole='provincial superior,former provincial';
 // Each CMS screen is one content type, optionally narrowed to the entries one website section uses.
 const VIEWS={
  'page-home':{type:'page',label:'Top banner & welcome',query:'slug=home',single:true,slugs:[['home','Home page']],where:'Home: banner video and image, title, tagline and welcome text at the top',link:'/'},
- 'block-home-sections':{type:'page',label:'Rest of the Home page',query:'slug=home-sections',single:true,slugs:[['home-sections','Home page sections']],where:'Home: welcome stats and photo, Our calling, section headings, the three cards, Media, Oblate family, Join us, Contact us',link:'/#welcome'},
+ 'block-home-sections':{type:'page',label:'Rest of the Home page',query:'slug=home-sections',single:true,slugs:[['home-sections','Home page sections']],where:'Home: welcome, Daily inspiration quote, Our calling, section headings, the three cards, Media, Oblate family, Join us, Contact us',link:'/#welcome'},
  'block-journey':{type:'page',label:'Our journey timeline',query:'slug=journey',single:true,slugs:[['journey','Our journey timeline']],where:'Home and History pages: "Our journey" timeline',link:'/#journey'},
  event:{type:'event',item:'event',label:'Calendar events',where:'Home: province calendar',link:'/#calendar'},
  location:{type:'location',item:'location',label:'Mission map',where:'Home and Contact: mission map pins and place cards',link:'/#mission-map'},
@@ -39,11 +42,18 @@ const VIEWS={
  parish:{type:'parish',item:'parish',label:'Parishes',where:'Ministries: parish directory',link:'/ministries#parish-directory'},
  school:{type:'school',item:'school',label:'Schools & Education',where:'Ministries: schools list',link:'/ministries#schools'},
  formation:{type:'formation',item:'formation house',label:'Formation Houses',where:'Vocations: formation houses',link:'/vocations'},
- 'international-mission':{type:'international',item:'country',label:'Mission Countries',query:'meta_key=kind&meta_not=formation',where:'International: countries where Oblates serve',link:'/international'},
+ 'block-international':{type:'page',label:'Page text & stats',query:'slug=international',single:true,slugs:[['international','International page sections']],where:'International: banner, Category 1/2 headings, formation headings, bottom quote and Countries / Continents / Study abroad numbers',link:'/international'},
+ 'international-cat1':{type:'international',item:'country',label:'Category 1 countries',query:'meta_key=category&meta_like=1',defaults:{category:'1',kind:''},where:'International: Category 1 (Italy, France, Norway, Philippines…)',link:'/international'},
+ 'international-cat2':{type:'international',item:'country',label:'Category 2 countries',query:'meta_key=category&meta_like=2',defaults:{category:'2',kind:''},where:'International: Category 2 (UK, Australia, Sweden…)',link:'/international'},
  'international-formation':{type:'international',item:'formation place',label:'Formation Abroad',query:'meta_key=kind&meta_like=formation',defaults:{kind:'formation'},where:'International: formation abroad',link:'/international'},
  news:{type:'news',item:'story',label:'News stories',where:'News page; the latest also show on Home and Media',link:'/news'},
  'news-father':{type:'news',item:'submission',label:'Father news submissions',query:'meta_has=submitted_by',fixedStatus:'review',where:'Stories Fathers sent for approval — set status to Published to show on the website',link:'/news'},
  publication:{type:'publication',item:'publication',label:'Publications',where:'Media: publications',link:'/media#publications'},
+ 'block-library':{type:'page',label:'Page text & stats',query:'slug=library',single:true,slugs:[['library','Library page sections']],where:'Library: hub banner, collection cards, section page headings, download labels and closing quote',link:'/library'},
+ 'library-magazines':{type:'library',item:'magazine issue',label:'Magazines',query:'meta_key=library_section&meta_like=magazine',defaults:{library_section:'magazine'},where:'Library › Magazine: PDF issues by magazine title (tabs on the website)',link:'/library/magazines'},
+ 'library-libraries':{type:'library',item:'library book',label:'Libraries',query:'meta_key=library_section&meta_like=libraries',defaults:{library_section:'libraries'},where:'Library › Libraries: PDF books by library collection (tabs on the website)',link:'/library/libraries'},
+ 'library-books':{type:'library',item:'book release',label:'New book releases',query:'meta_key=library_section&meta_like=books',defaults:{library_section:'books'},where:'Library › Books: new book release PDFs',link:'/library/books'},
+ 'library-articles':{type:'library',item:'article',label:'Articles',query:'meta_key=library_section&meta_like=articles',defaults:{library_section:'articles'},where:'Library › Articles: article PDFs',link:'/library/articles'},
  page:{type:'page',item:'page',label:'All website pages',where:'Every page text entry'},
 };
 // Same order as the website menu. A page with one screen opens it directly.
@@ -56,8 +66,9 @@ const NAV=[
   {label:'Leadership',icon:Users,views:['block-leadership','leadership-superior','leadership-council','leadership-former','priest']},
   {label:'Ministries',icon:HeartHandshake,views:['block-ministries','ministry','parish','school']},
   {label:'Vocations',icon:GraduationCap,views:['formation']},
-  {label:'International',icon:Globe2,views:['international-mission','international-formation']},
+  {label:'International',icon:Globe2,views:['block-international','international-cat1','international-cat2','international-formation']},
   {label:'News',icon:Newspaper,views:['news','news-father']},
+  {label:'Library',icon:BookOpen,views:['block-library','library-magazines','library-libraries','library-books','library-articles']},
   {label:'Media',icon:Images,views:['block-media-page','publication']},
   {label:'Contact',icon:Mail,views:['block-site-info']},
  ]},
@@ -69,7 +80,7 @@ const NAV=[
  {label:'FILES & MANAGEMENT',items:[['assets','File Uploads',FolderOpen],['father-reports','Father reports',Send],['contacts','Contact Directory',ContactRound],['inquiries','Enquiries',MessageCircle],['users','Team & Roles',ShieldCheck],['settings','Site Settings',Settings2]]}
 ];
 const anchorId=s=>String(s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const PAGE_LINKS={home:'/','home-sections':'/#welcome',journey:'/#journey','site-info':'/contact',history:'/history',bishops:'/history#bishops','media-page':'/media',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/history#historical-archive'};
+const PAGE_LINKS={home:'/','home-sections':'/#welcome',journey:'/#journey','site-info':'/contact',history:'/history',bishops:'/history#bishops','media-page':'/media',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations',international:'/international','international-cat1':'/international','international-cat2':'/international','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/history#historical-archive',library:'/library','library-magazines':'/library/magazines','library-libraries':'/library/libraries','library-books':'/library/books','library-articles':'/library/articles'};
 /** Website address where an entry's changes can be seen. */
 function itemLink(item,view){
  const {type,slug}=item;
@@ -78,15 +89,21 @@ function itemLink(item,view){
  if(type==='ministry')return item.sort_order?`/ministries/${String(item.sort_order).padStart(2,'0')}-${anchorId(item.title_en)}`:'/ministries';
  if(type==='parish')return `/ministries#parish-${anchorId(item.title_en)}`;
  if(type==='publication')return `/media#${anchorId(String(item.title_en).split(/\s+[—–-]\s+/)[0])}`;
+ if(type==='library'){
+  const section=item.metadata?.library_section;
+  return section==='libraries'?'/library/libraries':section==='books'?'/library/books':section==='articles'?'/library/articles':'/library/magazines';
+ }
  if(type==='school')return `/ministries#school-${anchorId(String(item.title_en).split(/\s+—\s+/)[0])}`;
  if(type==='formation')return `/vocations#house-${anchorId(item.title_en)}`;
- if(type==='international')return `/international#${item.metadata?.kind==='formation'?'abroad':'country'}-${anchorId(item.title_en)}`;
+ if(type==='international')return item.metadata?.kind==='formation'
+  ?`/international#abroad-${anchorId(item.title_en)}`
+  :`/international/${item.slug||anchorId(item.title_en)}`;
  if(type==='location')return `/#place-${slug}`;
  if(type==='timeline'||type==='necrology')return '/history#historical-archive';
  if(type==='bishop')return slug?`/history/bishops/${slug}`:'/history#bishops';
  if(type==='event')return '/#calendar';
- if(type==='priest')return '/leadership#priests';
- if(type==='leadership'){const role=String(item.metadata?.role||'');return /provincial superior/i.test(role)?'/leadership#provincial-superior':/former provincial/i.test(role)?`/leadership#former-${anchorId(item.title_en)}`:`/leadership#council-${anchorId(item.title_en)}`;}
+ if(type==='priest')return item.slug?`/leadership/fathers/${item.slug}`:'/leadership#priests';
+ if(type==='leadership'){const role=String(item.metadata?.role||'');const slug=item.slug||anchorId(item.title_en);return /provincial superior/i.test(role)?'/leadership#provincial-superior':/former provincial/i.test(role)?`/leadership/former/${slug}`:`/leadership/council/${slug}`;}
  return view?.link||viewFor(type)?.link;
 }
 const pageOf=Object.fromEntries(NAV.flatMap(g=>(g.pages||[]).flatMap(p=>p.views.map(id=>[id,p]))));
@@ -94,7 +111,7 @@ const pageOf=Object.fromEntries(NAV.flatMap(g=>(g.pages||[]).flatMap(p=>p.views.
 const viewFor=section=>VIEWS[section]?{id:section,...VIEWS[section]}:Object.entries(VIEWS).map(([id,v])=>({id,...v})).find(v=>v.type===section);
 const iconFor={...Object.fromEntries(Object.entries(TYPE_INFO).map(([type,[,icon]])=>[type,icon])),...Object.fromEntries(NAV.flatMap(g=>g.items||[]).map(([id,,icon])=>[id,icon]))};
 const labels={...Object.fromEntries(Object.entries(TYPE_INFO).map(([type,[label]])=>[type,label])),...Object.fromEntries(Object.entries(VIEWS).map(([id,v])=>[id,v.label])),...Object.fromEntries(NAV.flatMap(g=>g.items||[]).map(([id,label])=>[id,label]))};
-const collectionTypes=new Set(['page','ministry','parish','formation','location','leadership','international','news','event','publication','media','school','timeline','priest','bishop','necrology']);
+const collectionTypes=new Set(['page','ministry','parish','formation','location','leadership','international','news','event','publication','media','school','timeline','priest','bishop','necrology','library']);
 const requiresVerification=new Set(['parish','location','leadership','international','formation','timeline']);
 const demo=location.pathname.startsWith('/demo');
 const datePretty=x=>x?new Date(x).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
@@ -214,7 +231,8 @@ const META_SPECS={
  timeline:[['date_display','Year or date shown',{hint:'e.g. 1847. Leave empty to use the title.'}]],
  bishop:[['register_no','Register number',{number:true,hint:'Necrology register number, used for order when “Order on the website” is 0.'}],['office','Office / title',{hint:'e.g. Bishop of Jaffna'}],['born','Born (date)',{hint:'e.g. 07.02.1813'}],['born_at','Born at (place)'],['died','Died (date)',{hint:'e.g. 23.01.1868'}],['died_at','Died at (place)']],
  necrology:[['register_no','Register number',{number:true,hint:'Shown in the list circle. Also set “Order on the website” to the same number.'}],['role','Role',{options:[['father','Father'],['bishop','Bishop'],['brother','Brother'],['scholastic','Scholastic']]}],['born','Born (date)',{hint:'e.g. 17.05.1821'}],['born_at','Born at (place)'],['died','Died (date)',{hint:'e.g. 16.06.1851'}],['died_at','Died at (place)']],
- international:[['kind','List',{options:[['','Countries where Oblates serve'],['formation','Formation abroad']]}]],
+ international:[['kind','List',{options:[['','Mission country'],['formation','Formation abroad']]}],['category','Category (mission countries)',{options:[['1','Category 1'],['2','Category 2'],['','— not set / formation']]}],['region','Region label',{hint:'e.g. Europe, Asia, Americas — shown on cards'}]],
+ library:[['library_section','Library section',{options:[['magazine','Magazine'],['libraries','Libraries'],['books','New book releases'],['articles','Articles']]}],['date_display','Date / issue shown',{hint:'e.g. 2026 · March issue'}]],
 };
 const PAGE_SPECS={
  home:{note:'Top of the Home page. The quote and the line under it also appear on the Media page (Homilies and reflections).',fields:[['eyebrow','Small line above the title'],['headline','Main title'],['years','Years'],['quote','Quote'],['lede','Line under the quote']]},
@@ -231,18 +249,24 @@ function SpecFields({specs,meta,setMeta,newsSections}){
    :<input className="field mt-2" type={opt.date?'date':opt.number?'number':'text'} step={opt.number?'any':undefined} value={value??''} onChange={e=>setMeta(key,opt.number&&e.target.value!==''?Number(e.target.value):e.target.value)}/>}
    {opt.hint&&<p className="mt-1 text-[11px] text-slate-400">{opt.hint}</p>}</div>})}</div>;
 }
-const emptyMinistryDetail={tagline:'',overview:[''],focus:[''],highlights:[{value:'',label:''}],scripture:{text:'',reference:''},stories:[{heading:'',paragraphs:['']}]};
 /** Website sections stored on this entry: page blocks (meta.sections) and ministry pages (meta.detail). */
 function SectionFields({form,meta,setMeta,upload}){
  const {data,error}=useCmsBlocks();
  if(form.type!=='page'&&form.type!=='ministry')return null;
+ if(form.type==='ministry'){
+  return <div className="rounded-xl border border-sky-200 bg-sky-50/40 p-4 space-y-4">
+   <div>
+    <p className="text-sm font-bold text-navy-900">Ministry page (opens when a ministry card is clicked)</p>
+    <p className="mt-1 text-[11px] leading-5 text-slate-500">Edit tagline, overview, focus and stories. Under Major sections, each place has its own History, Articles, Photos, Videos and Events — editable separately. Photos and video thumbnails / MP4s can be uploaded here; approve them in File Uploads before visitors see them.</p>
+   </div>
+   <MinistryDetailFields value={mergeContent(emptyMinistryDetail,meta.detail)} onChange={v=>setMeta('detail',v)} upload={upload}/>
+  </div>;
+ }
  if(error)return <p className="rounded-xl bg-rose-50 px-4 py-3 text-xs text-rose-700">{error}</p>;
  if(!data)return <p className="text-xs text-slate-400">Loading website sections…</p>;
- let title,base,key;
- if(form.type==='page'){const block=data.blocks[form.slug];if(!block)return null;title=block.label;base=block.defaults;key='sections';}
- else{title='Ministry page (opens when a ministry card is clicked)';base=emptyMinistryDetail;key='detail';}
- return <div className="rounded-xl border border-sky-200 bg-sky-50/40 p-4 space-y-4"><div><p className="text-sm font-bold text-navy-900">{title}</p><p className="mt-1 text-[11px] leading-5 text-slate-500">Shows the website's current text. Edit, add, remove or reorder items, then save. Empty text keeps the original wording. Uploaded images must be approved in File Uploads before visitors can see them.</p></div>
-  <AutoFields value={mergeContent(base,meta[key])} template={base} onChange={v=>setMeta(key,v)} upload={upload}/>
+ const block=data.blocks[form.slug];if(!block)return null;
+ return <div className="rounded-xl border border-sky-200 bg-sky-50/40 p-4 space-y-4"><div><p className="text-sm font-bold text-navy-900">{block.label}</p><p className="mt-1 text-[11px] leading-5 text-slate-500">Empty text keeps the original wording. Uploaded images must be approved in File Uploads before visitors can see them.</p></div>
+  <AutoFields value={mergeContent(block.defaults,meta.sections)} template={block.defaults} onChange={v=>setMeta('sections',v)} upload={upload}/>
  </div>;
 }
 function MetaFields({type,slug,meta,setMeta,upload}){
@@ -251,8 +275,19 @@ function MetaFields({type,slug,meta,setMeta,upload}){
  const page=type==='page'&&PAGE_SPECS[slug];
  if(page)return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Page details</p><p className="text-[11px] leading-5 text-slate-400">{page.note}</p><SpecFields specs={page.fields} meta={meta} setMeta={setMeta}/></div>;
  if(META_SPECS[type])return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Details</p><SpecFields specs={META_SPECS[type]} meta={meta} setMeta={setMeta} newsSections={data?.newsSections}/>
-  {type==='news'&&<AutoFields name="gallery" value={Array.isArray(meta.gallery)?meta.gallery:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('gallery',v.length?v:'')} upload={upload} depth={1}/>}</div>;
- if(type==='priest')return <div><label className="form-label">Where serving</label><select className="field mt-2" value={meta.place||'sri-lanka'} onChange={e=>setMeta('place',e.target.value)}>{priestPlaces.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select><p className="mt-1 text-[11px] text-slate-400">Sets the filter group on the Leadership page. Photo: use the cover image below.</p></div>;
+  {type==='library'&&(meta.library_section==='magazine'||meta.library_section==='libraries')&&<div><label className="form-label">Category (tab on the website)</label><select className="field mt-2" value={meta.category||''} onChange={e=>setMeta('category',e.target.value)}><option value="">Select…</option>{(meta.library_section==='magazine'?MAGAZINE_CATS:LIBRARY_CATS).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select></div>}
+  {type==='news'&&<AutoFields name="gallery" value={Array.isArray(meta.gallery)?meta.gallery:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('gallery',v.length?v:'')} upload={upload} depth={1}/>}
+  {type==='international'&&meta.kind!=='formation'&&<>
+   <AutoFields name="missions" value={Array.isArray(meta.missions)?meta.missions:[]} template={[{title:'',summary:''}]} onChange={v=>setMeta('missions',v.length?v:'')} depth={1}/>
+   <AutoFields name="photos" value={Array.isArray(meta.photos)?meta.photos:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('photos',v.length?v:'')} upload={upload} depth={1}/>
+   <p className="text-[11px] text-slate-400">Missions and photos appear on the country detail page. Upload photos here (approve in File Uploads). Cover image below is the card/banner photo.</p>
+  </>}</div>;
+ if(type==='priest')return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Father profile</p>
+  <div><label className="form-label">Where serving</label><select className="field mt-2" value={meta.place||'sri-lanka'} onChange={e=>setMeta('place',e.target.value)}>{priestPlaces.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></div>
+  <div><label className="form-label">Role / ministry line</label><input className="field mt-2" value={meta.role||''} onChange={e=>setMeta('role',e.target.value)} placeholder="e.g. Parish priest · St. Mary’s"/><p className="mt-1 text-[11px] text-slate-400">Shown on the profile page under the name. Short description can also go in “Summary”.</p></div>
+  <AutoFields name="gallery" value={Array.isArray(meta.gallery)?meta.gallery:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('gallery',v.length?v:'')} upload={upload} depth={1}/>
+  <p className="text-[11px] text-slate-400">Cover image below is the main portrait. Extra photos appear in the gallery on the father profile page. Biography: use “Full page content” / body field.</p>
+ </div>;
  if(type!=='leadership')return null;
  const role=meta.role||'',superior=/provincial superior/i.test(role),former=/former provincial/i.test(role);
  return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Leadership details</p>
@@ -261,7 +296,8 @@ function MetaFields({type,slug,meta,setMeta,upload}){
   {superior&&<><div><label className="form-label">In office since (year)</label><input className="field mt-2" value={meta.since||''} onChange={e=>setMeta('since',e.target.value)} placeholder="2023"/></div>
   <div><label className="form-label">Appointments</label><textarea rows={3} className="field mt-2 font-mono text-xs" value={termsText} onChange={e=>{setTermsText(e.target.value);setMeta('terms',textToTerms(e.target.value))}} placeholder={'First term | 10 January 2023 | 17 February 2023'}/><p className="mt-1 text-[11px] text-slate-400">One line per term: name | appointed date | installed date.</p></div></>}
   {!superior&&!former&&<div><label className="form-label">Photo fit</label><select className="field mt-2" value={meta.fit||'contain'} onChange={e=>setMeta('fit',e.target.value==='contain'?'':e.target.value)}><option value="contain">Show the whole photo (cut-out portraits)</option><option value="cover">Fill the card (wide photos with empty edges)</option></select></div>}
-  <p className="text-[11px] text-slate-400 leading-5">{superior?'Shown as the Provincial Superior. Biography: "Full page content". Portrait: cover image (a cut-out PNG looks best).':former?'Shown in the Former Provincials timeline using the name, term and photo (cover image, shown in a circle).':'Shown as a Provincial Council card. Photo: cover image (a cut-out PNG looks best). The term of the first member is used as the council heading.'}</p>
+  {!superior&&<AutoFields name="gallery" value={Array.isArray(meta.gallery)?meta.gallery:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('gallery',v.length?v:'')} upload={upload} depth={1}/>}
+  <p className="text-[11px] text-slate-400 leading-5">{superior?'Shown as the Provincial Superior. Biography: "Full page content". Portrait: cover image (a cut-out PNG looks best).':former?'Shown in the Former Provincials timeline. Click opens the profile page. Biography: Summary + Full page content. Extra photos: gallery below. Portrait: cover image.':'Shown as a Provincial Council card (click opens profile). Photo: cover image. Biography: Summary + Full page content. Extra photos: gallery. The term of the first member is used as the council heading.'}</p>
  </div>;
 }
 // Fields the website reads for each type, with the label shown in the editor. Fields not listed are hidden.
@@ -270,16 +306,17 @@ const FIELDS={
  parish:{title:'Parish name',location_text:'Place'},
  school:{title:'School name (optionally "Name — District")',location_text:'Place (leave empty to use the district from the name)'},
  formation:{title:'House name',location_text:'Place'},
- international:{title:'Country or place'},
+ international:{title:'Country or place',excerpt:'Summary / formation note (shown on the card)'},
  timeline:{title:'Year (used when "Year or date shown" is empty)',excerpt:'What happened (shown on the archive list)',body:'Longer note (optional)',image:'Photo (optional)'},
  bishop:{title:'Name',excerpt:'Short line on the card (optional)',body:'Biography on the profile page',image:'Portrait photo'},
  necrology:{title:'Name (as in the Province list)'},
- leadership:{title:'Name',body:'Biography (Provincial Superior only)',image:'Photo'},
- priest:{title:'Name',image:'Photo'},
+ leadership:{title:'Name',excerpt:'Short summary on the profile',body:'Biography (profile / Superior section)',image:'Photo'},
+ priest:{title:'Name',excerpt:'Short summary on the profile',body:'Biography (full profile text)',image:'Main portrait'},
  location:{title:'Name — District',location_text:'Address'},
  news:{title:'Headline',excerpt:'Summary on news cards',body:'Article (blank line between paragraphs)',location_text:'Place',event_date:'Date',image:'Cover photo'},
  event:{title:'Event name',excerpt:'Summary',location_text:'Place',event_date:'Start date'},
  publication:{title:'Title — Subtitle',excerpt:'Description',media_url:'Link to the latest issue (PDF or web address)'},
+ library:{title:'Title',excerpt:'Short description',event_date:'Date / issue date',image:'Cover image',media_url:'PDF file'},
 };
 const PAGE_FIELDS={
  home:{title:'Entry name',excerpt:'Tagline under the title',body:'Welcome paragraphs (blank line between paragraphs)'},
@@ -291,11 +328,20 @@ function ContentEditor({value,view,onClose,onSaved,notify,role}){
  const [imageBusy,setImageBusy]=useState(false);
  const isNew=!value.id;const canPublish=['admin','publisher'].includes(role);const fields=fieldsFor(form);
  const set=(name,content)=>setForm(a=>({...a,[name]:content}));
- async function uploadImage(file){
+ async function uploadImage(file,opts={}){
   if(demo){notify('Visual demo is read-only.','error');return '';}
-  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){notify('Choose a JPEG, PNG or WebP image.','error');return '';}
-  if(file.size>12*1024*1024){notify('Choose an image smaller than 12 MB.','error');return '';}
-  try{const data=new FormData();data.append('file',file);const {item}=await api('/api/assets',{method:'POST',body:data});notify('Image uploaded. Approve it in File Uploads, then save this entry.','success');return item.url;}
+  const kind=opts.kind||(file.type==='application/pdf'?'pdf':file.type?.startsWith('video/')?'video':'image');
+  if(kind==='pdf'){
+   if(file.type!=='application/pdf'){notify('Choose a PDF file.','error');return '';}
+   if(file.size>12*1024*1024){notify('Choose a PDF smaller than 12 MB.','error');return '';}
+  }else if(kind==='video'){
+   if(file.type!=='video/mp4'){notify('Choose an MP4 video file.','error');return '';}
+   if(file.size>40*1024*1024){notify('Choose a video smaller than 40 MB.','error');return '';}
+  }else{
+   if(!['image/jpeg','image/png','image/webp'].includes(file.type)){notify('Choose a JPEG, PNG or WebP image.','error');return '';}
+   if(file.size>12*1024*1024){notify('Choose an image smaller than 12 MB.','error');return '';}
+  }
+  try{const data=new FormData();data.append('file',file);const {item}=await api('/api/assets',{method:'POST',body:data});notify(`${kind==='pdf'?'PDF':kind==='video'?'Video':'Image'} uploaded. Approve it in File Uploads, then save this entry.`,'success');return item.url;}
   catch(err){notify(err.message,'error');return '';}
  }
  const meta=(()=>{try{const m=JSON.parse(jsonMeta);return m&&typeof m==='object'&&!Array.isArray(m)?m:{}}catch{return {}}})();
@@ -325,7 +371,13 @@ function ContentEditor({value,view,onClose,onSaved,notify,role}){
    <MetaFields type={form.type} slug={form.slug} meta={meta} setMeta={setMeta} upload={uploadImage}/>
    <SectionFields form={form} meta={meta} setMeta={setMeta} upload={uploadImage}/>
    {fields.image&&<CoverImageUpload label={fields.image} value={form.image_url} onChange={url=>set('image_url',url)} api={api} canPublish={canPublish} notify={notify} onBusy={setImageBusy} demo={demo}/>}
-   {fields.media_url&&<div><label className="form-label">{fields.media_url}</label><input type="text" value={form.media_url} onChange={e=>set('media_url',e.target.value)} className="field mt-2" placeholder="https://…"/></div>}
+   {fields.media_url?(form.type==='library'?<div className="rounded-xl border border-slate-200 p-4 space-y-3"><label className="form-label">{fields.media_url}</label>
+    {form.media_url?<p className="text-xs text-emerald-700 break-all">Attached: <a className="font-semibold text-gold-600" href={form.media_url} target="_blank" rel="noreferrer">{form.media_url}</a></p>:null}
+    <input type="file" accept="application/pdf" disabled={imageBusy||demo} className="block w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:p-2.5" onChange={async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;setImageBusy(true);try{const url=await uploadImage(file,{kind:'pdf'});if(url)set('media_url',url)}finally{setImageBusy(false)}}}/>
+    <p className="text-[11px] text-slate-400">Upload a PDF (max 12 MB). Approve it in File Uploads before publishing. Visitors download it from the Library pages.</p>
+    <details><summary className="cursor-pointer text-xs text-slate-500">Or paste a PDF URL</summary><input type="text" value={form.media_url} onChange={e=>set('media_url',e.target.value)} className="field mt-2" placeholder="/api/files/… or https://…"/></details>
+    {form.media_url?<button type="button" className="text-xs font-semibold text-rose-600" onClick={()=>set('media_url','')}>Remove PDF</button>:null}
+   </div>:<div><label className="form-label">{fields.media_url}</label><input type="text" value={form.media_url} onChange={e=>set('media_url',e.target.value)} className="field mt-2" placeholder="https://…"/></div>):null}
    <div className="flex items-center justify-end gap-2"><span className="text-xs text-slate-500">Order on the website (1 = first)</span><input className="field w-20" type="number" value={form.sort_order} onChange={e=>set('sort_order',e.target.value)}/></div>
    <div className="rounded-xl border border-slate-200"><button type="button" onClick={()=>setAdvanced(v=>!v)} className="w-full px-4 py-3 flex justify-between items-center text-xs font-bold text-slate-600">Advanced data (JSON metadata) <ChevronDown size={16} className={advanced?'rotate-180':''}/></button>{advanced&&<div className="p-4 border-t border-slate-200"><textarea spellCheck="false" value={jsonMeta} onChange={e=>setJsonMeta(e.target.value)} rows={8} className="field font-mono text-xs"/><p className="text-[11px] mt-2 text-slate-400">Optional category-specific fields. Avoid sensitive personal information here.</p></div>}</div>
   </div><div className="border-t border-slate-100 bg-white px-6 sm:px-8 py-4 flex justify-end gap-3"><button type="button" className="btn-outline" onClick={onClose}>Cancel</button><button className="btn-primary" type="submit" disabled={busy||imageBusy}>{busy?<RefreshCw  size={16}/>:<Save size={16}/>} {isNew?'Create entry':'Save changes'}</button></div></form>
@@ -415,7 +467,7 @@ function Assets({notify,user}){const [items,setItems]=useState([]),[busy,setBusy
  const reload=()=>api('/api/assets').then(r=>setItems(r.items)).catch(e=>notify(e.message,'error'));useEffect(()=>{reload();},[]);
  async function upload(e){e.preventDefault();if(!file)return;setBusy(true);try{const d=new FormData();d.append('file',file);const r=await api('/api/assets',{method:'POST',body:d});notify('File uploaded as DRAFT. Approve rights before publishing.','success');setFile(null);document.getElementById('asset-file').value='';reload()}catch(err){notify(err.message,'error')}finally{setBusy(false)}}
  async function approve(e){e.preventDefault();try{await api(`/api/assets/${modal.id}`,{method:'PATCH',body:JSON.stringify({status:'published',rights_confirmed:true,alt_text:modal.alt_text,caption:modal.caption||''})});notify('File published. Copy its asset URL for content pages.','success');setModal(null);reload()}catch(err){notify(err.message,'error')}}
- return <div className="space-y-6 "><div className="panel p-6 flex flex-col sm:flex-row gap-6 sm:items-center justify-between"><div><h3 className="section-title">Upload approved media</h3><p className="subcopy mt-1">JPEG, PNG, WebP or PDF · maximum 12 MB · stored as private draft</p></div><form onSubmit={upload} className="flex flex-wrap items-center gap-3"><input id="asset-file" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="text-xs max-w-[210px] file:bg-slate-100 file:border-0 file:rounded-lg file:p-2.5 file:mr-3" onChange={e=>setFile(e.target.files?.[0])}/><button disabled={busy||!file} className="btn-primary"><UploadCloud size={16}/> {busy?'Uploading…':'Upload file'}</button></form></div><div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">{items.map(x=><div key={x.id} className="panel p-5"><div className="h-32 rounded-xl bg-slate-100 flex items-center justify-center text-slate-300">{x.mime_type?.startsWith('image/')?<img src={x.url} alt={x.alt_text||x.original_name} loading="lazy" className="h-full w-full rounded-xl object-contain"/>:<FileText size={35}/>}</div><p className="mt-4 text-sm font-bold text-navy-900 truncate">{x.original_name}</p><p className="text-xs text-slate-400 mt-1">{(x.size_bytes/1024).toFixed(1)} KB · {datePretty(x.created_at)}</p><div className="mt-3 flex justify-between items-center"><Tag value={x.status}/><button onClick={()=>{navigator.clipboard?.writeText(location.origin+x.url);notify('Asset link copied.','success')}} title="Copy asset URL" className="text-slate-400 hover:text-gold-600"><Copy size={17}/></button></div>{x.status==='draft'&&['admin','publisher'].includes(user.role)&&<button className="mt-4 w-full btn-outline text-xs justify-center" onClick={()=>setModal({...x,alt_text:x.alt_text||'',caption:x.caption||''})}>Review & publish</button>}</div>)}{!items.length&&<div className="panel col-span-full"><EmptyState text="No images or documents uploaded yet."/></div>}</div>
+ return <div className="space-y-6 "><div className="panel p-6 flex flex-col sm:flex-row gap-6 sm:items-center justify-between"><div><h3 className="section-title">Upload approved media</h3><p className="subcopy mt-1">JPEG, PNG, WebP, PDF (12 MB) or MP4 video (40 MB) · stored as private draft</p></div><form onSubmit={upload} className="flex flex-wrap items-center gap-3"><input id="asset-file" type="file" accept="image/jpeg,image/png,image/webp,application/pdf,video/mp4" className="text-xs max-w-[210px] file:bg-slate-100 file:border-0 file:rounded-lg file:p-2.5 file:mr-3" onChange={e=>setFile(e.target.files?.[0])}/><button disabled={busy||!file} className="btn-primary"><UploadCloud size={16}/> {busy?'Uploading…':'Upload file'}</button></form></div><div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">{items.map(x=><div key={x.id} className="panel p-5"><div className="h-32 rounded-xl bg-slate-100 flex items-center justify-center text-slate-300">{x.mime_type?.startsWith('image/')?<img src={x.url} alt={x.alt_text||x.original_name} loading="lazy" className="h-full w-full rounded-xl object-contain"/>:x.mime_type?.startsWith('video/')?<video src={x.url} className="h-full w-full rounded-xl object-contain" muted playsInline/>:<FileText size={35}/>}</div><p className="mt-4 text-sm font-bold text-navy-900 truncate">{x.original_name}</p><p className="text-xs text-slate-400 mt-1">{(x.size_bytes/1024).toFixed(1)} KB · {datePretty(x.created_at)}</p><div className="mt-3 flex justify-between items-center"><Tag value={x.status}/><button onClick={()=>{navigator.clipboard?.writeText(location.origin+x.url);notify('Asset link copied.','success')}} title="Copy asset URL" className="text-slate-400 hover:text-gold-600"><Copy size={17}/></button></div>{x.status==='draft'&&['admin','publisher'].includes(user.role)&&<button className="mt-4 w-full btn-outline text-xs justify-center" onClick={()=>setModal({...x,alt_text:x.alt_text||'',caption:x.caption||''})}>Review & publish</button>}</div>)}{!items.length&&<div className="panel col-span-full"><EmptyState text="No images or documents uploaded yet."/></div>}</div>
  {modal&&<Modal title="Approve media for publication" close={()=>setModal(null)}><form className="space-y-5" onSubmit={approve}><p className="text-xs text-slate-500">Only publish media with the Province's permission. Obtain consent for identifiable children or sensitive cases.</p><div><label className="form-label">Alternative text *</label><input className="field mt-2" required value={modal.alt_text} onChange={e=>setModal(a=>({...a,alt_text:e.target.value}))} placeholder="Meaningful image description"/></div><div><label className="form-label">Caption / photo credit</label><textarea rows={3} className="field mt-2" value={modal.caption} onChange={e=>setModal(a=>({...a,caption:e.target.value}))}/></div><button className="btn-primary w-full justify-center"><Check size={16}/> Confirm rights & publish</button></form></Modal>}</div>
 }
 function Team({notify}){

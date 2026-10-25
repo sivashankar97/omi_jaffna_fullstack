@@ -11,7 +11,7 @@ export function MinistryExplorer({ ministries }: { ministries: Ministry[] }) {
       {ministries.map((ministry, index) => (
         <Reveal
           id={ministryAnchor(ministry.number)}
-          key={ministry.number}
+          key={ministryHref(ministry)}
           delay={(index % 3) * 90}
           className="h-full scroll-mt-80"
         >

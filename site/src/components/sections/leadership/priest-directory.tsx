@@ -1,7 +1,9 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Link from "next/link"
 
+import { fatherHref } from "@/config/navigation"
 import type { Priest, PriestPlace } from "@/content/priests"
 import { cn } from "cn"
 import { OblateFatherCard } from "./oblate-father-card"
@@ -65,8 +67,7 @@ export function PriestDirectory({ priests }: { priests: Priest[] }) {
         </p>
         <h2 className="mt-3 text-sm font-semibold tracking-[0.18em] text-[#0077b6] uppercase">Oblate priests</h2>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5c6b7a]">
-          Each card has a place for a portrait. The circles are a sample until a photograph is
-          added beside the name. {priests.length} names are listed:{" "}
+          Open any card for that Father’s profile, biography and photos. {priests.length} names are listed:{" "}
           {priests.filter((priest) => priest.place === "sri-lanka").length} in Sri Lanka,{" "}
           {priests.filter((priest) => priest.place === "abroad").length} outside Sri Lanka and{" "}
           {priests.filter((priest) => priest.place === "out-of-province").length} serving out of province.
@@ -117,12 +118,18 @@ export function PriestDirectory({ priests }: { priests: Priest[] }) {
                 <h3 className="font-heading text-xl">{group.title}</h3>
                 <ul className="mt-6 grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {people.map((priest) => (
-                    <li key={priest.name} className="flex justify-center">
-                      <OblateFatherCard
-                        name={priest.name}
-                        place={priest.place}
-                        image={priest.image}
-                      />
+                    <li key={priest.slug || priest.name} className="flex justify-center">
+                      <Link
+                        href={fatherHref(priest)}
+                        className="block w-full max-w-[340px] rounded-[1.25rem] outline-none focus-visible:ring-2 focus-visible:ring-[#17b3c6] focus-visible:ring-offset-2"
+                        aria-label={`Open profile for ${priest.name}`}
+                      >
+                        <OblateFatherCard
+                          name={priest.name}
+                          place={priest.place}
+                          image={priest.image}
+                        />
+                      </Link>
                     </li>
                   ))}
                 </ul>

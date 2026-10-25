@@ -1,6 +1,8 @@
 export type NavSection = {
   label: string
   id: string
+  /** When set, dropdown item links here instead of `parent#id`. */
+  href?: string
 }
 
 export type NavItem = {

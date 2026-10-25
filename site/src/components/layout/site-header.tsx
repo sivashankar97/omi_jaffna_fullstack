@@ -233,7 +233,7 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
                             >
                               <SheetClose asChild>
                                 <Link
-                                  href={`${item.href}#${section.id}`}
+                                  href={section.href || `${item.href}#${section.id}`}
                                   className="block px-4 py-3 text-sm font-semibold tracking-wide text-[#023e8a] uppercase transition hover:bg-[#e7fbff]"
                                 >
                                   {section.label}
@@ -300,7 +300,7 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
                         {item.sections.map((section, index) => (
                           <Link
                             key={section.id}
-                            href={`${item.href}#${section.id}`}
+                            href={section.href || `${item.href}#${section.id}`}
                             onClick={() => setOpenHref(null)}
                             className="menu-row block border-b border-[#edf2f3] px-4 py-3 text-sm font-medium transition last:border-b-0 hover:bg-[#f0f8f8] focus-visible:bg-[#f0f8f8] focus-visible:outline-none"
                             style={{ animationDelay: `${index * 20}ms` }}

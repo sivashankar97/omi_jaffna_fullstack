@@ -290,7 +290,8 @@ const PUBLIC_META_KEYS=[
  'role','term','term_in_source','since','terms','section','end_date','date_display','subtitle','kind','place',
  'district','purpose','contact','phone','email','lat','lng',
  'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample','sections','detail','about_heading','about','mission','fit',
- 'born','born_at','died','died_at','register_no','office'
+ 'born','born_at','died','died_at','register_no','office',
+ 'category','region','missions','photos','library_section','role'
 ];
 app.get('/api/public/items',asyncRoute(async(req,res)=>{
  const type=String(req.query.type||'page');if(!TYPES[type])return bad(res,'Invalid type');
@@ -321,27 +322,43 @@ app.get('/api/public/contacts',asyncRoute(async(_req,res)=>{
 }));
 app.get('/api/settings',auth,cmsOnly,asyncRoute(async(_req,res)=>{const r=await query('SELECT key,value FROM site_settings');res.json({settings:Object.fromEntries(r.rows.map(x=>[x.key,x.value]))});}));
 app.get('/api/users',auth,allow('admin'),asyncRoute(async(_req,res)=>{const r=await query('SELECT id,name,email,role,active,father_id,date_of_birth,mobile_number,created_at FROM users ORDER BY created_at');res.json({items:r.rows});}));
-const allowedMime={'image/jpeg':'.jpg','image/png':'.png','image/webp':'.webp','application/pdf':'.pdf'};
-const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:12*1024*1024},fileFilter:(_req,file,cb)=>allowedMime[file.mimetype]?cb(null,true):cb(new Error('Only JPEG, PNG, WebP or PDF allowed'))});
+const allowedMime={'image/jpeg':'.jpg','image/png':'.png','image/webp':'.webp','application/pdf':'.pdf','video/mp4':'.mp4'};
+const imageOrPdfMime=new Set(['image/jpeg','image/png','image/webp','application/pdf']);
+const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:40*1024*1024},fileFilter:(_req,file,cb)=>allowedMime[file.mimetype]?cb(null,true):cb(new Error('Only JPEG, PNG, WebP, PDF or MP4 allowed'))});
 const signatureOK=(buf,mime)=>{
  if(mime==='image/jpeg')return buf[0]===255&&buf[1]===216&&buf[2]===255;
  if(mime==='image/png')return buf.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]));
  if(mime==='image/webp')return buf.toString('ascii',0,4)==='RIFF'&&buf.toString('ascii',8,12)==='WEBP';
  if(mime==='application/pdf')return buf.toString('ascii',0,5)==='%PDF-';
+ if(mime==='video/mp4')return buf.length>=8&&buf.toString('ascii',4,8)==='ftyp';
  return false;
+};
+const enforceUploadSize=(file)=>{
+ if(imageOrPdfMime.has(file.mimetype)&&file.size>12*1024*1024){const err=new Error('Images and PDFs must be 12 MB or smaller');err.status=400;throw err;}
+ if(file.mimetype==='video/mp4'&&file.size>40*1024*1024){const err=new Error('MP4 videos must be 40 MB or smaller');err.status=400;throw err;}
 };
 app.post('/api/assets',auth,allow('admin','editor','publisher'),upload.single('file'),asyncRoute(async(req,res)=>{
  if(!req.file)return bad(res,'File required');
+ enforceUploadSize(req.file);
  if(!signatureOK(req.file.buffer.subarray(0,16),req.file.mimetype))return bad(res,'File signature does not match its format');
  const filename=randomUUID()+allowedMime[req.file.mimetype];
  await saveFile(filename,req.file.buffer);
+ // Admins/publishers: publish immediately so block/logo URLs work on the public site.
+ // Editors still upload as draft until a publisher approves.
+ const publishNow=['admin','publisher'].includes(req.session.role);
  let r;
- try{r=await query('INSERT INTO media_assets(filename,original_name,mime_type,size_bytes,uploaded_by) VALUES($1,$2,$3,$4,$5) RETURNING *',[filename,req.file.originalname.slice(0,255),req.file.mimetype,req.file.size,req.session.sub]);}
- catch(e){await removeFile(filename);throw e;}
+ try{
+  r=await query(
+   `INSERT INTO media_assets(filename,original_name,mime_type,size_bytes,uploaded_by,status,rights_confirmed)
+    VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+   [filename,req.file.originalname.slice(0,255),req.file.mimetype,req.file.size,req.session.sub,publishNow?'published':'draft',publishNow]
+  );
+ }catch(e){await removeFile(filename);throw e;}
  await audit(req.session.sub,'upload','asset',r.rows[0].id);res.status(201).json({item:{...r.rows[0],url:`/api/files/${r.rows[0].id}`}});
 }));
 app.post('/api/father/upload',auth,fatherOnly,upload.single('file'),asyncRoute(async(req,res)=>{
  if(!req.file)return bad(res,'File required');
+ enforceUploadSize(req.file);
  if(!signatureOK(req.file.buffer.subarray(0,16),req.file.mimetype))return bad(res,'File signature does not match its format');
  const filename=randomUUID()+allowedMime[req.file.mimetype];
  await saveFile(filename,req.file.buffer);
@@ -402,7 +419,7 @@ app.use((err,_req,res,_next)=>{
  }
  if(err?.code==='23503')return bad(res,'Related record prevents this operation',409);
  if(err instanceof multer.MulterError)return bad(res,err.message);
- if(err?.message?.startsWith('Only JPEG'))return bad(res,err.message);
+ if(err?.message?.startsWith('Only JPEG')||err?.message?.includes('must be'))return bad(res,err.message);
  return bad(res,process.env.NODE_ENV==='production'?'Unexpected server error':(err.message||'Server error'),500);
 });
 

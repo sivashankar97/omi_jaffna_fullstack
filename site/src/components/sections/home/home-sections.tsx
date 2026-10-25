@@ -10,6 +10,7 @@ import { HomeContact } from "@/components/sections/home/home-contact"
 import { JoinUs } from "@/components/sections/home/join-us"
 import { MediaHighlights } from "@/components/sections/home/media-highlights"
 import { ProvinceCalendar } from "@/components/sections/home/province-calendar"
+import { WelcomeScene } from "@/components/sections/home/welcome-scene"
 import { NewsMarquee } from "@/components/sections/news/news-marquee"
 import { getBlock, getEvents, getHomeContent, getMinistries, getNews } from "@/lib/cms"
 
@@ -34,45 +35,45 @@ export async function HomeSections() {
   const paths = home.paths.map((path, index) => ({ ...pathStyles[index % pathStyles.length], ...path }))
   return (
     <>
-      <section id="welcome" className="welcome-stage relative scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
-        <div className="welcome-band" aria-hidden="true" />
-        <Reveal className="welcome-card relative mx-auto grid max-w-6xl overflow-hidden lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="px-7 py-10 sm:px-12 sm:py-14">
-            <p className="welcome-ink font-heading text-4xl leading-tight font-semibold sm:text-5xl">Welcome</p>
-            <h2 className="welcome-soft mt-3 text-sm font-semibold tracking-[0.22em] uppercase">
-              {home.welcome.kicker}
-            </h2>
-            {welcome.map((paragraph) => (
-              <p key={paragraph} className="welcome-soft mt-5 max-w-xl text-base leading-7">
-                {paragraph}
-              </p>
-            ))}
-            <dl className="mt-7 grid max-w-md grid-cols-3 gap-3">
-              {home.welcome.stats.map((stat) => (
-                <div key={stat.label} className="welcome-stat rounded-2xl px-3 py-3">
-                  <dt className="welcome-soft text-[11px] tracking-[0.16em] uppercase">{stat.label}</dt>
-                  <dd className="welcome-ink mt-1 font-heading text-2xl font-semibold sm:text-3xl">{stat.value}</dd>
-                </div>
-              ))}
-            </dl>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/charism#about" className="welcome-btn-solid rounded-full px-5 py-2.5 text-sm font-bold">
-                Our story
-              </Link>
-              <Link href="/ministries" className="welcome-btn-soft rounded-full px-5 py-2.5 text-sm font-bold">
-                Our ministries
-              </Link>
-            </div>
-          </div>
-          <div className="welcome-photo flex items-center justify-center p-6 sm:p-10">
-            <img
-              src={home.welcome.image}
-              alt={home.welcome.imageAlt}
-              className="welcome-float h-auto max-h-[26rem] w-full rounded-[1.4rem] object-contain"
-            />
-          </div>
-        </Reveal>
+      <section id="welcome" className="welcome-stage relative scroll-mt-28 overflow-hidden px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
+        <WelcomeScene
+          badge={home.welcome.badge}
+          eyebrow={home.welcome.eyebrow}
+          title={home.welcome.title}
+          highlight={home.welcome.highlight}
+          lede={welcome[0] ? welcome[0] : home.welcome.lede}
+          cards={home.welcome.cards ?? []}
+        />
       </section>
+
+      {home.inspiration?.quote ? (
+        <section
+          id="daily-inspiration"
+          className="scroll-mt-28 relative isolate overflow-hidden bg-gradient-to-br from-[#03202b] via-[#06394a] to-[#0a5062] px-4 py-16 text-center text-white sm:px-8 sm:py-20"
+        >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-32 left-1/4 -z-10 size-[22rem] rounded-full bg-[#17b3c6] opacity-25 blur-[110px]"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-24 right-1/5 -z-10 size-[18rem] rounded-full bg-[#ffcf4a] opacity-10 blur-[100px]"
+          />
+          <Reveal from="up" className="mx-auto max-w-3xl">
+            <p className="text-xs font-bold tracking-[0.28em] text-[#ffcf4a] uppercase sm:text-sm">
+              {home.inspiration.kicker}
+            </p>
+            <blockquote className="mt-6 font-heading text-3xl leading-snug font-semibold italic sm:text-4xl sm:leading-snug">
+              “{home.inspiration.quote}”
+            </blockquote>
+            {home.inspiration.attribution ? (
+              <footer className="mt-5 text-sm font-semibold tracking-[0.18em] text-[#7fe3ef] uppercase">
+                — {home.inspiration.attribution}
+              </footer>
+            ) : null}
+          </Reveal>
+        </section>
+      ) : null}
 
       <section id="pillars" className="pillar-stage scroll-mt-80 overflow-hidden px-4 py-20 sm:px-8">
         <div className="mx-auto max-w-6xl text-center">
@@ -125,7 +126,7 @@ export async function HomeSections() {
           <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {ministries.slice(0, 6).map((ministry, index) => (
               <Reveal
-                key={ministry.number}
+                key={`${ministry.number}-${ministry.title}`}
                 from={index % 3 === 0 ? "left" : index % 3 === 2 ? "right" : "zoom"}
                 delay={(index % 3) * 120}
                 className="h-full"

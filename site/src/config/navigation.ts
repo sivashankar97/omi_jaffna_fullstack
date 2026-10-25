@@ -26,6 +26,13 @@ export function ministryHref(ministry: { number: string; title: string }) {
   return `/ministries/${ministrySlug(ministry)}`
 }
 
+export function ministrySectionHref(
+  ministry: { number: string; title: string },
+  sectionSlug: string
+) {
+  return `${ministryHref(ministry)}/${anchorId(sectionSlug)}`
+}
+
 export function parishAnchor(name: string) {
   return `parish-${anchorId(name)}`
 }
@@ -36,6 +43,22 @@ export function houseAnchor(name: string) {
 
 export function bishopHref(bishop: { slug: string }) {
   return `/history/bishops/${bishop.slug}`
+}
+
+export function fatherHref(priest: { slug: string }) {
+  return `/leadership/fathers/${anchorId(priest.slug)}`
+}
+
+export function councilHref(person: { slug: string }) {
+  return `/leadership/council/${anchorId(person.slug)}`
+}
+
+export function formerProvincialHref(person: { slug: string }) {
+  return `/leadership/former/${anchorId(person.slug)}`
+}
+
+export function internationalCountryHref(slug: string) {
+  return `/international/${anchorId(slug)}`
 }
 
 export const mediaSections = [
@@ -57,6 +80,7 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
       sections: [
         { label: "Province", id: "hero" },
         { label: "Welcome", id: "welcome" },
+        { label: "Daily inspiration", id: "daily-inspiration" },
         { label: "Our calling", id: "pillars" },
         { label: "Ministries", id: "ministries" },
         { label: "Latest news", id: "latest-news" },
@@ -156,13 +180,23 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
       href: "/news",
       description: "Province news, feasts and pastoral updates",
       sections: [
-        { label: "Magazine", id: "news-intro" },
         { label: "Province events", id: "province-events" },
         { label: "Parish events", id: "parish-events" },
         { label: "Liturgical celebrations", id: "liturgical" },
         { label: "Formation activities", id: "formation" },
         { label: "Youth events", id: "youth" },
         { label: "Social initiatives", id: "social" },
+      ],
+    },
+    {
+      label: "Library",
+      href: "/library",
+      description: "Magazines, libraries, new books and articles",
+      sections: [
+        { label: "Magazine", id: "magazine", href: "/library/magazines" },
+        { label: "Libraries", id: "libraries", href: "/library/libraries" },
+        { label: "Books", id: "books", href: "/library/books" },
+        { label: "Articles", id: "articles", href: "/library/articles" },
       ],
     },
     {
@@ -177,9 +211,6 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
           id: anchorId(label),
         })),
         { label: "Publications", id: "publications" },
-        { label: "Yazha-Thoni", id: "yazha-thoni" },
-        { label: "Zeal", id: "zeal" },
-        { label: "Naan", id: "naan" },
       ],
     },
     {

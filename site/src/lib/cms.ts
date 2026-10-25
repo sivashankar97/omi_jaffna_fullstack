@@ -4,6 +4,10 @@ import { anchorId } from "@/config/navigation"
 import { blocks, mergeContent, type BlockContent, type BlockId } from "@/content/blocks"
 import { emptyMinistryDetail, type MinistryDetail } from "@/content/ministry-details"
 import type { MapKind, MapLocation } from "@/content/map-locations"
+import {
+  categoryLabel,
+  type LibrarySectionId,
+} from "@/content/library"
 import { newsSections, type NewsArticle, type NewsSectionId } from "@/content/news"
 import type { Priest, PriestPlace } from "@/content/priests"
 
@@ -31,6 +35,7 @@ type CmsType =
   | "bishop"
   | "necrology"
   | "school"
+  | "library"
 
 export type CmsItem = {
   id: string
@@ -83,8 +88,27 @@ export type NecrologyPerson = {
   diedAt: string
   role: NecrologyRole
 }
-export type CouncilMember = { role: string; name: string; image?: string; cover?: boolean; term?: string }
-export type FormerProvincial = { name: string; dates: string; image?: string }
+export type LeadershipPhoto = { src: string; alt: string; caption: string }
+export type CouncilMember = {
+  slug: string
+  role: string
+  name: string
+  summary: string
+  bio: string
+  image?: string
+  cover?: boolean
+  term?: string
+  gallery: LeadershipPhoto[]
+}
+export type FormerProvincial = {
+  slug: string
+  name: string
+  dates: string
+  summary: string
+  bio: string
+  image?: string
+  gallery: LeadershipPhoto[]
+}
 export type FormationHouse = { name: string; place: string }
 export type Publication = { id: string; title: string; subtitle: string; text: string; href?: string }
 export type Gathering = {
@@ -200,7 +224,7 @@ const splitTitle = (title: string) => {
 export const getMinistries = () =>
   fromCms<Ministry[]>("ministry", (items) =>
     items.map((item, index) => ({
-      number: String(item.sort_order || index + 1).padStart(2, "0"),
+      number: String(item.sort_order ?? index + 1).padStart(2, "0"),
       title: item.title,
       place: item.location_text,
       summary: item.excerpt,
@@ -284,17 +308,92 @@ export const getFormationHouses = () =>
     items.map((item) => ({ name: item.title, place: item.location_text }))
   )
 
+export type MissionPhoto = { src: string; alt: string; caption: string }
+export type MissionEntry = { title: string; summary: string }
+export type MissionCountry = {
+  slug: string
+  name: string
+  category: "1" | "2"
+  region: string
+  summary: string
+  body: string
+  image?: string
+  missions: MissionEntry[]
+  photos: MissionPhoto[]
+}
+
 const isFormationAbroad = (item: CmsItem) => text(item, "kind") === "formation"
 
+const toMissionPhoto = (value: unknown): MissionPhoto | null => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null
+  const row = value as Record<string, unknown>
+  const src = typeof row.src === "string" ? row.src.trim() : ""
+  if (!src) return null
+  return {
+    src,
+    alt: typeof row.alt === "string" ? row.alt : "",
+    caption: typeof row.caption === "string" ? row.caption : "",
+  }
+}
+
+const toMissionEntry = (value: unknown): MissionEntry | null => {
+  if (typeof value === "string" && value.trim()) return { title: value.trim(), summary: "" }
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null
+  const row = value as Record<string, unknown>
+  const title = typeof row.title === "string" ? row.title.trim() : ""
+  const summary = typeof row.summary === "string" ? row.summary.trim() : ""
+  if (!title && !summary) return null
+  return { title: title || "Mission", summary }
+}
+
+const toMissionCountry = (item: CmsItem): MissionCountry | null => {
+  if (isFormationAbroad(item)) return null
+  const categoryRaw = text(item, "category")
+  const category = categoryRaw === "2" ? "2" : "1"
+  const photos = Array.isArray(item.meta.photos)
+    ? item.meta.photos.map(toMissionPhoto).filter((photo): photo is MissionPhoto => Boolean(photo))
+    : []
+  const missions = Array.isArray(item.meta.missions)
+    ? item.meta.missions.map(toMissionEntry).filter((mission): mission is MissionEntry => Boolean(mission))
+    : []
+  return {
+    slug: item.slug || anchorId(item.title),
+    name: item.title,
+    category,
+    region: text(item, "region") || "Mission",
+    summary: item.excerpt,
+    body: item.body,
+    image: item.image_url || photos[0]?.src || undefined,
+    missions,
+    photos,
+  }
+}
+
 export const getMissionCountries = () =>
-  fromCms<string[]>(
-    "international",
-    (items) => items.map((item) => item.title),
-    (item) => !isFormationAbroad(item)
+  fromCms<MissionCountry[]>("international", (items) =>
+    items.map(toMissionCountry).filter((country): country is MissionCountry => Boolean(country))
   )
 
+export const getMissionCountry = async (slug: string) =>
+  (await getMissionCountries()).find((country) => country.slug === slug || anchorId(country.name) === slug)
+
+export type FormationAbroadPlace = {
+  slug: string
+  name: string
+  region: string
+  summary: string
+}
+
 export const getFormationAbroad = () =>
-  fromCms<string[]>("international", (items) => items.map((item) => item.title), isFormationAbroad)
+  fromCms<FormationAbroadPlace[]>("international", (items) =>
+    items.map((item) => ({
+      slug: item.slug || anchorId(item.title),
+      name: item.title,
+      region: text(item, "region") || "Abroad",
+      summary: item.excerpt,
+    })),
+    isFormationAbroad
+  )
 
 export const getPublications = () =>
   fromCms<Publication[]>("publication", (items) =>
@@ -308,6 +407,50 @@ export const getPublications = () =>
         href: item.media_url || undefined,
       }
     })
+  )
+
+export type LibraryItem = {
+  id: string
+  slug: string
+  title: string
+  summary: string
+  section: LibrarySectionId
+  category: string
+  categoryLabel: string
+  cover?: string
+  pdfUrl?: string
+  dateLabel: string
+}
+
+const librarySections = new Set<LibrarySectionId>(["magazine", "libraries", "books", "articles"])
+
+const toLibraryItem = (item: CmsItem): LibraryItem | null => {
+  const sectionRaw = text(item, "library_section")
+  const section = librarySections.has(sectionRaw as LibrarySectionId)
+    ? (sectionRaw as LibrarySectionId)
+    : null
+  if (!section) return null
+  const category = text(item, "category")
+  return {
+    id: item.id,
+    slug: item.slug,
+    title: item.title,
+    summary: item.excerpt,
+    section,
+    category,
+    categoryLabel: category ? categoryLabel(section, category) : "",
+    cover: item.image_url || undefined,
+    pdfUrl: item.media_url || undefined,
+    dateLabel: item.event_date ? formatDate(item.event_date) : text(item, "date_display"),
+  }
+}
+
+export const getLibraryItems = (section?: LibrarySectionId) =>
+  fromCms<LibraryItem[]>("library", (items) =>
+    items
+      .map(toLibraryItem)
+      .filter((item): item is LibraryItem => Boolean(item))
+      .filter((item) => (section ? item.section === section : true))
   )
 
 const isSuperior = (item: CmsItem) => /provincial superior/i.test(text(item, "role"))
@@ -326,6 +469,45 @@ const superiorTerms = (item: CmsItem): SuperiorTerm[] => {
     .filter((term) => term.label)
 }
 
+const toLeadershipPhoto = (value: unknown): LeadershipPhoto | null => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null
+  const row = value as Record<string, unknown>
+  const src = typeof row.src === "string" ? row.src.trim() : ""
+  if (!src) return null
+  return {
+    src,
+    alt: typeof row.alt === "string" ? row.alt : "",
+    caption: typeof row.caption === "string" ? row.caption : "",
+  }
+}
+
+const leadershipGallery = (item: CmsItem): LeadershipPhoto[] =>
+  Array.isArray(item.meta.gallery)
+    ? item.meta.gallery.map(toLeadershipPhoto).filter((photo): photo is LeadershipPhoto => Boolean(photo))
+    : []
+
+const toCouncilMember = (item: CmsItem): CouncilMember => ({
+  slug: item.slug || anchorId(item.title),
+  role: text(item, "role") || "Council",
+  name: item.title,
+  summary: item.excerpt,
+  bio: item.body,
+  image: item.image_url || undefined,
+  cover: text(item, "fit") === "cover",
+  term: text(item, "term") || text(item, "term_in_source") || undefined,
+  gallery: leadershipGallery(item),
+})
+
+const toFormerProvincial = (item: CmsItem): FormerProvincial => ({
+  slug: item.slug || anchorId(item.title),
+  name: item.title,
+  dates: text(item, "term") || item.excerpt,
+  summary: item.excerpt,
+  bio: item.body,
+  image: item.image_url || undefined,
+  gallery: leadershipGallery(item),
+})
+
 export const getLeadership = () =>
   fromCms<Leadership>(
     "leadership",
@@ -343,45 +525,56 @@ export const getLeadership = () =>
               terms: superiorTerms(superior),
             }
           : null,
-        council: items
-          .filter((item) => !isSuperior(item))
-          .map((item) => ({
-            role: text(item, "role") || "Council",
-            name: item.title,
-            image: item.image_url || undefined,
-            cover: text(item, "fit") === "cover",
-            term: text(item, "term") || text(item, "term_in_source") || undefined,
-          })),
+        council: items.filter((item) => !isSuperior(item)).map(toCouncilMember),
       }
     },
     (item) => !isFormerProvincial(item)
   )
 
 export const getFormerProvincials = () =>
-  fromCms<FormerProvincial[]>(
-    "leadership",
-    (items) =>
-      items.map((item) => ({
-        name: item.title,
-        dates: text(item, "term") || item.excerpt,
-        image: item.image_url || undefined,
-      })),
-    isFormerProvincial
-  )
+  fromCms<FormerProvincial[]>("leadership", (items) => items.map(toFormerProvincial), isFormerProvincial)
+
+export const getCouncilMember = async (slug: string) =>
+  (await getLeadership()).council.find((person) => person.slug === slug || anchorId(person.name) === slug)
+
+export const getFormerProvincial = async (slug: string) =>
+  (await getFormerProvincials()).find((person) => person.slug === slug || anchorId(person.name) === slug)
 
 const priestPlaces = new Set<PriestPlace>(["sri-lanka", "abroad", "out-of-province"])
 
-export const getPriests = () =>
-  fromCms<Priest[]>("priest", (items) =>
-    items.map((item) => {
-      const place = text(item, "place") as PriestPlace
-      return {
-        name: item.title,
-        place: priestPlaces.has(place) ? place : "sri-lanka",
-        image: item.image_url || undefined,
-      }
-    })
-  )
+const toPriestPhoto = (value: unknown): Priest["gallery"][number] | null => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null
+  const row = value as Record<string, unknown>
+  const src = typeof row.src === "string" ? row.src.trim() : ""
+  if (!src) return null
+  return {
+    src,
+    alt: typeof row.alt === "string" ? row.alt : "",
+    caption: typeof row.caption === "string" ? row.caption : "",
+  }
+}
+
+const toPriest = (item: CmsItem): Priest => {
+  const place = text(item, "place") as PriestPlace
+  const gallery = Array.isArray(item.meta.gallery)
+    ? item.meta.gallery.map(toPriestPhoto).filter((photo): photo is Priest["gallery"][number] => Boolean(photo))
+    : []
+  return {
+    slug: item.slug || anchorId(item.title),
+    name: item.title,
+    place: priestPlaces.has(place) ? place : "sri-lanka",
+    role: text(item, "role") || item.excerpt,
+    summary: item.excerpt,
+    bio: item.body,
+    image: item.image_url || undefined,
+    gallery,
+  }
+}
+
+export const getPriests = () => fromCms<Priest[]>("priest", (items) => items.map(toPriest))
+
+export const getPriest = async (slug: string) =>
+  (await getPriests()).find((priest) => priest.slug === slug || anchorId(priest.name) === slug)
 
 const mapKinds = new Set<MapKind>(["parish", "house", "ministry", "formation"])
 const hasCoordinates = (item: CmsItem) =>

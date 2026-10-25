@@ -430,7 +430,7 @@ function Witnesses({ ministries }: { ministries: Ministry[] }) {
       <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {ministries.map((item, index) => (
           <li
-            key={item.number}
+            key={`${item.number}-${item.title}`}
             className="media-in rounded-2xl ring-1 ring-[#d9eef3] bg-[#f4fbfd] p-4"
             style={{ animationDelay: `${Math.min(index, 8) * 30}ms` }}
           >

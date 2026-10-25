@@ -1,12 +1,13 @@
 import type { Metadata } from "next"
 import Image from "next/image"
+import Link from "next/link"
 import { CalendarCheck2 } from "lucide-react"
 
 import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { PriestDirectory } from "@/components/sections/leadership/priest-directory"
 import { SectionHeading } from "@/components/sections/section-heading"
-import { anchorId } from "@/config/navigation"
+import { anchorId, councilHref, formerProvincialHref } from "@/config/navigation"
 import { portraitCrops, type PortraitCrop } from "@/content/leadership"
 import { isUpload } from "@/content/site-info"
 import { getBlock, getFormerProvincials, getLeadership, getPriests } from "@/lib/cms"
@@ -181,53 +182,59 @@ export default async function LeadershipPage() {
                   delay={(index % 3) * 120}
                   className="group scroll-mt-80"
                 >
-                  <article className="relative mx-auto aspect-[4/5] w-full max-w-xs transition duration-500 group-hover:-translate-y-2">
-                    <div
-                      aria-hidden="true"
-                      className="absolute top-0 bottom-0 left-0 w-[46%] overflow-hidden rounded-t-[3rem] rounded-b-[1.5rem] shadow-[0_30px_60px_-30px_rgba(3,32,43,0.7)]"
-                      style={{ background: "linear-gradient(180deg, #17b3c6 0%, #0e98ac 38%)" }}
-                    >
-                      <span className="absolute inset-x-0 top-5 flex justify-center font-heading text-6xl font-bold tracking-wide text-white/15 uppercase [writing-mode:vertical-rl] rotate-180">
-                        Council
-                      </span>
-                    </div>
-                    <div
-                      aria-hidden="true"
-                      className="absolute inset-x-0 top-[38%] bottom-0 rounded-[1.5rem] rounded-tl-none shadow-[0_30px_60px_-30px_rgba(3,32,43,0.7)]"
-                      style={{ background: "linear-gradient(180deg, #0e98ac 0%, #0a5062 70%, #06394a 100%)" }}
-                    />
-                    <span
-                      aria-hidden="true"
-                      className="absolute top-[38%] right-5 z-10 h-1 w-10 rounded-full bg-[#ffcf4a] transition-all duration-500 group-hover:w-16"
-                    />
-
-                    {photo ? (
-                      <div className="absolute inset-x-0 top-[5%] bottom-0 z-10 overflow-hidden rounded-b-[1.5rem]">
-                        <Image
-                          src={photo}
-                          alt={person.name}
-                          fill
-                          unoptimized={isUpload(photo)}
-                          sizes="(min-width: 1024px) 20rem, (min-width: 640px) 45vw, 90vw"
-                          className={`origin-bottom object-bottom drop-shadow-[0_18px_24px_rgba(3,32,43,0.45)] transition duration-700 group-hover:scale-[1.04] ${
-                            person.cover ? "object-cover" : "object-contain"
-                          }`}
-                        />
-                      </div>
-                    ) : (
-                      <div className="absolute inset-x-0 top-[22%] z-10 flex justify-center">
-                        <span className="flex size-32 items-center justify-center rounded-full bg-white/15 font-heading text-4xl font-bold text-white ring-4 ring-white/25 backdrop-blur-sm transition duration-500 group-hover:scale-105">
-                          {initials(person.name)}
+                  <Link
+                    href={councilHref(person)}
+                    className="block outline-none focus-visible:ring-2 focus-visible:ring-[#17b3c6] focus-visible:ring-offset-2"
+                    aria-label={`Open profile for ${person.name}`}
+                  >
+                    <article className="relative mx-auto aspect-[4/5] w-full max-w-xs transition duration-500 group-hover:-translate-y-2">
+                      <div
+                        aria-hidden="true"
+                        className="absolute top-0 bottom-0 left-0 w-[46%] overflow-hidden rounded-t-[3rem] rounded-b-[1.5rem] shadow-[0_30px_60px_-30px_rgba(3,32,43,0.7)]"
+                        style={{ background: "linear-gradient(180deg, #17b3c6 0%, #0e98ac 38%)" }}
+                      >
+                        <span className="absolute inset-x-0 top-5 flex justify-center font-heading text-6xl font-bold tracking-wide text-white/15 uppercase [writing-mode:vertical-rl] rotate-180">
+                          Council
                         </span>
                       </div>
-                    )}
+                      <div
+                        aria-hidden="true"
+                        className="absolute inset-x-0 top-[38%] bottom-0 rounded-[1.5rem] rounded-tl-none shadow-[0_30px_60px_-30px_rgba(3,32,43,0.7)]"
+                        style={{ background: "linear-gradient(180deg, #0e98ac 0%, #0a5062 70%, #06394a 100%)" }}
+                      />
+                      <span
+                        aria-hidden="true"
+                        className="absolute top-[38%] right-5 z-10 h-1 w-10 rounded-full bg-[#ffcf4a] transition-all duration-500 group-hover:w-16"
+                      />
 
-                    <div className="absolute inset-x-0 bottom-0 z-20 h-[45%] rounded-b-[1.5rem] bg-gradient-to-t from-[#03202b] via-[#03202b]/80 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 z-30 p-5">
-                      <p className="text-[11px] font-bold tracking-[0.2em] text-[#ffcf4a] uppercase">{person.role}</p>
-                      <p className="mt-1 font-heading text-lg leading-snug font-semibold text-white">{person.name}</p>
-                    </div>
-                  </article>
+                      {photo ? (
+                        <div className="absolute inset-x-0 top-[5%] bottom-0 z-10 overflow-hidden rounded-b-[1.5rem]">
+                          <Image
+                            src={photo}
+                            alt={person.name}
+                            fill
+                            unoptimized={isUpload(photo)}
+                            sizes="(min-width: 1024px) 20rem, (min-width: 640px) 45vw, 90vw"
+                            className={`origin-bottom object-bottom drop-shadow-[0_18px_24px_rgba(3,32,43,0.45)] transition duration-700 group-hover:scale-[1.04] ${
+                              person.cover ? "object-cover" : "object-contain"
+                            }`}
+                          />
+                        </div>
+                      ) : (
+                        <div className="absolute inset-x-0 top-[22%] z-10 flex justify-center">
+                          <span className="flex size-32 items-center justify-center rounded-full bg-white/15 font-heading text-4xl font-bold text-white ring-4 ring-white/25 backdrop-blur-sm transition duration-500 group-hover:scale-105">
+                            {initials(person.name)}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="absolute inset-x-0 bottom-0 z-20 h-[45%] rounded-b-[1.5rem] bg-gradient-to-t from-[#03202b] via-[#03202b]/80 to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 z-30 p-5">
+                        <p className="text-[11px] font-bold tracking-[0.2em] text-[#ffcf4a] uppercase">{person.role}</p>
+                        <p className="mt-1 font-heading text-lg leading-snug font-semibold text-white">{person.name}</p>
+                      </div>
+                    </article>
+                  </Link>
                 </Reveal>
               )
             })}
@@ -268,10 +275,12 @@ export default async function LeadershipPage() {
                       right ? "sm:left-0" : "sm:right-0 sm:left-auto sm:translate-x-1/2"
                     }`}
                   />
-                  <div
-                    className={`flex items-center gap-4 rounded-full bg-[#f4fbfd] py-2 pr-6 pl-2 ring-1 ring-[#e2f2f6] transition duration-300 group-hover:bg-white group-hover:shadow-[0_18px_40px_-28px_rgba(2,62,138,0.5)] group-hover:ring-[#48cae4]/60 ${
+                  <Link
+                    href={formerProvincialHref(person)}
+                    className={`flex items-center gap-4 rounded-full bg-[#f4fbfd] py-2 pr-6 pl-2 ring-1 ring-[#e2f2f6] transition duration-300 outline-none group-hover:bg-white group-hover:shadow-[0_18px_40px_-28px_rgba(2,62,138,0.5)] group-hover:ring-[#48cae4]/60 focus-visible:ring-2 focus-visible:ring-[#17b3c6] focus-visible:ring-offset-2 ${
                       right ? "sm:flex-row-reverse sm:pr-2 sm:pl-6 sm:text-right" : ""
                     }`}
+                    aria-label={`Open profile for ${person.name}`}
                   >
                     <span className="relative block size-16 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-[#90e0ef] via-[#0077b6] to-[#023e8a] shadow-[0_12px_26px_-12px_rgba(2,62,138,0.75)] ring-4 ring-white transition duration-500 group-hover:scale-110 group-hover:ring-[#ffcf4a] sm:size-20">
                       {photo && crop ? (
@@ -288,7 +297,7 @@ export default async function LeadershipPage() {
                       <p className="text-xs font-bold tracking-[0.16em] text-[#ffbf00]">{person.dates}</p>
                       <p className="mt-1 font-heading text-lg leading-snug font-semibold text-[#023e8a]">{person.name}</p>
                     </div>
-                  </div>
+                  </Link>
                 </Reveal>
               )
             })}

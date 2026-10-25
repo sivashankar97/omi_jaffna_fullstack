@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ChevronRight, Mail, MapP
 
 import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
+import { MinistryPlaceTabs } from "@/components/sections/ministries/ministry-place-tabs"
 import { ministryHref, ministrySlug } from "@/config/navigation"
 import { ministryStorySource } from "@/content/ministry-details"
 import { getMinistries, getSiteInfo } from "@/lib/cms"
@@ -38,10 +39,11 @@ export default async function MinistryPage({ params }: MinistryPageProps) {
 
   const detail = ministry.detail
   const story = detail?.stories ?? []
+  const majorSections = detail?.majorSections ?? []
   const image = ministry.image
   const previous = ministries[(index - 1 + ministries.length) % ministries.length]
   const next = ministries[(index + 1) % ministries.length]
-  const others = ministries.filter((item) => item.number !== ministry.number).slice(0, 6)
+  const others = ministries.filter((item) => ministrySlug(item) !== ministrySlug(ministry)).slice(0, 6)
 
   return (
     <>
@@ -98,6 +100,8 @@ export default async function MinistryPage({ params }: MinistryPageProps) {
           </div>
         </div>
       </header>
+
+      <MinistryPlaceTabs ministry={ministry} sections={majorSections} />
 
       <section className="bg-white px-4 py-16 text-[#102a43] sm:px-8 sm:py-20">
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -281,7 +285,7 @@ export default async function MinistryPage({ params }: MinistryPageProps) {
               <p className="text-xs font-bold tracking-[0.2em] text-[#0e98ac] uppercase">Other ministries</p>
               <ul className="mt-4 divide-y divide-[#e2f2f6]">
                 {others.map((item) => (
-                  <li key={item.number}>
+                  <li key={ministrySlug(item)}>
                     <Link
                       href={ministryHref(item)}
                       className="group flex items-center gap-3 py-3 text-sm text-[#023e8a] transition hover:text-[#0e98ac]"
