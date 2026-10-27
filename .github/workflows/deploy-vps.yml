@@ -1,4 +1,6 @@
-# Auto-deploy to Hostinger VPS on every push to main.
+# Manual VPS deploy only (auto push-deploy disabled).
+# Actions → Deploy VPS → Run workflow
+# Or from Mac: npm run vps:deploy -- omi-vps
 # Secrets (repo → Settings → Secrets → Actions):
 #   VPS_SSH_KEY  – private key (same as ~/.ssh/omi_vps)
 #   VPS_HOST     – e.g. root@179.197.250.19
@@ -6,8 +8,6 @@
 name: Deploy VPS
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 concurrency:

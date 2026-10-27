@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Deploy current project to Hostinger VPS from your Mac (manual fallback).
-# Prefer: push to GitHub `main` → Actions auto-deploys.
+# Deploy current project to Hostinger VPS from your Mac.
+# (GitHub push auto-deploy is off — this is the normal publish path.)
 #
 # Usage:
 #   npm run vps:deploy -- omi-vps

@@ -13,6 +13,10 @@ import { getFormationHouses, getMapLocations, getMinistries, getParishes, getSit
 
 import "./globals.css"
 
+// CMS reads use cache: "no-store" and this layout reads cookies() for theme.
+// Force dynamic so SSG slug pages (fathers, bishops, …) don't 500 with DYNAMIC_SERVER_USAGE in production.
+export const dynamic = "force-dynamic"
+
 const tamil = Noto_Sans_Tamil({
   subsets: ["tamil"],
   weight: ["400", "500", "600", "700"],

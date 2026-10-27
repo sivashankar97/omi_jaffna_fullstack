@@ -107,7 +107,7 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 - Local server start: `api/src/index.js`; Netlify function: `api/netlify/functions/api.mjs`
 
 ## Deploy and config
-- **Hostinger VPS (primary):** `deploy/vps/` (compose + nginx + `Dockerfile.site`); auto-deploy `.github/workflows/deploy-vps.yml` on push to `main`; scripts `vps:deploy`, `vps:up`, `db:tunnel` in root `package.json`. Shared DB via SSH tunnel — see [[Project overview]].
+- **Hostinger VPS (primary):** `deploy/vps/` (compose + nginx + `Dockerfile.site`); deploy with `npm run vps:deploy -- omi-vps` (GitHub Actions workflow is manual/disabled — no push auto-deploy); scripts `vps:up`, `db:tunnel` in root `package.json`. Shared DB via SSH tunnel — see [[Project overview]].
 - Legacy Netlify: `netlify.toml`; deploy from `site/` if still used.
 - Next.js config (`output: "standalone"` for VPS image; local `/api` → API; `/admin` CMS): `site/next.config.ts`
 - Local dev starter: `scripts/dev.mjs`

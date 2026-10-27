@@ -25,20 +25,15 @@ For which file to change, see [[Code map]]. Open tasks: [[Todo]].
 
 ## Hostinger VPS deploy
 Stack: `deploy/vps/docker-compose.yml` + `nginx.conf` + `Dockerfile.site`.  
-**Code** deploys via GitHub Actions on push to `main` (workflow `.github/workflows/deploy-vps.yml`). CMS **content** is already on the shared VPS DB — no deploy for content edits. Nav clicks show an instant page skeleton (`app/loading.tsx`) while CMS data loads.
-
-**One-time GitHub secrets** (repo → Settings → Secrets and variables → Actions)
-- `VPS_SSH_KEY` — private key (`~/.ssh/omi_vps`)
-- `VPS_HOST` — `root@179.197.250.19`
-- `VPS_PATH` — `/root/omi-jaffna-cms`
+**Code** deploys manually (GitHub auto-deploy on push is **off**). CMS **content** is already on the shared VPS DB — no deploy for content edits. Nav clicks show an instant page skeleton (`app/loading.tsx`) while CMS data loads. Root layout is `force-dynamic` so CMS slug pages (fathers, bishops, council, …) render at request time with `cache: "no-store"` (avoids production `DYNAMIC_SERVER_USAGE` 500s).
 
 **Day to day (any Mac)**  
-`git push origin main` → Actions rsync + `vps-up.sh` → live at http://179.197.250.19. Manual re-run: Actions → Deploy VPS → Run workflow. Fallback: `npm run vps:deploy -- omi-vps`.
+`npm run vps:deploy -- omi-vps` → rsync + rebuild → http://179.197.250.19. Optional: Actions → Deploy VPS → Run workflow (manual only; workflow is disabled by default).
 
 **First time on the VPS**
 1. Install Docker (or run `scripts/vps-bootstrap.sh` on the server after clone)
 2. Create `deploy/vps/.env` from `.env.example` — set `POSTGRES_PASSWORD`, `JWT_SECRET`, `FRONTEND_ORIGIN=http://YOUR_PUBLIC_IP`, `COOKIE_SECURE=false` (until HTTPS)
-3. Add the three GitHub secrets above, then push to `main` (or run `npm run vps:deploy -- omi-vps` once)
+3. `npm run vps:deploy -- omi-vps`
 
 Postgres is **not** public; only `127.0.0.1:5432` on the VPS. Macs use `npm run db:tunnel -- omi-vps`.
 
