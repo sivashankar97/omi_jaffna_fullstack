@@ -135,7 +135,7 @@ export const homeSectionsDefaults = {
   contact: {
     kicker: "Provincial House",
     title: "Contact us",
-    text: "Thodarpaham, Jaffna. Write to us or visit the Province office.",
+    text: "Thodarpaham, 657/1 Hospital Road, Jaffna. Write, call, or visit — and see all Oblate house addresses on the Contact page.",
   },
 }
 

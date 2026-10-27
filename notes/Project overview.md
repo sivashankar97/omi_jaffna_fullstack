@@ -12,7 +12,8 @@ For which file to change, see [[Code map]]. Open tasks: [[Todo]].
 - **Public site** (`site/`) – Next.js at http://localhost:5173
 - **CMS** (`web/` → built into `site/public/admin`) – same host at http://localhost:5173/admin (not a separate app/port)
 - **API** (`api/`) – Express at http://localhost:4000 (Netlify Function in production; images in Netlify Blobs)
-- Database – Supabase Postgres (Tokyo). Local/API use the **transaction** pooler (port `6543`) by default; set `PG_POOL_MODE=session` only if you need session features.
+- Database – **Local Postgres** by default (`DATABASE_URL` → `127.0.0.1:5432/omi_jaffna`). Optional: Supabase cloud Postgres if you point `DATABASE_URL` there.
+- Files – **Postgres** (`MEDIA_STORE=postgres` → table `media_blobs`, visible in pgAdmin). Alternatives: `disk` (`api/uploads/`) or `supabase` Storage.
 
 ## Run locally
 - From the repo root: `npm run dev` (`scripts/dev-all.mjs`). Starts API + public site together; Ctrl+C stops both.
@@ -36,3 +37,11 @@ CMS uploads go to **Supabase Storage** bucket `media` (private). Local and Netli
 Oblate priest studio portraits: stage in `site/public/priests/portraits/`, then `cd api && npm run seed:priest-portraits` → Storage + `priest.image_url` = `/api/files/{id}`. Convert JPGs first with `python3 api/scripts/convert-priest-portraits.py` if needed.
 
 Provincial council studio portraits: stage in `api/.staging/council-portraits/` (gitignored, never `public/`), then `cd api && npm run seed:council-portraits` → Storage + `leadership.image_url`.
+
+## Presentation pack
+- Feature slides (landscape PDF for animated decks): `docs/OMI-Jaffna-Website-Features.pdf` (source `docs/OMI-Jaffna-Website-Features.html` — print with headless Chrome `--print-to-pdf`).
+- CMS editor guide: `docs/OMI-Jaffna-CMS-Guide.pdf`.
+
+## Colour palette
+- Primary / brand: **`#17b3c6`** (`--primary`, `--brand`) — header nav, footer brand bar, site primary.
+- Supporting tokens in `globals.css`: teal-900…100, gold-600/500/100, bg `#F8FBFF`, surface, text `#2B3A42`. Home (`data-page-theme="home"`) uses the supporting palette.

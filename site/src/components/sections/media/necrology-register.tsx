@@ -6,6 +6,10 @@ import { Cross, Search, X } from "lucide-react"
 import type { NecrologyPerson, NecrologyRole } from "@/lib/cms"
 import { cn } from "cn"
 
+/** All names are loaded; the box only mounts this many at first, then more on scroll. */
+const BOX_START = 10
+const BOX_BATCH = 20
+
 const roles: { id: "all" | NecrologyRole; label: string }[] = [
   { id: "all", label: "All" },
   { id: "bishop", label: "Bishops" },
@@ -75,10 +79,11 @@ export function NecrologyRegister({ people, copy }: { people: NecrologyPerson[];
   const [query, setQuery] = useState("")
   const [role, setRole] = useState<(typeof roles)[number]["id"]>("all")
   const [era, setEra] = useState<(typeof eras)[number]["id"]>("all")
+  const [mounted, setMounted] = useState(BOX_START)
   const search = useDeferredValue(normalize(query))
   const terms = useMemo(() => search.split(" ").filter(Boolean), [search])
-  const listRef = useRef<HTMLOListElement>(null)
   const registerRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLOListElement>(null)
 
   const indexed = useMemo(
     () =>
@@ -104,10 +109,32 @@ export function NecrologyRegister({ people, copy }: { people: NecrologyPerson[];
   )
 
   useLayoutEffect(() => {
+    setMounted(BOX_START)
     listRef.current?.scrollTo({ top: 0 })
   }, [terms, role, era])
 
+  const shown = visible.slice(0, mounted)
+  const remaining = Math.max(0, visible.length - shown.length)
   const filtered = query.trim() !== "" || role !== "all" || era !== "all"
+
+  // If the first batch is shorter than the box, keep mounting until it can scroll (or all are in).
+  useLayoutEffect(() => {
+    const el = listRef.current
+    if (!el || remaining <= 0) return
+    if (el.scrollHeight <= el.clientHeight + 8) {
+      setMounted((n) => Math.min(visible.length, n + BOX_BATCH))
+    }
+  }, [mounted, remaining, visible.length])
+
+  function loadMoreInBox() {
+    setMounted((n) => Math.min(visible.length, n + BOX_BATCH))
+  }
+
+  function onBoxScroll() {
+    const el = listRef.current
+    if (!el || remaining <= 0) return
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 120) loadMoreInBox()
+  }
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -237,9 +264,20 @@ export function NecrologyRegister({ people, copy }: { people: NecrologyPerson[];
       </div>
 
       <div ref={registerRef} className="mt-4 flex scroll-mt-28 flex-wrap items-center justify-between gap-2">
-        <p className="text-xs font-semibold tracking-[0.14em] text-[#0e7fa0] uppercase" aria-live="polite">
-          Showing {visible.length} of {people.length}
-          {query.trim() ? <span className="normal-case tracking-normal"> for “{query.trim()}”</span> : null}
+        <p className="text-sm font-semibold text-[#0a3d7a]" aria-live="polite">
+          <span className="text-[#0e98ac]">{visible.length}</span> Oblates loaded
+          {query.trim() ? <span className="font-medium text-[#55697a]"> for “{query.trim()}”</span> : null}
+          {" · "}
+          <span className="text-[#0e98ac]">{shown.length}</span> in the box
+          {remaining > 0 ? (
+            <span className="mt-0.5 block text-xs font-medium text-[#0e7fa0]">
+              Scroll inside the box — more names load as you go ({remaining} waiting)
+            </span>
+          ) : (
+            <span className="mt-0.5 block text-xs font-medium text-[#0e7fa0]">
+              Full register is in the box
+            </span>
+          )}
         </p>
         {filtered ? (
           <button
@@ -279,53 +317,72 @@ export function NecrologyRegister({ people, copy }: { people: NecrologyPerson[];
             ) : null}
           </div>
         ) : (
-          <ol
-            key={`${role}-${era}-${search}`}
-            ref={listRef}
-            className="h-[min(68svh,40rem)] divide-y divide-[#e2f2f6] overflow-y-scroll overscroll-contain [scrollbar-color:#5cc6d8_transparent] [scrollbar-width:thin]"
-          >
-            {visible.map((person) => (
-              <li
-                key={person.no}
-                className="group grid grid-cols-[3rem_minmax(0,1fr)] gap-x-3 gap-y-2 px-4 py-4 transition hover:bg-[#f4fbfd] md:grid-cols-[4.5rem_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-4 md:px-5"
-              >
-                <span className="row-span-3 flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-[#bfe6ef] via-[#0e7fa0] to-[#0a3d7a] font-heading text-sm font-semibold text-white ring-4 ring-[#eaf8fb] transition group-hover:ring-[#ffcf4a]/60 md:row-span-1 md:size-12">
-                  {person.no}
-                </span>
-                <span className="min-w-0">
-                  <span className="block font-heading text-base leading-snug font-semibold text-[#0a3d7a]">
-                    <Highlight text={person.name} terms={terms} />
+          <>
+            <ol
+              key={`${role}-${era}-${search}`}
+              ref={listRef}
+              onScroll={onBoxScroll}
+              tabIndex={0}
+              aria-label="Necrology register"
+              className="necrology-scroll h-[min(36rem,62svh)] divide-y divide-[#e2f2f6] overflow-y-scroll overscroll-contain"
+            >
+              {shown.map((person) => (
+                <li
+                  key={person.no}
+                  className="group grid grid-cols-[3rem_minmax(0,1fr)] gap-x-3 gap-y-2 px-4 py-3 transition hover:bg-[#f4fbfd] md:grid-cols-[4.5rem_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-4 md:px-5 md:py-3.5"
+                >
+                  <span className="row-span-3 flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-[#bfe6ef] via-[#0e7fa0] to-[#0a3d7a] font-heading text-sm font-semibold text-white ring-4 ring-[#eaf8fb] transition group-hover:ring-[#ffcf4a]/60 md:row-span-1 md:size-11">
+                    {person.no}
                   </span>
-                  <span
-                    className={cn(
-                      "mt-1 inline-block rounded-full px-2 py-0.5 text-[0.65rem] font-bold tracking-[0.12em] uppercase",
-                      person.role === "bishop"
-                        ? "bg-[#fff4cc] text-[#8a6500]"
-                        : person.role === "father"
-                          ? "bg-[#eaf8fb] text-[#0e7fa0]"
-                          : "bg-[#eef2ff] text-[#3949ab]"
-                    )}
-                  >
-                    {roleLabel[person.role]}
+                  <span className="min-w-0">
+                    <span className="block font-heading text-base leading-snug font-semibold text-[#0a3d7a]">
+                      <Highlight text={person.name} terms={terms} />
+                    </span>
+                    <span
+                      className={cn(
+                        "mt-1 inline-block rounded-full px-2 py-0.5 text-[0.65rem] font-bold tracking-[0.12em] uppercase",
+                        person.role === "bishop"
+                          ? "bg-[#fff4cc] text-[#8a6500]"
+                          : person.role === "father"
+                            ? "bg-[#eaf8fb] text-[#0e7fa0]"
+                            : "bg-[#eef2ff] text-[#3949ab]"
+                      )}
+                    >
+                      {roleLabel[person.role]}
+                    </span>
                   </span>
-                </span>
-                <span className="col-start-2 text-sm leading-5 text-[#55697a] md:col-start-auto">
-                  <span className="font-semibold text-[#0a3d7a] md:hidden">Born </span>
-                  <span className="font-semibold text-[#0a3d7a]">{person.born}</span>
-                  <span className="block text-xs">
-                    <Highlight text={person.bornAt} terms={terms} />
+                  <span className="col-start-2 text-sm leading-5 text-[#55697a] md:col-start-auto">
+                    <span className="font-semibold text-[#0a3d7a] md:hidden">Born </span>
+                    <span className="font-semibold text-[#0a3d7a]">{person.born}</span>
+                    <span className="block text-xs">
+                      <Highlight text={person.bornAt} terms={terms} />
+                    </span>
                   </span>
-                </span>
-                <span className="col-start-2 text-sm leading-5 text-[#55697a] md:col-start-auto">
-                  <span className="font-semibold text-[#0a3d7a] md:hidden">Died </span>
-                  <span className="font-semibold text-[#0a3d7a]">{person.died}</span>
-                  <span className="block text-xs">
-                    <Highlight text={person.diedAt} terms={terms} />
+                  <span className="col-start-2 text-sm leading-5 text-[#55697a] md:col-start-auto">
+                    <span className="font-semibold text-[#0a3d7a] md:hidden">Died </span>
+                    <span className="font-semibold text-[#0a3d7a]">{person.died}</span>
+                    <span className="block text-xs">
+                      <Highlight text={person.diedAt} terms={terms} />
+                    </span>
                   </span>
-                </span>
-              </li>
-            ))}
-          </ol>
+                </li>
+              ))}
+            </ol>
+            {remaining > 0 ? (
+              <div className="flex items-center justify-between gap-3 border-t-2 border-[#bfe6ef] bg-[#f6fcfd] px-4 py-3">
+                <p className="text-xs font-medium text-[#0e7fa0]">
+                  {shown.length} shown · {remaining} more load as you scroll
+                </p>
+                <button
+                  type="button"
+                  onClick={loadMoreInBox}
+                  className="rounded-full bg-gradient-to-r from-[#17b3c6] to-[#0a3d7a] px-4 py-2 text-xs font-semibold text-white transition hover:brightness-110"
+                >
+                  Load next {Math.min(BOX_BATCH, remaining)}
+                </button>
+              </div>
+            ) : null}
+          </>
         )}
       </div>
       <p className="mt-3 text-xs text-[#55697a]">{copy.footnote}</p>

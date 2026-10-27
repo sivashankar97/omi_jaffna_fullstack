@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 
-import { Reveal } from "@/components/motion/reveal"
+import { MotionItem, MotionReveal, MotionStagger } from "@/components/motion/motion-reveal"
 import { cn } from "cn"
 
 export type WelcomeCard = {
@@ -47,7 +47,7 @@ export function WelcomeScene({ badge, eyebrow, title, highlight, lede, cards }: 
   return (
     <div className="relative mx-auto max-w-6xl">
       <div className="grid items-stretch gap-5 lg:grid-cols-[0.95fr_1.05fr] lg:gap-6">
-        <Reveal from="left" className="min-h-0">
+        <MotionReveal from="left" className="min-h-0">
           <div className="media-bento-card media-bento-shine calendar-glass-deep relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-8">
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex rounded-full bg-[#ffcf4a] px-3 py-1 text-[10px] font-bold tracking-[0.22em] text-[#03202b] uppercase">
@@ -69,17 +69,11 @@ export function WelcomeScene({ badge, eyebrow, title, highlight, lede, cards }: 
               <ArrowUpRight className="size-4 transition group-hover:rotate-45" />
             </Link>
           </div>
-        </Reveal>
+        </MotionReveal>
 
-        <ul className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 lg:gap-5">
-          {items.map((card, index) => (
-            <Reveal
-              key={card.badge + card.href}
-              as="li"
-              from="right"
-              delay={80 + index * 100}
-              className="h-full"
-            >
+        <MotionStagger as="ul" stagger={0.1} className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 lg:gap-5">
+          {items.map((card) => (
+            <MotionItem key={card.badge + card.href} as="li" className="h-full">
               <Link
                 href={card.href}
                 className="group media-bento-card media-bento-shine calendar-glass relative flex h-full min-h-[9.5rem] overflow-hidden rounded-[1.75rem] sm:min-h-0 sm:flex-col lg:min-h-[8.75rem] lg:flex-row"
@@ -115,9 +109,9 @@ export function WelcomeScene({ badge, eyebrow, title, highlight, lede, cards }: 
                   <ArrowUpRight className="size-3.5" />
                 </span>
               </Link>
-            </Reveal>
+            </MotionItem>
           ))}
-        </ul>
+        </MotionStagger>
       </div>
     </div>
   )

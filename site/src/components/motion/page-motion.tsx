@@ -25,6 +25,8 @@ export function PageMotion({ children }: { children: React.ReactNode }) {
 
     const pending = new Set<HTMLElement>()
     nodes.forEach((node) => {
+      // Skip nodes owned by MotionReveal / MotionHero — dual opacity/transform = scroll flicker
+      if (node.closest("[data-motion-own]")) return
       node.classList.add("text-motion")
       if (node.matches("h1, h2")) node.classList.add("text-motion-title")
       node.style.animationDelay = "0ms"

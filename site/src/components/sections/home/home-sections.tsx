@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ArrowRight, ArrowUpRight, Compass, Eye, HandHeart } from "lucide-react"
 
-import { Reveal } from "@/components/motion/reveal"
+import { MotionItem, MotionReveal, MotionStagger } from "@/components/motion/motion-reveal"
 import { MinistryCard } from "@/components/sections/ministry-card"
 import { ministryHref } from "@/config/navigation"
 import { Button } from "@/components/ui/button"
@@ -62,7 +62,7 @@ export async function HomeSections() {
             aria-hidden="true"
             className="pointer-events-none absolute -top-24 right-1/5 -z-10 size-[18rem] rounded-full bg-[#ffcf4a] opacity-10 blur-[100px]"
           />
-          <Reveal from="up" className="mx-auto max-w-3xl">
+          <MotionReveal from="up" className="mx-auto max-w-3xl">
             <p className="text-xs font-bold tracking-[0.28em] text-[#ffcf4a] uppercase sm:text-sm">
               {home.inspiration.kicker}
             </p>
@@ -74,28 +74,23 @@ export async function HomeSections() {
                 — {home.inspiration.attribution}
               </footer>
             ) : null}
-          </Reveal>
+          </MotionReveal>
         </section>
       ) : null}
 
       <section id="pillars" className="calendar-stage scroll-mt-80 overflow-hidden px-4 py-16 sm:px-8 sm:py-20">
         <div className="relative mx-auto max-w-6xl">
-          <Reveal from="up" className="mx-auto max-w-2xl text-center">
+          <MotionReveal from="up" className="mx-auto max-w-2xl text-center">
             <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">{home.pillars.kicker}</p>
             <h2 className="mt-2 font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">{home.pillars.title}</h2>
             <span className="mx-auto mt-5 block h-1 w-14 rounded-full bg-gradient-to-r from-[#17b3c6] to-[#ffcf4a]" aria-hidden="true" />
-          </Reveal>
-          <div className="mt-10 grid gap-5 md:grid-cols-3 md:gap-6">
+          </MotionReveal>
+          <MotionStagger stagger={0.1} className="mt-10 grid gap-5 md:grid-cols-3 md:gap-6">
             {pillars.map((item, index) => {
               const Icon = item.icon
               const deep = index === 1
               return (
-                <Reveal
-                  key={item.title}
-                  from={index === 0 ? "left" : index === 2 ? "right" : "up"}
-                  delay={index * 110}
-                  className="h-full"
-                >
+                <MotionItem key={item.title} className="h-full">
                   <Link
                     href={item.href}
                     className={
@@ -145,11 +140,11 @@ export async function HomeSections() {
                       <ArrowUpRight className="size-3.5" />
                     </span>
                   </Link>
-                </Reveal>
+                </MotionItem>
               )
             })}
-          </div>
-          <Reveal from="up" delay={360} className="mt-10 flex justify-center">
+          </MotionStagger>
+          <MotionReveal from="up" delay={360} className="mt-10 flex justify-center">
             <Link
               href="/charism"
               className="media-bento-card inline-flex items-center gap-2 rounded-full border border-[#cfeef4] bg-white/95 px-6 py-2.5 text-sm font-bold tracking-wide text-[#0e98ac] uppercase shadow-[0_12px_28px_-18px_rgba(2,62,138,0.45)] backdrop-blur-md transition hover:border-[#17b3c6] hover:text-[#023e8a]"
@@ -157,13 +152,13 @@ export async function HomeSections() {
               Read more
               <ArrowUpRight className="size-4" />
             </Link>
-          </Reveal>
+          </MotionReveal>
         </div>
       </section>
 
       <section id="ministries" className="calendar-stage relative scroll-mt-80 overflow-hidden px-4 pt-16 pb-16 sm:px-8 sm:pt-20 sm:pb-20">
         <div className="relative mx-auto max-w-6xl">
-          <Reveal from="left" className="flex flex-wrap items-end justify-between gap-4">
+          <MotionReveal from="left" className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">{home.ministries.kicker}</p>
               <h2 className="mt-2 font-heading text-4xl leading-tight font-semibold text-[#023e8a] sm:text-5xl">
@@ -177,20 +172,15 @@ export async function HomeSections() {
               All ministries
               <ArrowRight aria-hidden="true" className="ministry-arrow size-4" />
             </Link>
-          </Reveal>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+          </MotionReveal>
+          <MotionStagger stagger={0.08} className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
             {ministries.slice(0, 6).map((ministry, index) => (
-              <Reveal
-                key={`${ministry.number}-${ministry.title}`}
-                from={index % 3 === 0 ? "left" : index % 3 === 2 ? "right" : "zoom"}
-                delay={(index % 3) * 100}
-                className="h-full"
-              >
+              <MotionItem key={`${ministry.number}-${ministry.title}`} className="h-full">
                 <MinistryCard ministry={ministry} index={index} href={ministryHref(ministry)} />
-              </Reveal>
+              </MotionItem>
             ))}
-          </div>
-          <Reveal from="up" delay={180} className="mt-10 flex justify-center sm:justify-end">
+          </MotionStagger>
+          <MotionReveal from="up" delay={180} className="mt-10 flex justify-center sm:justify-end">
             <Button
               asChild
               className="media-bento-card group relative h-auto gap-2 rounded-full border border-[#cfeef4] bg-white/95 px-7 py-3 text-sm font-bold text-[#0e98ac] shadow-[0_12px_28px_-18px_rgba(2,62,138,0.45)] backdrop-blur-md hover:border-[#17b3c6] hover:bg-white hover:text-[#023e8a]"
@@ -200,7 +190,7 @@ export async function HomeSections() {
                 <ArrowRight aria-hidden="true" className="ministry-arrow size-4" />
               </Link>
             </Button>
-          </Reveal>
+          </MotionReveal>
         </div>
       </section>
 
@@ -236,7 +226,7 @@ export async function HomeSections() {
           </svg>
           <div className="relative mx-auto grid max-w-6xl gap-6 lg:grid-cols-3 lg:items-stretch">
             {paths.map((path, index) => (
-              <Reveal
+              <MotionReveal
                 key={path.id}
                 from={index === 0 ? "left" : index === 2 ? "right" : "up"}
                 delay={index === 1 ? 0 : 150}
@@ -267,17 +257,40 @@ export async function HomeSections() {
                     {path.text}
                   </p>
                 </Link>
-              </Reveal>
+              </MotionReveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="latest-news" className="scroll-mt-80 bg-[#f7fbff] pt-4 pb-16">
-        <Reveal from="up" className="mx-auto mb-6 max-w-6xl px-4 sm:px-8">
-          <h2 className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">{home.news.title}</h2>
-          <p className="mt-2 text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">{home.news.kicker}</p>
-        </Reveal>
+      <section id="latest-news" className="news-home-stage relative scroll-mt-80 overflow-hidden pt-10 pb-16 sm:pt-14 sm:pb-20">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-24 left-1/4 size-[26rem] rounded-full bg-[#17b3c6]/18 blur-[110px]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-0 -bottom-20 size-[22rem] rounded-full bg-[#ffcf4a]/14 blur-[100px]"
+        />
+        <MotionReveal from="up" className="relative mx-auto mb-8 max-w-6xl px-4 sm:mb-10 sm:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">{home.news.kicker}</p>
+              <h2 className="mt-2 font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">{home.news.title}</h2>
+              <span
+                aria-hidden="true"
+                className="mt-4 block h-1 w-14 rounded-full bg-gradient-to-r from-[#17b3c6] to-[#ffcf4a]"
+              />
+            </div>
+            <Link
+              href="/news"
+              className="inline-flex items-center gap-2 rounded-full border border-[#cfeef4] bg-white/90 px-5 py-2.5 text-sm font-semibold text-[#0e98ac] shadow-[0_10px_24px_-16px_rgba(2,62,138,0.4)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-[#17b3c6] hover:text-[#023e8a]"
+            >
+              All news
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+          </div>
+        </MotionReveal>
         <NewsMarquee articles={latestNews} />
       </section>
 
@@ -285,37 +298,48 @@ export async function HomeSections() {
 
       <JourneyPath eras={journey.eras} />
 
-      <section id="family" className="scroll-mt-80 bg-[#f7fbff] px-4 py-16 text-[#023e8a] sm:px-8">
-        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-[1.2fr_1fr] md:items-center">
-          <Reveal>
-            <p className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">
+      <section id="family" className="family-stage relative scroll-mt-80 overflow-hidden px-4 py-16 sm:px-8 sm:py-20">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-24 right-0 size-[26rem] rounded-full bg-[#17b3c6]/20 blur-[110px]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-28 -left-16 size-[22rem] rounded-full bg-[#ffcf4a]/15 blur-[100px]"
+        />
+        <div className="relative mx-auto grid max-w-6xl gap-6 md:grid-cols-[1.15fr_0.95fr] md:items-stretch">
+          <MotionReveal className="family-glass flex flex-col justify-center rounded-[1.75rem] px-7 py-8 sm:px-9 sm:py-10">
+            <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">{home.family.kicker}</p>
+            <h2 className="mt-3 font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">
               {home.family.title}
-            </p>
-            <h2 className="mt-3 text-sm font-semibold tracking-[0.18em] text-[#0077b6] uppercase">
-              {home.family.kicker}
             </h2>
-            <p className="mt-4 max-w-xl leading-7 text-[#5c6b7a]">{home.family.text}</p>
-          </Reveal>
-          <Reveal delay={120} className="grid gap-3">
-            <Link
-              href="/news"
-              className="rounded-2xl bg-[#0077b6] px-5 py-4 font-semibold text-white transition hover:bg-[#023e8a]"
-            >
-              Province news
+            <span aria-hidden="true" className="mt-5 block h-1 w-14 rounded-full bg-gradient-to-r from-[#17b3c6] to-[#ffcf4a]" />
+            <p className="mt-5 max-w-xl text-[15px] leading-7 text-[#3d4b59]">{home.family.text}</p>
+          </MotionReveal>
+          <MotionReveal delay={120} className="grid gap-3">
+            <Link href="/news" className="family-link family-link-primary">
+              <span>Province news</span>
+              <ArrowUpRight className="size-4 opacity-70" aria-hidden="true" />
             </Link>
             <a
               href="https://www.omiworld.org/"
-              className="rounded-2xl bg-[#ffbf00] px-5 py-4 font-semibold text-[#023e8a] transition hover:bg-[#ffd24d]"
+              target="_blank"
+              rel="noreferrer"
+              className="family-link family-link-soft"
             >
-              OMI World
+              <span>OMI World</span>
+              <ArrowUpRight className="size-4 opacity-70" aria-hidden="true" />
             </a>
             <a
               href="https://omicolombo.org/"
-              className="rounded-2xl bg-[#5b21b6] px-5 py-4 font-semibold text-white transition hover:bg-[#4c1d95]"
+              target="_blank"
+              rel="noreferrer"
+              className="family-link family-link-deep"
             >
-              OMI Colombo Province
+              <span>OMI Colombo Province</span>
+              <ArrowUpRight className="size-4 opacity-70" aria-hidden="true" />
             </a>
-          </Reveal>
+          </MotionReveal>
         </div>
       </section>
 

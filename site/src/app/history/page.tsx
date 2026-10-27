@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import Image from "next/image"
-import { CalendarDays, Church, Globe, HeartHandshake, MapPin, Users } from "lucide-react"
+import { ArrowUpRight, CalendarDays, Church, Globe, HeartHandshake, MapPin, Users } from "lucide-react"
 
-import { Reveal } from "@/components/motion/reveal"
+import { MotionHero, MotionReveal } from "@/components/motion/motion-reveal"
 import { BishopProfiles } from "@/components/sections/history/bishop-profiles"
 import { ChapterNav } from "@/components/sections/history/chapter-nav"
 import { CountUp } from "@/components/sections/history/count-up"
@@ -49,25 +49,22 @@ export default async function HistoryPage() {
           className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(3,32,43,0.95)_0%,rgba(4,47,61,0.85)_50%,rgba(6,57,74,0.55)_100%)]"
         />
         <div className="mx-auto max-w-6xl">
-          <p
-            className="history-rise flex items-center gap-3 text-xs font-bold tracking-[0.28em] text-[#ffcf4a] uppercase sm:text-sm"
-            style={{ "--rise-delay": "100ms" } as React.CSSProperties}
+          <MotionHero
+            delay={100}
+            className="flex items-center gap-3 text-xs font-bold tracking-[0.28em] text-[#ffcf4a] uppercase sm:text-sm"
           >
             <span aria-hidden="true" className="history-line h-px w-10 bg-[#ffcf4a]" />
             Oblate Province of Jaffna
-          </p>
-          <h1
-            className="history-rise mt-4 font-heading text-5xl leading-[1.05] font-semibold sm:text-7xl"
-            style={{ "--rise-delay": "250ms" } as React.CSSProperties}
+          </MotionHero>
+          <MotionHero delay={250} className="mt-4 font-heading text-5xl leading-[1.05] font-semibold sm:text-7xl">
+            <h1>{whoWeAre.title}</h1>
+          </MotionHero>
+          <MotionHero
+            delay={450}
+            className="mt-6 max-w-2xl text-base leading-8 text-white/85 sm:text-xl sm:leading-9"
           >
-            {whoWeAre.title}
-          </h1>
-          <p
-            className="history-rise mt-6 max-w-2xl text-base leading-8 text-white/85 sm:text-xl sm:leading-9"
-            style={{ "--rise-delay": "450ms" } as React.CSSProperties}
-          >
-            {whoWeAre.summary}
-          </p>
+            <p>{whoWeAre.summary}</p>
+          </MotionHero>
         </div>
       </header>
 
@@ -76,7 +73,7 @@ export default async function HistoryPage() {
           {whoWeAre.stats.map((stat, index) => {
             const Icon = statIcons[index % statIcons.length]
             return (
-              <Reveal
+              <MotionReveal
                 key={stat.label}
                 from="up"
                 delay={index * 120}
@@ -89,7 +86,7 @@ export default async function HistoryPage() {
                   <CountUp value={stat.value} />
                 </p>
                 <p className="mt-1 text-sm font-medium tracking-wide text-[#5c6b7a]">{stat.label}</p>
-              </Reveal>
+              </MotionReveal>
             )
           })}
         </div>
@@ -99,15 +96,15 @@ export default async function HistoryPage() {
         <div className="mx-auto max-w-6xl">
           <SectionHeading title={whoWeAre.family.title} subtitle={whoWeAre.family.subtitle} />
           <div className="mt-14 grid items-center gap-12 lg:grid-cols-2">
-            <Reveal from="left" className="space-y-6">
+            <MotionReveal from="left" className="space-y-6">
               {whoWeAre.family.paragraphs.map((paragraph, index) => (
                 <div key={paragraph} className="flex gap-5">
                   <span className="mt-1 font-heading text-sm font-bold text-[#17b3c6]">0{index + 1}</span>
                   <p className="border-l-2 border-[#caf0f8] pl-5 text-lg leading-8 text-[#3d4b59]">{paragraph}</p>
                 </div>
               ))}
-            </Reveal>
-            <Reveal from="right" delay={120} className="relative">
+            </MotionReveal>
+            <MotionReveal from="right" delay={120} className="relative">
               <div
                 aria-hidden="true"
                 className="absolute -top-4 -right-4 h-full w-full rounded-[2rem] border-2 border-[#ffcf4a]"
@@ -123,7 +120,7 @@ export default async function HistoryPage() {
                 />
                 <span aria-hidden="true" className="history-shine pointer-events-none absolute inset-0" />
               </div>
-            </Reveal>
+            </MotionReveal>
           </div>
         </div>
       </section>
@@ -139,7 +136,7 @@ export default async function HistoryPage() {
             {whoWeAre.commitments.items.map((item, index) => {
               const Icon = commitmentIcons[index % commitmentIcons.length]
               return (
-                <Reveal
+                <MotionReveal
                   key={item.title}
                   from="up"
                   delay={index * 120}
@@ -154,7 +151,7 @@ export default async function HistoryPage() {
                   </span>
                   <h3 className="mt-6 font-heading text-xl font-semibold text-[#023e8a]">{item.title}</h3>
                   <p className="mt-3 leading-7 text-[#5c6b7a]">{item.text}</p>
-                </Reveal>
+                </MotionReveal>
               )
             })}
           </div>
@@ -163,7 +160,7 @@ export default async function HistoryPage() {
 
       <section
         id="history"
-        className="relative isolate scroll-mt-80 overflow-hidden bg-[#03202b] px-4 py-20 text-white sm:px-8 sm:py-28"
+        className="relative isolate scroll-mt-80 overflow-hidden bg-gradient-to-br from-[#03202b] via-[#06394a] to-[#0a5062] px-4 py-20 text-white sm:px-8 sm:py-24"
       >
         <div aria-hidden="true" className="history-kenburns absolute inset-0 -z-20">
           <Image
@@ -172,56 +169,54 @@ export default async function HistoryPage() {
             fill
             sizes="100vw"
             unoptimized={isUpload(images.historyImage)}
-            className="object-cover"
+            className="object-cover opacity-35"
           />
         </div>
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(3,32,43,0.96)_0%,rgba(4,47,61,0.88)_55%,rgba(6,57,74,0.7)_100%)]"
-        />
-        <Reveal from="left" className="mx-auto max-w-6xl">
-          <h2 className="font-heading text-5xl leading-tight font-semibold sm:text-6xl">{briefHistory.title}</h2>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-white/80">{briefHistory.summary}</p>
-        </Reveal>
+        <MotionReveal from="left" className="mx-auto max-w-6xl">
+          <div className="media-bento-shine calendar-glass-deep max-w-3xl overflow-hidden rounded-[1.75rem] p-7 sm:p-10">
+            <h2 className="font-heading text-4xl leading-tight font-semibold sm:text-5xl">{briefHistory.title}</h2>
+            <p className="mt-4 max-w-2xl text-lg leading-8 text-white/80">{briefHistory.summary}</p>
+          </div>
+        </MotionReveal>
       </section>
 
-      <section id="brief-history" className="scroll-mt-80 bg-white px-4 py-20 sm:px-8 sm:py-24">
-        <div className="mx-auto max-w-6xl">
+      <section id="brief-history" className="calendar-stage scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
+        <div className="relative mx-auto max-w-6xl">
           <SectionHeading kicker={briefHistory.kicker} title={briefHistory.heading} subtitle={briefHistory.subtitle} />
 
-          <Reveal from="up" className="mx-auto mt-12 max-w-4xl">
-            <p className="rounded-2xl border-l-4 border-[#ffbf00] bg-[#fffbeb] px-6 py-5 text-lg leading-8 text-[#3d4b59] italic sm:px-8">
+          <MotionReveal from="up" className="mx-auto mt-10 max-w-4xl">
+            <p className="media-bento-card calendar-glass overflow-hidden rounded-[1.75rem] border-l-4 border-[#ffcf4a] px-6 py-5 text-lg leading-8 text-[#3d4b59] italic sm:px-8">
               {briefHistory.intro}
             </p>
-          </Reveal>
+          </MotionReveal>
 
-          <div className="mt-16 grid gap-12 lg:grid-cols-[16rem_1fr] lg:gap-16">
+          <div className="mt-12 grid gap-6 lg:grid-cols-[16.5rem_1fr] lg:gap-7">
             <aside className="hidden lg:block">
               <ChapterNav chapters={chapters} />
             </aside>
 
-            <div className="space-y-14">
+            <div className="space-y-5">
               {chapters.map((chapter, index) => (
-                <Reveal key={chapter.id} from="up" id={chapter.id} className="scroll-mt-32">
-                  <article className="relative border-b border-[#e2f2f6] pb-14 last:border-b-0 last:pb-0">
-                    <div className="flex flex-wrap items-center gap-4">
-                      <span className="font-heading text-5xl leading-none font-bold text-[#caf0f8]">
+                <MotionReveal key={chapter.id} from="up" id={chapter.id} delay={(index % 3) * 60} className="scroll-mt-32">
+                  <article className="group media-bento-card media-bento-shine calendar-glass relative overflow-hidden rounded-[1.75rem] p-6 sm:p-7">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="font-heading text-4xl leading-none font-bold text-[#17b3c6]/35">
                         {String(index + 1).padStart(2, "0")}
                       </span>
-                      <span className="rounded-full bg-[#e7fbff] px-3 py-1 text-xs font-bold tracking-[0.14em] text-[#0e98ac]">
+                      <span className="rounded-full bg-[#e7fbff] px-3 py-1 text-xs font-bold tracking-[0.14em] text-[#0e98ac] ring-1 ring-[#cfeef4]">
                         {chapter.years}
                       </span>
                     </div>
                     <h3 className="mt-4 font-heading text-2xl leading-snug font-semibold text-[#023e8a] sm:text-3xl">
                       {chapter.title}
                     </h3>
-                    <div className="mt-5 space-y-5 text-base leading-8 text-[#3d4b59] sm:text-[17px]">
+                    <div className="mt-4 space-y-4 text-base leading-7 text-[#3d4b59] sm:text-[17px] sm:leading-8">
                       {chapter.paragraphs.map((paragraph) => (
                         <p key={paragraph}>{paragraph}</p>
                       ))}
                     </div>
                   </article>
-                </Reveal>
+                </MotionReveal>
               ))}
             </div>
           </div>
@@ -233,30 +228,35 @@ export default async function HistoryPage() {
       <BishopProfiles />
       <HistoricalArchive timeline={timeline} people={people} archive={archive} necrology={necrology} />
 
-      <section id="development" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-20 sm:px-8 sm:py-24">
-        <div className="mx-auto max-w-6xl">
+      <section id="development" className="calendar-stage scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
+        <div className="relative mx-auto max-w-6xl">
           <SectionHeading kicker={development.kicker} title={development.title} subtitle={development.subtitle} />
 
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {development.points.map((point, index) => (
-              <Reveal
+              <MotionReveal
                 key={point.title}
                 from="up"
-                delay={(index % 3) * 120}
-                className="group h-full rounded-2xl bg-white p-7 shadow-[0_20px_45px_-32px_rgba(2,62,138,0.5)] ring-1 ring-[#d8eef3] transition duration-300 hover:-translate-y-1 hover:ring-[#17b3c6]"
+                delay={(index % 3) * 100}
+                className="h-full"
               >
-                <span className="flex size-11 items-center justify-center rounded-full bg-[#023e8a] font-heading text-sm font-bold text-[#ffcf4a] transition group-hover:bg-[#17b3c6] group-hover:text-white">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <h3 className="mt-5 font-heading text-lg font-semibold text-[#023e8a]">{point.title}</h3>
-                <p className="mt-3 text-[15px] leading-7 text-[#5c6b7a]">{point.text}</p>
-              </Reveal>
+                <article className="group media-bento-card media-bento-shine calendar-glass relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6">
+                  <span className="absolute top-4 right-4 grid size-8 place-items-center rounded-full bg-[#e7fbff] text-[#023e8a] ring-1 ring-[#cfeef4] transition group-hover:rotate-45">
+                    <ArrowUpRight className="size-3.5" />
+                  </span>
+                  <span className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-[#023e8a] to-[#0a5062] font-heading text-sm font-bold text-[#ffcf4a]">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="mt-4 font-heading text-lg font-semibold text-[#023e8a]">{point.title}</h3>
+                  <p className="mt-3 text-[15px] leading-7 text-[#5c6b7a]">{point.text}</p>
+                </article>
+              </MotionReveal>
             ))}
           </div>
 
-          <Reveal
+          <MotionReveal
             from="zoom"
-            className="mt-10 grid items-center gap-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#03202b] via-[#06394a] to-[#0a5062] p-8 text-white shadow-[0_30px_60px_-30px_rgba(3,32,43,0.8)] sm:p-12 lg:grid-cols-[auto_1fr]"
+            className="media-bento-card media-bento-shine calendar-glass-deep mt-8 grid items-center gap-8 overflow-hidden rounded-[1.75rem] p-8 text-white sm:p-10 lg:grid-cols-[auto_1fr]"
           >
             <div className="flex gap-10">
               <div>
@@ -275,7 +275,7 @@ export default async function HistoryPage() {
             <p className="text-lg leading-8 text-white/85 lg:border-l lg:border-white/20 lg:pl-10">
               {development.highlight.text}
             </p>
-          </Reveal>
+          </MotionReveal>
         </div>
       </section>
     </>

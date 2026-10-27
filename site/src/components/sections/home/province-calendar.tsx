@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Cake, CalendarDays, ChevronLeft, ChevronRight, Cross } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-import { Reveal } from "@/components/motion/reveal"
+import { MotionReveal } from "@/components/motion/motion-reveal"
 import type { Gathering, GatheringKind } from "@/lib/cms"
 import { cn } from "cn"
 
@@ -244,7 +244,7 @@ export function ProvinceCalendar({ events: entries }: { events: Gathering[] }) {
   return (
     <section id="calendar" className="calendar-stage relative scroll-mt-80 px-4 py-12 sm:px-8 sm:py-16">
       <div className="relative mx-auto max-w-5xl">
-        <Reveal from="up" className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <MotionReveal from="up" className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div className="max-w-xl">
             <p className="text-xs font-bold tracking-[0.2em] text-[#0e98ac] uppercase">Province calendar</p>
             <h2 className="mt-2 font-heading text-3xl font-semibold text-[#023e8a] sm:text-4xl">
@@ -262,10 +262,10 @@ export function ProvinceCalendar({ events: entries }: { events: Gathering[] }) {
               <span className="size-2 rounded-full bg-[#8b5cf6]" /> Anniversary
             </span>
           </div>
-        </Reveal>
+        </MotionReveal>
 
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(16.5rem,0.85fr)] lg:gap-5">
-          <Reveal from="left" className="calendar-glass overflow-hidden rounded-3xl">
+          <MotionReveal from="left" className="calendar-glass overflow-hidden rounded-3xl">
             <div className="flex items-center justify-between gap-3 border-b border-[#d7eef3]/80 px-4 py-3.5 sm:px-5">
               <div className="min-w-0">
                 <p className="font-heading text-2xl font-bold text-[#023e8a] sm:text-3xl">
@@ -355,10 +355,10 @@ export function ProvinceCalendar({ events: entries }: { events: Gathering[] }) {
                 {monthCounts.event} events · {monthCounts.birthday} birthdays · {monthCounts.death} anniversaries
               </p>
             </div>
-          </Reveal>
+          </MotionReveal>
 
           <div className="flex flex-col gap-4">
-            <Reveal from="right" className="calendar-glass-deep flex h-[9.75rem] flex-col rounded-3xl p-4">
+            <MotionReveal from="right" className="calendar-glass-deep flex h-[9.75rem] flex-col rounded-3xl p-4">
               <p className="shrink-0 text-[10px] font-bold tracking-[0.18em] text-[#7fe3ef] uppercase">Selected day</p>
               <div className="mt-2 flex shrink-0 items-end gap-3">
                 <p className="font-heading text-4xl leading-none font-extrabold text-white">{day}</p>
@@ -388,9 +388,9 @@ export function ProvinceCalendar({ events: entries }: { events: Gathering[] }) {
                   ))
                 )}
               </div>
-            </Reveal>
+            </MotionReveal>
 
-            <Reveal from="right" delay={80} className="calendar-glass flex h-[22.5rem] flex-col rounded-3xl p-4">
+            <MotionReveal from="right" delay={80} className="calendar-glass flex h-[22.5rem] flex-col rounded-3xl p-4">
               <div className="flex shrink-0 items-center justify-between gap-2">
                 <div className="inline-flex max-w-full flex-wrap rounded-full bg-[#e7fbff] p-0.5 ring-1 ring-[#90e0ef]/60">
                   {(
@@ -444,11 +444,11 @@ export function ProvinceCalendar({ events: entries }: { events: Gathering[] }) {
                   ? `+${monthEvents.length - 8} more this month`
                   : "\u00a0"}
               </p>
-            </Reveal>
+            </MotionReveal>
           </div>
         </div>
 
-        <Reveal from="up" delay={60} className="calendar-glass mt-4 min-h-[6.5rem] rounded-3xl px-4 py-4 sm:px-5">
+        <MotionReveal from="up" delay={60} className="calendar-glass mt-4 min-h-[6.5rem] rounded-3xl px-4 py-4 sm:px-5">
           {opened ? (
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
@@ -472,7 +472,7 @@ export function ProvinceCalendar({ events: entries }: { events: Gathering[] }) {
           ) : (
             <p className="text-sm text-[#5c6b7a]">Select a day or list item to see details here.</p>
           )}
-        </Reveal>
+        </MotionReveal>
       </div>
     </section>
   )

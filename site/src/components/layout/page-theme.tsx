@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation"
 
 const pageThemes: Record<string, string> = {
+  "/": "home",
   "/about": "reef",
   "/charism": "tide",
   "/parishes": "depth",

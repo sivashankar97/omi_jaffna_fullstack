@@ -1,21 +1,22 @@
 import { Mail, MapPin, Phone } from "lucide-react"
 
 import { ContactForm } from "@/components/contact/contact-form"
-import { Reveal } from "@/components/motion/reveal"
+import { MotionReveal } from "@/components/motion/motion-reveal"
 import type { HomeSectionsContent } from "@/content/blocks"
 import { getSiteInfo } from "@/lib/cms"
 
 export async function HomeContact({ content }: { content: HomeSectionsContent["contact"] }) {
   const { contact } = await getSiteInfo()
+  const addressLine = [contact.officeName, contact.address, contact.city].filter(Boolean).join(" · ")
   const details = [
-    { icon: MapPin, label: "Address", value: contact.address, href: contact.mapLink },
+    { icon: MapPin, label: "Address", value: addressLine, href: contact.mapLink || "/contact#houses" },
     { icon: Phone, label: "Telephone", value: contact.phone, href: contact.phoneHref },
     { icon: Mail, label: "Email", value: contact.email, href: `mailto:${contact.email}` },
   ]
   return (
     <section id="contact-us" className="scroll-mt-80 bg-[#f7fbff] px-4 pb-20 sm:px-8">
       <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-[0_24px_60px_rgb(2_62_138/0.1)] ring-1 ring-[#cfe9ef] lg:grid-cols-[22rem_minmax(0,1fr)]">
-        <Reveal
+        <MotionReveal
           from="left"
           className="relative overflow-hidden bg-gradient-to-br from-[#0f9fb4] via-[#17b3c6] to-[#0e98ac] px-7 py-10 text-white sm:px-9"
         >
@@ -45,14 +46,14 @@ export async function HomeContact({ content }: { content: HomeSectionsContent["c
               ))}
             </ul>
           </div>
-        </Reveal>
-        <Reveal from="right" delay={150} className="px-6 py-10 text-[#023e8a] sm:px-10">
+        </MotionReveal>
+        <MotionReveal from="right" delay={150} className="px-6 py-10 text-[#023e8a] sm:px-10">
           <h3 className="font-heading text-2xl font-semibold">Send an enquiry</h3>
           <p className="mt-1 text-sm text-[#5c6b7a]">Your message opens in your email app, addressed to the Province office.</p>
           <div className="mt-6">
             <ContactForm />
           </div>
-        </Reveal>
+        </MotionReveal>
       </div>
     </section>
   )

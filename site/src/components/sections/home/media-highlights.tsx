@@ -5,9 +5,9 @@ import { ArrowUpRight, CalendarDays, Images, Newspaper, Radio } from "lucide-rea
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
-import { FacebookIcon, InstagramIcon, WhatsAppIcon, YouTubeIcon } from "@/components/layout/site-footer"
+import { FacebookIcon, InstagramIcon, YouTubeIcon } from "@/components/layout/site-footer"
 import { useSiteInfo } from "@/components/layout/site-info"
-import { Reveal } from "@/components/motion/reveal"
+import { MotionReveal } from "@/components/motion/motion-reveal"
 import type { HomeSectionsContent } from "@/content/blocks"
 import { cn } from "cn"
 
@@ -30,7 +30,6 @@ function SocialRail({ shown }: { shown: boolean }) {
   const { social } = useSiteInfo()
   const socials = [
     { label: "YouTube", href: social.youtube, icon: YouTubeIcon, background: "#ff0000" },
-    { label: "WhatsApp", href: social.whatsapp, icon: WhatsAppIcon, background: "#25d366" },
     {
       label: "Instagram",
       href: social.instagram,
@@ -42,28 +41,34 @@ function SocialRail({ shown }: { shown: boolean }) {
   return (
     <nav
       aria-label="Province social media"
-      className="fixed top-1/2 right-3 z-40 flex -translate-y-1/2 flex-col gap-3 sm:right-5"
+      className="pointer-events-none fixed top-1/2 right-0 z-40 w-16 -translate-y-1/2 overflow-hidden pr-3 sm:w-[4.25rem] sm:pr-5"
     >
-      {socials.map(({ label, href, icon: Icon, background }, index) => (
-        <a
-          key={label}
-          href={href}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={label}
-          tabIndex={shown ? 0 : -1}
-          className="grid size-11 place-items-center rounded-full text-white shadow-[0_8px_20px_rgb(0_0_0/0.25)] ring-2 ring-white/70 hover:scale-110 sm:size-12 [&_svg]:size-6"
-          style={{
-            background,
-            opacity: shown ? 1 : 0,
-            transform: shown ? "translateX(0)" : "translateX(140%)",
-            pointerEvents: shown ? "auto" : "none",
-            transition: `opacity 0.4s ease ${index * 70}ms, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${index * 70}ms, scale 0.2s ease`,
-          }}
-        >
-          <Icon />
-        </a>
-      ))}
+      <div
+        className="flex flex-col gap-3 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+        style={{
+          opacity: shown ? 1 : 0,
+          transform: shown ? "translateX(0)" : "translateX(110%)",
+        }}
+      >
+        {socials.map(({ label, href, icon: Icon, background }, index) => (
+          <a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={label}
+            tabIndex={shown ? 0 : -1}
+            className="pointer-events-auto grid size-11 place-items-center rounded-full text-white shadow-[0_8px_20px_rgb(0_0_0/0.25)] ring-2 ring-white/70 hover:scale-110 sm:size-12 [&_svg]:size-6"
+            style={{
+              background,
+              pointerEvents: shown ? "auto" : "none",
+              transition: `transform 0.2s ease ${index * 40}ms`,
+            }}
+          >
+            <Icon />
+          </a>
+        ))}
+      </div>
     </nav>
   )
 }
@@ -88,7 +93,7 @@ export function MediaHighlights({ content }: { content: HomeSectionsContent["med
   return (
     <section ref={ref} id="media-highlights" className="calendar-stage scroll-mt-80 px-4 py-16 sm:px-8">
       <div className="relative mx-auto max-w-6xl">
-        <Reveal from="up" className="mx-auto max-w-2xl text-center">
+        <MotionReveal from="up" className="mx-auto max-w-2xl text-center">
           <h2 className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">
             What you&apos;ll find in{" "}
             <span className="bg-gradient-to-r from-[#17b3c6] to-[#0e98ac] bg-clip-text text-transparent">Media</span>
@@ -96,12 +101,12 @@ export function MediaHighlights({ content }: { content: HomeSectionsContent["med
           <p className="mt-3 text-sm leading-6 text-[#5c6b7a] sm:text-base">
             Live broadcasts, province events, photo galleries and stories from the Oblate Province of Jaffna.
           </p>
-        </Reveal>
+        </MotionReveal>
 
         <div className="mt-10 grid gap-4 md:h-[34rem] md:grid-cols-3 md:gap-5">
           {/* Column 1 — tall Live + short News */}
           <div className="grid gap-4 md:grid-rows-[1.45fr_0.7fr] md:gap-5">
-            <Reveal from="left" className="min-h-0">
+            <MotionReveal from="left" className="min-h-0">
               <a
                 href={social.youtube}
                 target="_blank"
@@ -126,9 +131,9 @@ export function MediaHighlights({ content }: { content: HomeSectionsContent["med
                 </p>
                 <p className="mt-1.5 line-clamp-2 text-sm text-white/70">{content.liveText}</p>
               </a>
-            </Reveal>
+            </MotionReveal>
 
-            <Reveal from="left" delay={120} className="min-h-0">
+            <MotionReveal from="left" delay={120} className="min-h-0">
               <Link
                 href="/news"
                 className="group media-bento-card media-bento-shine calendar-glass relative flex h-full min-h-[8.5rem] items-center gap-4 overflow-hidden rounded-[1.75rem] p-5 md:min-h-0"
@@ -141,12 +146,12 @@ export function MediaHighlights({ content }: { content: HomeSectionsContent["med
                   Latest <span className="font-semibold text-[#5c6b7a]">province updates</span>
                 </p>
               </Link>
-            </Reveal>
+            </MotionReveal>
           </div>
 
           {/* Column 2 — short Events + tall Photos */}
           <div className="grid gap-4 md:grid-rows-[0.7fr_1.45fr] md:gap-5">
-            <Reveal from="up" delay={80} className="min-h-0">
+            <MotionReveal from="up" delay={80} className="min-h-0">
               <Link
                 href="/#calendar"
                 className="group media-bento-card media-bento-shine calendar-glass relative flex h-full min-h-[8.5rem] flex-col justify-between overflow-hidden rounded-[1.75rem] p-5 md:min-h-0"
@@ -160,9 +165,9 @@ export function MediaHighlights({ content }: { content: HomeSectionsContent["med
                   <span className="font-semibold text-[#5c6b7a]">{content.eventsText}</span>
                 </p>
               </Link>
-            </Reveal>
+            </MotionReveal>
 
-            <Reveal from="up" delay={140} className="min-h-0">
+            <MotionReveal from="up" delay={140} className="min-h-0">
               <Link
                 href="/media"
                 className="group media-bento-card media-bento-shine relative flex h-full min-h-64 flex-col overflow-hidden rounded-[1.75rem] bg-gradient-to-b from-[#17b3c6] via-[#0e98ac] to-[#023e8a] p-5 text-white shadow-[0_24px_48px_-28px_rgb(2_62_138/0.55)] ring-1 ring-white/25 sm:p-6 md:min-h-0"
@@ -192,12 +197,12 @@ export function MediaHighlights({ content }: { content: HomeSectionsContent["med
                   Photos <span className="font-semibold text-white/80">from the Province</span>
                 </p>
               </Link>
-            </Reveal>
+            </MotionReveal>
           </div>
 
           {/* Column 3 — tall image + short Media CTA */}
           <div className="grid gap-4 md:grid-rows-[1.45fr_0.7fr] md:gap-5">
-            <Reveal from="right" delay={100} className="min-h-0">
+            <MotionReveal from="right" delay={100} className="min-h-0">
               <Link
                 href="/news"
                 className="group media-bento-card media-bento-shine relative flex h-full min-h-64 overflow-hidden rounded-[1.75rem] md:min-h-0"
@@ -217,9 +222,9 @@ export function MediaHighlights({ content }: { content: HomeSectionsContent["med
                   <span className="mt-1.5 block text-sm text-white/80">Stories, feasts and celebrations</span>
                 </span>
               </Link>
-            </Reveal>
+            </MotionReveal>
 
-            <Reveal from="right" delay={180} className="min-h-0">
+            <MotionReveal from="right" delay={180} className="min-h-0">
               <Link
                 href="/media"
                 className="group media-bento-card media-bento-shine calendar-glass relative flex h-full min-h-[8.5rem] flex-col justify-end overflow-hidden rounded-[1.75rem] p-5 md:min-h-0"
@@ -235,7 +240,7 @@ export function MediaHighlights({ content }: { content: HomeSectionsContent["med
                   <span className="font-semibold text-[#5c6b7a]">that connects</span>
                 </p>
               </Link>
-            </Reveal>
+            </MotionReveal>
           </div>
         </div>
       </div>

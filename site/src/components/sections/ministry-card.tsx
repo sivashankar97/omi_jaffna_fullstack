@@ -97,10 +97,7 @@ export function MinistryCard({
         </span>
       </div>
       <div className="flex flex-1 flex-col px-5 pt-4 pb-5">
-        <span className="text-[10px] font-bold tracking-[0.2em] text-[#0e98ac] uppercase">
-          {ministry.number} · {ministry.place}
-        </span>
-        <h3 className="mt-2 font-heading text-xl leading-tight font-semibold text-[#023e8a] sm:text-2xl">
+        <h3 className="font-heading text-xl leading-tight font-semibold text-[#023e8a] sm:text-2xl">
           {ministry.title}
         </h3>
         <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#5c6b7a]">{ministry.summary}</p>

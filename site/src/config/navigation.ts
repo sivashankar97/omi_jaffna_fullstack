@@ -65,7 +65,6 @@ export const mediaSections = [
   "Photo gallery",
   "Video",
   "Podcasts",
-  "Articles",
   "Interviews",
   "Homilies and reflections",
   "Testimonials",

@@ -6,9 +6,11 @@ import { Eye, EyeOff } from "lucide-react"
 import { FormEvent, useEffect, useState } from "react"
 
 import { notifyAuthChanged, signOutSession } from "@/components/auth/session"
+import { MotionReveal } from "@/components/motion/motion-reveal"
 import { site } from "@/config/site"
 import { useSiteInfo } from "@/components/layout/site-info"
 import { isUpload } from "@/content/site-info"
+import { cn } from "cn"
 
 type Mode = "login" | "register"
 
@@ -19,23 +21,15 @@ type Member = {
   father_id: string | null
 }
 
-/** Register / login palette */
-const C = {
-  lightest: "#EDFBFD",
-  light: "#D6F6FA",
-  soft: "#ACEEF6",
-  bright: "#75E2F0",
-  primary: "#3ED7EA",
-  gold: "#FFCF4A",
-  ink: "#023e8a",
-  muted: "#3d5a6c",
-}
+const AUTH_ART = "/images/faithful-horizons-sunrise.jpg"
 
-const fieldClass =
-  "mt-1.5 w-full rounded-lg border border-[#ACEEF6] bg-[#EDFBFD] px-3 py-2.5 text-base text-[#023e8a] outline-none placeholder:text-[#5a7a8a] focus:border-[#3ED7EA] focus:bg-white focus:ring-2 focus:ring-[#75E2F0]/50"
+const fieldLabel = "mb-1.5 block text-[11px] font-semibold tracking-[0.16em] text-[#5c6b7a] uppercase"
+
+const fieldInput =
+  "w-full rounded-xl border border-[#cfe9ef] bg-white/90 px-4 py-2.5 text-sm text-[#023e8a] outline-none transition placeholder:text-[#9aa8b5] focus:border-[#17b3c6] focus:ring-3 focus:ring-[#17b3c6]/25"
 
 const primaryBtn =
-  "inline-flex w-full items-center justify-center rounded-lg bg-[#3ED7EA] px-5 py-3 text-sm font-bold text-[#023e8a] transition hover:bg-[#75E2F0] disabled:opacity-60 sm:w-auto sm:min-w-40"
+  "inline-flex w-full items-center justify-center rounded-xl bg-[#17b3c6] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_14px_28px_-14px_rgb(23_179_198/0.7)] transition hover:bg-[#0e98ac] disabled:opacity-60"
 
 function errorMessage(error: unknown, fallback: string) {
   if (typeof error === "string") return error
@@ -147,61 +141,60 @@ export function MemberAccess({ mode }: { mode: Mode }) {
   }
 
   return (
-    <section className="min-h-[calc(100svh-4.5rem)] w-full" style={{ backgroundColor: C.lightest }}>
-      <div className="flex min-h-[calc(100svh-4.5rem)] w-full flex-col lg:flex-row">
-        {/* Brand — full height, no side gaps */}
-        <aside
-          className="flex w-full shrink-0 flex-col items-center justify-center gap-3 px-6 py-10 text-center sm:px-10 lg:w-[36%] lg:py-16"
-          style={{ background: `linear-gradient(165deg, ${C.primary} 0%, ${C.bright} 45%, ${C.soft} 100%)` }}
-        >
-          <Image
-            src={siteInfo.logos.emblemImage}
-            unoptimized={isUpload(siteInfo.logos.emblemImage)}
-            alt="Oblate Province of Jaffna"
-            width={120}
-            height={120}
-            className="size-24 object-contain sm:size-28"
-            priority
-          />
-          <p className="font-heading text-xl font-semibold sm:text-2xl" style={{ color: C.ink }}>
-            {site.name}
-          </p>
-          <p className="max-w-xs text-sm" style={{ color: C.muted }}>
-            {site.tagline}
-          </p>
-          <span
-            className="mt-2 inline-block rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase"
-            style={{ backgroundColor: C.gold, color: C.ink }}
-          >
-            {register ? "New account" : "Members"}
-          </span>
-        </aside>
+    <section className="member-access-stage relative isolate flex min-h-[calc(100svh-4.5rem)] items-center justify-center overflow-hidden px-4 py-10 sm:px-6 sm:py-14">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/4 left-1/3 size-[28rem] -translate-x-1/2 rounded-full bg-[#17b3c6]/18 blur-[120px]"
+      />
 
-        {/* Form — fills remaining width */}
-        <div
-          className="flex w-full flex-1 flex-col justify-center px-5 py-8 sm:px-10 sm:py-12 lg:px-16 lg:py-16"
-          style={{ backgroundColor: "#ffffff" }}
-        >
+      <MotionReveal className="member-access-shell relative z-10 grid w-full max-w-5xl overflow-hidden lg:grid-cols-[1.05fr_minmax(0,1fr)]">
+        {/* Left — full art */}
+        <div className="relative hidden min-h-[36rem] lg:block">
+          <Image
+            src={AUTH_ART}
+            alt=""
+            fill
+            priority
+            sizes="(min-width:1024px) 52vw, 100vw"
+            className="object-cover object-center"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-t from-[#03202b]/55 via-transparent to-[#03202b]/15"
+          />
+          <div className="absolute inset-x-0 bottom-0 p-7 text-white">
+            <p className="text-[11px] font-semibold tracking-[0.2em] text-white/75 uppercase">
+              {site.shortName}
+            </p>
+            <p className="mt-2 font-heading text-2xl font-semibold leading-tight">{site.tagline}</p>
+          </div>
+        </div>
+
+        {/* Right — white glass register / login card */}
+        <div className="member-access-glass relative flex flex-col justify-center px-6 py-9 sm:px-9 sm:py-11 lg:px-10">
+          <div className="mb-6 flex items-center gap-2.5">
+            <Image
+              src={siteInfo.logos.emblemImage}
+              unoptimized={isUpload(siteInfo.logos.emblemImage)}
+              alt=""
+              width={36}
+              height={36}
+              className="size-9 object-contain"
+              priority
+            />
+            <span className="text-sm font-semibold text-[#023e8a]">{site.shortName}</span>
+          </div>
+
           {member ? (
-            <div className="w-full max-w-xl">
-              <h1 className="font-heading text-3xl font-semibold" style={{ color: C.ink }}>
-                Welcome
-              </h1>
-              <p className="mt-1 text-sm" style={{ color: C.muted }}>
-                You are signed in
-              </p>
-              <p className="mt-6 text-lg font-medium" style={{ color: C.ink }}>
-                {member.name}
-              </p>
+            <div>
+              <h1 className="font-heading text-2xl font-semibold text-[#023e8a] sm:text-[1.7rem]">Welcome</h1>
+              <p className="mt-2 text-sm text-[#5c6b7a]">You are signed in</p>
+              <p className="mt-6 text-lg font-medium text-[#023e8a]">{member.name}</p>
               {member.father_id ? (
-                <p className="mt-1 text-sm" style={{ color: C.muted }}>
-                  Father ID {member.father_id}
-                </p>
+                <p className="mt-1 text-sm text-[#5c6b7a]">Father ID {member.father_id}</p>
               ) : null}
-              <p className="text-sm" style={{ color: C.muted }}>
-                {member.email}
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <p className="text-sm text-[#5c6b7a]">{member.email}</p>
+              <div className="mt-8 flex flex-col gap-3">
                 {member.role === "father" ? (
                   <Link href="/dashboard" className={primaryBtn}>
                     Open profile
@@ -214,150 +207,195 @@ export function MemberAccess({ mode }: { mode: Mode }) {
                 <button
                   type="button"
                   onClick={signOut}
-                  className="text-sm font-semibold hover:underline"
-                  style={{ color: C.ink }}
+                  className="text-sm font-semibold text-[#023e8a] transition hover:text-[#17b3c6]"
                 >
                   Sign out
                 </button>
               </div>
             </div>
           ) : (
-            <form onSubmit={onSubmit} className="w-full max-w-3xl" noValidate>
-              <h1 className="font-heading text-3xl font-semibold sm:text-4xl" style={{ color: C.ink }}>
-                {register ? "Register" : "Login"}
+            <form onSubmit={onSubmit} className="w-full" noValidate>
+              <h1 className="font-heading text-2xl font-semibold tracking-tight text-[#023e8a] sm:text-[1.7rem]">
+                {register ? "Create your Father account" : "Please enter your account details"}
               </h1>
-              <p className="mt-2 text-sm leading-6" style={{ color: C.muted }}>
+              <p className="mt-2 text-sm text-[#5c6b7a]">
                 {register
-                  ? "Create a Father account with your Father ID. All fields are required."
-                  : "Sign in with your Father ID and password."}
+                  ? "Use your Father ID and Province details to open a secure profile."
+                  : "Enter your Father ID and password to continue."}
               </p>
 
               {register ? (
-                <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                  <label className="block text-sm font-medium sm:col-span-2" style={{ color: C.muted }}>
-                    Full name
-                    <input name="name" autoComplete="name" required className={fieldClass} />
-                  </label>
-                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
-                    Father ID
+                <div className="mt-6 grid gap-3.5">
+                  <div>
+                    <label className={fieldLabel} htmlFor="reg-name">
+                      Full name
+                    </label>
                     <input
-                      name="father_id"
-                      autoComplete="username"
+                      id="reg-name"
+                      name="name"
+                      autoComplete="name"
                       required
-                      placeholder="OMI / oblation number"
-                      className={fieldClass}
+                      placeholder="As on Province records"
+                      className={fieldInput}
                     />
-                  </label>
-                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
-                    Date of birth
-                    <input name="date_of_birth" type="date" autoComplete="bday" required className={fieldClass} />
-                  </label>
-                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
-                    Email
+                  </div>
+                  <div className="grid gap-3.5 sm:grid-cols-2">
+                    <div>
+                      <label className={fieldLabel} htmlFor="reg-father">
+                        Father ID
+                      </label>
+                      <input
+                        id="reg-father"
+                        name="father_id"
+                        autoComplete="username"
+                        required
+                        placeholder="e.g. OMI-…"
+                        className={fieldInput}
+                      />
+                    </div>
+                    <div>
+                      <label className={fieldLabel} htmlFor="reg-dob">
+                        Date of birth
+                      </label>
+                      <input
+                        id="reg-dob"
+                        name="date_of_birth"
+                        type="date"
+                        autoComplete="bday"
+                        required
+                        className={fieldInput}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className={fieldLabel} htmlFor="reg-email">
+                      Email
+                    </label>
                     <input
+                      id="reg-email"
                       name="email"
                       type="email"
                       autoComplete="email"
                       required
-                      placeholder="name@email.com"
-                      className={fieldClass}
+                      placeholder="you@example.com"
+                      className={fieldInput}
                     />
-                  </label>
-                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
-                    Mobile number
-                    <input name="mobile_number" type="tel" autoComplete="tel" required className={fieldClass} />
-                  </label>
-                  <label className="block text-sm font-medium sm:col-span-2" style={{ color: C.muted }}>
-                    Password
-                    <span className="relative mt-1.5 block">
+                  </div>
+                  <div>
+                    <label className={fieldLabel} htmlFor="reg-mobile">
+                      Mobile number
+                    </label>
+                    <input
+                      id="reg-mobile"
+                      name="mobile_number"
+                      type="tel"
+                      autoComplete="tel"
+                      required
+                      placeholder="+94 …"
+                      className={fieldInput}
+                    />
+                  </div>
+                  <div>
+                    <label className={fieldLabel} htmlFor="reg-password">
+                      Password
+                    </label>
+                    <div className="relative">
                       <input
+                        id="reg-password"
                         name="password"
                         type={showPassword ? "text" : "password"}
                         autoComplete="new-password"
                         required
                         minLength={12}
                         placeholder="At least 12 characters"
-                        className={`${fieldClass} mt-0 pr-11`}
+                        className={cn(fieldInput, "pr-11")}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword((open) => !open)}
-                        className="absolute top-1/2 right-3 -translate-y-1/2"
-                        style={{ color: C.ink }}
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-[#9aa8b5] transition hover:text-[#17b3c6]"
                         aria-label={showPassword ? "Hide password" : "Show password"}
                         aria-pressed={showPassword}
                       >
-                        {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                        {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                       </button>
-                    </span>
-                  </label>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <div className="mt-8 grid max-w-md gap-4">
-                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
-                    Father ID
+                <div className="mt-7 grid gap-4">
+                  <div>
+                    <label className={fieldLabel} htmlFor="login-id">
+                      Father ID
+                    </label>
                     <input
+                      id="login-id"
                       name="identity"
                       autoComplete="username"
                       required
                       placeholder="Your Father ID"
-                      className={fieldClass}
+                      className={fieldInput}
                     />
-                  </label>
-                  <label className="block text-sm font-medium" style={{ color: C.muted }}>
-                    Password
-                    <span className="relative mt-1.5 block">
+                  </div>
+                  <div>
+                    <div className="mb-1.5 flex items-center justify-between gap-3">
+                      <label className={cn(fieldLabel, "mb-0")} htmlFor="login-password">
+                        Password
+                      </label>
+                      <Link href="/contact" className="text-xs font-semibold text-[#17b3c6] hover:text-[#0e98ac]">
+                        Forgot Password
+                      </Link>
+                    </div>
+                    <div className="relative">
                       <input
+                        id="login-password"
                         name="password"
                         type={showPassword ? "text" : "password"}
                         autoComplete="current-password"
                         required
-                        placeholder="Enter password"
-                        className={`${fieldClass} mt-0 pr-11`}
+                        placeholder="••••••••••••"
+                        className={cn(fieldInput, "pr-11")}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword((open) => !open)}
-                        className="absolute top-1/2 right-3 -translate-y-1/2"
-                        style={{ color: C.ink }}
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-[#9aa8b5] transition hover:text-[#17b3c6]"
                         aria-label={showPassword ? "Hide password" : "Show password"}
                         aria-pressed={showPassword}
                       >
-                        {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                        {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                       </button>
-                    </span>
-                  </label>
-                  <Link href="/contact" className="text-sm font-semibold hover:underline" style={{ color: C.ink }}>
-                    Forgot password?
-                  </Link>
+                    </div>
+                  </div>
                 </div>
               )}
 
               {notice ? (
-                <p role="alert" className="mt-5 text-sm leading-6 text-[#b42318]">
+                <p
+                  role="alert"
+                  className="mt-4 rounded-xl border border-[#f3c1c1] bg-[#fff5f5] px-4 py-3 text-sm text-[#b42318]"
+                >
                   {notice}
                 </p>
               ) : null}
 
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-                <button type="submit" disabled={busy} className={primaryBtn}>
-                  {busy ? "Please wait…" : register ? "Register" : "Log in"}
-                </button>
-                <p className="text-sm" style={{ color: C.muted }}>
-                  {register ? "Already have an account?" : "New Father?"}{" "}
-                  <Link
-                    href={register ? "/login" : "/register"}
-                    className="font-bold hover:underline"
-                    style={{ color: C.ink }}
-                  >
-                    {register ? "Log in" : "Register"}
-                  </Link>
-                </p>
-              </div>
+              <button type="submit" disabled={busy} className={cn(primaryBtn, "mt-6")}>
+                {busy ? "Please wait…" : register ? "Create account" : "Sign in"}
+              </button>
+
+              <p className="mt-6 text-center text-sm text-[#5c6b7a]">
+                {register ? "Already have an account? " : "New Father account? "}
+                <Link
+                  href={register ? "/login" : "/register"}
+                  className="font-semibold text-[#023e8a] transition hover:text-[#17b3c6]"
+                >
+                  {register ? "Sign in" : "Create an account"}
+                </Link>
+              </p>
             </form>
           )}
         </div>
-      </div>
+      </MotionReveal>
     </section>
   )
 }

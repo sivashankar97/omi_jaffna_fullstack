@@ -50,23 +50,24 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
   return (
     <section
       id="journey"
-      className="relative scroll-mt-80 overflow-hidden bg-gradient-to-br from-[#03202b] via-[#06394a] to-[#0a5062] px-4 py-20 text-white sm:px-8"
+      className="journey-stage relative scroll-mt-80 overflow-hidden px-4 py-20 text-white sm:px-8"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-40 -bottom-40 size-[36rem] rounded-full bg-[#17b3c6] opacity-25 blur-[120px]"
+        className="pointer-events-none absolute -right-40 -bottom-40 size-[36rem] rounded-full bg-[#17b3c6]/12 blur-[130px]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-32 -left-32 size-[28rem] rounded-full bg-[#0f9fb4] opacity-15 blur-[110px]"
+        className="pointer-events-none absolute -top-32 -left-32 size-[28rem] rounded-full bg-black/50 blur-[110px]"
       />
 
       <div className="relative mx-auto max-w-6xl">
-        <div className="text-center">
-          <h2 className="font-heading text-4xl font-semibold text-white sm:text-5xl">Our journey</h2>
-          <p className="mt-3 text-sm font-semibold tracking-[0.22em] text-[#7fe3ef] uppercase">
+        <div className="journey-glass mx-auto max-w-3xl px-6 py-8 text-center sm:px-10 sm:py-9">
+          <p className="text-[11px] font-semibold tracking-[0.22em] text-[#7fe3ef]/90 uppercase">Province timeline</p>
+          <h2 className="mt-2 font-heading text-4xl font-semibold text-white sm:text-5xl">Our journey</h2>
+          <p className="mt-3 text-sm font-semibold tracking-[0.18em] text-white/85 uppercase">
             {current.era.range} · {current.era.title}
           </p>
         </div>
@@ -82,9 +83,7 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
                 aria-pressed={on}
                 className={cn(
                   "rounded-full border px-4 py-2 text-xs font-bold tracking-wide transition",
-                  on
-                    ? "border-[#17b3c6] bg-[#17b3c6] text-white"
-                    : "border-white/25 text-white/75 hover:border-[#17b3c6] hover:text-white"
+                  on ? "journey-chip-on" : "journey-chip"
                 )}
               >
                 {era.range}
@@ -97,7 +96,7 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
       <div ref={viewportRef} className="relative mx-auto mt-10 max-w-7xl overflow-hidden">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-[15rem] h-0 border-t border-dashed border-white/30"
+          className="pointer-events-none absolute inset-x-0 top-[15rem] h-0 border-t border-dashed border-white/35"
         />
         <ol
           ref={trackRef}
@@ -110,8 +109,8 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
             const events = (
               <div
                 className={cn(
-                  "ml-[7px] flex max-h-[13rem] flex-col gap-2.5 overflow-y-auto border-l-2 border-dotted pl-3 text-[12.5px] [scrollbar-width:thin] leading-5 transition duration-500",
-                  on ? "border-[#7fe3ef] text-white" : "border-white/30 text-white/55"
+                  "journey-event ml-[7px] flex max-h-[13rem] flex-col gap-2.5 overflow-y-auto border-l-2 border-dotted pl-3 text-[12.5px] [scrollbar-width:thin] leading-5 transition duration-500",
+                  on ? "journey-event-on border-[#17b3c6] text-white" : "border-white/25 text-white/55"
                 )}
               >
                 {stop.events.map((event) => (
@@ -120,7 +119,7 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
                       <span
                         className={cn(
                           "mb-0.5 block text-[10px] font-bold tracking-[0.14em] uppercase",
-                          on ? "text-[#ffcf4a]" : "text-[#7fe3ef]/70"
+                          on ? "text-[#ffcf4a]" : "text-[#17b3c6]/80"
                         )}
                       >
                         {event.date}
@@ -145,13 +144,15 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
                   <span
                     className={cn(
                       "relative z-10 block size-4 shrink-0 rounded-full border-2 transition duration-500",
-                      on ? "scale-125 border-[#ffcf4a] bg-[#ffcf4a] shadow-[0_0_0_6px_rgb(255_207_74/0.2)]" : "border-[#7fe3ef] bg-[#06303d]"
+                      on
+                        ? "scale-125 border-white bg-[#17b3c6] shadow-[0_0_0_6px_rgb(23_179_198/0.3)]"
+                        : "border-[#17b3c6] bg-[#06394a]"
                     )}
                   />
                   <span
                     className={cn(
                       "font-heading text-3xl leading-none font-bold transition duration-500",
-                      on ? "text-[#ffcf4a]" : "text-white/80"
+                      on ? "text-white" : "text-white/70"
                     )}
                   >
                     {stop.year}
@@ -169,7 +170,7 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
           type="button"
           onClick={() => go(active - 1)}
           aria-label="Previous year"
-          className="flex size-11 items-center justify-center rounded-full border border-white/30 text-white transition hover:border-[#17b3c6] hover:bg-[#17b3c6]"
+          className="journey-control flex size-11 items-center justify-center rounded-full text-white transition hover:brightness-110"
         >
           <ChevronLeft className="size-5" />
         </button>
@@ -177,7 +178,7 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
           type="button"
           onClick={() => setPlaying((value) => !value)}
           aria-label={playing ? "Pause timeline" : "Play timeline"}
-          className="flex size-11 items-center justify-center rounded-full bg-[#17b3c6] text-white transition hover:bg-[#0f9fb4]"
+          className="journey-control-on flex size-11 items-center justify-center rounded-full text-white transition hover:brightness-110"
         >
           {playing ? <Pause className="size-5" /> : <Play className="size-5" />}
         </button>
@@ -185,11 +186,11 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
           type="button"
           onClick={() => go(active + 1)}
           aria-label="Next year"
-          className="flex size-11 items-center justify-center rounded-full border border-white/30 text-white transition hover:border-[#17b3c6] hover:bg-[#17b3c6]"
+          className="journey-control flex size-11 items-center justify-center rounded-full text-white transition hover:brightness-110"
         >
           <ChevronRight className="size-5" />
         </button>
-        <span className="ml-2 text-xs font-semibold tracking-[0.16em] text-white/60">
+        <span className="ml-2 text-xs font-semibold tracking-[0.16em] text-white/70">
           {active + 1} / {stops.length}
         </span>
       </div>

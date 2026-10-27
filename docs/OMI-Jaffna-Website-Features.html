@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OMI Jaffna Website — Feature Presentation</title>
+<style>
+  @page { size: A4 landscape; margin: 12mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color: #10263a;
+    font-size: 11pt;
+    line-height: 1.45;
+    margin: 0;
+  }
+  h1, h2, h3 { color: #023e8a; line-height: 1.15; margin: 0; }
+  h2 { font-size: 22pt; margin: 0 0 4mm; }
+  h3 { font-size: 13pt; margin: 0 0 2.5mm; color: #0a5062; }
+  p { margin: 0 0 2.5mm; }
+  ul { margin: 1mm 0 0; padding-left: 5mm; }
+  li { margin: 1mm 0; }
+  .slide {
+    break-after: page;
+    min-height: 175mm;
+    display: flex;
+    flex-direction: column;
+  }
+  .slide:last-child { break-after: auto; }
+  .eyebrow {
+    color: #0e98ac;
+    letter-spacing: .18em;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 2mm;
+  }
+  .muted { color: #5c6b7a; }
+  .small { font-size: 9.5pt; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 3.5mm; }
+  .card {
+    border: 1px solid #cfe8ef;
+    border-radius: 4mm;
+    padding: 4.5mm 5mm;
+    background: linear-gradient(180deg, #ffffff, #f3fbfd);
+    break-inside: avoid;
+  }
+  .card b { color: #023e8a; display: block; margin-bottom: 1mm; font-size: 11.5pt; }
+  .card .tag {
+    display: inline-block;
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #0e98ac;
+    margin-bottom: 1.5mm;
+  }
+  .accent { color: #0e98ac; }
+  .gold { color: #c99200; }
+  .cover {
+    background: linear-gradient(135deg, #03202b 0%, #0a5062 55%, #17b3c6 100%);
+    color: #fff;
+    border-radius: 6mm;
+    padding: 16mm 14mm;
+    min-height: 175mm;
+    justify-content: space-between;
+  }
+  .cover h1 { color: #fff; font-size: 34pt; margin: 3mm 0 4mm; max-width: 220mm; }
+  .cover .eyebrow { color: #ffcf4a; }
+  .cover p { color: rgba(255,255,255,.88); font-size: 13pt; max-width: 200mm; }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4mm;
+    margin-top: 10mm;
+  }
+  .cover-meta div {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 3.5mm;
+    padding: 4mm;
+  }
+  .cover-meta strong { display: block; color: #ffcf4a; font-size: 9pt; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 1mm; }
+  .footer-note {
+    margin-top: auto;
+    padding-top: 4mm;
+    border-top: 1px solid #d5e6ee;
+    font-size: 8.5pt;
+    color: #5c6b7a;
+    display: flex;
+    justify-content: space-between;
+  }
+  .pill {
+    display: inline-block;
+    background: #e7fbff;
+    color: #023e8a;
+    border-radius: 999px;
+    padding: 1mm 3mm;
+    font-size: 8.5pt;
+    font-weight: 700;
+    margin: 0.5mm 1mm 0.5mm 0;
+  }
+  .big-num { font-size: 22pt; font-weight: 700; color: #023e8a; line-height: 1; }
+  .flow {
+    display: flex;
+    gap: 3mm;
+    align-items: stretch;
+  }
+  .flow .step {
+    flex: 1;
+    background: #f3fbfd;
+    border: 1px solid #cfe8ef;
+    border-radius: 4mm;
+    padding: 4mm;
+    position: relative;
+  }
+  .flow .step .n {
+    width: 7mm; height: 7mm; border-radius: 50%;
+    background: #023e8a; color: #ffcf4a;
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 9pt;
+    margin-bottom: 2mm;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+  th, td { text-align: left; padding: 2mm 2.5mm; border-bottom: 1px solid #dceef3; vertical-align: top; }
+  th { color: #023e8a; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .08em; background: #f3fbfd; }
+  .checklist li { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "✓ "; color: #0e98ac; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- 1. COVER -->
+<section class="slide cover">
+  <div>
+    <div class="eyebrow">Feature briefing · Animated presentation pack</div>
+    <h1>Oblate Province of Jaffna<br>Website &amp; CMS</h1>
+    <p>A full public website, staff CMS, and Father member portal — designed to tell the Province story, publish mission content, and keep contact &amp; community life editable.</p>
+  </div>
+  <div class="cover-meta">
+    <div><strong>Live site</strong>omi-jaffna-province.netlify.app</div>
+    <div><strong>Stack</strong>Next.js · Express · Postgres · Netlify</div>
+    <div><strong>Audience</strong>Public · Staff editors · Oblate Fathers</div>
+  </div>
+</section>
+
+<!-- 2. AGENDA -->
+<section class="slide">
+  <div class="eyebrow">Slide 02 · Agenda</div>
+  <h2>What this pack covers</h2>
+  <p class="muted">Use one slide per section when animating. Build from overview → pages → portals → how content is managed.</p>
+  <div class="grid-3" style="margin-top:5mm">
+    <div class="card"><span class="tag">Part A</span><b>Product overview</b><ul><li>Purpose &amp; audiences</li><li>System architecture</li><li>Design language</li></ul></div>
+    <div class="card"><span class="tag">Part B</span><b>Public website features</b><ul><li>Every main page</li><li>Interactive pieces (map, calendar, motion)</li><li>Member login &amp; dashboard</li></ul></div>
+    <div class="card"><span class="tag">Part C</span><b>CMS &amp; delivery</b><ul><li>What staff can edit</li><li>Father portal workflow</li><li>Local run &amp; Netlify deploy</li></ul></div>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>02 / Agenda</span></div>
+</section>
+
+<!-- 3. PURPOSE -->
+<section class="slide">
+  <div class="eyebrow">Slide 03 · Why it exists</div>
+  <h2>One digital home for the Province</h2>
+  <div class="grid-2" style="margin-top:4mm">
+    <div class="card">
+      <b>For visitors</b>
+      <ul>
+        <li>Discover who the Oblates are in Jaffna (history, charism, leadership)</li>
+        <li>Explore ministries, parishes, vocations, international mission</li>
+        <li>Read news, media, library resources</li>
+        <li>Find houses, contact details, and the mission map</li>
+      </ul>
+    </div>
+    <div class="card">
+      <b>For the Province team</b>
+      <ul>
+        <li>Staff edit pages and content from <b>/admin</b> CMS</li>
+        <li>Fathers use <b>/login</b> → personal dashboard (not CMS)</li>
+        <li>News submissions go to review before publish</li>
+        <li>Inquiries from Contact land in the CMS inbox</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card" style="margin-top:4mm">
+    <b>Brand promise on the site</b>
+    <p class="muted" style="margin:0">“17 Ministries. Many Places. One Mission.” — with a living calendar of birthdays, events, and necrology memory.</p>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>03 / Purpose</span></div>
+</section>
+
+<!-- 4. ARCHITECTURE -->
+<section class="slide">
+  <div class="eyebrow">Slide 04 · Architecture</div>
+  <h2>Three parts, one product</h2>
+  <div class="flow" style="margin-top:5mm">
+    <div class="step">
+      <div class="n">1</div>
+      <b>Public site</b>
+      <p class="small muted">Next.js app (`site/`) — pages, glass UI, motion, map. Local: :5173</p>
+    </div>
+    <div class="step">
+      <div class="n">2</div>
+      <b>CMS</b>
+      <p class="small muted">React admin built into `/admin` — staff only. Same host as the site.</p>
+    </div>
+    <div class="step">
+      <div class="n">3</div>
+      <b>API + database</b>
+      <p class="small muted">Express (`api/`) :4000 · Postgres content &amp; media · Netlify Function in prod</p>
+    </div>
+  </div>
+  <div class="grid-3" style="margin-top:5mm">
+    <div class="card"><b>Content</b><p class="small muted">Items (news, priests, ministries…) + page “blocks” for editable text/images.</p></div>
+    <div class="card"><b>Media</b><p class="small muted">Uploads via `/api/files/…`. Stores in Postgres blobs, disk, or Supabase Storage.</p></div>
+    <div class="card"><b>Hosting</b><p class="small muted">Netlify only — site + API function + static `/admin` build.</p></div>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>04 / Architecture</span></div>
+</section>
+
+<!-- 5. DESIGN -->
+<section class="slide">
+  <div class="eyebrow">Slide 05 · Design system</div>
+  <h2>Visual language visitors notice</h2>
+  <div class="grid-3" style="margin-top:4mm">
+    <div class="card">
+      <span class="tag">Colour</span>
+      <b>Sky cyan + gold</b>
+      <p class="small muted">Primary <span class="accent">#48cae4</span> · Nav teal <span class="accent">#17b3c6</span> · Accent gold <span class="gold">#ffbf00 / #ffcf4a</span> · Page wash light blue <span class="accent">#dff6fb</span></p>
+    </div>
+    <div class="card">
+      <span class="tag">Surfaces</span>
+      <b>Crystal-glass UI</b>
+      <p class="small muted">Frosted cards, calendar stages, media bento, soft borders — used on Home, History, Ministries, Media.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Motion</span>
+      <b>Motion for React</b>
+      <p class="small muted">Keyvo-style hero / stagger / float reveals on Home and History. Scroll-safe (no flicker).</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:4mm">
+    <b>Header pattern (current)</b>
+    <p class="small muted" style="margin:0">White top strip with larger logos + short centered search · Floating cyan glass nav pill with all page links · Login (white) + Register (gold) in a row with spacing · No dark-mode toggle · Hero video still loads under the home page.</p>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>05 / Design</span></div>
+</section>
+
+<!-- 6. SITE MAP -->
+<section class="slide">
+  <div class="eyebrow">Slide 06 · Site map</div>
+  <h2>Main navigation destinations</h2>
+  <div class="grid-4" style="margin-top:4mm">
+    <div class="card"><b>Home</b><p class="small muted">Hero video, welcome, calendar, ministries, news, map CTA</p></div>
+    <div class="card"><b>History</b><p class="small muted">Who we are, bishops, archive, necrology, journey</p></div>
+    <div class="card"><b>Charism</b><p class="small muted">Mission, vision, motto, ways of living the call</p></div>
+    <div class="card"><b>Leadership</b><p class="small muted">Provincial, council, former provincials, priests</p></div>
+    <div class="card"><b>Ministries</b><p class="small muted">17 ministries, parishes, schools, deep section pages</p></div>
+    <div class="card"><b>Vocations</b><p class="small muted">Formation houses &amp; call to missionary life</p></div>
+    <div class="card"><b>International</b><p class="small muted">Countries of mission + formation abroad</p></div>
+    <div class="card"><b>News · Library · Media · Contact</b><p class="small muted">Stories, resources, digital mission, houses &amp; form</p></div>
+  </div>
+  <p class="small muted" style="margin-top:4mm">Also: Login · Register · Father Dashboard · CMS at /admin (staff)</p>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>06 / Site map</span></div>
+</section>
+
+<!-- 7. HOME -->
+<section class="slide">
+  <div class="eyebrow">Slide 07 · Home</div>
+  <h2>Home — first impression &amp; living feed</h2>
+  <div class="grid-2" style="margin-top:4mm">
+    <div class="card">
+      <b>Hero</b>
+      <ul class="small">
+        <li>Full-bleed background <b>video</b> + poster</li>
+        <li>Eyebrow, title, tagline, lede, quote</li>
+        <li>CTAs into Ministries &amp; Vocations</li>
+        <li>Wave transition into light-blue page wash</li>
+      </ul>
+    </div>
+    <div class="card">
+      <b>Sections below the fold</b>
+      <ul class="small">
+        <li>Welcome scene (crystal-glass intro + cards)</li>
+        <li>Daily inspiration quote</li>
+        <li>Floating birthday greetings</li>
+        <li>Province calendar (events + births/deaths)</li>
+        <li>Our calling pillars · Ministries cards</li>
+        <li>Latest news · Media highlights bento</li>
+        <li>Journey path · Join us · Contact strip</li>
+        <li>Mission map (Leaflet pins from CMS)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>07 / Home</span></div>
+</section>
+
+<!-- 8. HISTORY -->
+<section class="slide">
+  <div class="eyebrow">Slide 08 · History</div>
+  <h2>History — memory of the Province</h2>
+  <div class="grid-3" style="margin-top:4mm">
+    <div class="card"><b>Who we are</b><p class="small muted">Identity section kept in the established layout; rest of page uses crystal-glass cards.</p></div>
+    <div class="card"><b>Story &amp; archive</b><p class="small muted">Brief history, journey chapters, development, historical archive content from CMS blocks.</p></div>
+    <div class="card"><b>Bishops</b><p class="small muted">Profiles list + dedicated pages `/history/bishops/&lt;slug&gt;`.</p></div>
+  </div>
+  <div class="card" style="margin-top:4mm">
+    <b>Necrology register</b>
+    <p class="small muted" style="margin:0">Searchable memorial list. Fixed-height scroll box shows ~10 names at a time; more load as you scroll (full dataset available). Linked from History archive storytelling.</p>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>08 / History</span></div>
+</section>
+
+<!-- 9. CHARISM & LEADERSHIP -->
+<section class="slide">
+  <div class="eyebrow">Slide 09 · Charism &amp; Leadership</div>
+  <h2>Identity of the call · people who lead</h2>
+  <div class="grid-2" style="margin-top:4mm">
+    <div class="card">
+      <span class="tag">Charism</span>
+      <b>How Oblates live the mission</b>
+      <ul class="small">
+        <li>Charism narrative, priorities, “how we live it”</li>
+        <li>Mission · Vision · Motto</li>
+        <li>About / arrival in Jaffna</li>
+        <li>Interactive vow / ways components</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Leadership</span>
+      <b>Provincial structure</b>
+      <ul class="small">
+        <li>Provincial Superior spotlight</li>
+        <li>Provincial Council profiles</li>
+        <li>Former Provincials</li>
+        <li>Oblate priests directory (searchable)</li>
+        <li>Deep links: `/leadership/council|former|fathers/&lt;slug&gt;`</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>09 / Charism &amp; Leadership</span></div>
+</section>
+
+<!-- 10. MINISTRIES -->
+<section class="slide">
+  <div class="eyebrow">Slide 10 · Ministries</div>
+  <h2>Seventeen ministries · many places</h2>
+  <div class="grid-3" style="margin-top:4mm">
+    <div class="card"><b>Explorer</b><p class="small muted">Crystal-glass ministry cards on `/ministries` plus parish &amp; school directories.</p></div>
+    <div class="card"><b>Ministry page</b><p class="small muted">`/ministries/NN-name` with major sections as tabs (CMS `detail.majorSections`).</p></div>
+    <div class="card"><b>Section depth</b><p class="small muted">Each section can hold History · Articles · Photos · Videos · Events editors.</p></div>
+  </div>
+  <div class="card" style="margin-top:4mm">
+    <b>Why it matters in a pitch</b>
+    <p class="small muted" style="margin:0">This is the operational heart of the site — every ministry can grow its own media and story without a developer rewrite.</p>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>10 / Ministries</span></div>
+</section>
+
+<!-- 11. VOCATIONS & INTERNATIONAL -->
+<section class="slide">
+  <div class="eyebrow">Slide 11 · Vocations &amp; International</div>
+  <h2>Formation at home · mission abroad</h2>
+  <div class="grid-2" style="margin-top:4mm">
+    <div class="card">
+      <span class="tag">Vocations</span>
+      <b>Call to missionary life</b>
+      <ul class="small">
+        <li>Formation houses from CMS</li>
+        <li>Discernment / begin the conversation CTA</li>
+        <li>Linked from Home “Join us”</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">International</span>
+      <b>Sent from Jaffna</b>
+      <ul class="small">
+        <li>Countries of mission (CMS seeded list)</li>
+        <li>Formation abroad entries</li>
+        <li>Country detail pages `/international/&lt;slug&gt;`</li>
+        <li>Stats (countries / continents / study abroad) editable</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>11 / Vocations &amp; International</span></div>
+</section>
+
+<!-- 12. NEWS LIBRARY MEDIA -->
+<section class="slide">
+  <div class="eyebrow">Slide 12 · Publishing surfaces</div>
+  <h2>News · Library · Media</h2>
+  <div class="grid-3" style="margin-top:4mm">
+    <div class="card">
+      <b>News</b>
+      <ul class="small">
+        <li>Sectioned listing + ticker / marquee</li>
+        <li>Article pages with share buttons</li>
+        <li>Father-submitted items start in <b>review</b></li>
+      </ul>
+    </div>
+    <div class="card">
+      <b>Library</b>
+      <ul class="small">
+        <li>Hub + Magazines · Libraries · Books · Articles</li>
+        <li>Resource browser per category</li>
+        <li>CMS type `library`</li>
+      </ul>
+    </div>
+    <div class="card">
+      <b>Media</b>
+      <ul class="small">
+        <li>Digital mission studio</li>
+        <li>Social signals (FB / IG / YT — no WhatsApp)</li>
+        <li>Gallery / video / publications tiles</li>
+        <li>Crystal-glass + bento hover treatment</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>12 / News · Library · Media</span></div>
+</section>
+
+<!-- 13. CONTACT & MAP -->
+<section class="slide">
+  <div class="eyebrow">Slide 13 · Contact &amp; map</div>
+  <h2>Reach the Province · see the mission</h2>
+  <div class="grid-2" style="margin-top:4mm">
+    <div class="card">
+      <b>Contact page</b>
+      <ul class="small">
+        <li>Provincial House + office phone/email</li>
+        <li><b>All houses</b> list (CMS `site-info.houses[]`)</li>
+        <li>Enquiry form → `/api/public/inquiries`</li>
+        <li>Social links without WhatsApp</li>
+      </ul>
+    </div>
+    <div class="card">
+      <b>Mission map</b>
+      <ul class="small">
+        <li>Leaflet map with glass overlays</li>
+        <li>Pins from CMS `location` (lat/lng)</li>
+        <li>Kind stats, district chips, place search</li>
+        <li>Shown on <b>Home</b> and <b>Contact</b> only</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>13 / Contact &amp; Map</span></div>
+</section>
+
+<!-- 14. MEMBER PORTAL -->
+<section class="slide">
+  <div class="eyebrow">Slide 14 · Member portal</div>
+  <h2>Login · Register · Father dashboard</h2>
+  <div class="flow" style="margin-top:5mm">
+    <div class="step"><div class="n">1</div><b>Register / Login</b><p class="small muted">Public `/register` &amp; `/login`. Fathers authenticate against API sessions.</p></div>
+    <div class="step"><div class="n">2</div><b>Header chip</b><p class="small muted">Guest sees Login + gold Register. Signed-in Father sees name menu → dashboard / sign out.</p></div>
+    <div class="step"><div class="n">3</div><b>Dashboard</b><p class="small muted">`/dashboard` — profile, own items, news draft submissions, uploads, admin reports to fathers.</p></div>
+  </div>
+  <div class="card" style="margin-top:5mm">
+    <b>Security split</b>
+    <p class="small muted" style="margin:0">Fathers never use `/admin`. Staff (admin / publisher / editor) use CMS email login. Father sessions hitting admin are redirected to the public dashboard.</p>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>14 / Member portal</span></div>
+</section>
+
+<!-- 15. CMS -->
+<section class="slide">
+  <div class="eyebrow">Slide 15 · CMS</div>
+  <h2>Staff CMS — edit what the site shows</h2>
+  <div class="grid-2" style="margin-top:4mm">
+    <div class="card">
+      <b>Organised like the website</b>
+      <ul class="small">
+        <li>Menu groups: Website pages + shared pieces</li>
+        <li>Overview map: “Where to edit each page”</li>
+        <li>“Open on website” deep links from every row</li>
+        <li>Order on website = `sort_order`</li>
+      </ul>
+    </div>
+    <div class="card">
+      <b>Day-to-day tools</b>
+      <ul class="small">
+        <li>Content editor + cover image upload</li>
+        <li>Assets library</li>
+        <li>Team users · Site settings</li>
+        <li>Inquiries inbox</li>
+        <li>Father reports &amp; Father news review</li>
+      </ul>
+    </div>
+  </div>
+  <p class="small muted" style="margin-top:4mm">Guide for editors: <b>docs/OMI-Jaffna-CMS-Guide.pdf</b></p>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>15 / CMS</span></div>
+</section>
+
+<!-- 16. CONTENT TYPES -->
+<section class="slide">
+  <div class="eyebrow">Slide 16 · Content model</div>
+  <h2>What can be published</h2>
+  <table style="margin-top:3mm">
+    <thead>
+      <tr><th>Type</th><th>Shows on</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Page blocks</td><td>Every major page</td><td>Editable text/images via `getBlock`</td></tr>
+      <tr><td>Ministry / Parish / School</td><td>Ministries</td><td>Deep tabs &amp; directories</td></tr>
+      <tr><td>Leadership / Priest / Bishop</td><td>Leadership · History</td><td>Profiles + galleries</td></tr>
+      <tr><td>News / Publication</td><td>News · Media</td><td>Review → publish for Father news</td></tr>
+      <tr><td>Library</td><td>Library hub &amp; subpages</td><td>magazine · libraries · books · articles</td></tr>
+      <tr><td>Timeline / Necrology</td><td>History</td><td>Year-by-year + memorial register</td></tr>
+      <tr><td>Event / Location</td><td>Calendar · Map</td><td>Dates + lat/lng pins</td></tr>
+      <tr><td>International / Formation</td><td>International · Vocations</td><td>Countries &amp; houses</td></tr>
+      <tr><td>Site-info</td><td>Header · Footer · Contact</td><td>Logos, social, houses[]</td></tr>
+    </tbody>
+  </table>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>16 / Content model</span></div>
+</section>
+
+<!-- 17. TECH -->
+<section class="slide">
+  <div class="eyebrow">Slide 17 · Technical snapshot</div>
+  <h2>How it runs</h2>
+  <div class="grid-3" style="margin-top:4mm">
+    <div class="card"><b>Frontend</b><p class="small muted">Next.js App Router · React · Tailwind · Motion · Leaflet</p></div>
+    <div class="card"><b>Backend</b><p class="small muted">Express API · role-aware auth · CRUD items · asset streaming</p></div>
+    <div class="card"><b>Data</b><p class="small muted">Postgres · SQL migrations · optional Supabase Storage</p></div>
+  </div>
+  <div class="grid-2" style="margin-top:4mm">
+    <div class="card">
+      <b>Local</b>
+      <p class="small muted">`npm run dev` → site :5173 · API :4000 · CMS /admin<br>After CMS code changes: `npm run cms:build`</p>
+    </div>
+    <div class="card">
+      <b>Production</b>
+      <p class="small muted">Deploy from `site/` with Netlify CLI<br>`netlify deploy --prod …` (manual; ~3–10 min)</p>
+    </div>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>17 / Technical</span></div>
+</section>
+
+<!-- 18. FEATURE CHECKLIST -->
+<section class="slide">
+  <div class="eyebrow">Slide 18 · Feature checklist</div>
+  <h2>Everything delivered — at a glance</h2>
+  <div class="grid-2" style="margin-top:3mm">
+    <ul class="checklist small">
+      <li>Responsive public website (all main Province pages)</li>
+      <li>Hero video + light-blue glass header system</li>
+      <li>Crystal-glass sections &amp; Keyvo-style motion</li>
+      <li>Province calendar + birthday floats</li>
+      <li>Interactive mission map</li>
+      <li>Deep ministry / leadership / bishop profiles</li>
+      <li>Necrology search with progressive scroll box</li>
+      <li>News, library, media publishing surfaces</li>
+    </ul>
+    <ul class="checklist small">
+      <li>Contact houses + enquiry form</li>
+      <li>Member Login / Register + Father dashboard</li>
+      <li>Staff CMS mirrored to website structure</li>
+      <li>Father news review workflow</li>
+      <li>Media uploads &amp; file streaming API</li>
+      <li>Editable page blocks (no hard-coded copy for most pages)</li>
+      <li>Netlify production hosting</li>
+      <li>Editor PDF guide for CMS users</li>
+    </ul>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>18 / Checklist</span></div>
+</section>
+
+<!-- 19. HOW TO USE THIS PDF -->
+<section class="slide">
+  <div class="eyebrow">Slide 19 · Presenting tip</div>
+  <h2>Using this pack in an animated presentation</h2>
+  <div class="grid-3" style="margin-top:4mm">
+    <div class="card"><span class="tag">Import</span><b>Keynote / PowerPoint</b><p class="small muted">Place each PDF page as a slide background, or screenshot slides into your deck.</p></div>
+    <div class="card"><span class="tag">Animate</span><b>Build on cards</b><p class="small muted">Each `.card` / column is a natural build step — reveal left→right or top→bottom.</p></div>
+    <div class="card"><span class="tag">Demo</span><b>Live site beside</b><p class="small muted">Keep omi-jaffna-province.netlify.app open; click through pages that match each slide.</p></div>
+  </div>
+  <div class="card" style="margin-top:5mm">
+    <b>Suggested 8-minute flow</b>
+    <p class="small muted" style="margin:0">Purpose (03) → Architecture (04) → Design (05) → Home demo (07) → Ministries (10) → Member portal (14) → CMS (15) → Checklist close (18).</p>
+  </div>
+  <div class="footer-note"><span>OMI Jaffna · Feature presentation</span><span>19 / How to present</span></div>
+</section>
+
+<!-- 20. CLOSE -->
+<section class="slide cover">
+  <div>
+    <div class="eyebrow">Thank you</div>
+    <h1>Ready to walk through<br>the live Province site</h1>
+    <p>Public site · Staff CMS · Father portal — one Oblate digital home for Jaffna.</p>
+  </div>
+  <div class="cover-meta">
+    <div><strong>Source notes</strong>Project overview · Code map</div>
+    <div><strong>CMS guide</strong>docs/OMI-Jaffna-CMS-Guide.pdf</div>
+    <div><strong>This pack</strong>docs/OMI-Jaffna-Website-Features.pdf</div>
+  </div>
+</section>
+
+</body>
+</html>

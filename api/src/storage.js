@@ -2,9 +2,11 @@ import {mkdir,readFile,writeFile,unlink} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createClient} from '@supabase/supabase-js';
+import {query} from './db.js';
 
 const mediaStore=()=>(process.env.MEDIA_STORE||'disk').toLowerCase();
 const useSupabase=()=>mediaStore()==='supabase';
+const usePostgres=()=>mediaStore()==='postgres'||mediaStore()==='db';
 const bucketName=()=>process.env.SUPABASE_STORAGE_BUCKET||'media';
 
 let dir;
@@ -65,6 +67,16 @@ async function ensureBucket(){
 
 export async function initStorage(){
  await mkdir(uploadDir(),{recursive:true});
+ if(usePostgres()){
+  await query(`
+   CREATE TABLE IF NOT EXISTS media_blobs (
+     filename text PRIMARY KEY,
+     data bytea NOT NULL,
+     byte_size integer NOT NULL DEFAULT 0,
+     updated_at timestamptz NOT NULL DEFAULT now()
+   )`);
+  return;
+ }
  if(useSupabase()){
   try{await ensureBucket();}
   catch(e){
@@ -75,17 +87,32 @@ export async function initStorage(){
 }
 
 export async function saveFile(name,buffer){
+ const body=Buffer.isBuffer(buffer)?buffer:Buffer.from(buffer);
+ if(usePostgres()){
+  await query(
+   `INSERT INTO media_blobs(filename,data,byte_size,updated_at)
+    VALUES($1,$2,$3,now())
+    ON CONFLICT (filename) DO UPDATE
+      SET data=EXCLUDED.data, byte_size=EXCLUDED.byte_size, updated_at=now()`,
+   [name,body,body.length]
+  );
+  return;
+ }
  if(useSupabase()){
   await ensureBucket();
-  const body=Buffer.isBuffer(buffer)?buffer:Buffer.from(buffer);
   const {error}=await supabase().storage.from(bucketName()).upload(name,body,{upsert:true});
   if(error)throw Object.assign(new Error(error.message),{code:'SUPABASE_STORAGE'});
   return;
  }
- await writeFile(path.join(uploadDir(),name),buffer);
+ await writeFile(path.join(uploadDir(),name),body);
 }
 
 export async function readStoredFile(name){
+ if(usePostgres()){
+  const r=await query('SELECT data FROM media_blobs WHERE filename=$1',[name]);
+  if(!r.rowCount)throw missing();
+  return Buffer.from(r.rows[0].data);
+ }
  if(useSupabase()){
   await ensureBucket();
   const {data,error}=await supabase().storage.from(bucketName()).download(name);
@@ -100,6 +127,10 @@ export async function readStoredFile(name){
 }
 
 export async function removeFile(name){
+ if(usePostgres()){
+  await query('DELETE FROM media_blobs WHERE filename=$1',[name]);
+  return;
+ }
  if(useSupabase()){
   await ensureBucket();
   const {error}=await supabase().storage.from(bucketName()).remove([name]);
@@ -113,6 +144,10 @@ export async function removeFile(name){
 
 /** True when object exists in the configured store (used by migrate). */
 export async function storedFileExists(name){
+ if(usePostgres()){
+  const r=await query('SELECT 1 FROM media_blobs WHERE filename=$1 LIMIT 1',[name]);
+  return r.rowCount>0;
+ }
  if(useSupabase()){
   await ensureBucket();
   const dir=path.posix.dirname(name);

@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
-import { ArrowUpRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react"
+import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react"
 
 import { ContactForm } from "@/components/contact/contact-form"
-import { FacebookIcon, InstagramIcon, WhatsAppIcon, YouTubeIcon } from "@/components/layout/site-footer"
+import { FacebookIcon, InstagramIcon, YouTubeIcon } from "@/components/layout/site-footer"
 import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { PageBanner } from "@/components/sections/page-banner"
@@ -10,12 +10,12 @@ import { getLeadership, getSiteInfo } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Contact the Oblate Province of Jaffna at Thodarpaham, Hospital Road.",
+  description: "Contact the Oblate Province of Jaffna at Thodarpaham, Hospital Road, and find addresses for all Oblate houses.",
 }
 
 export default async function ContactPage() {
-  const [{ contact, social }, { superior }] = await Promise.all([getSiteInfo(), getLeadership()])
-  const fullAddress = `${contact.address}, Sri Lanka`
+  const [{ contact, social, houses }, { superior }] = await Promise.all([getSiteInfo(), getLeadership()])
+  const fullAddress = [contact.address, contact.city].filter(Boolean).join(", ")
   const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`
   const mapEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(fullAddress)}&z=15&output=embed`
 
@@ -23,9 +23,9 @@ export default async function ContactPage() {
     {
       Icon: MapPin,
       label: "Visit us",
-      value: "Thodarpaham, Provincial House",
+      value: contact.officeName || "Provincial House",
       detail: fullAddress,
-      href: directions,
+      href: contact.mapLink || directions,
       action: "Get directions",
       external: true,
     },
@@ -33,7 +33,7 @@ export default async function ContactPage() {
       Icon: Phone,
       label: "Call the office",
       value: contact.phone,
-      detail: "Province office, Jaffna",
+      detail: contact.hours || "Province office, Jaffna",
       href: contact.phoneHref,
       action: "Call now",
       external: false,
@@ -47,22 +47,12 @@ export default async function ContactPage() {
       action: "Send email",
       external: false,
     },
-    {
-      Icon: MessageCircle,
-      label: "WhatsApp",
-      value: contact.phone,
-      detail: "A message to the Province office",
-      href: social.whatsapp,
-      action: "Open WhatsApp",
-      external: true,
-    },
   ]
 
   const socials = [
     { label: "Facebook", href: social.facebook, Icon: FacebookIcon },
     { label: "Instagram", href: social.instagram, Icon: InstagramIcon },
     { label: "YouTube", href: social.youtube, Icon: YouTubeIcon },
-    { label: "WhatsApp", href: social.whatsapp, Icon: WhatsAppIcon },
   ]
 
   return (
@@ -72,7 +62,7 @@ export default async function ContactPage() {
         id="thodarpaham"
         kicker="Contact us"
         title="We would be glad to hear from you"
-        summary="Write to the Provincial House at Thodarpaham, Jaffna, call the office, or send an enquiry below. Every message is read by the Province office."
+        summary="Write to the Provincial House at Thodarpaham, Jaffna, call the office, or send an enquiry below. Addresses for all Oblate houses are listed on this page."
       >
         <a
           href={contact.phoneHref}
@@ -94,7 +84,7 @@ export default async function ContactPage() {
             <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">Visit or write</p>
             <h2 className="mt-3 font-heading text-4xl font-semibold sm:text-5xl">Ways to reach the Province</h2>
           </Reveal>
-          <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {ways.map(({ Icon, ...way }, index) => (
               <Reveal key={way.label} as="li" from="up" delay={index * 90} className="h-full">
                 <a
@@ -128,7 +118,62 @@ export default async function ContactPage() {
         </div>
       </section>
 
-      <section id="enquiry" className="scroll-mt-80 bg-white px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
+      {houses?.length ? (
+        <section id="houses" className="scroll-mt-80 bg-white px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
+          <div className="mx-auto max-w-6xl">
+            <Reveal from="up">
+              <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">Oblate houses</p>
+              <h2 className="mt-3 font-heading text-4xl font-semibold sm:text-5xl">Addresses across the Province</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#5c6b7a] sm:text-base">
+                Provincial House, community houses and formation communities. Edit this list any time in the CMS under
+                Logos, address &amp; social links.
+              </p>
+            </Reveal>
+            <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {houses.map((house, index) => {
+                const href =
+                  house.mapLink ||
+                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${house.address}, Sri Lanka`)}`
+                return (
+                  <Reveal key={`${house.name}-${house.address}`} as="li" from="up" delay={(index % 3) * 80} className="h-full">
+                    <article className="flex h-full flex-col rounded-3xl bg-[#f4fbfd] p-6 ring-1 ring-[#d9eef3]">
+                      <p className="text-[11px] font-bold tracking-[0.18em] text-[#0e98ac] uppercase">
+                        {house.kind || "House"}
+                      </p>
+                      <h3 className="mt-2 font-heading text-xl font-semibold text-[#023e8a]">{house.name}</h3>
+                      {house.place ? <p className="mt-1 text-sm font-medium text-[#5c6b7a]">{house.place}</p> : null}
+                      <p className="mt-3 flex-1 text-sm leading-6 text-[#3d4b59]">{house.address}</p>
+                      <div className="mt-4 space-y-1 border-t border-[#d9eef3] pt-4 text-sm">
+                        {house.phone ? (
+                          <a href={`tel:${house.phone.replace(/\s/g, "")}`} className="block font-semibold text-[#023e8a] hover:text-[#0e98ac]">
+                            {house.phone}
+                          </a>
+                        ) : null}
+                        {house.email ? (
+                          <a href={`mailto:${house.email}`} className="block break-all text-[#0e98ac] hover:underline">
+                            {house.email}
+                          </a>
+                        ) : null}
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-[#023e8a] hover:text-[#17b3c6]"
+                        >
+                          Open in Maps
+                          <ArrowUpRight className="size-3.5" />
+                        </a>
+                      </div>
+                    </article>
+                  </Reveal>
+                )
+              })}
+            </ul>
+          </div>
+        </section>
+      ) : null}
+
+      <section id="enquiry" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.25fr_0.75fr]">
           <Reveal from="up">
             <div className="rounded-[2rem] bg-white p-6 shadow-[0_30px_70px_-40px_rgba(2,62,138,0.5)] ring-1 ring-[#d9eef3] sm:p-10">
@@ -152,9 +197,10 @@ export default async function ContactPage() {
               />
               <p className="relative text-xs font-bold tracking-[0.22em] text-[#ffcf4a] uppercase">Provincial House</p>
               <h3 className="relative mt-3 font-heading text-2xl font-semibold" style={{ color: "#ffffff" }}>
-                Thodarpaham, Jaffna
+                {contact.officeName || "Thodarpaham, Jaffna"}
               </h3>
               <p className="relative mt-3 text-sm leading-6 text-white/80">{fullAddress}</p>
+              {contact.hours ? <p className="relative mt-2 text-xs text-white/60">{contact.hours}</p> : null}
               {superior ? (
                 <div className="relative mt-6 border-t border-white/15 pt-5">
                   <p className="text-xs font-semibold tracking-[0.18em] text-white/60 uppercase">Provincial Superior</p>
@@ -177,7 +223,7 @@ export default async function ContactPage() {
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-[2rem] ring-1 ring-[#d9eef3] shadow-[0_24px_50px_-36px_rgba(2,62,138,0.5)]">
+            <div className="overflow-hidden rounded-[2rem] shadow-[0_24px_50px_-36px_rgba(2,62,138,0.5)] ring-1 ring-[#d9eef3]">
               <iframe
                 title="Map of the Provincial House, Thodarpaham, Jaffna"
                 src={mapEmbed}
@@ -189,7 +235,7 @@ export default async function ContactPage() {
                 href={directions}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-between bg-[#f4fbfd] px-5 py-4 text-sm font-semibold text-[#023e8a] transition hover:bg-[#eaf8fb]"
+                className="flex items-center justify-between bg-white px-5 py-4 text-sm font-semibold text-[#023e8a] transition hover:bg-[#eaf8fb]"
               >
                 Get directions on Google Maps
                 <ArrowUpRight aria-hidden="true" className="size-4 text-[#17b3c6]" />

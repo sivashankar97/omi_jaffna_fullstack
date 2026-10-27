@@ -20,7 +20,6 @@ export const site = {
     world: "https://www.omiworld.org/",
   },
   social: {
-    whatsapp: "https://wa.me/94212222721",
     facebook: "https://www.facebook.com/share/1EosRA8HHF/",
     instagram: "https://www.instagram.com/omi_jaffna/",
     youtube: "https://www.youtube.com/@oblatejaffnatv",

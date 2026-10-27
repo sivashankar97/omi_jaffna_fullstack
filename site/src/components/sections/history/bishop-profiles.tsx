@@ -1,8 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Cross } from "lucide-react"
+import { ArrowUpRight, Cross } from "lucide-react"
 
-import { Reveal } from "@/components/motion/reveal"
+import { MotionReveal } from "@/components/motion/motion-reveal"
 import { SectionHeading } from "@/components/sections/section-heading"
 import { bishopHref } from "@/config/navigation"
 import { isUpload } from "@/content/site-info"
@@ -25,21 +25,24 @@ export async function BishopProfiles() {
   if (!bishops.length) return null
 
   return (
-    <section id="bishops" className="scroll-mt-80 bg-white px-4 py-20 text-[#023e8a] sm:px-8 sm:py-24">
-      <div className="mx-auto max-w-6xl">
+    <section id="bishops" className="calendar-stage scroll-mt-80 px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
+      <div className="relative mx-auto max-w-6xl">
         <SectionHeading
           kicker="Oblate bishops"
           title="Bishops of our story"
           subtitle="Open any card for that bishop’s own profile page."
         />
-        <ul className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {bishops.map((bishop, index) => (
-            <Reveal key={bishop.slug} as="li" from="up" delay={(index % 3) * 80}>
+            <MotionReveal key={bishop.slug} as="li" from="up" delay={(index % 3) * 80} className="h-full">
               <Link
                 href={bishopHref(bishop)}
-                className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-[#f4fbfd] ring-1 ring-[#d8eef3] transition duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-[0_24px_50px_-28px_rgba(2,62,138,0.5)] hover:ring-[#17b3c6]/50"
+                className="group media-bento-card media-bento-shine calendar-glass relative flex h-full flex-col overflow-hidden rounded-[1.75rem]"
               >
-                <div className="relative flex items-center gap-4 bg-gradient-to-br from-[#03202b] via-[#06394a] to-[#0a5062] px-5 py-6 text-white">
+                <div className="relative flex items-center gap-4 bg-gradient-to-br from-[#03202b] via-[#06394a] to-[#0a5062] px-5 py-5 text-white">
+                  <span className="absolute top-3.5 right-3.5 grid size-8 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 transition group-hover:rotate-45">
+                    <ArrowUpRight className="size-3.5" />
+                  </span>
                   {bishop.image ? (
                     <span className="relative size-16 shrink-0 overflow-hidden rounded-full ring-2 ring-[#ffcf4a]/70">
                       <Image
@@ -56,7 +59,7 @@ export async function BishopProfiles() {
                       {initials(bishop.name)}
                     </span>
                   )}
-                  <div className="min-w-0">
+                  <div className="min-w-0 pr-8">
                     <p className="text-[11px] font-bold tracking-[0.18em] text-[#ffcf4a] uppercase">Bishop</p>
                     <h3 className="mt-1 font-heading text-lg leading-snug font-semibold">{bishop.name}</h3>
                   </div>
@@ -75,19 +78,19 @@ export async function BishopProfiles() {
                     </div>
                   </dl>
                   {bishop.excerpt ? <p className="text-sm leading-6 text-[#5c6b7a]">{bishop.excerpt}</p> : null}
-                  <p className="mt-auto flex items-center justify-between gap-2 border-t border-[#d8eef3] pt-4 text-xs font-semibold tracking-wide text-[#5c6b7a] uppercase">
+                  <p className="mt-auto flex items-center justify-between gap-2 border-t border-[#d7eef3]/80 pt-4 text-xs font-semibold tracking-wide text-[#5c6b7a] uppercase">
                     <span className="inline-flex items-center gap-2">
                       <Cross aria-hidden="true" className="size-3.5 text-[#17b3c6]" />
                       {bishop.no ? `Register no. ${bishop.no}` : "Oblate bishop"}
                     </span>
                     <span className="inline-flex items-center gap-1 text-[#0e98ac] normal-case tracking-normal group-hover:gap-2">
                       Profile
-                      <ArrowRight aria-hidden="true" className="size-3.5" />
+                      <ArrowUpRight aria-hidden="true" className="size-3.5" />
                     </span>
                   </p>
                 </div>
               </Link>
-            </Reveal>
+            </MotionReveal>
           ))}
         </ul>
       </div>

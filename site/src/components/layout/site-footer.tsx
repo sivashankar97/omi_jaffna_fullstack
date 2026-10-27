@@ -6,7 +6,6 @@ import { mainNavigation as defaultNavigation } from "@/config/navigation"
 import type { NavItem } from "@/types"
 import { site } from "@/config/site"
 import { isUpload, siteInfoDefaults, type SiteInfo } from "@/content/site-info"
-import { cn } from "cn"
 
 export function SiteFooter({
   navigation: mainNavigation = defaultNavigation,
@@ -23,7 +22,6 @@ export function SiteFooter({
     { label: "Facebook", href: info.social.facebook, icon: FacebookIcon },
     { label: "Instagram", href: info.social.instagram, icon: InstagramIcon },
     { label: "YouTube", href: info.social.youtube, icon: YouTubeIcon },
-    { label: "WhatsApp", href: info.social.whatsapp, icon: WhatsAppIcon },
   ]
 
   const contactRows = [
@@ -48,42 +46,28 @@ export function SiteFooter({
   ]
 
   return (
-    <footer className="bg-[#eef2f6] px-3 pb-6 pt-4 text-[#1a2b3c] sm:px-6 sm:pb-8 sm:pt-6">
+    <footer className="site-footer relative isolate overflow-hidden px-3 pb-6 pt-10 text-white sm:px-6 sm:pb-8 sm:pt-14">
+      {/* Atmosphere so glass has color to refract */}
       <div
-        className={cn(
-          "mx-auto max-w-6xl overflow-hidden rounded-[2rem] border border-white/80 bg-white",
-          "shadow-[0_24px_60px_-36px_rgba(15,40,70,0.35)]"
-        )}
-      >
-        {/* Brand row */}
-        <div className="flex flex-col gap-4 px-6 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-8">
-          <Link href="/" className="flex min-w-0 items-center gap-3">
-            <Image
-              src={info.logos.emblemImage}
-              unoptimized={isUpload(info.logos.emblemImage)}
-              alt=""
-              width={44}
-              height={44}
-              className="h-11 w-11 shrink-0 object-contain"
-            />
-            <span className="min-w-0">
-              <span className="block font-heading text-lg font-semibold tracking-tight text-[#0b2c5c] sm:text-xl">
-                {site.shortName}
-              </span>
-              <span className="block truncate text-xs text-[#6b7f94]">{site.congregation}</span>
-            </span>
-          </Link>
-          <p className="max-w-md text-sm leading-6 text-[#5b6f84] sm:text-right">{site.tagline}</p>
-        </div>
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(165deg,#0e98ac_0%,#17b3c6_42%,#0a8fa0_100%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-24 left-1/4 -z-10 size-[28rem] rounded-full bg-white/25 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-16 bottom-0 -z-10 size-[22rem] rounded-full bg-[#06394a]/35 blur-3xl"
+      />
 
-        <div className="mx-6 border-t border-[#e6ecf2] sm:mx-8" />
-
-        {/* Columns */}
-        <div className="grid gap-10 px-6 py-8 sm:grid-cols-2 sm:px-8 lg:grid-cols-4 lg:gap-8">
+      <div className="footer-glass mx-auto max-w-6xl overflow-hidden rounded-[1.75rem] sm:rounded-[2rem]">
+        {/* Columns + glass widget — Pinterest-style footer layout */}
+        <div className="grid gap-10 px-6 py-9 sm:px-8 sm:py-10 lg:grid-cols-[1fr_1fr_1fr_1.05fr] lg:gap-8">
           <FooterColumn title="Province">
             {provinceLinks.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="transition hover:text-[#0b2c5c]">
+                <Link href={item.href} className="footer-link">
                   {item.label}
                 </Link>
               </li>
@@ -93,7 +77,7 @@ export function SiteFooter({
           <FooterColumn title="Explore">
             {exploreLinks.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="transition hover:text-[#0b2c5c]">
+                <Link href={item.href} className="footer-link">
                   {item.label}
                 </Link>
               </li>
@@ -108,57 +92,44 @@ export function SiteFooter({
                   <a
                     href={row.href}
                     {...(row.external ? { target: "_blank", rel: "noreferrer" } : {})}
-                    className="flex items-start gap-3 transition hover:text-[#0b2c5c]"
+                    className="footer-link flex items-start gap-2.5"
                   >
-                    <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-[#e8f6f8] text-[#0d8fa0]">
+                    <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
                       <Icon />
                     </span>
-                    <span className="pt-1.5 leading-5">{row.label}</span>
+                    <span className="pt-1 leading-5">{row.label}</span>
                   </a>
                 </li>
               )
             })}
           </FooterColumn>
 
-          <div>
-            <p className="text-sm font-semibold text-[#0b2c5c]">Members</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Link
-                href={site.familyPortal.login}
-                className="rounded-full bg-[#12263f] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:-translate-y-0.5"
-              >
-                Login
-              </Link>
-              <Link
-                href={site.familyPortal.register}
-                className="rounded-full bg-[#f0f4f8] px-3.5 py-1.5 text-xs font-semibold text-[#0b2c5c] ring-1 ring-[#d8e2ec] transition hover:bg-white"
-              >
-                Register
-              </Link>
+          {/* Floating glass card — like the social widget in the reference */}
+          <div className="footer-widget flex flex-col justify-between gap-5 rounded-2xl p-5">
+            <div>
+              <p className="text-[11px] font-semibold tracking-[0.2em] text-white/70 uppercase">Members</p>
+              <p className="mt-2 text-sm leading-6 text-white/90">{site.tagline}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link
+                  href={site.familyPortal.login}
+                  className="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-semibold text-white ring-1 ring-white/35 transition hover:bg-white hover:text-[#0a5062]"
+                >
+                  Login
+                </Link>
+                <Link
+                  href={site.familyPortal.register}
+                  className="rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-[#17b3c6] transition hover:bg-[#e7fbff]"
+                >
+                  Register
+                </Link>
+              </div>
             </div>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {social.map((item) => {
-                const Icon = item.icon
-                return (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    aria-label={item.label}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex size-9 items-center justify-center rounded-xl bg-[#f0f4f8] text-[#3d5166] transition hover:-translate-y-0.5 hover:bg-[#e4ebf2] hover:text-[#0b2c5c]"
-                  >
-                    <Icon />
-                  </a>
-                )
-              })}
-            </div>
-            <div className="mt-5 space-y-2 text-sm text-[#5b6f84]">
+            <div className="space-y-1.5 text-sm text-white/80">
               <a
                 href={site.familyPortal.colombo}
                 target="_blank"
                 rel="noreferrer"
-                className="block transition hover:text-[#0b2c5c]"
+                className="block transition hover:text-white"
               >
                 OMI Colombo Province
               </a>
@@ -166,7 +137,7 @@ export function SiteFooter({
                 href={site.familyPortal.world}
                 target="_blank"
                 rel="noreferrer"
-                className="block transition hover:text-[#0b2c5c]"
+                className="block transition hover:text-white"
               >
                 OMI World
               </a>
@@ -174,26 +145,47 @@ export function SiteFooter({
           </div>
         </div>
 
-        {/* Legal bar */}
-        <div className="flex flex-col gap-3 border-t border-[#e6ecf2] px-6 py-5 text-xs text-[#8a9aab] sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <p>
-            © {site.years.slice(-4)} {site.congregation}. {site.name}.
-          </p>
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <Link href="/contact" className="transition hover:text-[#0b2c5c]">
+        {/* Bottom bar — logo / copyright / social */}
+        <div className="flex flex-col gap-4 border-t border-white/20 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <Link href="/" className="flex min-w-0 items-center gap-3">
+            <Image
+              src={info.logos.emblemImage}
+              unoptimized={isUpload(info.logos.emblemImage)}
+              alt=""
+              width={36}
+              height={36}
+              className="h-9 w-9 shrink-0 object-contain"
+            />
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold tracking-tight text-white">{site.shortName}</span>
+              <span className="block truncate text-xs text-white/70">
+                © {site.years.slice(-4)} {site.congregation}
+              </span>
+            </span>
+          </Link>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {social.map((item) => {
+              const Icon = item.icon
+              return (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  aria-label={item.label}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex size-9 items-center justify-center rounded-full bg-white/12 text-white ring-1 ring-white/25 transition hover:-translate-y-0.5 hover:bg-white hover:text-[#17b3c6]"
+                >
+                  <Icon />
+                </a>
+              )
+            })}
+            <Link
+              href="/contact"
+              className="ml-1 rounded-full px-3 py-1.5 text-xs font-semibold text-white/85 transition hover:bg-white/15 hover:text-white"
+            >
               Contact
             </Link>
-            <Link href="/login" className="transition hover:text-[#0b2c5c]">
-              Login
-            </Link>
-            <a
-              href={site.familyPortal.world}
-              target="_blank"
-              rel="noreferrer"
-              className="transition hover:text-[#0b2c5c]"
-            >
-              OMI World
-            </a>
           </div>
         </div>
       </div>
@@ -204,8 +196,8 @@ export function SiteFooter({
 function FooterColumn({ title, children }: { title: string; children: ReactNode }) {
   return (
     <nav aria-label={title}>
-      <p className="text-sm font-semibold text-[#0b2c5c]">{title}</p>
-      <ul className="mt-4 space-y-2.5 text-sm text-[#5b6f84]">{children}</ul>
+      <p className="text-[11px] font-semibold tracking-[0.2em] text-white/70 uppercase">{title}</p>
+      <ul className="mt-4 space-y-2.5 text-sm text-white/90">{children}</ul>
     </nav>
   )
 }

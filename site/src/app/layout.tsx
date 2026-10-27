@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Noto_Sans_Tamil } from "next/font/google"
 import { cookies } from "next/headers"
 
@@ -28,6 +28,13 @@ export const metadata: Metadata = {
   description: site.description,
 }
 
+/** Keep layout stable on mobile pinch-zoom; still allow accessibility zoom. */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+}
+
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const theme = (await cookies()).get("omi-theme")?.value
   const [ministries, parishes, formationHouses, mapLocations, siteInfo] = await Promise.all([
@@ -45,7 +52,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${tamil.variable} h-full antialiased${theme === "dark" ? " dark" : ""}`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col overflow-x-clip font-sans">
+      <body className="flex min-h-full w-full max-w-[100%] flex-col overflow-x-clip font-sans">
         <SiteInfoProvider value={siteInfo}>
           <SiteHeader navigation={navigation} />
           <main className="flex-1">

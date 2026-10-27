@@ -25,10 +25,10 @@ export function HistoricalArchive({
   necrology: NecrologyCopy
 }) {
   return (
-    <section id="historical-archive" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-20 text-[#023e8a] sm:px-8 sm:py-24">
-      <div className="mx-auto max-w-6xl">
+    <section id="historical-archive" className="calendar-stage scroll-mt-80 px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
+      <div className="relative mx-auto max-w-6xl">
         <SectionHeading kicker={archive.kicker} title={archive.title} subtitle={archive.subtitle} />
-        <div className="mt-12">
+        <div className="media-bento-card calendar-glass mt-12 overflow-hidden rounded-[1.75rem] p-4 sm:p-6">
           <NecrologyRegister people={people} copy={necrology} />
         </div>
         {timeline.length > 0 ? (

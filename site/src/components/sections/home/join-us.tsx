@@ -39,7 +39,7 @@ const formFields: Record<Path["id"], Field[]> = {
       required: true,
     },
     { name: "Email", label: "Email address", type: "email", autoComplete: "email" },
-    { name: "Phone / WhatsApp", label: "Phone / WhatsApp number", type: "tel", required: true, autoComplete: "tel" },
+    { name: "Phone", label: "Phone number", type: "tel", required: true, autoComplete: "tel" },
     { name: "City / Diocese", label: "City / Diocese of residence", required: true },
     {
       name: "Highest qualification",
@@ -58,7 +58,7 @@ const formFields: Record<Path["id"], Field[]> = {
   associate: [
     { name: "Full name", label: "Full name", required: true, autoComplete: "name" },
     { name: "Email", label: "Email address", type: "email", autoComplete: "email" },
-    { name: "Phone / WhatsApp", label: "Phone / WhatsApp number", type: "tel", required: true, autoComplete: "tel" },
+    { name: "Phone", label: "Phone number", type: "tel", required: true, autoComplete: "tel" },
     { name: "City / Parish", label: "City / Parish of residence", required: true },
     { name: "Profession / Occupation", label: "Profession / Occupation", required: true },
     {

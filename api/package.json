@@ -17,6 +17,7 @@
     "seed:ministry-sections": "node --no-warnings scripts/seed-ministry-sections.js",
     "seed:international": "node --no-warnings scripts/seed-international-countries.js",
     "seed:library": "node --no-warnings scripts/seed-library-dummy.js",
+    "seed:library-articles": "node --no-warnings scripts/seed-library-articles.js",
     "migrate:media": "node --no-warnings scripts/migrate-blobs-to-supabase.js",
     "test": "node --test"
   },

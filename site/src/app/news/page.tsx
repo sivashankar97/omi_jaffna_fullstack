@@ -20,7 +20,6 @@ export default async function NewsPage() {
     { label: "Facebook", href: site.social.facebook },
     { label: "Instagram", href: site.social.instagram },
     { label: "YouTube", href: site.social.youtube },
-    { label: "WhatsApp", href: site.social.whatsapp },
   ]
   const [featured, ...others] = [...newsArticles].sort((a, b) => Number(Boolean(a.sample)) - Number(Boolean(b.sample)))
   const topStories = others.slice(0, 4)

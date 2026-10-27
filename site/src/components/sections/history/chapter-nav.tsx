@@ -29,10 +29,10 @@ export function ChapterNav({ chapters }: { chapters: readonly Chapter[] }) {
   }, [chapters])
 
   return (
-    <nav aria-label="History chapters" className="sticky top-28">
+    <nav aria-label="History chapters" className="calendar-glass sticky top-28 overflow-hidden rounded-[1.75rem] p-5">
       <p className="text-xs font-bold tracking-[0.22em] text-[#17b3c6] uppercase">Chapters</p>
       <div className="relative mt-4">
-        <span aria-hidden="true" className="absolute top-0 bottom-0 left-0 w-0.5 rounded-full bg-[#e2f2f6]" />
+        <span aria-hidden="true" className="absolute top-0 bottom-0 left-0 w-0.5 rounded-full bg-[#d7eef3]" />
         <span
           aria-hidden="true"
           className="absolute top-0 left-0 w-0.5 rounded-full bg-gradient-to-b from-[#17b3c6] to-[#ffbf00] transition-[height] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
@@ -47,11 +47,11 @@ export function ChapterNav({ chapters }: { chapters: readonly Chapter[] }) {
                   href={`#${chapter.id}`}
                   aria-current={on ? "step" : undefined}
                   className={cn(
-                    "block py-2.5 pl-5 transition-all duration-500",
-                    on ? "translate-x-1" : "opacity-60 hover:opacity-100"
+                    "block rounded-xl py-2.5 pl-5 transition-all duration-500",
+                    on ? "translate-x-1 bg-white/55" : "opacity-60 hover:opacity-100"
                   )}
                 >
-                  <span className="block text-[11px] font-bold tracking-[0.16em] text-[#ffbf00]">
+                  <span className="block text-[11px] font-bold tracking-[0.16em] text-[#9a6b00]">
                     {String(index + 1).padStart(2, "0")} · {chapter.years}
                   </span>
                   <span
