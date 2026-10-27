@@ -2,6 +2,7 @@ node_modules/
 .env
 api/.env
 .env.local
+deploy/vps/.env
 .DS_Store
 *.log
 api/uploads/*
@@ -22,3 +23,4 @@ notes/.trash/
 notes/.obsidian-mcp/
 .vercel
 .tmp/
+VPS-LOGIN.txt

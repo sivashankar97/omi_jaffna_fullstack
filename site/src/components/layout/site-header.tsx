@@ -107,7 +107,7 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
       <header ref={headerRef} className="site-header pointer-events-none fixed inset-x-0 top-0 z-40">
         {/* Top: white + logos + search — paddingBottom set in JS to half the pill height */}
         <div ref={brandRef} className="pointer-events-auto bg-white pb-7">
-          <div className="relative mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 sm:gap-5 sm:px-5 sm:py-4">
+          <div className="relative mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 py-3 min-[400px]:gap-3 sm:gap-5 sm:px-5 sm:py-4">
             <Link href="/" className="justify-self-start" aria-label={site.name}>
               <Image
                 src={siteInfo.logos.headerImage}
@@ -116,27 +116,28 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
                 width={320}
                 height={96}
                 priority
-                className="h-12 w-auto max-w-[9.5rem] object-contain object-left sm:h-14 sm:max-w-[14rem] lg:h-16 lg:max-w-none"
+                sizes="(max-width: 640px) 152px, (max-width: 1024px) 224px, 320px"
+                className="h-10 w-auto max-w-[7.5rem] object-contain object-left min-[400px]:h-12 min-[400px]:max-w-[9.5rem] sm:h-14 sm:max-w-[14rem] lg:h-16 lg:max-w-none"
               />
             </Link>
 
-            <div className="relative mx-auto w-full min-w-0 max-w-[15rem] justify-self-center sm:max-w-[22rem] lg:max-w-[28rem]">
+            <div className="relative mx-auto w-full min-w-0 max-w-[11rem] justify-self-center min-[400px]:max-w-[15rem] sm:max-w-[22rem] lg:max-w-[28rem]">
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search the Province..."
-                aria-label="Search"
-                className="header-search h-8 w-full rounded-full border border-[#d5e4ea] bg-[#f7fbff] pr-10 pl-5 text-[13px] leading-none text-[#023e8a] shadow-none placeholder:text-[#9aa8b5] focus-visible:border-[#17b3c6] focus-visible:bg-white focus-visible:ring-0 focus-visible:ring-offset-0 sm:h-9"
+                aria-label="Search the Province"
+                className="header-search h-8 w-full rounded-full border border-[#d5e4ea] bg-[#f7fbff] pr-9 pl-3.5 text-[12px] leading-none text-[#023e8a] shadow-none placeholder:truncate placeholder:text-[#9aa8b5] focus-visible:border-[#17b3c6] focus-visible:bg-white focus-visible:ring-0 focus-visible:ring-offset-0 min-[400px]:pl-5 min-[400px]:text-[13px] sm:h-9 sm:pr-10"
               />
               <Search
                 aria-hidden="true"
-                className="pointer-events-none absolute top-1/2 right-3.5 z-10 size-4 -translate-y-1/2 text-[#17b3c6]"
+                className="pointer-events-none absolute top-1/2 right-3 z-10 size-3.5 -translate-y-1/2 text-[#17b3c6] sm:right-3.5 sm:size-4"
                 strokeWidth={1.75}
               />
               {query.trim() ? <SearchResults results={results} onPick={() => setQuery("")} /> : null}
             </div>
 
-            <div className="flex items-center justify-self-end gap-2">
+            <div className="flex items-center justify-self-end gap-1.5 min-[400px]:gap-2">
               <Link href="/" aria-label="Oblate Province of Jaffna" className="shrink-0">
                 <Image
                   src={siteInfo.logos.emblemImage}
@@ -145,7 +146,8 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
                   width={64}
                   height={64}
                   priority
-                  className="size-11 rounded-full object-contain sm:size-14 lg:size-16"
+                  sizes="64px"
+                  className="size-9 rounded-full object-contain min-[400px]:size-11 sm:size-14 lg:size-16"
                 />
               </Link>
               <Sheet>

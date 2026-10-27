@@ -110,7 +110,14 @@ export type FormerProvincial = {
   gallery: LeadershipPhoto[]
 }
 export type FormationHouse = { name: string; place: string }
-export type Publication = { id: string; title: string; subtitle: string; text: string; href?: string }
+export type Publication = {
+  id: string
+  title: string
+  subtitle: string
+  text: string
+  href?: string
+  image?: string
+}
 export type GatheringKind = "event" | "birthday" | "death-anniversary"
 export type Gathering = {
   id: string
@@ -171,7 +178,6 @@ const fetchItems = cache(async (type: CmsType): Promise<CmsItem[] | null> => {
     return data.items
   } catch (err) {
     if ((err as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") throw err
-    console.error(`[cms] Failed to fetch ${type}:`, err)
     return null
   }
 })
@@ -410,6 +416,7 @@ export const getPublications = () =>
         subtitle: text(item, "subtitle") || subtitle,
         text: item.excerpt,
         href: item.media_url || undefined,
+        image: item.image_url || undefined,
       }
     })
   )

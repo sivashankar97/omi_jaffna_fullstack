@@ -2,11 +2,23 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
-import { FormEvent, useEffect, useState } from "react"
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  IdCard,
+  Lock,
+  Mail,
+  Phone,
+  UserRound,
+} from "lucide-react"
+import { AnimatePresence, motion, useReducedMotion } from "motion/react"
+import { FormEvent, useEffect, useState, type ReactNode } from "react"
 
 import { notifyAuthChanged, signOutSession } from "@/components/auth/session"
-import { MotionReveal } from "@/components/motion/motion-reveal"
+import { MotionHero } from "@/components/motion/motion-reveal"
 import { site } from "@/config/site"
 import { useSiteInfo } from "@/components/layout/site-info"
 import { isUpload } from "@/content/site-info"
@@ -21,53 +33,182 @@ type Member = {
   father_id: string | null
 }
 
-const AUTH_ART = "/images/faithful-horizons-sunrise.jpg"
+type FieldErrors = Partial<
+  Record<"name" | "father_id" | "date_of_birth" | "email" | "mobile_number" | "password" | "identity", string>
+>
 
-const fieldLabel = "mb-1.5 block text-[11px] font-semibold tracking-[0.16em] text-[#5c6b7a] uppercase"
+const AUTH_ART = "/images/guided-by-sunrise-cross.jpg"
+const AUTH_SUPPORT = "Serving with hope. Building communities. Sharing Christ’s love."
+
+/** Same-site path only — blocks `//evil.com` open redirects. */
+function safeNextPath(fallback = "/dashboard") {
+  if (typeof window === "undefined") return fallback
+  const next = new URLSearchParams(window.location.search).get("next")
+  if (!next) return fallback
+  if (!next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return fallback
+  try {
+    const url = new URL(next, window.location.origin)
+    if (url.origin !== window.location.origin) return fallback
+    return `${url.pathname}${url.search}${url.hash}`
+  } catch {
+    return fallback
+  }
+}
+
+const fieldLabel = "mb-1.5 block text-[11px] font-semibold tracking-[0.14em] text-[#5a7380] uppercase"
 
 const fieldInput =
-  "w-full rounded-xl border border-[#cfe9ef] bg-white/90 px-4 py-2.5 text-sm text-[#023e8a] outline-none transition placeholder:text-[#9aa8b5] focus:border-[#17b3c6] focus:ring-3 focus:ring-[#17b3c6]/25"
+  "w-full rounded-[0.85rem] border border-[#d7e8ee] bg-white px-3.5 py-2.5 text-sm text-[#0b4a5c] outline-none transition placeholder:text-[#9aafb8] focus:border-[#17b3c6] focus:ring-3 focus:ring-[#17b3c6]/20"
+
+const fieldInputError = "border-[#e8a0a0] focus:border-[#d14343] focus:ring-[#d14343]/15"
 
 const primaryBtn =
-  "inline-flex w-full items-center justify-center rounded-xl bg-[#17b3c6] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_14px_28px_-14px_rgb(23_179_198/0.7)] transition hover:bg-[#0e98ac] disabled:opacity-60"
+  "member-access-cta inline-flex w-full items-center justify-center gap-2 rounded-[0.9rem] bg-[#0f8fa3] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_32px_-16px_rgb(15_143_163/0.75)] transition hover:bg-[#0c7d8f] disabled:opacity-60"
 
-function errorMessage(error: unknown, fallback: string) {
-  if (typeof error === "string") return error
-  const fields = (error as { fieldErrors?: Record<string, string[]> } | undefined)?.fieldErrors
-  const first = fields && Object.entries(fields)[0]
-  if (!first) return fallback
-  const labels: Record<string, string> = {
-    name: "Full name",
-    father_id: "Father ID",
-    date_of_birth: "Date of birth",
-    email: "Email",
-    mobile_number: "Mobile number",
-    password: "Password",
+const ease = [0.22, 1, 0.36, 1] as const
+
+function FieldHint({ error, hint }: { error?: string; hint?: string }) {
+  if (error) {
+    return (
+      <p role="alert" className="mt-1.5 text-[12px] leading-snug text-[#b42318]">
+        {error}
+      </p>
+    )
   }
-  return `${labels[first[0]] ?? first[0]}: ${first[1][0]}`
+  if (hint) {
+    return <p className="mt-1.5 text-[12px] leading-snug text-[#7a8f9a]">{hint}</p>
+  }
+  return null
+}
+
+function FieldIcon({ children }: { children: ReactNode }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute top-1/2 left-3.5 z-10 -translate-y-1/2 text-[#8aa3ad]"
+    >
+      {children}
+    </span>
+  )
+}
+
+function AuthField({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
+  return (
+    <div className="member-access-field" style={{ animationDelay: `${delay}s` }}>
+      {children}
+    </div>
+  )
+}
+
+function AuthArtPanel() {
+  return (
+    <div className="relative min-h-[14rem] overflow-hidden sm:min-h-[16rem] lg:min-h-full">
+      <Image
+        src={AUTH_ART}
+        alt=""
+        fill
+        priority
+        sizes="(min-width:1024px) 48vw, 100vw"
+        className="member-access-art-media object-cover object-[center_35%]"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-t from-[#03202b]/78 via-[#03202b]/25 to-[#03202b]/10"
+      />
+      <div className="member-access-art-copy absolute inset-x-0 bottom-0 p-6 text-white sm:p-8 lg:p-9">
+        <p className="inline-block border-b-2 border-[#f4c430] pb-1 text-[11px] font-semibold tracking-[0.22em] text-white/90 uppercase">
+          {site.shortName}
+        </p>
+        <p className="mt-3 font-heading text-[1.55rem] leading-tight font-semibold sm:text-[1.85rem]">
+          {site.tagline}
+        </p>
+        <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/85">{AUTH_SUPPORT}</p>
+      </div>
+    </div>
+  )
+}
+
+function parseFieldErrors(error: unknown): FieldErrors {
+  if (!error || typeof error !== "object") return {}
+  const fields = (error as { fieldErrors?: Record<string, string[]> }).fieldErrors
+  if (!fields) return {}
+  const next: FieldErrors = {}
+  for (const [key, messages] of Object.entries(fields)) {
+    if (messages?.[0]) next[key as keyof FieldErrors] = messages[0]
+  }
+  return next
+}
+
+function firstError(errors: FieldErrors, fallback: string) {
+  const first = Object.values(errors).find(Boolean)
+  return first || fallback
 }
 
 export function MemberAccess({ mode }: { mode: Mode }) {
   const siteInfo = useSiteInfo()
+  const reduce = useReducedMotion()
   const [notice, setNotice] = useState("")
+  const [errors, setErrors] = useState<FieldErrors>({})
   const [showPassword, setShowPassword] = useState(false)
   const [busy, setBusy] = useState(false)
   const [member, setMember] = useState<Member | null>(null)
+  const [name, setName] = useState("")
+  const [omiId, setOmiId] = useState("")
+  const [omiRecognised, setOmiRecognised] = useState(false)
   const register = mode === "register"
+
+  useEffect(() => {
+    if (register) return
+    const fromQuery = new URLSearchParams(window.location.search).get("notice")
+    if (fromQuery) setNotice(fromQuery)
+  }, [register])
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "same-origin", cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
       .then((data) => {
         const user = data?.user as Member | undefined
-        if (user?.role === "father") {
-          window.location.assign("/dashboard")
+        if (!user) {
+          setMember(null)
           return
         }
-        setMember(user ?? null)
+        if (user.role === "father") {
+          window.location.assign(safeNextPath("/dashboard"))
+          return
+        }
+        setMember(user)
       })
       .catch(() => setMember(null))
   }, [])
+
+  useEffect(() => {
+    if (!register) return
+    const id = omiId.trim()
+    if (!id || id.length < 3) {
+      setOmiRecognised(false)
+      return
+    }
+    const timer = window.setTimeout(() => {
+      fetch(`/api/auth/omi-lookup?omi_id=${encodeURIComponent(id)}`, { credentials: "same-origin" })
+        .then(async (response) => {
+          const result = await response.json().catch(() => ({}))
+          if (!response.ok) {
+            setOmiRecognised(false)
+            const field = parseFieldErrors(result.error)
+            if (field.father_id) setErrors((current) => ({ ...current, father_id: field.father_id }))
+            return
+          }
+          setOmiRecognised(Boolean(result.valid))
+          setErrors((current) => {
+            const next = { ...current }
+            delete next.father_id
+            return next
+          })
+        })
+        .catch(() => setOmiRecognised(false))
+    }, 350)
+    return () => window.clearTimeout(timer)
+  }, [omiId, register])
 
   function signedIn(user: Member) {
     notifyAuthChanged(user)
@@ -75,42 +216,53 @@ export function MemberAccess({ mode }: { mode: Mode }) {
       window.location.assign("/admin")
       return
     }
-    window.location.assign("/dashboard")
+    window.location.assign(safeNextPath("/dashboard"))
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
-    const value = (name: string) => String(data.get(name) ?? "").trim()
+    const value = (field: string) => String(data.get(field) ?? "").trim()
+    const nextErrors: FieldErrors = {}
 
     let body: Record<string, string>
     if (register) {
+      const mobileRaw = value("mobile_number").replace(/\s+/g, " ")
+      const mobile = mobileRaw.startsWith("+") ? mobileRaw : mobileRaw ? `+94 ${mobileRaw}` : ""
       body = {
-        name: value("name"),
-        father_id: value("father_id"),
+        name: name.trim(),
+        father_id: omiId.trim(),
         date_of_birth: value("date_of_birth"),
         email: value("email"),
-        mobile_number: value("mobile_number"),
+        mobile_number: mobile,
         password: String(data.get("password") ?? ""),
       }
-      if (Object.values(body).some((field) => !field)) {
-        setNotice("Fill in every field to register.")
-        return
-      }
-      if (body.password.length < 12) {
-        setNotice("Choose a password of at least 12 characters.")
+      if (!body.name) nextErrors.name = "Enter your full name as on Province records."
+      if (!body.father_id) nextErrors.father_id = "Enter your OMI ID."
+      if (!body.date_of_birth) nextErrors.date_of_birth = "Enter your date of birth."
+      if (!body.email) nextErrors.email = "Enter your email address."
+      if (!body.mobile_number) nextErrors.mobile_number = "Enter your mobile number."
+      if (!body.password) nextErrors.password = "Choose a password."
+      else if (body.password.length < 12) nextErrors.password = "Password must be at least 12 characters."
+      if (Object.keys(nextErrors).length) {
+        setErrors(nextErrors)
+        setNotice("")
         return
       }
     } else {
       body = { identifier: value("identity"), password: String(data.get("password") ?? "") }
-      if (!body.identifier || !body.password) {
-        setNotice("Add your Father ID and password.")
+      if (!body.identifier) nextErrors.identity = "Enter your OMI ID."
+      if (!body.password) nextErrors.password = "Enter your password."
+      if (Object.keys(nextErrors).length) {
+        setErrors(nextErrors)
+        setNotice("")
         return
       }
     }
 
     setBusy(true)
     setNotice("")
+    setErrors({})
     try {
       const response = await fetch(register ? "/api/auth/register" : "/api/auth/login", {
         method: "POST",
@@ -120,11 +272,28 @@ export function MemberAccess({ mode }: { mode: Mode }) {
       })
       const result = await response.json().catch(() => ({}))
       if (!response.ok) {
-        setNotice(
-          response.status === 429
-            ? "Too many attempts. Please wait a few minutes and try again."
-            : errorMessage(result.error, register ? "Registration failed." : "Sign in failed.")
-        )
+        if (response.status === 429) {
+          setNotice("Too many attempts. Please wait a few minutes and try again.")
+          return
+        }
+        const fieldErrors = parseFieldErrors(result.error)
+        if (Object.keys(fieldErrors).length) {
+          setErrors(fieldErrors)
+          setNotice("")
+        } else {
+          setNotice(
+            typeof result.error === "string"
+              ? result.error
+              : firstError(fieldErrors, register ? "Registration failed." : "Sign in failed.")
+          )
+        }
+        return
+      }
+      if (register && (result.pending_approval || result.user?.active === false)) {
+        const message =
+          result.message ||
+          "Registration received. A Province administrator must activate your account before you can sign in."
+        window.location.assign(`/login?notice=${encodeURIComponent(message)}`)
         return
       }
       signedIn(result.user)
@@ -141,73 +310,54 @@ export function MemberAccess({ mode }: { mode: Mode }) {
   }
 
   return (
-    <section className="member-access-stage relative isolate flex min-h-[calc(100svh-4.5rem)] items-center justify-center overflow-hidden px-4 py-10 sm:px-6 sm:py-14">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-1/4 left-1/3 size-[28rem] -translate-x-1/2 rounded-full bg-[#17b3c6]/18 blur-[120px]"
-      />
+    <section className="member-access-stage relative isolate flex min-h-[calc(100svh-5.5rem)] items-center justify-center overflow-hidden px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
+      <MotionHero className="member-access-shell relative z-10 grid w-full max-w-5xl overflow-hidden lg:grid-cols-[1.05fr_minmax(0,1fr)]">
+        <AuthArtPanel />
 
-      <MotionReveal className="member-access-shell relative z-10 grid w-full max-w-5xl overflow-hidden lg:grid-cols-[1.05fr_minmax(0,1fr)]">
-        {/* Left — full art */}
-        <div className="relative hidden min-h-[36rem] lg:block">
-          <Image
-            src={AUTH_ART}
-            alt=""
-            fill
-            priority
-            sizes="(min-width:1024px) 52vw, 100vw"
-            className="object-cover object-center"
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-t from-[#03202b]/55 via-transparent to-[#03202b]/15"
-          />
-          <div className="absolute inset-x-0 bottom-0 p-7 text-white">
-            <p className="text-[11px] font-semibold tracking-[0.2em] text-white/75 uppercase">
-              {site.shortName}
-            </p>
-            <p className="mt-2 font-heading text-2xl font-semibold leading-tight">{site.tagline}</p>
-          </div>
-        </div>
-
-        {/* Right — white glass register / login card */}
-        <div className="member-access-glass relative flex flex-col justify-center px-6 py-9 sm:px-9 sm:py-11 lg:px-10">
-          <div className="mb-6 flex items-center gap-2.5">
+        <motion.div
+          className="member-access-glass relative flex flex-col justify-center px-5 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-11"
+          initial={reduce ? false : { opacity: 0, x: 18 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: reduce ? 0 : 0.12, ease }}
+        >
+          <div className="member-access-field mb-5 flex items-center gap-2.5" style={{ animationDelay: "0.18s" }}>
             <Image
               src={siteInfo.logos.emblemImage}
               unoptimized={isUpload(siteInfo.logos.emblemImage)}
               alt=""
-              width={36}
-              height={36}
-              className="size-9 object-contain"
+              width={40}
+              height={40}
+              className="size-10 object-contain"
               priority
             />
-            <span className="text-sm font-semibold text-[#023e8a]">{site.shortName}</span>
+            <span className="text-sm font-semibold text-[#0b4a5c]">{site.shortName}</span>
           </div>
 
           {member ? (
             <div>
-              <h1 className="font-heading text-2xl font-semibold text-[#023e8a] sm:text-[1.7rem]">Welcome</h1>
-              <p className="mt-2 text-sm text-[#5c6b7a]">You are signed in</p>
-              <p className="mt-6 text-lg font-medium text-[#023e8a]">{member.name}</p>
+              <h1 className="font-heading text-2xl font-semibold text-[#0b4a5c] sm:text-[1.7rem]">Welcome</h1>
+              <p className="mt-2 text-sm text-[#5a7380]">You are signed in</p>
+              <p className="mt-6 text-lg font-medium text-[#0b4a5c]">{member.name}</p>
               {member.father_id ? (
-                <p className="mt-1 text-sm text-[#5c6b7a]">Father ID {member.father_id}</p>
+                <p className="mt-1 text-sm text-[#5a7380]">OMI ID {member.father_id}</p>
               ) : null}
-              <p className="text-sm text-[#5c6b7a]">{member.email}</p>
+              <p className="text-sm text-[#5a7380]">{member.email}</p>
               <div className="mt-8 flex flex-col gap-3">
                 {member.role === "father" ? (
                   <Link href="/dashboard" className={primaryBtn}>
                     Open profile
+                    <ArrowRight className="member-access-cta-arrow size-4" aria-hidden="true" />
                   </Link>
                 ) : (
                   <a href="/admin" className={primaryBtn}>
                     Open the CMS
+                    <ArrowRight className="member-access-cta-arrow size-4" aria-hidden="true" />
                   </a>
                 )}
                 <button
                   type="button"
                   onClick={signOut}
-                  className="text-sm font-semibold text-[#023e8a] transition hover:text-[#17b3c6]"
+                  className="text-sm font-semibold text-[#0b4a5c] transition hover:text-[#0f8fa3]"
                 >
                   Sign out
                 </button>
@@ -215,91 +365,166 @@ export function MemberAccess({ mode }: { mode: Mode }) {
             </div>
           ) : (
             <form onSubmit={onSubmit} className="w-full" noValidate>
-              <h1 className="font-heading text-2xl font-semibold tracking-tight text-[#023e8a] sm:text-[1.7rem]">
-                {register ? "Create your Father account" : "Please enter your account details"}
-              </h1>
-              <p className="mt-2 text-sm text-[#5c6b7a]">
-                {register
-                  ? "Use your Father ID and Province details to open a secure profile."
-                  : "Enter your Father ID and password to continue."}
-              </p>
+              <AuthField delay={0.22}>
+                <h1 className="font-heading text-[1.55rem] leading-tight font-semibold tracking-tight text-[#0b4a5c] sm:text-[1.75rem]">
+                  {register ? "Create your Father account" : "Sign in to your account"}
+                </h1>
+                <p className="mt-2 text-sm leading-relaxed text-[#5a7380]">
+                  {register
+                    ? "Use your OMI ID and Province name from the personnel list to open a secure profile."
+                    : "Enter your OMI ID and password to continue to your Province profile."}
+                </p>
+              </AuthField>
 
               {register ? (
                 <div className="mt-6 grid gap-3.5">
-                  <div>
+                  <AuthField delay={0.3}>
                     <label className={fieldLabel} htmlFor="reg-name">
-                      Full name
+                      Full Name
                     </label>
-                    <input
-                      id="reg-name"
-                      name="name"
-                      autoComplete="name"
-                      required
-                      placeholder="As on Province records"
-                      className={fieldInput}
-                    />
-                  </div>
-                  <div className="grid gap-3.5 sm:grid-cols-2">
-                    <div>
-                      <label className={fieldLabel} htmlFor="reg-father">
-                        Father ID
-                      </label>
+                    <div className="relative">
+                      <FieldIcon>
+                        <UserRound className="size-4" />
+                      </FieldIcon>
                       <input
-                        id="reg-father"
-                        name="father_id"
-                        autoComplete="username"
+                        id="reg-name"
+                        name="name"
+                        autoComplete="name"
                         required
-                        placeholder="e.g. OMI-…"
-                        className={fieldInput}
+                        value={name}
+                        onChange={(event) => {
+                          setName(event.target.value)
+                          setErrors((current) => {
+                            const next = { ...current }
+                            delete next.name
+                            return next
+                          })
+                        }}
+                        placeholder="As on Province records"
+                        aria-invalid={Boolean(errors.name)}
+                        className={cn(fieldInput, "pl-10", errors.name && fieldInputError)}
                       />
                     </div>
-                    <div>
-                      <label className={fieldLabel} htmlFor="reg-dob">
-                        Date of birth
-                      </label>
-                      <input
-                        id="reg-dob"
-                        name="date_of_birth"
-                        type="date"
-                        autoComplete="bday"
-                        required
-                        className={fieldInput}
-                      />
+                    <FieldHint error={errors.name} hint="Use your full name exactly as on Province records." />
+                  </AuthField>
+
+                  <AuthField delay={0.36}>
+                    <div className="grid gap-3.5 sm:grid-cols-2">
+                      <div>
+                        <label className={fieldLabel} htmlFor="reg-father">
+                          OMI ID
+                        </label>
+                        <div className="relative">
+                          <FieldIcon>
+                            <IdCard className="size-4" />
+                          </FieldIcon>
+                          <input
+                            id="reg-father"
+                            name="father_id"
+                            autoComplete="username"
+                            required
+                            inputMode="numeric"
+                            value={omiId}
+                            onChange={(event) => {
+                              setOmiId(event.target.value)
+                              setErrors((current) => {
+                                const next = { ...current }
+                                delete next.father_id
+                                return next
+                              })
+                            }}
+                            placeholder="e.g. 14080"
+                            aria-invalid={Boolean(errors.father_id)}
+                            className={cn(fieldInput, "pl-10", errors.father_id && fieldInputError)}
+                          />
+                        </div>
+                        <FieldHint
+                          error={errors.father_id}
+                          hint={omiRecognised && !errors.father_id ? "OMI ID recognised on the Province list." : undefined}
+                        />
+                      </div>
+                      <div>
+                        <label className={fieldLabel} htmlFor="reg-dob">
+                          Date of Birth
+                        </label>
+                        <div className="relative">
+                          <FieldIcon>
+                            <CalendarDays className="size-4" />
+                          </FieldIcon>
+                          <input
+                            id="reg-dob"
+                            name="date_of_birth"
+                            type="date"
+                            autoComplete="bday"
+                            required
+                            aria-invalid={Boolean(errors.date_of_birth)}
+                            className={cn(fieldInput, "pl-10", errors.date_of_birth && fieldInputError)}
+                          />
+                        </div>
+                        <FieldHint error={errors.date_of_birth} />
+                      </div>
                     </div>
-                  </div>
-                  <div>
+                  </AuthField>
+
+                  <AuthField delay={0.42}>
                     <label className={fieldLabel} htmlFor="reg-email">
                       Email
                     </label>
-                    <input
-                      id="reg-email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                      placeholder="you@example.com"
-                      className={fieldInput}
-                    />
-                  </div>
-                  <div>
+                    <div className="relative">
+                      <FieldIcon>
+                        <Mail className="size-4" />
+                      </FieldIcon>
+                      <input
+                        id="reg-email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        placeholder="you@example.com"
+                        aria-invalid={Boolean(errors.email)}
+                        className={cn(fieldInput, "pl-10", errors.email && fieldInputError)}
+                      />
+                    </div>
+                    <FieldHint error={errors.email} />
+                  </AuthField>
+
+                  <AuthField delay={0.48}>
                     <label className={fieldLabel} htmlFor="reg-mobile">
-                      Mobile number
+                      Mobile Number
                     </label>
-                    <input
-                      id="reg-mobile"
-                      name="mobile_number"
-                      type="tel"
-                      autoComplete="tel"
-                      required
-                      placeholder="+94 …"
-                      className={fieldInput}
-                    />
-                  </div>
-                  <div>
+                    <div
+                      className={cn(
+                        "relative flex overflow-hidden rounded-[0.85rem] border border-[#d7e8ee] bg-white focus-within:border-[#17b3c6] focus-within:ring-3 focus-within:ring-[#17b3c6]/20",
+                        errors.mobile_number && "border-[#e8a0a0] focus-within:border-[#d14343] focus-within:ring-[#d14343]/15"
+                      )}
+                    >
+                      <span className="inline-flex items-center gap-1.5 border-r border-[#d7e8ee] bg-[#f4fafc] px-3 text-sm font-medium text-[#5a7380]">
+                        <Phone className="size-3.5 text-[#8aa3ad]" aria-hidden="true" />
+                        +94
+                      </span>
+                      <input
+                        id="reg-mobile"
+                        name="mobile_number"
+                        type="tel"
+                        autoComplete="tel-national"
+                        required
+                        inputMode="tel"
+                        placeholder="77 123 4567"
+                        aria-invalid={Boolean(errors.mobile_number)}
+                        className="w-full border-0 bg-transparent px-3 py-2.5 text-sm text-[#0b4a5c] outline-none placeholder:text-[#9aafb8]"
+                      />
+                    </div>
+                    <FieldHint error={errors.mobile_number} />
+                  </AuthField>
+
+                  <AuthField delay={0.54}>
                     <label className={fieldLabel} htmlFor="reg-password">
                       Password
                     </label>
                     <div className="relative">
+                      <FieldIcon>
+                        <Lock className="size-4" />
+                      </FieldIcon>
                       <input
                         id="reg-password"
                         name="password"
@@ -308,45 +533,57 @@ export function MemberAccess({ mode }: { mode: Mode }) {
                         required
                         minLength={12}
                         placeholder="At least 12 characters"
-                        className={cn(fieldInput, "pr-11")}
+                        aria-invalid={Boolean(errors.password)}
+                        className={cn(fieldInput, "pr-11 pl-10", errors.password && fieldInputError)}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword((open) => !open)}
-                        className="absolute top-1/2 right-3 -translate-y-1/2 text-[#9aa8b5] transition hover:text-[#17b3c6]"
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-[#8aa3ad] transition hover:text-[#0f8fa3]"
                         aria-label={showPassword ? "Hide password" : "Show password"}
                         aria-pressed={showPassword}
                       >
                         {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                       </button>
                     </div>
-                  </div>
+                    <FieldHint error={errors.password} />
+                  </AuthField>
                 </div>
               ) : (
                 <div className="mt-7 grid gap-4">
-                  <div>
+                  <AuthField delay={0.3}>
                     <label className={fieldLabel} htmlFor="login-id">
-                      Father ID
+                      OMI ID
                     </label>
-                    <input
-                      id="login-id"
-                      name="identity"
-                      autoComplete="username"
-                      required
-                      placeholder="Your Father ID"
-                      className={fieldInput}
-                    />
-                  </div>
-                  <div>
+                    <div className="relative">
+                      <FieldIcon>
+                        <IdCard className="size-4" />
+                      </FieldIcon>
+                      <input
+                        id="login-id"
+                        name="identity"
+                        autoComplete="username"
+                        required
+                        placeholder="Your OMI ID"
+                        aria-invalid={Boolean(errors.identity)}
+                        className={cn(fieldInput, "pl-10", errors.identity && fieldInputError)}
+                      />
+                    </div>
+                    <FieldHint error={errors.identity} />
+                  </AuthField>
+                  <AuthField delay={0.38}>
                     <div className="mb-1.5 flex items-center justify-between gap-3">
                       <label className={cn(fieldLabel, "mb-0")} htmlFor="login-password">
                         Password
                       </label>
-                      <Link href="/contact" className="text-xs font-semibold text-[#17b3c6] hover:text-[#0e98ac]">
+                      <Link href="/contact" className="text-xs font-semibold text-[#0f8fa3] hover:text-[#0c7d8f]">
                         Forgot Password
                       </Link>
                     </div>
                     <div className="relative">
+                      <FieldIcon>
+                        <Lock className="size-4" />
+                      </FieldIcon>
                       <input
                         id="login-password"
                         name="password"
@@ -354,48 +591,71 @@ export function MemberAccess({ mode }: { mode: Mode }) {
                         autoComplete="current-password"
                         required
                         placeholder="••••••••••••"
-                        className={cn(fieldInput, "pr-11")}
+                        aria-invalid={Boolean(errors.password)}
+                        className={cn(fieldInput, "pr-11 pl-10", errors.password && fieldInputError)}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword((open) => !open)}
-                        className="absolute top-1/2 right-3 -translate-y-1/2 text-[#9aa8b5] transition hover:text-[#17b3c6]"
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-[#8aa3ad] transition hover:text-[#0f8fa3]"
                         aria-label={showPassword ? "Hide password" : "Show password"}
                         aria-pressed={showPassword}
                       >
                         {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                       </button>
                     </div>
-                  </div>
+                    <FieldHint error={errors.password} />
+                  </AuthField>
                 </div>
               )}
 
-              {notice ? (
-                <p
-                  role="alert"
-                  className="mt-4 rounded-xl border border-[#f3c1c1] bg-[#fff5f5] px-4 py-3 text-sm text-[#b42318]"
-                >
-                  {notice}
+              <AnimatePresence>
+                {notice ? (
+                  <motion.p
+                    key={notice}
+                    role="alert"
+                    initial={reduce ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.28, ease }}
+                    className="mt-4 rounded-xl border border-[#f3c1c1] bg-[#fff5f5] px-4 py-3 text-sm text-[#b42318]"
+                  >
+                    {notice}
+                  </motion.p>
+                ) : null}
+              </AnimatePresence>
+
+              <AuthField delay={0.6}>
+                <button type="submit" disabled={busy} className={cn(primaryBtn, "mt-6")}>
+                  {busy ? "Please wait…" : register ? "Create account" : "Sign in"}
+                  {!busy ? <ArrowRight className="member-access-cta-arrow size-4" aria-hidden="true" /> : null}
+                </button>
+              </AuthField>
+
+              <AuthField delay={0.66}>
+                <div className="mt-5 flex items-start gap-2 text-[12px] leading-snug text-[#5a7380]">
+                  <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-[#0f8fa3]" aria-hidden="true" />
+                  <p>
+                    {register
+                      ? "Registration is checked against the Province OMI ID personnel list. Your official name is used for the account."
+                      : "Sign-in is for Oblate Fathers of the Jaffna Province only."}
+                  </p>
+                </div>
+
+                <p className="mt-5 text-center text-sm text-[#5a7380]">
+                  {register ? "Already have an account? " : "New Father account? "}
+                  <Link
+                    href={register ? "/login" : "/register"}
+                    className="font-semibold text-[#0b4a5c] transition hover:text-[#0f8fa3]"
+                  >
+                    {register ? "Sign in" : "Create an account"}
+                  </Link>
                 </p>
-              ) : null}
-
-              <button type="submit" disabled={busy} className={cn(primaryBtn, "mt-6")}>
-                {busy ? "Please wait…" : register ? "Create account" : "Sign in"}
-              </button>
-
-              <p className="mt-6 text-center text-sm text-[#5c6b7a]">
-                {register ? "Already have an account? " : "New Father account? "}
-                <Link
-                  href={register ? "/login" : "/register"}
-                  className="font-semibold text-[#023e8a] transition hover:text-[#17b3c6]"
-                >
-                  {register ? "Sign in" : "Create an account"}
-                </Link>
-              </p>
+              </AuthField>
             </form>
           )}
-        </div>
-      </MotionReveal>
+        </motion.div>
+      </MotionHero>
     </section>
   )
 }

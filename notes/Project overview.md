@@ -4,24 +4,39 @@ tags: [project, overview]
 # OMI Jaffna website
 
 GitHub: https://github.com/sivashankar97/omi_jaffna_fullstack (branch `main`)
-Live: https://omi-jaffna-province.netlify.app (Netlify only — no Vercel)
+Live (legacy Netlify): https://omi-jaffna-province.netlify.app  
+**Production:** Hostinger VPS KVM 2 — Docker stack in `deploy/vps/` (Postgres + API + Next + nginx). Works on **public IP** until you add a domain.
 
 For which file to change, see [[Code map]]. Open tasks: [[Todo]].
 
 ## Parts
-- **Public site** (`site/`) – Next.js at http://localhost:5173
-- **CMS** (`web/` → built into `site/public/admin`) – same host at http://localhost:5173/admin (not a separate app/port)
-- **API** (`api/`) – Express at http://localhost:4000 (Netlify Function in production; images in Netlify Blobs)
-- Database – **Local Postgres** by default (`DATABASE_URL` → `127.0.0.1:5432/omi_jaffna`). Optional: Supabase cloud Postgres if you point `DATABASE_URL` there.
-- Files – **Postgres** (`MEDIA_STORE=postgres` → table `media_blobs`, visible in pgAdmin). Alternatives: `disk` (`api/uploads/`) or `supabase` Storage.
+- **Public site** (`site/`) – Next.js at http://localhost:5173 (dev) or VPS port 80
+- **CMS** (`web/` → `site/public/admin`) – `/admin` on the same host
+- **API** (`api/`) – Express `:4000` (proxied as `/api` on VPS)
+- **Database** – VPS Postgres (shared). Local Macs use SSH tunnel → same DB (2 people).
+- **Files** – `MEDIA_STORE=postgres` on VPS so media lives in the shared DB.
 
-## Run locally
-- From the repo root: `npm run dev` (`scripts/dev-all.mjs`). Starts API + public site together; Ctrl+C stops both.
-- Public site: http://localhost:5173 · CMS: http://localhost:5173/admin · API: http://localhost:4000
-- After editing CMS code in `web/`, run `npm run cms:build` then refresh `/admin`.
-- Login details are in `LOCAL-LOGIN.txt` (not in git).
+## Run locally (shared VPS database)
+1. Keep tunnel open: `npm run db:tunnel -- user@VPS_IP`
+2. Point local API at the tunnel: copy `api/.env.shared.example` → `api/.env` (same DB password + JWT as VPS)
+3. `npm run dev` → http://localhost:5173 · CMS `/admin`
+4. After CMS UI code changes: `npm run cms:build`
 
-## Deploy to Netlify
+## Hostinger VPS deploy
+Stack: `deploy/vps/docker-compose.yml` + `nginx.conf` + `Dockerfile.site`.
+
+**First time on the VPS**
+1. Install Docker (or run `scripts/vps-bootstrap.sh` on the server after clone)
+2. Create `deploy/vps/.env` from `.env.example` — set `POSTGRES_PASSWORD`, `JWT_SECRET`, `FRONTEND_ORIGIN=http://YOUR_PUBLIC_IP`, `COOKIE_SECURE=false` (until HTTPS)
+3. From your Mac: `npm run vps:deploy -- user@VPS_IP`
+4. Open `http://YOUR_PUBLIC_IP` and `http://YOUR_PUBLIC_IP/admin`
+
+**Later publishes (any Mac)**  
+`npm run vps:deploy -- user@VPS_IP` → rsync + rebuild + migrate.
+
+Postgres is **not** public; only `127.0.0.1:5432` on the VPS. Macs use `npm run db:tunnel`.
+
+## Deploy to Netlify (legacy)
 Run from `site/`, not the repo root:
 
 ```sh
@@ -37,6 +52,8 @@ CMS uploads go to **Supabase Storage** bucket `media` (private). Local and Netli
 Oblate priest studio portraits: stage in `site/public/priests/portraits/`, then `cd api && npm run seed:priest-portraits` → Storage + `priest.image_url` = `/api/files/{id}`. Convert JPGs first with `python3 api/scripts/convert-priest-portraits.py` if needed.
 
 Provincial council studio portraits: stage in `api/.staging/council-portraits/` (gitignored, never `public/`), then `cd api && npm run seed:council-portraits` → Storage + `leadership.image_url`.
+
+CMS Content Seeder (admin): seed each page block or content type separately (or Seed all). Sample: `api/scripts/seed-cms.sample.json`. CLI: `cd api && npm run seed:cms`. Force overwrite replaces existing rows; Safe fill skips them.
 
 ## Presentation pack
 - Feature slides (landscape PDF for animated decks): `docs/OMI-Jaffna-Website-Features.pdf` (source `docs/OMI-Jaffna-Website-Features.html` — print with headless Chrome `--print-to-pdf`).

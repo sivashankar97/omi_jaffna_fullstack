@@ -8,6 +8,8 @@
     "start": "node src/index.js",
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js",
+    "seed:cms": "node --no-warnings scripts/seed-cms-all.js",
+    "seed:all": "node --no-warnings scripts/seed-cms-all.js",
     "import:site": "node --no-warnings scripts/import-site-content.js",
     "import:bishops": "node --no-warnings scripts/import-bishops.js",
     "import:necrology": "node --no-warnings scripts/import-necrology.js",

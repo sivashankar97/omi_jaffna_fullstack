@@ -2,11 +2,12 @@
 
 import Link from "next/link"
 import { useEffect, useLayoutEffect, useState } from "react"
-import { BookOpen, CirclePlay, Images, MessagesSquare, Mic, Newspaper, Quote } from "lucide-react"
+import { BookOpen, CirclePlay, Images, MessagesSquare, Mic, Newspaper, Quote, X } from "lucide-react"
 
 import type { NewsArticle } from "@/content/news"
 import type { Ministry } from "@/lib/cms"
 import { useSiteInfo } from "@/components/layout/site-info"
+import { MediaCircleArrow } from "@/components/sections/media/media-circle-arrow"
 import { cn } from "cn"
 
 const desks = [
@@ -109,6 +110,7 @@ export function MediaStudio({
   lede,
   photos,
   videoImage,
+  desksCopy,
 }: {
   news: NewsArticle[]
   ministries: Ministry[]
@@ -116,9 +118,15 @@ export function MediaStudio({
   lede: string
   photos: MediaPhoto[]
   videoImage: string
+  desksCopy?: { kicker: string; title: string; summary: string }
 }) {
   const [active, setActive] = useState<DeskId>("photo-gallery")
   const [photo, setPhoto] = useState<MediaPhoto | null>(null)
+  const heading = desksCopy ?? {
+    kicker: "Media desks",
+    title: "Seven ways into the same mission",
+    summary: "Choose a desk. Photographs are from the Province collection, not frames of one event.",
+  }
 
   useLayoutEffect(() => {
     const openFromHash = () => {
@@ -147,22 +155,20 @@ export function MediaStudio({
   }
 
   return (
-    <section className="calendar-stage px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
+    <section className="scroll-mt-80 bg-white px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
       <div className="relative mx-auto max-w-6xl">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">Media desks</p>
-            <h2 className="mt-3 font-heading text-4xl font-semibold sm:text-5xl">Seven ways into the same mission</h2>
+            <p className="text-xs font-bold tracking-[0.22em] text-[#17b3c6] uppercase sm:text-sm">{heading.kicker}</p>
+            <h2 className="mt-3 font-heading text-3xl font-semibold tracking-tight sm:text-5xl">{heading.title}</h2>
           </div>
-          <p className="max-w-md leading-7 text-[#3d4b59]">
-            Choose a desk. Photographs are from the Province collection, not frames of one event.
-          </p>
+          <p className="max-w-md text-sm leading-7 text-[#5c6b7a] sm:text-base lg:text-right">{heading.summary}</p>
         </div>
 
         <div
           role="tablist"
           aria-label="Media desks"
-          className="calendar-glass mt-10 flex flex-wrap gap-1.5 rounded-2xl p-1.5 lg:flex-nowrap lg:gap-1"
+          className="mt-10 flex flex-wrap gap-2 rounded-full bg-[#eef7fa] p-1.5 ring-1 ring-[#d7eef3] lg:flex-nowrap lg:gap-1"
         >
           {desks.map(({ Icon, ...desk }) => {
             const selected = desk.id === active
@@ -176,13 +182,16 @@ export function MediaStudio({
                 aria-controls={`${desk.id}-panel`}
                 onClick={() => choose(desk.id)}
                 className={cn(
-                  "flex grow scroll-mt-80 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition duration-300 lg:gap-1.5 lg:px-2 lg:text-[0.8rem] xl:px-3 xl:text-sm",
+                  "flex grow scroll-mt-80 items-center justify-center gap-2 rounded-full px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition duration-300 lg:gap-1.5 lg:px-2.5 lg:text-[0.78rem] xl:px-3 xl:text-sm",
                   selected
-                    ? "bg-gradient-to-r from-[#0e98ac] to-[#06394a] text-white shadow-[0_10px_24px_-14px_rgba(6,57,74,0.9)]"
-                    : "text-[#3d4b59] hover:bg-white/80 hover:text-[#023e8a]"
+                    ? "bg-[#17b3c6] text-white shadow-[0_12px_28px_-14px_rgba(14,152,172,0.95)]"
+                    : "text-[#3d4b59] hover:bg-white hover:text-[#023e8a]"
                 )}
               >
-                <Icon aria-hidden="true" className={cn("size-4 shrink-0 lg:max-xl:hidden", selected ? "text-[#ffcf4a]" : "text-[#17b3c6]")} />
+                <Icon
+                  aria-hidden="true"
+                  className={cn("size-4 shrink-0", selected ? "text-white" : "text-[#17b3c6]")}
+                />
                 {desk.label}
               </button>
             )
@@ -194,7 +203,7 @@ export function MediaStudio({
           role="tabpanel"
           id={`${active}-panel`}
           aria-labelledby={active}
-          className="media-panel calendar-glass mt-10 rounded-[1.75rem] p-5 sm:p-7"
+          className="media-panel mt-8 rounded-[1.75rem] bg-[#f7fbfd] p-4 shadow-[0_24px_48px_-32px_rgba(2,62,138,0.35)] ring-1 ring-[#d7eef3] sm:p-6 lg:p-7"
         >
           {active === "photo-gallery" ? <Gallery photos={photos} onOpen={setPhoto} /> : null}
           {active === "video" ? <VideoStage image={videoImage} /> : null}
@@ -208,7 +217,7 @@ export function MediaStudio({
 
       {photo ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#03202b]/85 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#03202b]/85 p-4 sm:p-6"
           role="dialog"
           aria-modal="true"
           aria-label={photo.caption}
@@ -219,8 +228,20 @@ export function MediaStudio({
             aria-label="Close photograph"
             onClick={() => setPhoto(null)}
           />
-          <figure className="relative z-10 w-full max-w-4xl">
-            <img src={photo.src} alt={photo.alt} className="max-h-[78svh] w-full rounded-2xl object-contain" />
+          <figure className="relative z-10 w-full max-w-md sm:max-w-lg">
+            <button
+              type="button"
+              onClick={() => setPhoto(null)}
+              className="absolute -top-3 -right-3 z-20 flex size-10 items-center justify-center rounded-full bg-white text-[#023e8a] shadow-lg transition hover:bg-[#17b3c6] hover:text-white sm:-top-4 sm:-right-4"
+              aria-label="Close"
+            >
+              <X className="size-5" strokeWidth={2.5} />
+            </button>
+            <img
+              src={photo.src}
+              alt={photo.alt}
+              className="mx-auto max-h-[52svh] w-auto max-w-full rounded-2xl object-contain shadow-2xl"
+            />
             <figcaption className="mt-3 text-center text-sm text-white">{photo.caption}</figcaption>
           </figure>
         </div>
@@ -231,52 +252,56 @@ export function MediaStudio({
 
 function Gallery({ photos, onOpen }: { photos: MediaPhoto[]; onOpen: (photo: MediaPhoto) => void }) {
   return (
-    <div>
-      <p className="text-sm leading-6 text-[#5c6b7a]">
-        Tap a photograph to open it large. Six pictures from the collection held for this website.
-      </p>
-      <ul className="mt-5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-3">
-        {photos.map((item, index) => (
-          <li key={item.src} className="media-in" style={{ animationDelay: `${index * 50}ms` }}>
-            <button
-              type="button"
-              onClick={() => onOpen(item)}
-              className="group media-bento-card media-bento-shine block w-full overflow-hidden rounded-2xl bg-white/70 text-left ring-1 ring-[#d7eef3]"
-            >
-              <img src={item.src} alt="" className="h-44 w-full object-cover transition duration-500 group-hover:scale-[1.04] sm:h-52" />
-              <span className="block px-3 py-3 text-sm leading-5 text-[#023e8a]">{item.caption}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ul className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-3">
+      {photos.map((item, index) => (
+        <li key={item.src} className="media-in" style={{ animationDelay: `${index * 50}ms` }}>
+          <button
+            type="button"
+            onClick={() => onOpen(item)}
+            className="group flex w-full flex-col overflow-hidden rounded-2xl bg-white text-left ring-1 ring-[#d7eef3] transition duration-500 hover:-translate-y-1 hover:shadow-[0_22px_40px_-24px_rgba(14,152,172,0.35)]"
+          >
+            <span className="relative block aspect-[4/3] overflow-hidden">
+              <img
+                src={item.src}
+                alt=""
+                className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+              />
+            </span>
+            <span className="px-3.5 py-3.5 text-sm leading-6 text-[#023e8a]">{item.caption}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
   )
 }
 
 function VideoStage({ image }: { image: string }) {
   const site = useSiteInfo()
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
+    <div className="grid gap-5 lg:grid-cols-[1.4fr_0.8fr]">
       <a
         href={site.social.youtube}
         target="_blank"
         rel="noreferrer"
-        className="media-in media-bento-card media-bento-shine calendar-glass-deep relative flex min-h-64 items-end overflow-hidden rounded-3xl p-6 text-white sm:min-h-80"
+        className="group media-in relative flex min-h-64 items-end overflow-hidden rounded-[1.5rem] p-6 text-white shadow-[0_22px_44px_-28px_rgba(2,62,138,0.55)] sm:min-h-80"
       >
         <img
           src={image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 hover:scale-105"
+          className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
         />
-        <span className="absolute inset-0 bg-gradient-to-t from-[#03202b] via-[#03202b]/50 to-transparent" />
-        <span className="relative">
-          <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#ffcf4a] text-2xl text-[#03202b] shadow-lg transition group-hover:scale-105">
-            ▶
+        <span className="absolute inset-0 bg-gradient-to-t from-[#023e8a] via-[#023e8a]/55 to-transparent" />
+        <span className="relative flex w-full items-end justify-between gap-4">
+          <span>
+            <span className="inline-flex size-14 items-center justify-center rounded-full bg-[#17b3c6] text-xl text-white shadow-lg">
+              ▶
+            </span>
+            <span className="mt-4 block font-heading text-3xl font-semibold sm:text-4xl">Oblate Jaffna TV</span>
+            <span className="mt-2 block max-w-md text-sm leading-6 text-white/90">
+              Open the official YouTube channel of the Province.
+            </span>
           </span>
-          <span className="mt-4 block font-heading text-3xl font-semibold sm:text-4xl">Oblate Jaffna TV</span>
-          <span className="mt-2 block max-w-md text-sm leading-6 text-white/90">
-            Open the official YouTube channel. The arch behind this title is a Province photograph, not a frame from a film.
-          </span>
+          <MediaCircleArrow />
         </span>
       </a>
       <div className="grid gap-3">
@@ -287,7 +312,7 @@ function VideoStage({ image }: { image: string }) {
         ].map(([title, text], index) => (
           <article
             key={title}
-            className="media-in media-bento-card calendar-glass rounded-2xl p-4"
+            className="media-in rounded-[1.25rem] bg-white p-5 shadow-[0_14px_32px_-24px_rgba(2,62,138,0.4)] ring-1 ring-[#d7eef3]"
             style={{ animationDelay: `${index * 60}ms` }}
           >
             <h3 className="font-heading text-lg font-semibold">{title}</h3>

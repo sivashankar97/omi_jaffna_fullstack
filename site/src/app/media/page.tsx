@@ -1,5 +1,8 @@
 import type { Metadata } from "next"
 import Image from "next/image"
+import Link from "next/link"
+
+import { ArrowRight } from "lucide-react"
 
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { MediaPublications } from "@/components/sections/media/media-publications"
@@ -21,70 +24,76 @@ export default async function MediaPage() {
     getHomeContent(),
     getBlock("media-page"),
   ])
+
   return (
     <>
       <ScrollProgress />
       <header
         id="digital-mission"
-        className="relative isolate scroll-mt-80 overflow-hidden bg-gradient-to-br from-[#03202b] via-[#06394a] to-[#0a5062] px-4 py-20 text-white sm:px-8 sm:py-24"
+        className="relative isolate scroll-mt-80 overflow-hidden px-4 pt-20 pb-28 text-white sm:px-8 sm:pt-24 sm:pb-32"
       >
-        <div
-          aria-hidden="true"
-          className="charism-orb pointer-events-none absolute -bottom-40 -left-32 -z-10 size-[28rem] rounded-full bg-[#17b3c6] opacity-25 blur-[120px]"
+        <Image
+          src={photos.topImage}
+          alt=""
+          unoptimized={isUpload(photos.topImage)}
+          fill
+          priority
+          sizes="100vw"
+          className="absolute inset-0 -z-20 object-cover opacity-50"
         />
         <div
           aria-hidden="true"
-          className="charism-orb pointer-events-none absolute -top-32 right-0 -z-10 size-[24rem] rounded-full bg-[#ffcf4a] opacity-10 blur-[120px] [animation-delay:-7s]"
+          className="absolute inset-0 -z-10 bg-gradient-to-br from-[#03202b]/92 via-[#06394a]/88 to-[#0a5062]/90"
         />
-        <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-          <div>
-            <p
-              className="history-rise flex items-center gap-3 text-xs font-bold tracking-[0.28em] text-[#ffcf4a] uppercase sm:text-sm"
-              style={{ "--rise-delay": "100ms" } as React.CSSProperties}
-            >
-              <span aria-hidden="true" className="history-line h-px w-10 bg-[#ffcf4a]" />
-              Digital mission
-            </p>
-            <h1
-              className="history-rise mt-4 font-heading text-4xl leading-[1.1] font-semibold text-balance sm:text-6xl"
-              style={{ "--rise-delay": "250ms", color: "#ffffff" } as React.CSSProperties}
-            >
-              The screen is also a mission field
-            </h1>
-            <p
-              className="history-rise mt-6 max-w-xl text-base leading-8 text-white/85 sm:text-lg"
-              style={{ "--rise-delay": "450ms" } as React.CSSProperties}
-            >
-              Technology should serve evangelization, human dignity and community. The church, the village, the school
-              and the smartphone are all places where the Gospel can be shared.
-            </p>
-          </div>
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-[#17b3c6]/25 mix-blend-multiply"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-24 right-[8%] -z-10 size-[22rem] rounded-full bg-[#17b3c6]/30 blur-[100px]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-28 bg-[radial-gradient(ellipse_at_bottom,rgba(23,179,198,0.4),transparent_70%)]"
+        />
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-24 w-full text-[#f4fafc] sm:h-32"
+          viewBox="0 0 1440 120"
+          preserveAspectRatio="none"
+        >
+          <path
+            fill="currentColor"
+            d="M0,64 C240,120 480,8 720,48 C960,88 1200,112 1440,40 L1440,120 L0,120 Z"
+          />
+          <path
+            fill="currentColor"
+            opacity="0.55"
+            d="M0,88 C280,40 520,110 760,72 C1000,34 1240,20 1440,68 L1440,120 L0,120 Z"
+          />
+        </svg>
 
-          <div
-            className="history-rise relative mx-auto w-full max-w-md"
-            style={{ "--rise-delay": "350ms" } as React.CSSProperties}
+        <div className="relative mx-auto max-w-3xl">
+          <p className="history-rise text-xs font-bold tracking-[0.28em] text-[#ffcf4a] uppercase sm:text-sm">
+            {photos.hero.kicker}
+          </p>
+          <h1 className="history-rise mt-4 font-heading text-4xl leading-[1.08] font-semibold text-balance sm:text-5xl lg:text-6xl">
+            {photos.hero.title}
+          </h1>
+          <p className="history-rise mt-6 max-w-xl text-base leading-8 text-white/85 sm:text-lg">
+            {photos.hero.summary}
+          </p>
+          <Link
+            href={photos.hero.ctaHref || "#social-signals"}
+            className="history-rise mt-8 inline-flex items-center gap-2 rounded-full bg-[#17b3c6] px-6 py-3.5 text-sm font-bold text-white shadow-[0_18px_36px_-16px_rgba(23,179,198,0.9)] transition hover:bg-[#0e98ac]"
           >
-            <div
-              aria-hidden="true"
-              className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-[#17b3c6]/40 to-[#ffcf4a]/30 blur-2xl"
-            />
-            <div className="charism-float media-bento-shine calendar-glass relative overflow-hidden rounded-[2rem] p-3">
-              <div className="group relative aspect-square overflow-hidden rounded-[1.5rem] ring-1 ring-[#d7eef3]">
-                <Image
-                  src={photos.topImage}
-                  alt={photos.topImageAlt}
-                  unoptimized={isUpload(photos.topImage)}
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 28rem, 90vw"
-                  className="object-cover transition duration-[1200ms] ease-out group-hover:scale-105"
-                />
-                <span aria-hidden="true" className="history-shine pointer-events-none absolute inset-0" />
-              </div>
-            </div>
-          </div>
+            {photos.hero.cta || "Explore our media"}
+            <ArrowRight className="size-4" strokeWidth={2.5} />
+          </Link>
         </div>
       </header>
+
       <SocialSignals />
       <MediaStudio
         news={news}
@@ -93,8 +102,9 @@ export default async function MediaPage() {
         lede={hero.lede}
         photos={photos.gallery}
         videoImage={photos.videoImage}
+        desksCopy={photos.desks}
       />
-      <MediaPublications publications={publications} />
+      <MediaPublications publications={publications} copy={photos.publications} />
     </>
   )
 }

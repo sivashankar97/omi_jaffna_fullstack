@@ -62,7 +62,7 @@ export function PriestDirectory({ priests }: { priests: Priest[] }) {
   return (
     <section id="priests" className="scroll-mt-80 bg-white px-4 py-16 text-[#023e8a] sm:px-8">
       <div className="mx-auto max-w-7xl">
-        <p className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">
+        <p className="font-heading text-2xl font-semibold text-balance text-[#023e8a] sm:text-4xl lg:text-5xl">
           Province list · 13 October 2026
         </p>
         <h2 className="mt-3 text-sm font-semibold tracking-[0.18em] text-[#0077b6] uppercase">Oblate priests</h2>

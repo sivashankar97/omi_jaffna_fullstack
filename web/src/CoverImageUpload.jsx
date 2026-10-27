@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {shrinkImage} from './shrinkImage.js';
 
 export default function CoverImageUpload({value,onChange,api,canPublish,notify,onBusy,demo,label='Cover image'}) {
  const [asset,setAsset]=useState(null),[busy,setBusy]=useState(false),[alt,setAlt]=useState(''),[rights,setRights]=useState(false),[failed,setFailed]=useState(false);
@@ -10,11 +11,13 @@ export default function CoverImageUpload({value,onChange,api,canPublish,notify,o
  },[value,demo]);
  function uploading(value){setBusy(value);onBusy(value);}
  async function upload(event){
-  const file=event.target.files?.[0];event.target.value='';if(!file)return;
-  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){notify('Choose a JPEG, PNG or WebP image.','error');return;}
-  if(file.size>12*1024*1024){notify('Choose an image smaller than 12 MB.','error');return;}
+  const original=event.target.files?.[0];event.target.value='';if(!original)return;
+  if(!['image/jpeg','image/png','image/webp'].includes(original.type)){notify('Choose a JPEG, PNG or WebP image.','error');return;}
+  if(original.size>40*1024*1024){notify('Choose an image smaller than 40 MB.','error');return;}
   uploading(true);
   try{
+   const file=await shrinkImage(original);
+   if(file.size>12*1024*1024)throw Error('This image is still too large after resizing. Choose a smaller image.');
    const data=new FormData();data.append('file',file);
    const {item}=await api('/api/assets',{method:'POST',body:data});
    onChange(item.url);
@@ -34,7 +37,7 @@ export default function CoverImageUpload({value,onChange,api,canPublish,notify,o
   {value&&!failed&&<img src={value} alt={asset?.alt_text||'Cover image preview'} onError={()=>setFailed(true)} className="h-48 w-full rounded-lg bg-slate-100 object-contain"/>}
   {failed&&<p role="alert" className="text-xs text-rose-600">This image could not be loaded. Upload another image or check its URL.</p>}
   <input id="cover-image-file" type="file" accept="image/jpeg,image/png,image/webp" disabled={busy||demo} onChange={upload} className="block w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:p-3"/>
-  <p className="text-xs text-slate-500" aria-live="polite">{busy?'Uploading or approving image…':'Choose a JPEG, PNG or WebP image, up to 12 MB. Admin/publisher uploads are published immediately; editor uploads need approval.'}</p>
+  <p className="text-xs text-slate-500" aria-live="polite">{busy?'Uploading or approving image…':'Choose a JPEG, PNG or WebP image. Large photos are resized automatically. Admin/publisher uploads are published immediately; editor uploads need approval.'}</p>
   {value&&<button type="button" disabled={busy} onClick={()=>onChange('')} className="text-xs font-semibold text-rose-600">Remove cover image from entry</button>}
   {asset?.status==='draft'&&(canPublish?<div className="space-y-3 rounded-lg bg-amber-50 p-3">
    <label className="form-label" htmlFor="cover-image-alt">Image description</label>

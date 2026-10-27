@@ -6,7 +6,7 @@ import {
  Search,Plus,ChevronDown,ChevronRight,Menu,X,LogOut,Bell,ExternalLink,ArrowRight,ArrowUpRight,
  CheckCircle2,Clock3,Edit3,Trash2,Save,Eye,UploadCloud,FileText,Image as ImageIcon,
  ShieldAlert,RefreshCw,Filter,LockKeyhole,Calendar,Mail,Phone,Check,AlertCircle,Info,
- Compass,FolderOpen,Radio,Send,CheckCircle,Copy,Download,MoreHorizontal,UserRound,Home,Sparkles,Cross
+ Compass,FolderOpen,Radio,Send,CheckCircle,Copy,Download,MoreHorizontal,UserRound,Home,Sparkles,Cross,Database
 } from 'lucide-react';
 import seed from './demo.json';
 import CoverImageUpload from './CoverImageUpload.jsx';
@@ -29,7 +29,8 @@ const VIEWS={
  timeline:{type:'timeline',item:'timeline entry',label:'Year-by-year journey',where:'History: year buttons under the necrology',link:'/history#historical-archive'},
  necrology:{type:'necrology',item:'register entry',label:'Necrology register',where:'History: searchable register of deceased Oblates',link:'/history#historical-archive'},
  bishop:{type:'bishop',item:'bishop',label:'Bishop profiles',where:'History: bishop cards and each bishop’s profile page',link:'/history#bishops'},
- 'block-media-page':{type:'page',label:'Media page photos',query:'slug=media-page',single:true,slugs:[['media-page','Media page photos']],where:'Media: top photo, video tile photo and the photo gallery',link:'/media'},
+ 'block-media-page':{type:'page',label:'Media page text & photos',query:'slug=media-page',single:true,slugs:[['media-page','Media page text & photos']],where:'Media: banner text, social channel blurbs, top photo, video tile and gallery',link:'/media'},
+ 'block-vocations':{type:'page',label:'Vocations page text',query:'slug=vocations',single:true,slugs:[['vocations','Vocations page sections']],where:'Vocations: banner, signs of vocation, formation journey notes, discernment steps and CTAs',link:'/vocations'},
  'page-charism':{type:'page',label:'Charism page',query:'slug=charism',single:true,slugs:[['charism','Charism page']],where:'Charism: every section of the page',link:'/charism'},
  'block-site-info':{type:'page',label:'Logos, address & social links',query:'slug=site-info',single:true,slugs:[['site-info','Contact and social links']],where:'Header and footer logos, Province office contact (address, phone, email, hours), all Oblate house addresses on Contact, social links (Facebook / Instagram / YouTube — no WhatsApp), Home "Contact us", News and Media social buttons',link:'/contact'},
  'block-leadership':{type:'page',label:'Section titles',query:'slug=leadership',single:true,slugs:[['leadership','Leadership page sections']],where:'Leadership: edit "Provincial Superior" / "Our Provincial Leader" headings (and the top banner text)',link:'/leadership#provincial-superior'},
@@ -48,6 +49,7 @@ const VIEWS={
  'international-formation':{type:'international',item:'formation place',label:'Formation Abroad',query:'meta_key=kind&meta_like=formation',defaults:{kind:'formation'},where:'International: formation abroad',link:'/international'},
  news:{type:'news',item:'story',label:'News stories',where:'News page; the latest also show on Home and Media',link:'/news'},
  'news-father':{type:'news',item:'submission',label:'Father news submissions',query:'meta_has=submitted_by',fixedStatus:'review',where:'Stories Fathers sent for approval — set status to Published to show on the website',link:'/news'},
+ 'event-father':{type:'event',item:'submission',label:'Father event submissions',query:'meta_has=submitted_by',fixedStatus:'review',where:'Events Fathers sent for approval — set status to Published to show on the home calendar',link:'/#calendar'},
  publication:{type:'publication',item:'publication',label:'Publications',where:'Media: publications',link:'/media#publications'},
  'block-library':{type:'page',label:'Page text & stats',query:'slug=library',single:true,slugs:[['library','Library page sections']],where:'Library: hub banner, collection cards, section page headings, download labels and closing quote',link:'/library'},
  'library-magazines':{type:'library',item:'magazine issue',label:'Magazines',query:'meta_key=library_section&meta_like=magazine',defaults:{library_section:'magazine'},where:'Library › Magazine: PDF issues by magazine title (tabs on the website)',link:'/library/magazines'},
@@ -60,12 +62,12 @@ const VIEWS={
 const NAV=[
  {label:'WORKSPACE',items:[['overview','Overview',LayoutDashboard]]},
  {label:'WEBSITE PAGES',pages:[
-  {label:'Home',icon:Home,views:['page-home','block-home-sections','event']},
+  {label:'Home',icon:Home,views:['page-home','block-home-sections','event','event-father']},
   {label:'History',icon:History,views:['page-history','necrology','timeline','bishop']},
   {label:'Charism',icon:Sparkles,views:['page-charism']},
   {label:'Leadership',icon:Users,views:['block-leadership','leadership-superior','leadership-council','leadership-former','priest']},
   {label:'Ministries',icon:HeartHandshake,views:['block-ministries','ministry','parish','school']},
-  {label:'Vocations',icon:GraduationCap,views:['formation']},
+  {label:'Vocations',icon:GraduationCap,views:['block-vocations','formation']},
   {label:'International',icon:Globe2,views:['block-international','international-cat1','international-cat2','international-formation']},
   {label:'News',icon:Newspaper,views:['news','news-father']},
   {label:'Library',icon:BookOpen,views:['block-library','library-magazines','library-libraries','library-books','library-articles']},
@@ -77,10 +79,11 @@ const NAV=[
   {label:'Mission map',icon:MapPin,views:['location']},
   {label:'Our journey timeline',icon:CalendarDays,views:['block-journey']},
  ]},
- {label:'FILES & MANAGEMENT',items:[['assets','File Uploads',FolderOpen],['father-reports','Father reports',Send],['contacts','Contact Directory',ContactRound],['inquiries','Enquiries',MessageCircle],['users','Team & Roles',ShieldCheck],['settings','Site Settings',Settings2]]}
+ {label:'FATHER PROFILE MANAGEMENT',items:[['father-profiles','Registered Fathers',UserRound],['father-galleries','Father galleries',Images],['father-reports','Send PDF to Fathers',Send],['news-father','Father news approvals',Newspaper],['event-father','Father event approvals',CalendarDays]]},
+ {label:'FILES & MANAGEMENT',items:[['assets','File Uploads',FolderOpen],['contacts','Contact Directory',ContactRound],['inquiries','Enquiries',MessageCircle],['users','Team & Roles',ShieldCheck],['seeder','Content Seeder',Database],['settings','Site Settings',Settings2]]}
 ];
 const anchorId=s=>String(s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const PAGE_LINKS={home:'/','home-sections':'/#welcome',journey:'/#journey','site-info':'/contact',history:'/history',bishops:'/history#bishops','media-page':'/media',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations',international:'/international','international-cat1':'/international','international-cat2':'/international','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/history#historical-archive',library:'/library','library-magazines':'/library/magazines','library-libraries':'/library/libraries','library-books':'/library/books','library-articles':'/library/articles'};
+const PAGE_LINKS={home:'/','home-sections':'/#welcome',journey:'/#journey','site-info':'/contact',history:'/history',bishops:'/history#bishops','media-page':'/media',vocations:'/vocations',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations',international:'/international','international-cat1':'/international','international-cat2':'/international','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/history#historical-archive',library:'/library','library-magazines':'/library/magazines','library-libraries':'/library/libraries','library-books':'/library/books','library-articles':'/library/articles'};
 /** Website address where an entry's changes can be seen. */
 function itemLink(item,view){
  const {type,slug}=item;
@@ -135,8 +138,16 @@ const demoApi=(url,opts)=>{
 };
 async function api(url,opts={}){
  if(demo)return demoApi(url,opts);
- const response=await fetch(url,{credentials:'include',headers:{...(opts.body&&!(opts.body instanceof FormData)?{'Content-Type':'application/json'}:{}),...opts.headers},...opts});
+ const response=await fetch(url,{credentials:'include',cache:'no-store',headers:{...(opts.body&&!(opts.body instanceof FormData)?{'Content-Type':'application/json'}:{}),...opts.headers},...opts});
  const result=await response.json().catch(()=>({}));
+ if(response.status===401){
+  const path=String(url||'').split('?')[0];
+  // Expired / cleared session mid-CMS use → return to staff login.
+  if(path!=='/api/auth/me'&&path!=='/api/auth/login'&&path!=='/api/auth/logout'&&location.pathname.startsWith('/admin')){
+   location.assign('/admin');
+  }
+  throw Error(typeof result.error==='string'?result.error:'Session expired. Sign in again.');
+ }
  if(!response.ok)throw Error(typeof result.error==='string'?result.error:'Could not complete request. Please check your input.');
  return result;
 }
@@ -171,7 +182,7 @@ function Login({onLogin,notify}){
    <div className="lg:hidden mb-10 flex items-center gap-3"><Crest small/><strong>OMI Jaffna</strong></div>
    <div className="mb-10"><div className="inline-flex items-center gap-2 rounded-full bg-gold-100 px-3.5 py-2 text-xs font-bold text-gold-600"><LockKeyhole size={14}/> Province staff CMS</div><h2 className="mt-6 text-4xl font-semibold tracking-tight text-navy-900">Staff sign in</h2><p className="mt-3 text-slate-500">Editors and administrators only. This is separate from Father login on the website.</p></div>
    <form onSubmit={submit} className="space-y-5"><div><label className="form-label">Staff email</label><input type="email" autoComplete="username" value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="you@omi-jaffna.org" className="field mt-2" required/></div><div><label className="form-label">Password</label><input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" className="field mt-2" required/></div><button disabled={loading} className="w-full btn-primary justify-center h-12">{loading?'Signing in…':'Sign in to CMS'} <ArrowRight size={17}/></button></form>
-   <p className="mt-8 text-xs leading-6 text-slate-500">Oblate Father? Use <a className="font-semibold text-gold-600 hover:underline" href="/login">website Login</a> with your Father ID — then open your profile dashboard.</p><div className="mt-7 flex items-center gap-3 border-t border-slate-200 pt-6"><a className="text-xs text-slate-500 hover:underline" href="/">← Public website</a><span className="text-slate-300">·</span><a className="text-xs font-semibold text-gold-600 hover:underline" href="/login">Father login →</a></div>
+   <p className="mt-8 text-xs leading-6 text-slate-500">Oblate Father? Use <a className="font-semibold text-gold-600 hover:underline" href="/login">website Login</a> with your OMI ID — then open your profile dashboard.</p><div className="mt-7 flex items-center gap-3 border-t border-slate-200 pt-6"><a className="text-xs text-slate-500 hover:underline" href="/">← Public website</a><span className="text-slate-300">·</span><a className="text-xs font-semibold text-gold-600 hover:underline" href="/login">Father login →</a></div>
   </div></div>
  </div>
 }
@@ -395,6 +406,7 @@ function ContentManager({view,notify,user}){
  const Icon=iconFor[type]||FileText;
  return <div className="space-y-6 "><div className="flex flex-wrap gap-4 justify-between items-center"><div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500"><span className="inline-flex items-center gap-1.5"><Eye size={15} className="text-gold-600"/>Shown on: <b className="font-semibold text-navy-900">{view.where}</b></span>{view.link&&<a href={view.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold-600 hover:underline">View on website <ExternalLink size={12}/></a>}</div>{!view.single&&!view.fixedStatus&&<button className="btn-primary" onClick={()=>setEdit({...emptyItem(type),metadata:{...view.defaults}})}><Plus size={16}/> Add {view.item}</button>}{view.single&&!loading&&!q&&!status&&(view.slugs||[]).filter(([slug])=>!data.items.some(x=>x.slug===slug)).map(([slug,title])=><button key={slug} className="btn-primary" onClick={()=>setEdit({...emptyItem(type),slug,title_en:title})}><Plus size={16}/> Create {title}</button>)}</div>
   {view.id==='news-father'&&<div className="rounded-xl bg-sky-50 border border-sky-100 px-4 py-3 text-xs text-sky-900 flex gap-2"><Info size={16} className="shrink-0"/>Open a submission, review the story and photos, then set Publication status to <b>Published</b> so it appears on the public News page.</div>}
+  {view.id==='event-father'&&<div className="rounded-xl bg-sky-50 border border-sky-100 px-4 py-3 text-xs text-sky-900 flex gap-2"><Info size={16} className="shrink-0"/>Open a Father event, check the date and place, then set Publication status to <b>Published</b> so it appears on the home calendar.</div>}
   {view.single&&data.items.some(x=>x.status!=='published')&&<div className="rounded-xl bg-amber-50 border border-amber-100 px-4 py-3 text-xs text-amber-800 flex gap-2"><Info size={16} className="shrink-0"/>Entries that are not <b>Published</b> are not used by the website. Open the entry, set Publication status to Published and save.</div>}
   <div className="panel overflow-hidden"><div className="flex flex-col sm:flex-row justify-between gap-3 px-5 sm:px-6 py-5 border-b border-slate-100"><div className="relative w-full sm:max-w-sm"><Search size={17} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"/><input placeholder={`Search ${name.toLowerCase()}…`} className="field pl-10" value={q} onChange={e=>{setQ(e.target.value);setPage(1)}}/></div><div className="flex items-center gap-2"><span className="text-xs text-slate-400 hidden sm:inline">Show:</span><select className="field min-w-36" value={status} onChange={e=>{setStatus(e.target.value);setPage(1)}}><option value="">All statuses</option><option value="draft">Draft</option><option value="review">In review</option><option value="published">Published</option></select><IconButton title="Refresh" onClick={reload}><RefreshCw size={17}/></IconButton></div></div>
    <div className="overflow-x-auto"><table className="w-full min-w-[790px] text-left"><thead className="bg-[#f9fafc] text-[10px] uppercase tracking-wider text-slate-400"><tr><th className="px-6 py-4 font-bold">Content</th><th className="px-4 py-4 font-bold">Status</th><th className="px-4 py-4 font-bold">Verification</th><th className="px-4 py-4 font-bold">Updated</th><th className="px-6 py-4 font-bold text-right">Actions</th></tr></thead><tbody className="divide-y divide-slate-100">{data.items.map(x=><tr key={x.id} className="group hover:bg-slate-50/75"><td className="px-6 py-4"><div className="flex items-center gap-3"><div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50 text-navy-700 grid place-items-center"><Icon size={17}/></div><div className="min-w-0"><p className="text-[13px] font-semibold text-navy-900 truncate max-w-sm">{x.title_en}</p><p className="mt-1 text-[11px] text-slate-400 truncate max-w-sm">{type==='leadership'&&x.metadata?.role?[x.metadata.role,x.metadata.term].filter(Boolean).join(' · '):x.metadata?.author_name?`From ${x.metadata.author_name}${x.location_text?` · ${x.location_text}`:''}`:x.location_text||x.excerpt_en||`/${type}/${x.slug}`}</p></div></div></td><td className="px-4 py-4"><Tag value={x.status}/></td><td className="px-4 py-4"><Tag value={x.verification_status}/></td><td className="px-4 py-4 text-[11px] text-slate-500">{datePretty(x.updated_at)}</td><td className="px-6 py-4"><div className="flex justify-end gap-1">{itemLink(x,view)&&<a href={itemLink(x,view)} target="_blank" rel="noreferrer" title={x.status==='published'?'Open on website':'Open on website (not published yet, so changes are not shown)'} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-navy-900"><ExternalLink size={16}/></a>}<IconButton title="Edit" onClick={()=>setEdit(x)}><Edit3 size={16}/></IconButton>{user.role==='admin'&&<IconButton title="Delete" onClick={()=>remove(x)}><Trash2 size={16}/></IconButton>}</div></td></tr>)}</tbody></table>{!loading&&data.items.length===0&&<div className="py-20 text-center"><div className="mx-auto mb-4 h-14 w-14 bg-slate-100 rounded-2xl grid place-items-center text-slate-400"><FolderOpen size={24}/></div><h3 className="text-sm font-bold text-navy-900">No matching entries</h3><p className="text-xs text-slate-400 mt-2">Try a different filter or add new content.</p></div>}{loading&&<div className="p-8 text-center text-xs text-slate-400">Loading content…</div>}</div>
@@ -417,6 +429,126 @@ function Modal({title,close,children}){return <div data-dialog className="fixed 
 function Inquiries({notify,user}){const [items,setItems]=useState([]);const reload=()=>api('/api/inquiries').then(r=>setItems(r.items)).catch(e=>notify(e.message,'error'));useEffect(()=>{reload();},[]);
  async function update(id,status){try{await api(`/api/inquiries/${id}`,{method:'PATCH',body:JSON.stringify({status})});notify('Enquiry updated.','success');reload()}catch(e){notify(e.message,'error')}}
  return <div className="space-y-6 "><p className="text-sm text-slate-500">Messages submitted through the website contact form. Safeguarding enquiries should be handled through your approved institutional process.</p><div className="grid gap-4">{items.map(item=><div key={item.id} className="panel p-6"><div className="flex gap-3 justify-between flex-wrap"><div><h3 className="font-bold text-navy-900">{item.name} <span className="font-normal text-xs text-slate-400">· {item.email}</span></h3><p className="text-xs text-slate-400 mt-1">{item.category} · {datePretty(item.created_at)}</p></div><Tag value={item.status}/></div><p className="text-sm text-slate-600 leading-6 mt-4 whitespace-pre-wrap break-words">{item.message}</p><div className="mt-5 pt-4 border-t border-slate-100 flex justify-between flex-wrap gap-3 items-center"><a className="text-xs text-gold-600 font-semibold" href={`mailto:${item.email}`}>Reply via email <ArrowUpRight size={13} className="inline"/></a><select disabled={!['admin','publisher'].includes(user.role)} className="field !w-40" value={item.status} onChange={e=>update(item.id,e.target.value)}><option value="new">New</option><option value="in_progress">In progress</option><option value="closed">Closed</option></select></div></div>)}{!items.length&&<div className="panel"><EmptyState text="No enquiries received yet."/></div>}</div></div>}
+function FatherGalleries({notify,user}){
+ const [items,setItems]=useState([]),[busy,setBusy]=useState(false);
+ const canModerate=['admin','publisher'].includes(user.role);
+ const load=()=>api('/api/father/galleries').then(r=>setItems(r.items||[])).catch(e=>notify(e.message,'error'));
+ useEffect(()=>{load();},[]);
+ async function remove(id){
+  if(!canModerate||!window.confirm('Remove this gallery photo from the Father dashboard?'))return;
+  setBusy(true);
+  try{await api(`/api/father/galleries/${id}`,{method:'DELETE'});notify('Gallery photo removed.','success');load();}
+  catch(err){notify(err.message,'error')}finally{setBusy(false)}
+ }
+ const byFather=items.reduce((acc,item)=>{
+  const key=item.user_id;
+  if(!acc[key])acc[key]={user_id:key,name:item.father_name,omi_id:item.omi_id,email:item.father_email,photos:[]};
+  acc[key].photos.push(item);
+  return acc;
+ },{});
+ const groups=Object.values(byFather).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+ return <div className="space-y-6">
+  <div className="panel p-5 flex flex-wrap justify-between gap-4 items-center">
+   <div><h3 className="section-title">Father galleries</h3><p className="subcopy mt-1">Photos Fathers uploaded in their dashboard Gallery. Review and remove if needed.</p></div>
+   <div className="text-xs font-semibold text-slate-500">{items.length} photo{items.length===1?'':'s'} · {groups.length} Father{groups.length===1?'':'s'}</div>
+  </div>
+  {!groups.length?<div className="panel p-10 text-center text-sm text-slate-500">No Father gallery photos yet.</div>:groups.map(group=><div key={group.user_id} className="panel p-5 space-y-4">
+   <div className="flex flex-wrap items-end justify-between gap-2"><div><h4 className="font-bold text-navy-900">{group.name}</h4><p className="text-xs text-slate-500">{[group.omi_id&&`OMI ${group.omi_id}`,group.email].filter(Boolean).join(' · ')} · {group.photos.length} photo{group.photos.length===1?'':'s'}</p></div></div>
+   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{group.photos.map(photo=><div key={photo.id} className="rounded-xl border border-slate-200 overflow-hidden bg-slate-50">
+    <div className="aspect-[4/3] bg-slate-100">{photo.file_url?<img src={photo.file_url} alt={photo.title||''} className="h-full w-full object-cover" loading="lazy"/>:<div className="grid h-full place-items-center text-slate-300"><Images size={28}/></div>}</div>
+    <div className="p-3 space-y-2"><p className="text-sm font-semibold text-navy-900 truncate">{photo.title||'Untitled'}</p><p className="text-[11px] text-slate-500">{datePretty(photo.created_at)}</p>{canModerate&&<button disabled={busy} className="btn-outline !px-3 !py-1.5 text-xs" onClick={()=>remove(photo.id)}><Trash2 size={14}/> Remove</button>}</div>
+   </div>)}</div>
+  </div>)}
+ </div>;
+}
+function FatherProfiles({notify}){
+ const [items,setItems]=useState([]),[form,setForm]=useState(null),[busy,setBusy]=useState(false),[q,setQ]=useState('');
+ const load=()=>api('/api/users?role=father').then(x=>setItems(x.items||[])).catch(e=>notify(e.message,'error'));
+ useEffect(()=>{load();},[]);
+ const needle=q.trim().toLowerCase();
+ const filtered=!needle?items:items.filter(x=>{
+  const hay=`${x.name||''} ${x.father_id||''} ${x.email||''} ${x.mobile_number||''} ${x.place||''}`.toLowerCase();
+  return hay.includes(needle);
+ });
+ function edit(item){setForm({...item,date_of_birth:dateInput(item.date_of_birth),password:'',bio:item.bio||'',place:item.place||'',photo_url:item.photo_url||''})}
+ async function save(e){
+  e.preventDefault();if(!form)return;setBusy(true);
+  try{
+   const body={name:form.name,email:form.email,active:form.active,father_id:form.father_id,date_of_birth:form.date_of_birth,mobile_number:form.mobile_number,role:'father'};
+   if(form.password)body.password=form.password;
+   await api(`/api/users/${form.id}`,{method:'PATCH',body:JSON.stringify(body)});
+   notify('Father profile updated.','success');setForm(null);load();
+  }catch(err){notify(err.message,'error')}finally{setBusy(false)}
+ }
+ return <div className="space-y-6">
+  <div className="panel p-5 flex flex-wrap justify-between gap-4 items-center">
+   <div><h3 className="section-title">Registered Father profiles</h3><p className="subcopy mt-1">Accounts from public register. New registrations stay inactive until you tick Account active. Search by name, OMI ID, email or place. Fathers are not listed under Team &amp; Roles.</p></div>
+   <div className="text-xs font-semibold text-slate-500">{filtered.length}{needle?` of ${items.length}`:''} shown</div>
+  </div>
+  <div className="panel p-4"><label className="sr-only" htmlFor="father-search">Search Fathers</label><div className="relative"><Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/><input id="father-search" className="field !pl-10" value={q} onChange={e=>setQ(e.target.value)} placeholder="Search by name, OMI ID, email or place…"/></div></div>
+  <div className="panel overflow-x-auto"><table className="w-full min-w-[820px] text-left"><thead className="table-head"><tr><th>Father</th><th>OMI ID</th><th>Email / mobile</th><th>Status</th><th>Joined</th><th></th></tr></thead>
+   <tbody>{filtered.map(x=><tr className="table-row" key={x.id}>
+    <td><p className="font-bold text-navy-900">{x.name}</p>{x.place?<p className="text-xs text-slate-500">{x.place}</p>:null}</td>
+    <td className="text-xs font-semibold text-slate-600">{x.father_id||'—'}</td>
+    <td className="text-xs text-slate-500"><div>{x.email}</div><div>{x.mobile_number||'—'}</div></td>
+    <td><Tag value={x.active?'published':'draft'}/></td>
+    <td className="text-xs text-slate-500">{datePretty(x.created_at)}</td>
+    <td><button className="btn-outline !px-3 !py-1.5" onClick={()=>edit(x)}><Edit3 size={14}/> Manage</button></td>
+   </tr>)}{!filtered.length&&<tr><td colSpan={6} className="py-10 text-center text-sm text-slate-500">{items.length?`No Father matches “${q.trim()}”.`:'No Fathers have registered yet.'}</td></tr>}</tbody></table></div>
+  {form&&<Modal title={`Manage · ${form.name}`} close={()=>setForm(null)}><form className="space-y-4" onSubmit={save}>
+   <div><label className="form-label">Full name</label><input required minLength={2} className="field mt-2" value={form.name} onChange={e=>setForm(a=>({...a,name:e.target.value}))}/></div>
+   <div className="grid sm:grid-cols-2 gap-4"><div><label className="form-label">OMI ID</label><input required className="field mt-2" value={form.father_id||''} onChange={e=>setForm(a=>({...a,father_id:e.target.value}))}/></div><div><label className="form-label">Date of birth</label><input required type="date" className="field mt-2" value={form.date_of_birth||''} onChange={e=>setForm(a=>({...a,date_of_birth:e.target.value}))}/></div></div>
+   <div><label className="form-label">Email</label><input required type="email" className="field mt-2" value={form.email} onChange={e=>setForm(a=>({...a,email:e.target.value}))}/></div>
+   <div><label className="form-label">Mobile number</label><input required type="tel" className="field mt-2" value={form.mobile_number||''} onChange={e=>setForm(a=>({...a,mobile_number:e.target.value}))}/></div>
+   <div><label className="form-label">Reset password (optional)</label><input type="password" minLength={form.password?12:undefined} autoComplete="new-password" className="field mt-2" value={form.password||''} onChange={e=>setForm(a=>({...a,password:e.target.value}))} placeholder="Leave blank to keep current"/></div>
+   <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!form.active} onChange={e=>setForm(a=>({...a,active:e.target.checked}))}/> Account active (can sign in)</label>
+   <button disabled={busy} className="btn-primary w-full justify-center">{busy?'Saving…':'Save Father profile'}</button>
+  </form></Modal>}
+ </div>
+}
+function FatherRecipientPicker({fathers,value,onChange}){
+ const selected=fathers.find(f=>f.id===value)||null;
+ const [query,setQuery]=useState('');
+ const [open,setOpen]=useState(false);
+ const q=query.trim().toLowerCase();
+ const matches=!q?fathers:fathers.filter(f=>{
+  const hay=`${f.name||''} ${f.father_id||''} ${f.email||''}`.toLowerCase();
+  return hay.includes(q);
+ });
+ function choose(id,label){
+  onChange(id);
+  setQuery(label);
+  setOpen(false);
+ }
+ function clearToAll(){
+  onChange('');
+  setQuery('');
+  setOpen(false);
+ }
+ return <div className="relative">
+  <label className="form-label">Send to</label>
+  <input
+   className="field mt-2"
+   value={open?query:(selected?`${selected.name}${selected.father_id?` (${selected.father_id})`:''}`:(query||'All Fathers'))}
+   placeholder="Search by name or OMI ID…"
+   onFocus={()=>{setOpen(true);setQuery(selected?selected.name:'');}}
+   onChange={e=>{setQuery(e.target.value);setOpen(true);if(value)onChange('');}}
+   onBlur={()=>setTimeout(()=>setOpen(false),150)}
+   autoComplete="off"
+  />
+  <p className="mt-1.5 text-[11px] text-slate-500">{selected?`Selected: ${selected.name}`:'Sending to every registered Father. Type a name to pick one.'}</p>
+  {open&&<div className="absolute z-30 mt-1 max-h-56 w-full overflow-auto rounded-xl border border-slate-200 bg-white shadow-lg">
+   <button type="button" className="flex w-full items-start gap-2 px-3 py-2.5 text-left text-sm hover:bg-sky-50" onMouseDown={e=>e.preventDefault()} onClick={clearToAll}>
+    <span className="font-semibold text-navy-900">All Fathers</span>
+   </button>
+   {matches.map(f=><button key={f.id} type="button" className={`flex w-full flex-col items-start px-3 py-2.5 text-left text-sm hover:bg-sky-50 ${value===f.id?'bg-gold-100/40':''}`} onMouseDown={e=>e.preventDefault()} onClick={()=>choose(f.id,`${f.name}${f.father_id?` (${f.father_id})`:''}`)}>
+    <span className="font-semibold text-navy-900">{f.name}</span>
+    <span className="text-[11px] text-slate-500">{[f.father_id&&`OMI ${f.father_id}`,f.email].filter(Boolean).join(' · ')}</span>
+   </button>)}
+   {!matches.length&&<p className="px-3 py-3 text-xs text-slate-500">No Father matches “{query}”.</p>}
+  </div>}
+ </div>;
+}
 function FatherReports({notify,user}){
  const [items,setItems]=useState([]),[fathers,setFathers]=useState([]),[busy,setBusy]=useState(false);
  const [form,setForm]=useState({title:'',body:'',file_url:'',target_user_id:''});
@@ -449,11 +581,11 @@ function FatherReports({notify,user}){
  }
  return <div className="space-y-6">
   <div className="panel p-6 space-y-4">
-   <div><h3 className="section-title">Send a PDF or report to Fathers</h3><p className="subcopy mt-1">Fathers see these in their dashboard Documents section. Choose one Father or send to every Father.</p></div>
+   <div><h3 className="section-title">Send a PDF or report to Fathers</h3><p className="subcopy mt-1">Fathers see these in their dashboard Documents section. Search by name or OMI ID, or leave as All Fathers.</p></div>
    {!canSend?<p className="text-sm text-slate-500">Only admins and publishers can send reports.</p>:<form onSubmit={send} className="grid gap-4 sm:grid-cols-2">
     <div className="sm:col-span-2"><label className="form-label">Title *</label><input required className="field mt-2" value={form.title} onChange={e=>setForm(a=>({...a,title:e.target.value}))}/></div>
     <div className="sm:col-span-2"><label className="form-label">Note (optional)</label><textarea rows={3} className="field mt-2" value={form.body} onChange={e=>setForm(a=>({...a,body:e.target.value}))}/></div>
-    <div><label className="form-label">Send to</label><select className="field mt-2" value={form.target_user_id} onChange={e=>setForm(a=>({...a,target_user_id:e.target.value}))}><option value="">All Fathers</option>{fathers.map(f=><option key={f.id} value={f.id}>{f.name}{f.father_id?` (${f.father_id})`:''}</option>)}</select></div>
+    <FatherRecipientPicker fathers={fathers} value={form.target_user_id} onChange={id=>setForm(a=>({...a,target_user_id:id}))}/>
     <div><label className="form-label">PDF or file *</label><input required={!form.file_url} type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="field mt-2 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs" onChange={async e=>{const file=e.target.files?.[0];if(!file)return;try{const url=await upload(file);setForm(a=>({...a,file_url:url}));notify('File uploaded.','success')}catch(err){notify(err.message,'error')}}}/></div>
     {form.file_url&&<p className="sm:col-span-2 text-xs text-slate-500">Attached: <a className="text-gold-600 font-semibold" href={form.file_url} target="_blank" rel="noreferrer">{form.file_url}</a></p>}
     <div className="sm:col-span-2"><button disabled={busy||!form.file_url} className="btn-primary"><Send size={16}/> {busy?'Sending…':'Send to Father dashboard'}</button></div>
@@ -471,36 +603,49 @@ function Assets({notify,user}){const [items,setItems]=useState([]),[busy,setBusy
  return <div className="space-y-6 "><div className="panel p-6 flex flex-col sm:flex-row gap-6 sm:items-center justify-between"><div><h3 className="section-title">Upload approved media</h3><p className="subcopy mt-1">JPEG, PNG, WebP, PDF (12 MB) or MP4 video (40 MB) · stored as private draft</p></div><form onSubmit={upload} className="flex flex-wrap items-center gap-3"><input id="asset-file" type="file" accept="image/jpeg,image/png,image/webp,application/pdf,video/mp4" className="text-xs max-w-[210px] file:bg-slate-100 file:border-0 file:rounded-lg file:p-2.5 file:mr-3" onChange={e=>setFile(e.target.files?.[0])}/><button disabled={busy||!file} className="btn-primary"><UploadCloud size={16}/> {busy?'Uploading…':'Upload file'}</button></form></div><div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">{items.map(x=><div key={x.id} className="panel p-5"><div className="h-32 rounded-xl bg-slate-100 flex items-center justify-center text-slate-300">{x.mime_type?.startsWith('image/')?<img src={x.url} alt={x.alt_text||x.original_name} loading="lazy" className="h-full w-full rounded-xl object-contain"/>:x.mime_type?.startsWith('video/')?<video src={x.url} className="h-full w-full rounded-xl object-contain" muted playsInline/>:<FileText size={35}/>}</div><p className="mt-4 text-sm font-bold text-navy-900 truncate">{x.original_name}</p><p className="text-xs text-slate-400 mt-1">{(x.size_bytes/1024).toFixed(1)} KB · {datePretty(x.created_at)}</p><div className="mt-3 flex justify-between items-center"><Tag value={x.status}/><button onClick={()=>{navigator.clipboard?.writeText(location.origin+x.url);notify('Asset link copied.','success')}} title="Copy asset URL" className="text-slate-400 hover:text-gold-600"><Copy size={17}/></button></div>{x.status==='draft'&&['admin','publisher'].includes(user.role)&&<button className="mt-4 w-full btn-outline text-xs justify-center" onClick={()=>setModal({...x,alt_text:x.alt_text||'',caption:x.caption||''})}>Review & publish</button>}</div>)}{!items.length&&<div className="panel col-span-full"><EmptyState text="No images or documents uploaded yet."/></div>}</div>
  {modal&&<Modal title="Approve media for publication" close={()=>setModal(null)}><form className="space-y-5" onSubmit={approve}><p className="text-xs text-slate-500">Only publish media with the Province's permission. Obtain consent for identifiable children or sensitive cases.</p><div><label className="form-label">Alternative text *</label><input className="field mt-2" required value={modal.alt_text} onChange={e=>setModal(a=>({...a,alt_text:e.target.value}))} placeholder="Meaningful image description"/></div><div><label className="form-label">Caption / photo credit</label><textarea rows={3} className="field mt-2" value={modal.caption} onChange={e=>setModal(a=>({...a,caption:e.target.value}))}/></div><button className="btn-primary w-full justify-center"><Check size={16}/> Confirm rights & publish</button></form></Modal>}</div>
 }
+const STAFF_ROLES=[
+ {value:'admin',label:'Administrator',hint:'Full CMS access: users, settings, publish, approve Father content'},
+ {value:'publisher',label:'Publisher',hint:'Edit content, publish stories/events, send Father reports'},
+ {value:'editor',label:'Editor',hint:'Draft and edit content; cannot publish or manage users'},
+];
 function Team({notify}){
- const [items,setItems]=useState([]),[form,setForm]=useState(null),[editing,setEditing]=useState(false);
- const blank={name:'',email:'',password:'',role:'editor',father_id:'',date_of_birth:'',mobile_number:'',active:true};
- const load=()=>api('/api/users').then(x=>setItems(x.items)).catch(e=>notify(e.message,'error'));
+ const [items,setItems]=useState([]),[form,setForm]=useState(null),[editing,setEditing]=useState(false),[q,setQ]=useState('');
+ const blank={name:'',email:'',password:'',role:'editor',active:true};
+ const load=()=>api('/api/users?role=staff').then(x=>setItems(x.items||[])).catch(e=>notify(e.message,'error'));
  useEffect(()=>{load();},[]);
+ const needle=q.trim().toLowerCase();
+ const filtered=!needle?items:items.filter(x=>`${x.name||''} ${x.email||''} ${x.role||''}`.toLowerCase().includes(needle));
  function create(){setEditing(false);setForm({...blank})}
- function edit(item){setEditing(true);setForm({...blank,...item,date_of_birth:dateInput(item.date_of_birth),password:''})}
+ function edit(item){setEditing(true);setForm({...blank,...item,password:''})}
  async function save(e){
   e.preventDefault();
+  if(!['admin','editor','publisher'].includes(form.role)){notify('Choose a staff role.','error');return;}
   const body={name:form.name,email:form.email,role:form.role,active:form.active};
-  if(!body.password)delete body.password;
   if(form.password)body.password=form.password;
-  if(form.role==='father')Object.assign(body,{father_id:form.father_id,date_of_birth:form.date_of_birth,mobile_number:form.mobile_number});
-  if(body.role!=='father'){delete body.father_id;delete body.date_of_birth;delete body.mobile_number}
   try{
    await api(editing?`/api/users/${form.id}`:'/api/users',{method:editing?'PATCH':'POST',body:JSON.stringify(body)});
-   notify(editing?'Account updated.':'Account created.','success');setForm(null);load();
+   notify(editing?'Staff account updated.':'Staff account created.','success');setForm(null);load();
   }catch(err){notify(err.message,'error')}
  }
+ const roleMeta=value=>STAFF_ROLES.find(r=>r.value===value);
  return <div className="space-y-6">
-  <div className="panel p-5 flex justify-between flex-wrap gap-4 items-center"><div><h3 className="section-title">Account roles</h3><p className="subcopy mt-1">Admins manage all accounts. Fathers access the public site and their own profile.</p></div><button className="btn-primary" onClick={create}><Plus size={16}/> Add account</button></div>
-  <div className="panel overflow-x-auto"><table className="w-full min-w-[700px] text-left"><thead className="table-head"><tr><th>Person</th><th>Email</th><th>Father ID</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>{items.map(x=><tr className="table-row" key={x.id}><td className="font-bold text-navy-900">{x.name}</td><td className="text-xs text-slate-500">{x.email}</td><td className="text-xs text-slate-500">{x.father_id||'—'}</td><td className="capitalize text-xs">{x.role}</td><td><Tag value={x.active?'published':'draft'}/></td><td><button className="btn-outline !px-3 !py-1.5" onClick={()=>edit(x)}><Edit3 size={14}/> Edit</button></td></tr>)}</tbody></table></div>
-  {form&&<Modal title={editing?'Edit account':'Add account'} close={()=>setForm(null)}><form className="space-y-4" onSubmit={save}>
+  <div className="panel p-5 flex justify-between flex-wrap gap-4 items-center">
+   <div><h3 className="section-title">Team &amp; roles</h3><p className="subcopy mt-1">CMS staff only (Administrator, Publisher, Editor). Registered Fathers live under Father Profile Management.</p></div>
+   <button className="btn-primary" onClick={create}><Plus size={16}/> Add staff account</button>
+  </div>
+  <div className="grid gap-3 md:grid-cols-3">{STAFF_ROLES.map(r=><div key={r.value} className="panel p-4"><p className="text-sm font-bold text-navy-900">{r.label}</p><p className="mt-1 text-xs leading-5 text-slate-500">{r.hint}</p><p className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{items.filter(x=>x.role===r.value).length} account{items.filter(x=>x.role===r.value).length===1?'':'s'}</p></div>)}</div>
+  <div className="panel p-4"><label className="sr-only" htmlFor="staff-search">Search staff</label><div className="relative"><Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/><input id="staff-search" className="field !pl-10" value={q} onChange={e=>setQ(e.target.value)} placeholder="Search staff by name, email or role…"/></div></div>
+  <div className="panel overflow-x-auto"><table className="w-full min-w-[640px] text-left"><thead className="table-head"><tr><th>Person</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>
+   {filtered.map(x=><tr className="table-row" key={x.id}><td className="font-bold text-navy-900">{x.name}</td><td className="text-xs text-slate-500">{x.email}</td><td><span className="text-xs font-semibold capitalize text-navy-900">{roleMeta(x.role)?.label||x.role}</span></td><td><Tag value={x.active?'published':'draft'}/></td><td><button className="btn-outline !px-3 !py-1.5" onClick={()=>edit(x)}><Edit3 size={14}/> Edit</button></td></tr>)}
+   {!filtered.length&&<tr><td colSpan={5} className="py-10 text-center text-sm text-slate-500">{items.length?`No staff matches “${q.trim()}”.`:'No staff accounts yet.'}</td></tr>}
+  </tbody></table></div>
+  {form&&<Modal title={editing?'Edit staff account':'Add staff account'} close={()=>setForm(null)}><form className="space-y-4" onSubmit={save}>
    <div><label className="form-label">Full name</label><input required minLength={2} className="field mt-2" value={form.name} onChange={e=>setForm(a=>({...a,name:e.target.value}))}/></div>
-   <div><label className="form-label">Email</label><input required type="email" className="field mt-2" value={form.email} onChange={e=>setForm(a=>({...a,email:e.target.value}))}/></div>
+   <div><label className="form-label">Staff email</label><input required type="email" className="field mt-2" value={form.email} onChange={e=>setForm(a=>({...a,email:e.target.value}))} placeholder="you@omi-jaffna.org"/></div>
    <div><label className="form-label">Password {editing?'(leave blank to keep current)':'(12+ characters)'}</label><input required={!editing} minLength={form.password?12:undefined} type="password" autoComplete="new-password" className="field mt-2" value={form.password} onChange={e=>setForm(a=>({...a,password:e.target.value}))}/></div>
-   <div><label className="form-label">Role</label><select className="field mt-2" value={form.role} onChange={e=>setForm(a=>({...a,role:e.target.value}))}><option value="editor">Editor</option><option value="publisher">Publisher</option><option value="admin">Administrator</option><option value="father">Father</option></select></div>
-   {form.role==='father'&&<><div><label className="form-label">Father ID</label><input required className="field mt-2" value={form.father_id} onChange={e=>setForm(a=>({...a,father_id:e.target.value}))}/></div><div><label className="form-label">Date of birth</label><input required type="date" className="field mt-2" value={form.date_of_birth} onChange={e=>setForm(a=>({...a,date_of_birth:e.target.value}))}/></div><div><label className="form-label">Mobile number</label><input required type="tel" className="field mt-2" value={form.mobile_number} onChange={e=>setForm(a=>({...a,mobile_number:e.target.value}))}/></div></>}
+   <div><label className="form-label">Role access</label><select className="field mt-2" value={form.role} onChange={e=>setForm(a=>({...a,role:e.target.value}))}>{STAFF_ROLES.map(r=><option key={r.value} value={r.value}>{r.label}</option>)}</select><p className="mt-2 text-xs text-slate-500">{roleMeta(form.role)?.hint}</p></div>
    {editing&&<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.active} onChange={e=>setForm(a=>({...a,active:e.target.checked}))}/> Account active</label>}
-   <button className="btn-primary w-full justify-center">{editing?'Save account':'Create account'}</button>
+   <button className="btn-primary w-full justify-center">{editing?'Save staff account':'Create staff account'}</button>
   </form></Modal>}
  </div>
 }
@@ -514,8 +659,8 @@ function AccountForm({mode,onModeChange,onAuth,notify}){
    notify(mode==='signup'?'Father account created.':'Signed in successfully.','success');onAuth(result.user);
   }catch(err){setError(err.message)}finally{setBusy(false)}
  }
- const fields=mode==='signup'?[['name','Name','text'],['father_id','Father ID','text'],['date_of_birth','Date of birth','date'],['email','Email','email'],['password','Password (12+ characters)','password'],['mobile_number','Mobile number','tel']]:[['father_id','Father ID','text'],['password','Password','password']];
- return <div className="panel mx-auto max-w-xl p-6 sm:p-8"><h2 className="section-title text-xl">{mode==='signup'?'Father registration':'Father sign in'}</h2><p className="subcopy mt-2">{mode==='signup'?'Create a Father account to access your profile on the public site.':'Sign in with your Father ID and password.'}</p>
+ const fields=mode==='signup'?[['name','Name','text'],['father_id','OMI ID','text'],['date_of_birth','Date of birth','date'],['email','Email','email'],['password','Password (12+ characters)','password'],['mobile_number','Mobile number','tel']]:[['father_id','OMI ID','text'],['password','Password','password']];
+ return <div className="panel mx-auto max-w-xl p-6 sm:p-8"><h2 className="section-title text-xl">{mode==='signup'?'Father registration':'Father sign in'}</h2><p className="subcopy mt-2">{mode==='signup'?'Create a Father account to access your profile on the public site.':'Sign in with your OMI ID and password.'}</p>
   <form className="mt-6 space-y-4" onSubmit={submit}>{mode==='signup'&&<div><label className="form-label">Role</label><select className="field mt-2" value={form.role} onChange={e=>setForm(a=>({...a,role:e.target.value}))}><option value="father">Father</option></select></div>}
    {fields.map(([key,label,type])=><div key={key}><label className="form-label">{label}</label><input required minLength={key==='password'?12:undefined} type={type} autoComplete={key==='password'?'new-password':key==='email'?'email':'off'} className="field mt-2" value={form[key]} onChange={e=>setForm(a=>({...a,[key]:e.target.value}))}/></div>)}
    {error&&<p role="alert" className="text-sm text-rose-700">{error}</p>}
@@ -533,7 +678,111 @@ function FatherProfile({user,onAuth,notify}){
   try{const result=await api('/api/auth/profile',{method:'PATCH',body:JSON.stringify(body)});onAuth(result.user);notify('Profile updated.','success');setForm({...result.user,date_of_birth:dateInput(result.user.date_of_birth),password:''})}
   catch(err){notify(err.message,'error')}finally{setBusy(false)}
  }
- return <form className="panel mx-auto max-w-xl space-y-5 p-6 sm:p-8" onSubmit={save}><div><h2 className="section-title text-xl">My profile</h2><p className="subcopy mt-2">Update your personal details. Father ID cannot be changed here.</p></div><div><label className="form-label">Name</label><input required minLength={2} className="field mt-2" value={form.name||''} onChange={e=>setForm(a=>({...a,name:e.target.value}))}/></div><div><label className="form-label">Role</label><input disabled className="field mt-2" value="Father"/></div><div><label className="form-label">Father ID</label><input disabled className="field mt-2" value={form.father_id||''}/></div><div><label className="form-label">Date of birth</label><input required type="date" className="field mt-2" value={form.date_of_birth||''} onChange={e=>setForm(a=>({...a,date_of_birth:e.target.value}))}/></div><div><label className="form-label">Email</label><input required type="email" className="field mt-2" value={form.email||''} onChange={e=>setForm(a=>({...a,email:e.target.value}))}/></div><div><label className="form-label">Password (leave blank to keep current)</label><input minLength={form.password?12:undefined} type="password" autoComplete="new-password" className="field mt-2" value={form.password} onChange={e=>setForm(a=>({...a,password:e.target.value}))}/></div><div><label className="form-label">Mobile number</label><input required type="tel" className="field mt-2" value={form.mobile_number||''} onChange={e=>setForm(a=>({...a,mobile_number:e.target.value}))}/></div><button disabled={busy} className="btn-primary">{busy?'Saving…':'Save profile'}</button></form>
+ return <form className="panel mx-auto max-w-xl space-y-5 p-6 sm:p-8" onSubmit={save}><div><h2 className="section-title text-xl">My profile</h2><p className="subcopy mt-2">Update your personal details. OMI ID cannot be changed here.</p></div><div><label className="form-label">Name</label><input required minLength={2} className="field mt-2" value={form.name||''} onChange={e=>setForm(a=>({...a,name:e.target.value}))}/></div><div><label className="form-label">Role</label><input disabled className="field mt-2" value="Father"/></div><div><label className="form-label">OMI ID</label><input disabled className="field mt-2" value={form.father_id||''}/></div><div><label className="form-label">Date of birth</label><input required type="date" className="field mt-2" value={form.date_of_birth||''} onChange={e=>setForm(a=>({...a,date_of_birth:e.target.value}))}/></div><div><label className="form-label">Email</label><input required type="email" className="field mt-2" value={form.email||''} onChange={e=>setForm(a=>({...a,email:e.target.value}))}/></div><div><label className="form-label">Password (leave blank to keep current)</label><input minLength={form.password?12:undefined} type="password" autoComplete="new-password" className="field mt-2" value={form.password} onChange={e=>setForm(a=>({...a,password:e.target.value}))}/></div><div><label className="form-label">Mobile number</label><input required type="tel" className="field mt-2" value={form.mobile_number||''} onChange={e=>setForm(a=>({...a,mobile_number:e.target.value}))}/></div><button disabled={busy} className="btn-primary">{busy?'Saving…':'Save profile'}</button></form>
+}
+function ContentSeeder({notify}){
+ const [sample,setSample]=useState(null),[catalog,setCatalog]=useState(null),[jsonText,setJsonText]=useState('');
+ const [draft,setDraft]=useState(false),[force,setForce]=useState(false),[useSample,setUseSample]=useState(true);
+ const [showAdvanced,setShowAdvanced]=useState(false);
+ const [busyId,setBusyId]=useState(''),[lastId,setLastId]=useState(''),[result,setResult]=useState(null),[error,setError]=useState('');
+ useEffect(()=>{api('/api/seed/sample').then(r=>{setSample(r.sample);setCatalog(r.catalog);setJsonText(JSON.stringify(r.sample,null,2))}).catch(e=>setError(e.message))},[]);
+ async function seedSection(only,label,id){
+  setBusyId(id);setError('');setResult(null);setLastId(id);
+  try{
+   let seed;
+   if(!useSample){
+    try{seed=JSON.parse(jsonText)}catch{throw new Error('Custom seed JSON is not valid JSON')}
+   }
+   const r=await api('/api/seed',{method:'POST',body:JSON.stringify({useSample,seed,draft,force,only})});
+   setResult({...r,label});notify(`Seeded ${label}.`,'success');
+  }catch(err){setError(err.message);notify(err.message,'error')}
+  finally{setBusyId('')}
+ }
+ function downloadSample(){
+  if(!sample)return;
+  const blob=new Blob([JSON.stringify(sample,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download='seed-cms.sample.json';a.click();URL.revokeObjectURL(url);
+ }
+ function onFile(e){
+  const file=e.target.files?.[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+   const text=String(reader.result||'');
+   setJsonText(text);setUseSample(false);setResult(null);
+   try{
+    const parsed=JSON.parse(text);
+    const pages=Array.isArray(parsed.pages)?parsed.pages:[];
+    const items=Array.isArray(parsed.items)?parsed.items:[];
+    const byType={};
+    for(const item of items){const t=item.type;if(t)byType[t]=(byType[t]||0)+1}
+    setCatalog({
+     pages:pages.map(p=>({id:`page:${p.slug}`,kind:'page',slug:p.slug,label:p.title_en||p.slug,count:1})),
+     types:Object.keys(TYPE_INFO).filter(t=>t!=='page').map(type=>({id:`type:${type}`,kind:'type',type,label:TYPE_INFO[type][0],count:byType[type]||0,inSample:Boolean(byType[type])})),
+    });
+   }catch{/* keep previous catalog */}
+  };
+  reader.readAsText(file);e.target.value='';
+ }
+ const SeedRow=({id,title,hint,disabled,onSeed})=>{
+  const running=busyId===id;
+  return <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 py-3 last:border-0">
+   <div className="min-w-0"><p className="text-sm font-semibold text-navy-900">{title}</p>{hint&&<p className="text-[11px] text-slate-500 mt-0.5">{hint}</p>}</div>
+   <button type="button" className="btn-primary text-xs shrink-0" disabled={Boolean(busyId)||disabled} onClick={onSeed}>
+    <Database size={14}/>{running?'Seeding…':'Seed'}
+   </button>
+  </div>;
+ };
+ return <div className="space-y-6 max-w-4xl">
+  <div className="panel p-6 sm:p-8 space-y-4">
+   <div><h3 className="section-title">Content Seeder</h3><p className="subcopy mt-1">Seed one page block or one content type at a time. Safe fill skips existing collection rows; Force overwrites them.</p></div>
+   <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-xs leading-5 text-amber-950"><ShieldAlert size={16} className="inline mr-2 text-amber-600"/>Administrators only. Prefer Safe fill on a live site.</div>
+   <div className="flex flex-wrap gap-5">
+    <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={draft} onChange={e=>setDraft(e.target.checked)}/> Save as draft</label>
+    <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={force} onChange={e=>setForce(e.target.checked)}/> Force overwrite existing</label>
+   </div>
+   <div className="flex flex-wrap gap-3">
+    <button type="button" className="btn-outline text-xs" onClick={downloadSample} disabled={!sample}><Download size={14}/> Download sample JSON</button>
+    <button type="button" className="btn-outline text-xs" onClick={()=>setShowAdvanced(v=>!v)}>{showAdvanced?'Hide':'Show'} custom JSON</button>
+    <button type="button" className="btn-outline text-xs" disabled={Boolean(busyId)||!catalog} onClick={()=>seedSection(null,'everything','all')}>
+     <Database size={14}/>{busyId==='all'?'Seeding…':'Seed all sections'}
+    </button>
+   </div>
+   {showAdvanced&&<div className="space-y-3 border-t border-slate-100 pt-4">
+    <div className="flex flex-wrap gap-4">
+     <label className="inline-flex items-center gap-2 text-sm"><input type="radio" checked={useSample} onChange={()=>setUseSample(true)}/> Built-in sample</label>
+     <label className="inline-flex items-center gap-2 text-sm"><input type="radio" checked={!useSample} onChange={()=>setUseSample(false)}/> Custom JSON</label>
+    </div>
+    <label className="btn-outline text-xs cursor-pointer inline-flex"><UploadCloud size={14} className="inline mr-1"/> Upload JSON<input type="file" accept="application/json,.json" className="hidden" onChange={onFile}/></label>
+    {!useSample&&<textarea className="field font-mono text-xs min-h-[220px]" value={jsonText} onChange={e=>setJsonText(e.target.value)} spellCheck={false}/>}
+   </div>}
+   {error&&<p className="text-sm text-rose-700">{error}</p>}
+  </div>
+
+  <div className="panel p-6 sm:p-8">
+   <h4 className="font-semibold text-navy-900">Page blocks</h4>
+   <p className="text-xs text-slate-500 mt-1 mb-2">Website section copy stored as CMS type <code>page</code>.</p>
+   {!catalog?<p className="text-sm text-slate-500">Loading…</p>:catalog.pages.map(p=>(
+    <SeedRow key={p.id} id={p.id} title={p.label} hint={`slug: ${p.slug}`}
+     onSeed={()=>seedSection({pages:[p.slug],types:[]},p.label,p.id)}/>
+   ))}
+  </div>
+
+  <div className="panel p-6 sm:p-8">
+   <h4 className="font-semibold text-navy-900">Content types</h4>
+   <p className="text-xs text-slate-500 mt-1 mb-2">Collection rows (ministries, priests, news, library, …).</p>
+   {!catalog?<p className="text-sm text-slate-500">Loading…</p>:catalog.types.map(t=>(
+    <SeedRow key={t.id} id={t.id} title={t.label} hint={t.count?`${t.count} sample row${t.count===1?'':'s'}`:'No rows in current sample'}
+     disabled={!t.count} onSeed={()=>seedSection({pages:[],types:[t.type]},t.label,t.id)}/>
+   ))}
+  </div>
+
+  {result&&<div className="panel p-6 sm:p-8 space-y-3">
+   <h4 className="font-semibold text-navy-900">Result · {result.label||lastId} · {result.status}{result.force?' · force':''}</h4>
+   <ul className="text-sm text-slate-600 columns-1 sm:columns-2 gap-6 space-y-1">{Object.entries(result.counts||{}).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=><li key={k}><span className="font-medium text-navy-900">{k}</span>: {v}</li>)}</ul>
+   {!Object.keys(result.counts||{}).length&&<p className="text-sm text-slate-500">Nothing changed.</p>}
+  </div>}
+ </div>
 }
 function SiteSettings({notify}){const [settings,setSettings]=useState(null),[busy,setBusy]=useState(false);
  useEffect(()=>{api('/api/settings').then(r=>setSettings(r.settings?.site_identity||{})).catch(e=>notify(e.message,'error'))},[]);
@@ -596,12 +845,20 @@ function App(){
   setUser(next);
   if(!isCms)location.assign('/admin');
  }
- async function logout(){if(!demo)try{await api('/api/auth/logout',{method:'POST'})}catch(err){notify(err.message,'error');return}setUser(null);if(demo||isCms)location.assign('/');}
+ async function logout(){
+  if(!demo){
+   try{await api('/api/auth/logout',{method:'POST'})}
+   catch(err){notify(err.message,'error');return}
+  }
+  setUser(null);
+  if(demo||isCms)location.assign('/admin');
+  else location.assign('/');
+ }
  if(!isCms)return <><PublicSite user={user} onAuth={acceptAuth} onLogout={logout} notify={notify}/>{notice&&<Toast key={notice.message} {...notice}/>}</>;
  if(!ready)return <div className="min-h-screen grid place-items-center text-slate-500 text-sm">Loading secure workspace…</div>;
  if(user?.role==='father')return <div className="min-h-screen grid place-items-center gap-3 p-8 text-center text-slate-600"><p className="text-sm font-semibold text-navy-900">This area is the staff CMS.</p><p className="text-sm">Opening your Father profile on the public website…</p></div>;
  if(!isStaff)return <><Login onLogin={acceptAuth} notify={notify}/>{notice&&<Toast key={notice.message} {...notice}/>}</>;
- return <div className="cms-shell lg:pl-[270px]"><Sidebar section={section} setSection={setSection} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={user} onLogout={logout}/><Topbar section={section} setMobileOpen={setMobileOpen} user={user} onLogout={logout} setSection={setSection}/><main className="px-4 sm:px-8 lg:px-10 py-7 sm:py-9 max-w-[1750px] mx-auto">{demo&&<div className="mb-6 flex flex-wrap justify-between gap-3 items-center border border-sky-200 rounded-xl bg-sky-50/90 px-4 py-3 text-xs text-sky-900"><span><Info size={15} className="inline mr-2"/><strong>Read-only demo.</strong> 124 source-derived draft records; no connection to the real database.</span><a href="/admin" className="underline font-bold">Go to secure login</a></div>}{section==='overview'?<Overview setSection={setSection} user={user} notify={notify}/>:viewFor(section)?<ContentManager key={viewFor(section).id} view={viewFor(section)} notify={notify} user={user}/>:section==='contacts'?<Contacts notify={notify} user={user}/>:section==='inquiries'?<Inquiries notify={notify} user={user}/>:section==='father-reports'?<FatherReports notify={notify} user={user}/>:section==='assets'?<Assets notify={notify} user={user}/>:section==='users'?(user.role==='admin'?<Team notify={notify}/>:<div className="panel p-8">Only admins can manage accounts.</div>):section==='settings'?(user.role==='admin'?<SiteSettings notify={notify}/>:<div className="panel p-8">Only admins can edit settings.</div>):null}<div className="flex justify-between flex-wrap gap-2 text-[11px] text-slate-500 mt-10 pt-6 border-t border-sky-200"><span>© 2026 · Oblate Province of Jaffna · Content Management System</span><span>Built for stewardship, accessibility and safeguarding</span></div></main>{notice&&<Toast key={notice.message} {...notice}/>}</div>;
+ return <div className="cms-shell lg:pl-[270px]"><Sidebar section={section} setSection={setSection} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={user} onLogout={logout}/><Topbar section={section} setMobileOpen={setMobileOpen} user={user} onLogout={logout} setSection={setSection}/><main className="px-4 sm:px-8 lg:px-10 py-7 sm:py-9 max-w-[1750px] mx-auto">{demo&&<div className="mb-6 flex flex-wrap justify-between gap-3 items-center border border-sky-200 rounded-xl bg-sky-50/90 px-4 py-3 text-xs text-sky-900"><span><Info size={15} className="inline mr-2"/><strong>Read-only demo.</strong> 124 source-derived draft records; no connection to the real database.</span><a href="/admin" className="underline font-bold">Go to secure login</a></div>}{section==='overview'?<Overview setSection={setSection} user={user} notify={notify}/>:viewFor(section)?<ContentManager key={viewFor(section).id} view={viewFor(section)} notify={notify} user={user}/>:section==='contacts'?<Contacts notify={notify} user={user}/>:section==='inquiries'?<Inquiries notify={notify} user={user}/>:section==='father-profiles'?(user.role==='admin'?<FatherProfiles notify={notify}/>:<div className="panel p-8">Only admins can manage Father profiles.</div>):section==='father-galleries'?<FatherGalleries notify={notify} user={user}/>:section==='father-reports'?<FatherReports notify={notify} user={user}/>:section==='assets'?<Assets notify={notify} user={user}/>:section==='users'?(user.role==='admin'?<Team notify={notify}/>:<div className="panel p-8">Only admins can manage accounts.</div>):section==='seeder'?(user.role==='admin'?<ContentSeeder notify={notify}/>:<div className="panel p-8">Only admins can run the content seeder.</div>):section==='settings'?(user.role==='admin'?<SiteSettings notify={notify}/>:<div className="panel p-8">Only admins can edit settings.</div>):null}<div className="flex justify-between flex-wrap gap-2 text-[11px] text-slate-500 mt-10 pt-6 border-t border-sky-200"><span>© 2026 · Oblate Province of Jaffna · Content Management System</span><span>Built for stewardship, accessibility and safeguarding</span></div></main>{notice&&<Toast key={notice.message} {...notice}/>}</div>;
 }
 function Toast({message,type}){return <div role="status" className={`fixed z-[100] bottom-6 right-6 left-6 sm:left-auto sm:max-w-[400px] rounded-xl shadow-xl px-5 py-4 text-sm font-semibold flex items-center gap-3 ${type==='error'?'bg-rose-700 text-white':'bg-navy-900 text-white'}`}>{type==='error'?<AlertCircle size={19} className="shrink-0"/>:<CheckCircle2 size={19} className="shrink-0 text-gold-400"/>}{message}</div>}
 const root=import.meta.hot?.data.root||createRoot(document.getElementById('root'));

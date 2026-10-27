@@ -8,11 +8,13 @@ import bcrypt from 'bcryptjs';
 import {randomUUID} from 'node:crypto';
 import multer from 'multer';
 import {query} from './db.js';
-import {auth,allow,issueToken,cookieOptions} from './security.js';
+import {auth,optionalAuth,allow,setSessionCookie,clearSessionCookie,verifyPassword} from './security.js';
 import {crudRouter} from './crud.js';
 import {TYPES} from './constants.js';
 import {saveFile,readStoredFile,removeFile} from './storage.js';
-import {contentSchema,inquirySchema,publishCheck,fatherRegistrationSchema,fatherProfileSchema,fatherItemSchema,fatherItemUpdateSchema,fatherItemKinds,fatherDispatchSchema,fatherNewsSchema} from './validation.js';
+import {contentSchema,inquirySchema,publishCheck,fatherRegistrationSchema,fatherProfileSchema,fatherItemSchema,fatherItemUpdateSchema,fatherItemKinds,fatherDispatchSchema,fatherNewsSchema,fatherEventSchema} from './validation.js';
+import {findPersonnel,matchPersonnel} from './personnel.js';
+import {applyCmsSeed,buildSeedCatalog,loadSampleSeed} from './seed-cms.js';
 
 export const app=express();
 if(!process.env.JWT_SECRET||process.env.JWT_SECRET.length<32)throw new Error('Set JWT_SECRET to a random string of at least 32 characters');
@@ -25,10 +27,9 @@ app.use(helmet({crossOriginResourcePolicy:{policy:'cross-origin'}}));
 const configuredOrigins = process.env.FRONTEND_ORIGIN?.split(',').map(s => s.trim()) || ['http://localhost:5173'];
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || configuredOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(null, origin);
+    // Same-origin / server-to-server (no Origin header) and allowlisted FRONTEND_ORIGIN only.
+    if (!origin || configuredOrigins.includes(origin)) return callback(null, true);
+    return callback(null, false);
   },
   credentials: true,
 }));
@@ -49,33 +50,73 @@ app.get('/api/health',asyncRoute(async(_req,res)=>{await query('SELECT 1');res.j
 app.post('/api/auth/login',slowLimit,asyncRoute(async(req,res)=>{
  const identifier=String(req.body?.identifier||req.body?.email||'').trim();
  const password=String(req.body?.password||'');
+ if(!identifier||!password)return bad(res,'Invalid email, OMI ID or password',401);
  const isEmail=identifier.includes('@');
  const r=await query(`SELECT id,name,email,password_hash,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url FROM users WHERE ${isEmail?"email=$1 AND role IN ('admin','editor','publisher')":"lower(father_id)=lower($1) AND role='father'"} LIMIT 1`,[isEmail?identifier.toLowerCase():identifier]);
- if(!r.rowCount||!r.rows[0].active||!(await bcrypt.compare(password,r.rows[0].password_hash)))return bad(res,'Invalid email, Father ID or password',401);
- const {password_hash,...user}=r.rows[0];res.cookie('omi_session',issueToken(user),cookieOptions()).json({user});
+ const row=r.rows[0];
+ const passwordOk=await verifyPassword(password,row?.password_hash);
+ if(!row||!row.active||!passwordOk)return bad(res,'Invalid email, OMI ID or password',401);
+ const {password_hash,...user}=row;
+ setSessionCookie(res,user);
+ res.json({user});
+}));
+app.get('/api/auth/omi-lookup',slowLimit,asyncRoute(async(req,res)=>{
+ const omiId=String(req.query.omi_id||req.query.father_id||'').trim();
+ if(!omiId)return bad(res,{fieldErrors:{father_id:['Enter your OMI ID.']}});
+ const record=findPersonnel(omiId);
+ if(!record)return bad(res,{fieldErrors:{father_id:['That OMI ID is not on the Jaffna Province personnel list.']}},404);
+ // Do not return the roster name — prevents ID enumeration + account squatting.
+ res.json({valid:true,omi_id:record.omi_id});
 }));
 app.post('/api/auth/register',slowLimit,asyncRoute(async(req,res)=>{
+ if(process.env.FATHER_SELF_REGISTER==='false'){
+  return bad(res,'Self-registration is closed. Ask the Province office to create your Father account.',403);
+ }
  const parsed=fatherRegistrationSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
  const {name,email,password,father_id,date_of_birth,mobile_number}=parsed.data;
+ const match=matchPersonnel(father_id,name,{threshold:0.85});
+ if(!match.ok){
+  const field=match.code==='omi_id'?'father_id':'name';
+  const message=match.code==='name'
+   ?'Full name does not match Province records for this OMI ID. Use the name exactly as on the personnel list.'
+   :match.message;
+  return bad(res,{fieldErrors:{[field]:[message]}});
+ }
+ const officialName=match.record.name;
  const taken=await query(
   `SELECT
     EXISTS(SELECT 1 FROM users WHERE lower(email)=lower($1)) AS email_taken,
     EXISTS(SELECT 1 FROM users WHERE father_id IS NOT NULL AND lower(father_id)=lower($2)) AS father_id_taken`,
-  [email,father_id]
+  [email,match.record.omi_id]
  );
- if(taken.rows[0].email_taken)return bad(res,'That email is already registered. Sign in with your Father ID, or use a different email.',409);
- if(taken.rows[0].father_id_taken)return bad(res,'That Father ID is already registered. Sign in instead, or contact the Province if this is a mistake.',409);
+ if(taken.rows[0].email_taken)return bad(res,{fieldErrors:{email:['That email is already registered. Sign in with your OMI ID, or use a different email.']}},409);
+ if(taken.rows[0].father_id_taken)return bad(res,{fieldErrors:{father_id:['That OMI ID is already registered. Sign in instead, or contact the Province if this is a mistake.']}},409);
  const password_hash=await bcrypt.hash(password,12);
+ // Inactive until a CMS admin activates the account (Father Profile Management).
  const result=await query(
-  "INSERT INTO users(name,email,password_hash,role,father_id,date_of_birth,mobile_number) VALUES($1,$2,$3,'father',$4,$5,$6) RETURNING id,name,email,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url",
-  [name,email,password_hash,father_id,date_of_birth,mobile_number]
+  "INSERT INTO users(name,email,password_hash,role,active,father_id,date_of_birth,mobile_number) VALUES($1,$2,$3,'father',false,$4,$5,$6) RETURNING id,name,email,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url",
+  [officialName,email,password_hash,match.record.omi_id,date_of_birth,mobile_number]
  );
- const user=result.rows[0];await audit(user.id,'register','user',user.id);res.cookie('omi_session',issueToken(user),cookieOptions()).status(201).json({user});
+ const user=result.rows[0];await audit(user.id,'register','user',user.id,{omi_id:match.record.omi_id,name_score:match.score,pending_approval:true});
+ res.status(201).json({
+  ok:true,
+  pending_approval:true,
+  message:'Registration received. A Province administrator must activate your account before you can sign in.',
+  user:{id:user.id,name:user.name,email:user.email,role:user.role,active:false,father_id:user.father_id}
+ });
 }));
-app.post('/api/auth/logout',(_req,res)=>res.clearCookie('omi_session',{...cookieOptions(),maxAge:undefined}).json({ok:true}));
-app.get('/api/auth/me',auth,asyncRoute(async(req,res)=>{
+app.post('/api/auth/logout',(_req,res)=>{
+ clearSessionCookie(res);
+ res.json({ok:true});
+});
+app.get('/api/auth/me',optionalAuth,asyncRoute(async(req,res)=>{
+ res.set('Cache-Control','no-store');
+ if(!req.session)return res.json({user:null});
  const r=await query('SELECT id,name,email,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url FROM users WHERE id=$1',[req.session.sub]);
- if(!r.rowCount||!r.rows[0].active)return bad(res,'Account unavailable',401);
+ if(!r.rowCount||!r.rows[0].active){
+  clearSessionCookie(res);
+  return res.json({user:null});
+ }
  res.json({user:r.rows[0]});
 }));
 app.patch('/api/auth/profile',auth,allow('father'),asyncRoute(async(req,res)=>{
@@ -112,11 +153,18 @@ app.get('/api/father/dashboard',auth,fatherOnly,asyncRoute(async(req,res)=>{
    ORDER BY updated_at DESC LIMIT 50`,
   [req.session.sub]
  );
+ const myEvents=await query(
+  `SELECT id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,location_text,event_date,status,published_at,created_at,updated_at,
+    metadata->>'date_display' AS date_display,metadata->>'end_date' AS end_date
+   FROM content_items WHERE type='event' AND metadata->>'submitted_by'=$1
+   ORDER BY updated_at DESC LIMIT 50`,
+  [req.session.sub]
+ );
  const news=await query(`SELECT slug,title_en AS title,excerpt_en AS excerpt,image_url,published_at,metadata->>'date_display' AS date_display
   FROM content_items WHERE type='news' AND status='published' ORDER BY COALESCE(event_date,published_at,created_at) DESC LIMIT 12`);
  const byKind={document:[],gallery:[],action:[],news:[]};
  for(const item of items.rows)(byKind[item.kind]||(byKind[item.kind]=[])).push(item);
- res.json({user:user.rows[0],items:byKind,adminReports:reports.rows,myNews:myNews.rows,provinceNews:news.rows});
+ res.json({user:user.rows[0],items:byKind,adminReports:reports.rows,myNews:myNews.rows,myEvents:myEvents.rows,provinceNews:news.rows});
 }));
 app.post('/api/father/news',auth,fatherOnly,asyncRoute(async(req,res)=>{
  const parsed=fatherNewsSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
@@ -142,6 +190,117 @@ app.post('/api/father/news',auth,fatherOnly,asyncRoute(async(req,res)=>{
  );
  await audit(req.session.sub,'create','news',r.rows[0].id,{source:'father'});
  res.status(201).json({item:r.rows[0]});
+}));
+app.patch('/api/father/news/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ if(!idValid(req.params.id))return bad(res,'Invalid ID');
+ const parsed=fatherNewsSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
+ const existing=await query(
+  `SELECT id,status,metadata FROM content_items WHERE id=$1 AND type='news' AND metadata->>'submitted_by'=$2`,
+  [req.params.id,req.session.sub]
+ );
+ if(!existing.rowCount)return bad(res,'Not found',404);
+ if(existing.rows[0].status==='published')return bad(res,'Published stories can only be changed by Province staff.',409);
+ const {title,excerpt,body,location_text,image_url,section,gallery}=parsed.data;
+ const meta={...(existing.rows[0].metadata||{}),section:section||'province-events',gallery};
+ const r=await query(
+  `UPDATE content_items SET title_en=$1,excerpt_en=$2,body_en=$3,location_text=$4,image_url=$5,metadata=$6,updated_by=$7,updated_at=now()
+   WHERE id=$8
+   RETURNING id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,image_url,location_text,status,published_at,created_at,updated_at,
+    metadata->>'section' AS section,metadata->'gallery' AS gallery`,
+  [title,excerpt,body,location_text,image_url,meta,req.session.sub,req.params.id]
+ );
+ await audit(req.session.sub,'update','news',req.params.id,{source:'father'});
+ res.json({item:r.rows[0]});
+}));
+app.delete('/api/father/news/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ if(!idValid(req.params.id))return bad(res,'Invalid ID');
+ const existing=await query(
+  `SELECT id,status FROM content_items WHERE id=$1 AND type='news' AND metadata->>'submitted_by'=$2`,
+  [req.params.id,req.session.sub]
+ );
+ if(!existing.rowCount)return bad(res,'Not found',404);
+ if(existing.rows[0].status==='published')return bad(res,'Published stories can only be removed by Province staff.',409);
+ await query('DELETE FROM content_items WHERE id=$1',[req.params.id]);
+ await audit(req.session.sub,'delete','news',req.params.id,{source:'father'});
+ res.json({ok:true});
+}));
+app.post('/api/father/events',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ const parsed=fatherEventSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
+ const {title,excerpt,body,location_text,event_date,end_date,date_display}=parsed.data;
+ const profile=await query('SELECT name,father_id FROM users WHERE id=$1',[req.session.sub]);
+ if(!profile.rowCount)return bad(res,'Account unavailable',401);
+ const base=title.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,140)||'event';
+ const slug=`${base}-${Date.now().toString(36)}`;
+ const startIso=`${event_date}T12:00:00+05:30`;
+ const metadata={
+  end_date:end_date||'',
+  date_display:date_display||'',
+  submitted_by:req.session.sub,
+  author_name:profile.rows[0].name,
+  father_id:profile.rows[0].father_id||''
+ };
+ const r=await query(
+  `INSERT INTO content_items(type,slug,title_en,excerpt_en,body_en,location_text,event_date,status,verification_status,metadata,created_by,updated_by)
+   VALUES('event',$1,$2,$3,$4,$5,$6::timestamptz,'review','pending',$7,$8,$8)
+   RETURNING id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,location_text,event_date,status,published_at,created_at,updated_at,
+    metadata->>'date_display' AS date_display,metadata->>'end_date' AS end_date`,
+  [slug,title,excerpt,body||'',location_text,startIso,metadata,req.session.sub]
+ );
+ await audit(req.session.sub,'create','event',r.rows[0].id,{source:'father'});
+ res.status(201).json({item:r.rows[0]});
+}));
+app.patch('/api/father/events/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ if(!idValid(req.params.id))return bad(res,'Invalid ID');
+ const parsed=fatherEventSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
+ const existing=await query(
+  `SELECT id,status,metadata FROM content_items WHERE id=$1 AND type='event' AND metadata->>'submitted_by'=$2`,
+  [req.params.id,req.session.sub]
+ );
+ if(!existing.rowCount)return bad(res,'Not found',404);
+ if(existing.rows[0].status==='published')return bad(res,'Published events can only be changed by Province staff.',409);
+ const {title,excerpt,body,location_text,event_date,end_date,date_display}=parsed.data;
+ const startIso=`${event_date}T12:00:00+05:30`;
+ const meta={...(existing.rows[0].metadata||{}),end_date:end_date||'',date_display:date_display||''};
+ const r=await query(
+  `UPDATE content_items SET title_en=$1,excerpt_en=$2,body_en=$3,location_text=$4,event_date=$5::timestamptz,metadata=$6,updated_by=$7,updated_at=now()
+   WHERE id=$8
+   RETURNING id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,location_text,event_date,status,published_at,created_at,updated_at,
+    metadata->>'date_display' AS date_display,metadata->>'end_date' AS end_date`,
+  [title,excerpt,body||'',location_text,startIso,meta,req.session.sub,req.params.id]
+ );
+ await audit(req.session.sub,'update','event',req.params.id,{source:'father'});
+ res.json({item:r.rows[0]});
+}));
+app.delete('/api/father/events/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ if(!idValid(req.params.id))return bad(res,'Invalid ID');
+ const existing=await query(
+  `SELECT id,status FROM content_items WHERE id=$1 AND type='event' AND metadata->>'submitted_by'=$2`,
+  [req.params.id,req.session.sub]
+ );
+ if(!existing.rowCount)return bad(res,'Not found',404);
+ if(existing.rows[0].status==='published')return bad(res,'Published events can only be removed by Province staff.',409);
+ await query('DELETE FROM content_items WHERE id=$1',[req.params.id]);
+ await audit(req.session.sub,'delete','event',req.params.id,{source:'father'});
+ res.json({ok:true});
+}));
+app.get('/api/father/galleries',auth,cmsOnly,asyncRoute(async(_req,res)=>{
+ const r=await query(
+  `SELECT i.id,i.title,i.body,i.file_url,i.status,i.created_at,i.updated_at,
+    u.id AS user_id,u.name AS father_name,u.father_id AS omi_id,u.email AS father_email
+   FROM father_items i
+   JOIN users u ON u.id=i.user_id
+   WHERE i.kind='gallery'
+   ORDER BY i.created_at DESC
+   LIMIT 500`
+ );
+ res.json({items:r.rows});
+}));
+app.delete('/api/father/galleries/:id',auth,allow('admin','publisher'),asyncRoute(async(req,res)=>{
+ if(!idValid(req.params.id))return bad(res,'Invalid ID');
+ const r=await query("DELETE FROM father_items WHERE id=$1 AND kind='gallery' RETURNING id",[req.params.id]);
+ if(!r.rowCount)return bad(res,'Not found',404);
+ await audit(req.session.sub,'delete','father_gallery',req.params.id);
+ res.json({ok:true});
 }));
 app.post('/api/father/items',auth,fatherOnly,asyncRoute(async(req,res)=>{
  const parsed=fatherItemSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
@@ -321,7 +480,40 @@ app.get('/api/public/contacts',asyncRoute(async(_req,res)=>{
  const r=await query('SELECT name,role_title,phone,email,whatsapp,last_verified_at FROM people_contacts WHERE approved_for_public=true AND last_verified_at IS NOT NULL ORDER BY name');res.json({items:r.rows});
 }));
 app.get('/api/settings',auth,cmsOnly,asyncRoute(async(_req,res)=>{const r=await query('SELECT key,value FROM site_settings');res.json({settings:Object.fromEntries(r.rows.map(x=>[x.key,x.value]))});}));
-app.get('/api/users',auth,allow('admin'),asyncRoute(async(_req,res)=>{const r=await query('SELECT id,name,email,role,active,father_id,date_of_birth,mobile_number,created_at FROM users ORDER BY created_at');res.json({items:r.rows});}));
+app.get('/api/seed/sample',auth,allow('admin'),asyncRoute(async(_req,res)=>{
+ const sample=await loadSampleSeed();
+ res.json({sample,types:TYPES,catalog:buildSeedCatalog(sample)});
+}));
+app.post('/api/seed',auth,allow('admin'),slowLimit,asyncRoute(async(req,res)=>{
+ const draft=Boolean(req.body?.draft);
+ const force=Boolean(req.body?.force);
+ const useSample=Boolean(req.body?.useSample);
+ const only=req.body?.only&&typeof req.body.only==='object'?{
+  pages:Array.isArray(req.body.only.pages)?req.body.only.pages.map(String):undefined,
+  types:Array.isArray(req.body.only.types)?req.body.only.types.map(String):undefined,
+ }:null;
+ if(only?.pages?.length===0)only.pages=undefined;
+ if(only?.types?.length===0)only.types=undefined;
+ if(only&&!only.pages&&!only.types)return bad(res,'only.pages or only.types is required when filtering');
+ let raw=req.body?.seed;
+ if(useSample)raw=await loadSampleSeed();
+ else if(!raw||typeof raw!=='object'||Array.isArray(raw))return bad(res,'Provide seed JSON or set useSample:true');
+ const result=await applyCmsSeed(raw,{draft,force,only});
+ await audit(req.session.sub,'seed_cms','content_items',null,{draft,force,useSample,only,counts:result.counts});
+ res.json({ok:true,...result});
+}));
+app.get('/api/users',auth,allow('admin'),asyncRoute(async(req,res)=>{
+ const role=String(req.query.role||'').trim();
+ let r;
+ if(role==='father'){
+  r=await query("SELECT id,name,email,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url,created_at FROM users WHERE role='father' ORDER BY name");
+ }else if(role==='staff'){
+  r=await query("SELECT id,name,email,role,active,created_at FROM users WHERE role IN ('admin','editor','publisher') ORDER BY CASE role WHEN 'admin' THEN 0 WHEN 'publisher' THEN 1 ELSE 2 END, name");
+ }else{
+  r=await query('SELECT id,name,email,role,active,father_id,date_of_birth,mobile_number,created_at FROM users ORDER BY created_at');
+ }
+ res.json({items:r.rows});
+}));
 const allowedMime={'image/jpeg':'.jpg','image/png':'.png','image/webp':'.webp','application/pdf':'.pdf','video/mp4':'.mp4'};
 const imageOrPdfMime=new Set(['image/jpeg','image/png','image/webp','application/pdf']);
 const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:40*1024*1024},fileFilter:(_req,file,cb)=>allowedMime[file.mimetype]?cb(null,true):cb(new Error('Only JPEG, PNG, WebP, PDF or MP4 allowed'))});
@@ -366,12 +558,13 @@ app.post('/api/father/upload',auth,fatherOnly,upload.single('file'),asyncRoute(a
  try{
   r=await query(
    `INSERT INTO media_assets(filename,original_name,mime_type,size_bytes,uploaded_by,status,rights_confirmed)
-    VALUES($1,$2,$3,$4,$5,'published',true) RETURNING *`,
+    VALUES($1,$2,$3,$4,$5,'draft',false) RETURNING *`,
    [filename,req.file.originalname.slice(0,255),req.file.mimetype,req.file.size,req.session.sub]
   );
  }catch(e){await removeFile(filename);throw e;}
- await audit(req.session.sub,'upload','asset',r.rows[0].id,{portal:'father'});
- res.status(201).json({item:{...r.rows[0],url:`/api/files/${r.rows[0].id}`}});
+ await audit(req.session.sub,'upload','asset',r.rows[0].id,{portal:'father',status:'draft'});
+ // Father can preview via /api/files (uploader allowed); staff must publish in File Uploads for public use.
+ res.status(201).json({item:{...r.rows[0],url:`/api/files/${r.rows[0].id}`},pending_approval:true});
 }));
 app.get('/api/assets',auth,cmsOnly,asyncRoute(async(_req,res)=>{const r=await query('SELECT * FROM media_assets ORDER BY created_at DESC LIMIT 200');res.json({items:r.rows.map(a=>({...a,url:`/api/files/${a.id}`}))});}));
 app.get('/api/files/:id',asyncRoute(async(req,res)=>{
@@ -413,7 +606,7 @@ app.use((err,_req,res,_next)=>{
   const constraint=String(err.constraint||'');
   const detail=String(err.detail||'');
   if(constraint.includes('email')||detail.includes('(email)'))return bad(res,'That email is already registered. Sign in instead.',409);
-  if(constraint.includes('father_id')||detail.includes('(father_id)')||detail.includes('father_id'))return bad(res,'That Father ID is already registered. Sign in instead.',409);
+  if(constraint.includes('father_id')||detail.includes('(father_id)')||detail.includes('father_id'))return bad(res,'That OMI ID is already registered. Sign in instead.',409);
   if(constraint.includes('slug')||detail.includes('(type, slug)')||detail.includes('(slug)'))return bad(res,'That URL slug is already in use. Choose a different one.',409);
   return bad(res,'That record already exists.',409);
  }

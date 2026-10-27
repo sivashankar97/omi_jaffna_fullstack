@@ -140,41 +140,159 @@ export const homeSectionsDefaults = {
 }
 
 export const mediaPageDefaults = {
+  hero: {
+    kicker: "Digital mission",
+    title: "The screen is also a mission field",
+    summary:
+      "Technology should serve evangelization, human dignity and community. The church, the village, the school and the smartphone are all places where the Gospel can be shared.",
+    cta: "Explore our media",
+    ctaHref: "#social-signals",
+  },
+  social: {
+    kicker: "Live channels",
+    title: "Follow the Province online",
+    summary:
+      "Watch, follow and share — YouTube, Instagram and Facebook are the public channels of the Oblate Province of Jaffna.",
+    youtubeHandle: "Oblate Jaffna TV",
+    youtubeText: "The official channel. Programmes are published there, including நற்கருணை ஆராதனை.",
+    youtubeAction: "Watch on YouTube",
+    instagramHandle: "@omi_jaffna",
+    instagramText: "Photographs and short notes from the Province account.",
+    instagramAction: "Follow on Instagram",
+    facebookHandle: "Province page",
+    facebookText: "The public Facebook page shared for this Province.",
+    facebookAction: "Open Facebook",
+  },
+  desks: {
+    kicker: "Media desks",
+    title: "Seven ways into the same mission",
+    summary: "Choose a desk. Photographs are from the Province collection, not frames of one event.",
+  },
+  publications: {
+    kicker: "Read",
+    title: "Publications of the Province",
+    summary: "Covers, editions and downloads will be added as each issue is approved for the website.",
+  },
   topImage: "/Herosection/Welcome.jpeg",
   topImageAlt: "Oblate Media Ministry, OMI Jaffna Province",
   videoImage: "/Herosection/Heroimage_2.jpg",
   gallery: [
+    {
+      src: "/Herosection/Heroimage_2.jpg",
+      alt: "A jubilee arch of the Oblate Province of Jaffna",
+      caption: "Jubilee arch marked OMI 200. Province collection.",
+    },
+    {
+      src: "/Herosection/Heroimage_3.jpg",
+      alt: "The flag of the Oblate Province of Jaffna",
+      caption: "The flag of the Oblate Province of Jaffna.",
+    },
+    {
+      src: "/Herosection/Missionary_section.jpg",
+      alt: "The missionary emblem of the Oblate Province of Jaffna",
+      caption: "Missionary emblem with the Oblate seal.",
+    },
+    {
+      src: "/Herosection/Heroimage_1.jpg",
+      alt: "Oblate cross and the words Evangelizare pauperibus misit me",
+      caption: "The Oblate cross and the words Evangelizare pauperibus misit me.",
+    },
+    {
+      src: "/Herosection/Welcome.jpeg",
+      alt: "Oblate Media Ministry of the Oblate Province of Jaffna",
+      caption: "Mark of the Oblate Media Ministry.",
+    },
+    {
+      src: "/logos/logo_2.png",
+      alt: "Emblem of the Oblate Province of Jaffna",
+      caption: "Emblem of the Oblate Province of Jaffna.",
+    },
+  ],
+}
+
+export const vocationsDefaults = {
+  hero: {
+    kicker: "Vocations",
+    title: "A call to give one’s life in service of the Gospel",
+    summary:
+      "The Province accompanies those who discern this call through prayer, study, community life, pastoral experience, spiritual direction and missionary formation.",
+    primaryCta: "Talk to the vocation team",
+    primaryHref: "/contact",
+    secondaryCta: "The formation journey",
+    secondaryHref: "#formation-journey",
+  },
+  signs: {
+    kicker: "Is God calling you?",
+    title: "Signs of a missionary vocation",
+    subtitle: "A vocation is rarely a sudden voice. It often grows quietly through desires like these.",
+    items: [
       {
-        src: "/Herosection/Heroimage_2.jpg",
-        alt: "A jubilee arch of the Oblate Province of Jaffna",
-        caption: "Jubilee arch marked OMI 200. Province collection.",
+        title: "Love for Christ",
+        text: "A desire to know Jesus more deeply and to follow him with your whole life.",
       },
       {
-        src: "/Herosection/Heroimage_3.jpg",
-        alt: "The flag of the Oblate Province of Jaffna",
-        caption: "The flag of the Oblate Province of Jaffna.",
+        title: "Heart for the poor",
+        text: "Being moved by the suffering of people and wanting to stand with them.",
       },
       {
-        src: "/Herosection/Missionary_section.jpg",
-        alt: "The missionary emblem of the Oblate Province of Jaffna",
-        caption: "Missionary emblem with the Oblate seal.",
+        title: "Joy in community",
+        text: "Finding life in sharing prayer, work and mission with brothers.",
       },
       {
-        src: "/Herosection/Heroimage_1.jpg",
-        alt: "Oblate cross and the words Evangelizare pauperibus misit me",
-        caption: "The Oblate cross and the words Evangelizare pauperibus misit me.",
-      },
-      {
-        src: "/Herosection/Welcome.jpeg",
-        alt: "Oblate Media Ministry of the Oblate Province of Jaffna",
-        caption: "Mark of the Oblate Media Ministry.",
-      },
-      {
-        src: "/logos/logo_2.png",
-        alt: "Emblem of the Oblate Province of Jaffna",
-        caption: "Emblem of the Oblate Province of Jaffna.",
+        title: "Readiness to go",
+        text: "Openness to be sent wherever the Gospel and the people need you most.",
       },
     ],
+  },
+  journey: {
+    kicker: "Formation houses",
+    title: "The formation journey",
+    subtitle: "Step by step, candidates grow in prayer, study, community and mission.",
+    stageNotes: [
+      {
+        match: "Juniorate",
+        stage: "First steps",
+        text: "Young men begin to discover community life, prayer and study while completing their education.",
+      },
+      {
+        match: "Pre-Novitiate",
+        stage: "Discernment",
+        text: "A year of deeper discernment, spiritual direction and preparation for religious life.",
+      },
+      {
+        match: "De Mazenod",
+        stage: "Philosophy",
+        text: "Philosophical studies, pastoral exposure and growth in the Oblate missionary spirit.",
+      },
+      {
+        match: "Oblate Scholasticate",
+        stage: "Theology",
+        text: "Theological formation and missionary preparation toward final vows and priesthood.",
+      },
+    ],
+  },
+  discernment: {
+    kicker: "Begin the conversation",
+    title: "Begin with prayer and conversation",
+    steps: [
+      {
+        title: "Pray",
+        text: "Bring the question to God in silence, Scripture and the Eucharist.",
+      },
+      {
+        title: "Talk",
+        text: "Speak with an Oblate, your parish priest or the vocation team.",
+      },
+      {
+        title: "Come and see",
+        text: "Visit a formation house and share in community life for a few days.",
+      },
+    ],
+    primaryCta: "Contact the vocation team",
+    primaryHref: "/contact",
+    secondaryCta: "Read the charism",
+    secondaryHref: "/charism",
+  },
 }
 
 export const blocks = {
@@ -185,7 +303,8 @@ export const blocks = {
   "site-info": { label: "Footer, contact and social links", defaults: siteInfoDefaults },
   "home-sections": { label: "Home page sections", defaults: homeSectionsDefaults },
   journey: { label: "Our journey timeline", defaults: { eras: journeyEras } },
-  "media-page": { label: "Media page photos", defaults: mediaPageDefaults },
+  "media-page": { label: "Media page text & photos", defaults: mediaPageDefaults },
+  vocations: { label: "Vocations page sections", defaults: vocationsDefaults },
   history: {
     label: "History page sections",
     defaults: {

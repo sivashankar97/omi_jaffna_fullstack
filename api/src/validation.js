@@ -84,18 +84,30 @@ export const fatherDispatchSchema=z.object({
  file_url:z.string().trim().min(1).max(2000),
  target_user_id:z.union([z.string().uuid(),z.literal(''),z.null()]).optional().transform(v=>v||null)
 }).strict();
+const newsSections=z.enum([
+ 'province-events','parish-events','liturgical','formation','youth','social'
+]);
 export const fatherNewsSchema=z.object({
  title:z.string().trim().min(2).max(255),
- excerpt:z.string().max(4000).default(''),
+ excerpt:z.string().trim().min(1).max(4000),
  body:z.string().trim().min(1).max(150000),
- location_text:z.string().max(1000).default(''),
- image_url:z.string().max(2000).default(''),
- section:z.string().trim().max(80).default('province-events'),
+ location_text:z.string().trim().min(1).max(1000),
+ image_url:z.string().trim().min(1).max(2000),
+ section:newsSections,
  gallery:z.array(z.object({
   src:z.string().min(1).max(2000),
   alt:z.string().max(500).default(''),
   caption:z.string().max(1000).default('')
  }).strict()).max(24).default([])
+}).strict();
+export const fatherEventSchema=z.object({
+ title:z.string().trim().min(2).max(255),
+ excerpt:z.string().trim().min(1).max(4000),
+ body:z.string().max(150000).default(''),
+ location_text:z.string().trim().min(1).max(1000),
+ event_date:z.string().date(),
+ end_date:z.union([z.string().date(),z.literal('')]).optional().transform(v=>v||''),
+ date_display:z.string().max(255).default('')
 }).strict();
 export const assetSchema=z.object({status:z.enum(['draft','published']).default('draft'),
  rights_confirmed:z.boolean().default(false),alt_text:z.string().trim().max(2000).default(''),caption:z.string().max(10000).default('')}).strict();

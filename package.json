@@ -3,6 +3,10 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/dev-all.mjs",
-    "cms:build": "npm run build --prefix web -- --base=/admin/ --outDir ../site/public/admin --emptyOutDir"
+    "cms:build": "npm run build --prefix web -- --base=/admin/ --outDir ../site/public/admin --emptyOutDir",
+    "vps:bootstrap": "bash scripts/vps-bootstrap.sh",
+    "vps:up": "bash scripts/vps-up.sh",
+    "vps:deploy": "bash scripts/vps-deploy.sh",
+    "db:tunnel": "bash scripts/db-tunnel.sh"
   }
 }

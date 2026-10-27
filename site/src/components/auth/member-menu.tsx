@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { ChevronDown, LayoutDashboard, LogOut, UserRound } from "lucide-react"
 
-import { signOutSession } from "@/components/auth/session"
+import { fetchSessionUser, signOutSession } from "@/components/auth/session"
 import { site } from "@/config/site"
 import { cn } from "cn"
 
@@ -28,13 +28,8 @@ export function MemberMenu({ variant = "desktop" }: MemberMenuProps) {
 
   const refresh = useCallback(async () => {
     try {
-      const response = await fetch("/api/auth/me", { credentials: "same-origin", cache: "no-store" })
-      if (!response.ok) {
-        setMember(null)
-        return
-      }
-      const data = await response.json()
-      setMember(data?.user ?? null)
+      const user = await fetchSessionUser()
+      setMember(user)
     } catch {
       setMember(null)
     }

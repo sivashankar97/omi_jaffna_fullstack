@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const apiOrigin = (process.env.API_URL || process.env.API_ORIGIN || "http://127.0.0.1:4000").replace(/\/+$/, "");
 
 const nextConfig: NextConfig = {
+  // Used by deploy/vps Docker image (smaller runtime).
+  output: "standalone",
   experimental: {
     agentUpgrade: "security",
   },

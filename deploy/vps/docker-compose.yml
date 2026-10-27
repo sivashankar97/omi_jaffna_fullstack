@@ -1,0 +1,77 @@
+# Hostinger VPS / KVM 2 — full stack (Postgres + API + Next site + nginx).
+# First time on the server: see scripts/vps-bootstrap.sh
+# Redeploy from your Mac: npm run vps:deploy -- user@YOUR_VPS_IP
+#
+# Without a domain yet: open http://YOUR_VPS_IP
+# Shared DB for local Macs: npm run db:tunnel -- user@YOUR_VPS_IP  then use api/.env.shared
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-omi_jaffna}
+      POSTGRES_USER: ${POSTGRES_USER:-omi_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in deploy/vps/.env}
+    # Only on the VPS loopback — reach it from your Mac via SSH tunnel (scripts/db-tunnel.sh).
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - omi_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-omi_admin} -d ${POSTGRES_DB:-omi_jaffna}"]
+      interval: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ../../api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4000
+      DATABASE_URL: postgres://${POSTGRES_USER:-omi_admin}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-omi_jaffna}
+      MEDIA_STORE: ${MEDIA_STORE:-postgres}
+      TRUST_PROXY: "1"
+      # No domain yet → HTTP by IP; set COOKIE_SECURE=true after HTTPS + domain.
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - omi_uploads:/app/uploads
+
+  site:
+    build:
+      context: ../..
+      dockerfile: deploy/vps/Dockerfile.site
+      args:
+        API_URL: http://api:4000
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      API_URL: http://api:4000
+    depends_on:
+      - api
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - site
+      - api
+
+volumes:
+  omi_pg_data:
+  omi_uploads:

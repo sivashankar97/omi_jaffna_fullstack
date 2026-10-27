@@ -1,0 +1,326 @@
+{
+  "_readme": [
+    "SAMPLE CMS SEED FILE — copy to seed-cms-all.json (or pass --file path) and edit.",
+    "Run: cd api && npm run seed:cms",
+    "Flags: --draft (save as draft) · --force (overwrite existing fields) · --file ./my-seed.json",
+    "Safe by default: existing CMS rows are kept; only missing type+slug rows are inserted.",
+    "Page blocks live under pages[].sections (merged into metadata.sections for that page slug).",
+    "Collection rows live under items[] — one object per CMS content type entry.",
+    "Keys starting with _ are ignored by the seeder."
+  ],
+  "options": {
+    "_comment": "Default status when not set per item. Use published for demo sites, draft for staging.",
+    "status": "published"
+  },
+  "pages": [
+    {
+      "_comment": "Each page slug matches a CMS block id (see site/src/content/blocks.ts).",
+      "slug": "home",
+      "title_en": "Home",
+      "excerpt_en": "17 Ministries. Many Places. One Mission.",
+      "body_en": "Welcome paragraph for the home page.\n\nSecond paragraph.",
+      "metadata": {
+        "eyebrow": "Oblate Province of Jaffna",
+        "headline": "Oblate Province of Jaffna",
+        "years": "1847–2026",
+        "lede": "Serving with hope across Sri Lanka and abroad.",
+        "quote": "Evangelizare pauperibus misit me."
+      },
+      "sections": {
+        "hero": {
+          "posterImage": "/Herosection/Heroimage_4.jpg",
+          "video": "/video/Hero_section.mp4"
+        }
+      }
+    },
+    {
+      "slug": "home-sections",
+      "title_en": "Home page sections",
+      "sections": {
+        "welcome": {
+          "kicker": "Welcome",
+          "title": "A missionary family since 1847"
+        }
+      }
+    },
+    {
+      "slug": "site-info",
+      "title_en": "Contact and social links",
+      "sections": {
+        "contact": {
+          "address": "657/1 Hospital Road, Jaffna",
+          "phone": "021-2222721",
+          "email": "omi.jafprovince@gmail.com"
+        }
+      }
+    },
+    {
+      "slug": "history",
+      "title_en": "History page",
+      "sections": {}
+    },
+    {
+      "slug": "charism",
+      "title_en": "Charism page",
+      "excerpt_en": "Our charism",
+      "metadata": {
+        "headline": "The Gospel must go out and reach people where they are"
+      },
+      "sections": {}
+    },
+    {
+      "slug": "leadership",
+      "title_en": "Leadership page sections",
+      "sections": {}
+    },
+    {
+      "slug": "ministries",
+      "title_en": "Ministries page sections",
+      "sections": {}
+    },
+    {
+      "slug": "vocations",
+      "title_en": "Vocations page sections",
+      "sections": {}
+    },
+    {
+      "slug": "international",
+      "title_en": "International page sections",
+      "sections": {}
+    },
+    {
+      "slug": "library",
+      "title_en": "Library page sections",
+      "sections": {}
+    },
+    {
+      "slug": "media-page",
+      "title_en": "Media page text & photos",
+      "sections": {}
+    },
+    {
+      "slug": "journey",
+      "title_en": "Our journey timeline",
+      "sections": {}
+    }
+  ],
+  "items": [
+    {
+      "_comment": "Ministry card (CMS type: ministry)",
+      "type": "ministry",
+      "slug": "sample-administration",
+      "title_en": "Administration (sample)",
+      "excerpt_en": "Sample ministry summary shown on cards.",
+      "body_en": "Longer ministry description for the detail page.",
+      "location_text": "Thodarpaham – Jaffna",
+      "image_url": "/Herosection/Ministry_1.jpg",
+      "sort_order": 1,
+      "metadata": {
+        "source_number": 1
+      }
+    },
+    {
+      "_comment": "Parish (CMS type: parish)",
+      "type": "parish",
+      "slug": "sample-parish-jaffna",
+      "title_en": "Sample Parish — Jaffna",
+      "excerpt_en": "A sample parish directory entry.",
+      "location_text": "Jaffna",
+      "sort_order": 1,
+      "metadata": {
+        "district": "Jaffna"
+      }
+    },
+    {
+      "_comment": "School (CMS type: school)",
+      "type": "school",
+      "slug": "sample-st-patricks",
+      "title_en": "Sample College",
+      "excerpt_en": "Sample school linked to Formal Education.",
+      "location_text": "Jaffna",
+      "sort_order": 1,
+      "metadata": {}
+    },
+    {
+      "_comment": "Formation house (CMS type: formation)",
+      "type": "formation",
+      "slug": "sample-scholasticate",
+      "title_en": "Sample Scholasticate",
+      "excerpt_en": "Formation community sample.",
+      "location_text": "Colombo",
+      "sort_order": 1,
+      "metadata": {
+        "kind": "scholasticate"
+      }
+    },
+    {
+      "_comment": "Map pin (CMS type: location) — lat/lng required for the home map",
+      "type": "location",
+      "slug": "sample-thodarpaham",
+      "title_en": "Thodarpaham — Jaffna (sample)",
+      "excerpt_en": "Provincial house sample pin.",
+      "location_text": "657/1 Hospital Road, Jaffna",
+      "sort_order": 1,
+      "metadata": {
+        "lat": 9.6615,
+        "lng": 80.0255,
+        "kind": "house",
+        "district": "Jaffna",
+        "purpose": "Provincial administration"
+      }
+    },
+    {
+      "_comment": "Provincial / council / former (CMS type: leadership)",
+      "type": "leadership",
+      "slug": "sample-provincial-superior",
+      "title_en": "Sample Provincial Superior",
+      "excerpt_en": "Short summary for the council card.",
+      "body_en": "Biography sample for the profile page.",
+      "image_url": "/Herosection/Welcome.jpeg",
+      "sort_order": 1,
+      "metadata": {
+        "role": "Provincial Superior",
+        "term": "2023–2026"
+      }
+    },
+    {
+      "_comment": "Oblate priest directory (CMS type: priest)",
+      "type": "priest",
+      "slug": "sample-fr-example",
+      "title_en": "Fr. Sample Example OMI",
+      "excerpt_en": "Priest directory sample.",
+      "body_en": "Short bio sample.",
+      "image_url": "/Herosection/Welcome.jpeg",
+      "sort_order": 1,
+      "metadata": {
+        "place": "Jaffna",
+        "role": "Parish Priest",
+        "born": "15.08.1975"
+      }
+    },
+    {
+      "_comment": "Bishop profile (CMS type: bishop)",
+      "type": "bishop",
+      "slug": "sample-bishop",
+      "title_en": "Most Rev. Sample Bishop",
+      "excerpt_en": "Bishop profile sample.",
+      "body_en": "Biography sample.",
+      "sort_order": 1,
+      "metadata": {}
+    },
+    {
+      "_comment": "Necrology register row (CMS type: necrology)",
+      "type": "necrology",
+      "slug": "sample-necrology-1",
+      "title_en": "Fr. Sample Deceased OMI",
+      "sort_order": 1,
+      "metadata": {
+        "register_no": 1,
+        "role": "father",
+        "born": "01.01.1900",
+        "born_at": "Jaffna",
+        "died": "01.01.1980",
+        "died_at": "Jaffna"
+      }
+    },
+    {
+      "_comment": "Year-by-year history (CMS type: timeline)",
+      "type": "timeline",
+      "slug": "sample-1847",
+      "title_en": "1847",
+      "excerpt_en": "First Oblates arrive in Ceylon.",
+      "body_en": "Sample timeline entry for the Historical archive.",
+      "sort_order": 1847,
+      "metadata": {
+        "year": 1847
+      }
+    },
+    {
+      "_comment": "International country — set metadata.category to 1 or 2; formation uses kind=formation",
+      "type": "international",
+      "slug": "sample-italy",
+      "title_en": "Italy (sample)",
+      "excerpt_en": "Oblate mission in Italy.",
+      "body_en": "Sample country profile.",
+      "sort_order": 1,
+      "metadata": {
+        "category": "1",
+        "region": "Europe",
+        "kind": "",
+        "missions": [
+          {
+            "title": "Pastoral presence",
+            "summary": "Sample mission note."
+          }
+        ]
+      }
+    },
+    {
+      "_comment": "News story (CMS type: news) — section must match site/src/content/news.ts ids",
+      "type": "news",
+      "slug": "sample-province-gathering",
+      "title_en": "Sample Province gathering",
+      "excerpt_en": "Short card summary for Latest news.",
+      "body_en": "Full article paragraph one.\n\nParagraph two.",
+      "location_text": "Jaffna",
+      "image_url": "/Herosection/Ministry_1.jpg",
+      "event_date": "2026-03-15T09:00:00+05:30",
+      "sort_order": 1,
+      "metadata": {
+        "section": "province-events",
+        "date_display": "15 March 2026",
+        "gallery": []
+      }
+    },
+    {
+      "_comment": "Calendar event (CMS type: event) — shows on home calendar when published",
+      "type": "event",
+      "slug": "sample-feast-2026",
+      "title_en": "Sample Province feast",
+      "excerpt_en": "Calendar summary.",
+      "location_text": "Jaffna",
+      "event_date": "2026-05-21T09:00:00+05:30",
+      "sort_order": 1,
+      "metadata": {
+        "end_date": "2026-05-21",
+        "date_display": "21 May 2026"
+      }
+    },
+    {
+      "_comment": "Publication (CMS type: publication)",
+      "type": "publication",
+      "slug": "sample-magazine",
+      "title_en": "Sample magazine issue",
+      "excerpt_en": "Media publications sample.",
+      "image_url": "/Herosection/ministry_2.jpg",
+      "media_url": "",
+      "sort_order": 1,
+      "metadata": {}
+    },
+    {
+      "_comment": "Media library entry (CMS type: media)",
+      "type": "media",
+      "slug": "sample-media-clip",
+      "title_en": "Sample media item",
+      "excerpt_en": "Optional media library row.",
+      "image_url": "/Herosection/Welcome.jpeg",
+      "sort_order": 1,
+      "metadata": {}
+    },
+    {
+      "_comment": "Library PDF — set library_section: magazine | libraries | books | articles",
+      "type": "library",
+      "slug": "sample-magazine-issue-1",
+      "title_en": "Sample Magazine — Issue 1",
+      "excerpt_en": "Library sample PDF card.",
+      "image_url": "/Herosection/ministry_2.jpg",
+      "media_url": "",
+      "event_date": "2026-01-01T09:00:00+05:30",
+      "sort_order": 1,
+      "metadata": {
+        "library_section": "magazine",
+        "category": "omi-jaffna"
+      }
+    }
+  ]
+}
