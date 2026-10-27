@@ -139,10 +139,10 @@ const CARD_ASPECT = `${SAMPLE.w} / ${SAMPLE.h}`
  * Head sits just under the top of the card, the figure is cut off at the bottom edge and
  * may reach past the right edge (like the hand in the sample). Values are fractions of the card.
  */
-const FIGURE_TOP = 0.041
-const HEAD_CENTER_X = 0.61
-const MAX_FIGURE_WIDTH = 1.0
-const RIGHT_OVERFLOW = 0.11
+const FIGURE_TOP = 0.01
+const HEAD_CENTER_X = 0.58
+const MAX_FIGURE_WIDTH = 1.22
+const RIGHT_OVERFLOW = 0.16
 
 /** Typography in container-width units so it scales with the card exactly like the sample. */
 const NAME_SIZE_CQW = 7.2
@@ -248,7 +248,7 @@ const NAME_FONT: React.CSSProperties = {
 }
 
 const cardShell =
-  "group relative mx-auto w-full max-w-[340px] select-none transition-transform duration-300 ease-out hover:-translate-y-1.5"
+  "group relative mx-auto w-full max-w-[280px] select-none transition-transform duration-300 ease-out hover:-translate-y-1.5"
 const cardStyle: React.CSSProperties = { aspectRatio: CARD_ASPECT, containerType: "inline-size" }
 
 const KNOWN_PRIEST_PHOTOS: Record<string, string> = {
@@ -421,10 +421,10 @@ export function OblateFatherCard({ name, place, image, className }: PriestCardPr
                   ? { left: frame.left, top: frame.top, width: frame.width, height: frame.height, maxWidth: "none" }
                   : {
                       bottom: 0,
-                      right: "-3%",
-                      height: "92%",
+                      right: "-4%",
+                      height: "100%",
                       width: "auto",
-                      maxWidth: "85%",
+                      maxWidth: "98%",
                       objectFit: "contain",
                       objectPosition: "bottom right",
                     }

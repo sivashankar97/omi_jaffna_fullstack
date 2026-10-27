@@ -61,7 +61,7 @@ export function PriestDirectory({ priests }: { priests: Priest[] }) {
 
   return (
     <section id="priests" className="scroll-mt-80 bg-white px-4 py-16 text-[#023e8a] sm:px-8">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <p className="font-heading text-4xl font-semibold text-[#023e8a] sm:text-5xl">
           Province list · 13 October 2026
         </p>
@@ -116,12 +116,12 @@ export function PriestDirectory({ priests }: { priests: Priest[] }) {
             return (
               <div key={group.id} className="mt-10">
                 <h3 className="font-heading text-xl">{group.title}</h3>
-                <ul className="mt-6 grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <ul className="mt-6 grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {people.map((priest) => (
                     <li key={priest.slug || priest.name} className="flex justify-center">
                       <Link
                         href={fatherHref(priest)}
-                        className="block w-full max-w-[340px] rounded-[1.25rem] outline-none focus-visible:ring-2 focus-visible:ring-[#17b3c6] focus-visible:ring-offset-2"
+                        className="block w-full max-w-[280px] rounded-[1.25rem] outline-none focus-visible:ring-2 focus-visible:ring-[#17b3c6] focus-visible:ring-offset-2"
                         aria-label={`Open profile for ${priest.name}`}
                       >
                         <OblateFatherCard

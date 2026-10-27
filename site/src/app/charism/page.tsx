@@ -1,9 +1,8 @@
 import type { Metadata } from "next"
 import Image from "next/image"
-import { Compass, Flame, Quote, Users } from "lucide-react"
+import { ChevronRight, HandHeart, Heart, Users } from "lucide-react"
 
-import { Reveal } from "@/components/motion/reveal"
-import { CharismJoin } from "@/components/sections/charism/charism-join"
+import { MotionHero, MotionReveal } from "@/components/motion/motion-reveal"
 import { CharismVow } from "@/components/sections/charism/charism-vow"
 import { CharismWays } from "@/components/sections/charism/charism-ways"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
@@ -17,93 +16,163 @@ export const metadata: Metadata = {
     "Evangelizing the poor — the charism, mission, vision and motto of the Oblate Province of Jaffna.",
 }
 
-const priorityIcons = [Flame, Users, Compass]
+const priorityIcons = [HandHeart, Users, Heart]
+
+function splitHeroTitle(title: string) {
+  const parts = title.trim().split(/\s+/)
+  if (parts.length < 2) return { lead: title, accent: "" }
+  return { lead: parts.slice(0, -1).join(" "), accent: parts.at(-1) ?? "" }
+}
+
+function splitIdentityTitle(title: string) {
+  const match = title.match(/^(.*?)(\bthe Poor\b)(.*)$/i)
+  if (!match) return { before: title, accent: "", after: "" }
+  return { before: match[1] ?? "", accent: match[2] ?? "", after: match[3] ?? "" }
+}
+
+function highlightSince(heading: string) {
+  const match = heading.match(/^(.*?)(since\s+\d{4})(.*)$/i)
+  if (!match) return { before: heading, accent: "", after: "" }
+  return { before: match[1] ?? "", accent: match[2] ?? "", after: match[3] ?? "" }
+}
 
 export default async function CharismPage() {
   const [content, sections] = await Promise.all([getCharismContent(), getBlock("charism")])
   const { hero: charismHero, identity: charismIdentity, priorities: charismPriorities } = sections
+  const heroTitle = splitHeroTitle(charismHero.title)
+  const identityTitle = splitIdentityTitle(charismIdentity.title)
+  const aboutTitle = highlightSince(content.aboutHeading)
+
   return (
     <>
       <ScrollProgress />
       <header
         id="charism"
-        className="relative isolate scroll-mt-80 overflow-hidden bg-gradient-to-br from-[#03202b] via-[#06394a] to-[#0a5062] px-4 py-24 text-white sm:px-8 sm:py-32"
+        className="charism-hero relative isolate scroll-mt-80 overflow-hidden bg-gradient-to-br from-[#03202b] via-[#06394a] to-[#0a5062] px-4 pt-24 pb-32 text-white sm:px-8 sm:pt-28 sm:pb-40"
       >
-        <div
-          aria-hidden="true"
-          className="charism-orb pointer-events-none absolute -bottom-40 -left-32 -z-10 size-[28rem] rounded-full bg-[#17b3c6] opacity-25 blur-[120px]"
+        <Image
+          src={sections.images.identityImage}
+          alt=""
+          fill
+          priority
+          unoptimized={isUpload(sections.images.identityImage)}
+          sizes="100vw"
+          className="pointer-events-none absolute inset-0 -z-20 object-cover object-[70%_center] opacity-40"
         />
         <div
           aria-hidden="true"
-          className="charism-orb pointer-events-none absolute -top-32 right-0 -z-10 size-[24rem] rounded-full bg-[#ffcf4a] opacity-10 blur-[120px] [animation-delay:-7s]"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(105deg,#03202b_0%,rgb(6_57_74/0.92)_42%,rgb(10_80_98/0.55)_72%,rgb(23_179_198/0.25)_100%)]"
         />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 right-[8%] hidden size-56 -translate-y-1/2 rounded-full bg-[#7fe3ef]/25 blur-3xl lg:block"
+        />
+        <div
+          aria-hidden="true"
+          className="charism-cross-mark pointer-events-none absolute top-[18%] right-[7%] hidden text-[7rem] leading-none text-white/35 lg:block"
+        >
+          ✝
+        </div>
+
+        <div className="relative mx-auto max-w-6xl">
+          <MotionHero delay={100} className="flex items-center gap-3 text-xs font-bold tracking-[0.28em] text-[#ffcf4a] uppercase sm:text-sm">
+            <span aria-hidden="true" className="h-px w-8 bg-[#ffcf4a] sm:w-10" />
+            {content.kicker}
+          </MotionHero>
+          <MotionHero delay={250} className="mt-4 font-heading text-5xl leading-[1.05] font-semibold sm:text-7xl">
+            <h1>
+              <span className="text-white">{heroTitle.lead}</span>
+              {heroTitle.accent ? (
+                <>
+                  {" "}
+                  <span className="text-[#7fe3ef]">{heroTitle.accent}</span>
+                </>
+              ) : null}
+            </h1>
+          </MotionHero>
+          <MotionHero delay={450} className="mt-6 max-w-2xl text-base leading-8 text-white/85 sm:text-xl sm:leading-9">
+            <p>{charismHero.summary}</p>
+          </MotionHero>
+        </div>
+
         <svg
           aria-hidden="true"
-          className="charism-cross-mark pointer-events-none absolute top-1/2 right-[8%] -z-10 hidden h-64 -translate-y-1/2 text-white/10 lg:block"
-          viewBox="0 0 100 160"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="3"
+          className="pointer-events-none absolute inset-x-0 bottom-0 -mb-px h-20 w-full sm:h-28"
+          viewBox="0 0 1440 120"
+          preserveAspectRatio="none"
         >
-          <path d="M50 6v148M18 46h64" strokeLinecap="round" />
+          <path fill="#7fe3ef" fillOpacity="0.35" d="M0,72 C220,110 420,28 700,58 C980,88 1200,108 1440,48 L1440,120 L0,120 Z" />
+          <path fill="#cfeef4" fillOpacity="0.7" d="M0,84 C260,118 480,40 760,68 C1040,96 1240,112 1440,64 L1440,120 L0,120 Z" />
+          <path fill="#f4fbfd" d="M0,96 C280,120 520,56 800,80 C1080,104 1280,116 1440,76 L1440,120 L0,120 Z" />
         </svg>
-        <div className="mx-auto max-w-6xl">
-          <p
-            className="history-rise flex items-center gap-3 text-xs font-bold tracking-[0.28em] text-[#ffcf4a] uppercase sm:text-sm"
-            style={{ "--rise-delay": "100ms" } as React.CSSProperties}
-          >
-            <span aria-hidden="true" className="history-line h-px w-10 bg-[#ffcf4a]" />
-            {content.kicker}
-          </p>
-          <h1
-            className="history-rise mt-4 font-heading text-5xl leading-[1.05] font-semibold sm:text-7xl"
-            style={{ "--rise-delay": "250ms", color: "#ffffff" } as React.CSSProperties}
-          >
-            {charismHero.title}
-          </h1>
-          <p
-            className="history-rise mt-6 max-w-2xl text-base leading-8 text-white/85 sm:text-xl sm:leading-9"
-            style={{ "--rise-delay": "450ms" } as React.CSSProperties}
-          >
-            {charismHero.summary}
-          </p>
-        </div>
       </header>
 
-      <section aria-label="Charism statement" className="bg-white px-4 py-16 sm:px-8 sm:py-20">
-        <Reveal from="up" className="mx-auto max-w-4xl text-center">
-          <p className="font-heading text-2xl leading-snug font-semibold text-balance text-[#023e8a] sm:text-4xl">
-            {content.title}
-          </p>
-          <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-[#5c6b7a]">{content.summary}</p>
-        </Reveal>
+      <section
+        aria-label="Charism statement"
+        className="calendar-stage relative z-10 -mt-3 px-4 pt-8 pb-16 sm:-mt-4 sm:px-8 sm:pt-10 sm:pb-20"
+      >
+        <MotionReveal from="up" className="mx-auto max-w-5xl">
+          <div className="media-bento-card media-bento-shine calendar-glass relative flex flex-col items-start gap-6 overflow-hidden rounded-[2rem] px-7 py-8 shadow-[0_28px_56px_-32px_rgb(2_62_138/0.35)] sm:flex-row sm:items-center sm:gap-8 sm:px-10 sm:py-10">
+            <span className="grid size-[4.25rem] shrink-0 place-items-center rounded-full bg-[#e7fbff] text-[#17b3c6] ring-1 ring-[#cfeef4] shadow-[0_12px_24px_-14px_rgb(14_152_172/0.55)]">
+              <HandHeart aria-hidden="true" className="size-7" />
+            </span>
+            <span aria-hidden="true" className="hidden h-20 w-px shrink-0 bg-[#17b3c6]/30 sm:block" />
+            <div className="min-w-0 flex-1">
+              <h2 className="font-heading text-2xl leading-snug font-semibold text-[#023e8a] sm:text-[2rem] sm:leading-snug">
+                {content.title}
+              </h2>
+              <p className="mt-4 max-w-3xl text-base leading-8 text-[#5c6b7a] sm:text-lg sm:leading-8">
+                {content.summary}
+              </p>
+            </div>
+          </div>
+        </MotionReveal>
       </section>
 
-      <section id="identity" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-20 sm:px-8 sm:py-24">
-        <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2">
-          <Reveal from="left">
-            <p className="text-xs font-bold tracking-[0.28em] text-[#17b3c6] uppercase">{charismIdentity.kicker}</p>
-            <h2 className="mt-3 font-heading text-3xl leading-tight font-semibold text-[#023e8a] sm:text-5xl">
-              {charismIdentity.title}
-            </h2>
-            <span aria-hidden="true" className="mt-6 block h-1 w-16 rounded-full bg-gradient-to-r from-[#17b3c6] to-[#ffbf00]" />
-            <div className="mt-8 space-y-5 text-lg leading-8 text-[#3d4b59]">
-              {charismIdentity.paragraphs.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-              <blockquote className="relative rounded-2xl border-l-4 border-[#ffbf00] bg-white px-6 py-5 font-heading text-lg leading-8 font-semibold text-[#023e8a] italic shadow-[0_16px_36px_-28px_rgba(2,62,138,0.5)]">
-                {charismIdentity.maxim}
-              </blockquote>
-              <p>{charismIdentity.closing}</p>
-            </div>
-          </Reveal>
+      <section id="identity" className="calendar-stage scroll-mt-80 px-4 py-14 sm:px-8 sm:py-16">
+        <div className="relative mx-auto grid max-w-6xl items-stretch gap-6 lg:grid-cols-2 lg:gap-8">
+          <MotionReveal from="left" className="h-full">
+            <div className="media-bento-card media-bento-shine calendar-glass relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-7 sm:p-9">
+              <p className="flex items-center gap-2.5 text-[11px] font-bold tracking-[0.22em] text-[#17b3c6] uppercase">
+                <span aria-hidden="true" className="h-px w-7 bg-[#17b3c6]" />
+                {charismIdentity.kicker}
+              </p>
+              <h2 className="mt-4 font-heading text-3xl leading-tight font-semibold text-[#023e8a] sm:text-[2.35rem]">
+                {identityTitle.accent ? (
+                  <>
+                    {identityTitle.before}
+                    <span className="text-[#17b3c6]">{identityTitle.accent}</span>
+                    {identityTitle.after}
+                  </>
+                ) : (
+                  charismIdentity.title
+                )}
+              </h2>
 
-          <Reveal from="right" delay={120} className="relative pb-10 lg:pb-0">
-            <div
-              aria-hidden="true"
-              className="absolute -top-4 -right-4 h-full w-full rounded-[2rem] border-2 border-[#17b3c6]/50"
-            />
-            <div className="group relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-[0_30px_60px_-30px_rgba(2,62,138,0.55)] sm:aspect-[4/3] lg:aspect-[4/5]">
+              {charismIdentity.paragraphs[0] ? (
+                <p className="mt-5 text-[15px] leading-7 text-[#5c6b7a] sm:text-base sm:leading-8">
+                  {charismIdentity.paragraphs[0]}
+                </p>
+              ) : null}
+
+              <blockquote className="relative mt-5 rounded-2xl border-l-4 border-[#17b3c6] bg-[#e7fbff] px-5 py-4 pl-6 font-heading text-[15px] leading-7 font-semibold text-[#023e8a] italic sm:text-base sm:leading-8">
+                <span aria-hidden="true" className="absolute top-1 left-4 font-heading text-5xl leading-none text-[#17b3c6]/45">
+                  “
+                </span>
+                <span className="relative z-[1]">{charismIdentity.maxim}</span>
+              </blockquote>
+
+              {charismIdentity.paragraphs[1] ? (
+                <p className="mt-5 text-[15px] leading-7 text-[#5c6b7a] sm:text-base sm:leading-8">
+                  {charismIdentity.paragraphs[1]}
+                </p>
+              ) : null}
+              <p className="mt-4 text-sm leading-7 text-[#5c6b7a]">{charismIdentity.closing}</p>
+            </div>
+          </MotionReveal>
+
+          <MotionReveal from="right" delay={120} className="h-full min-h-[22rem]">
+            <div className="group media-bento-card media-bento-shine relative h-full min-h-[22rem] overflow-hidden rounded-[1.75rem]">
               <Image
                 src={sections.images.identityImage}
                 alt={sections.images.identityImageAlt}
@@ -112,46 +181,70 @@ export default async function CharismPage() {
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover transition duration-[1200ms] ease-out group-hover:scale-105"
               />
-              <span aria-hidden="true" className="history-shine pointer-events-none absolute inset-0" />
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-gradient-to-t from-[#03202b]/60 via-transparent to-transparent"
+              />
+              <figure className="absolute right-4 bottom-4 left-4 max-w-sm rounded-2xl border border-white/25 bg-[#06394a]/78 px-5 py-4 text-white shadow-[0_18px_40px_-24px_rgb(3_32_43/0.65)] backdrop-blur-md sm:right-auto sm:left-5 sm:px-6 sm:py-5">
+                <span aria-hidden="true" className="font-heading text-4xl leading-none text-[#7fe3ef]/80">
+                  “
+                </span>
+                <blockquote className="mt-1 font-heading text-lg leading-snug font-semibold italic sm:text-xl">
+                  {charismIdentity.quote.text}
+                </blockquote>
+                <figcaption className="mt-2 text-sm text-white/80">— {charismIdentity.quote.author}</figcaption>
+              </figure>
             </div>
-            <figure className="charism-float absolute -bottom-2 left-4 max-w-xs rounded-2xl bg-white px-6 py-5 shadow-[0_24px_50px_-24px_rgba(2,62,138,0.55)] sm:-left-8 lg:bottom-10">
-              <Quote aria-hidden="true" className="size-6 text-[#ffbf00]" />
-              <blockquote className="mt-2 font-heading text-xl font-semibold text-[#023e8a] italic">
-                &ldquo;{charismIdentity.quote.text}&rdquo;
-              </blockquote>
-              <figcaption className="mt-2 text-sm font-medium text-[#0e98ac]">— {charismIdentity.quote.author}</figcaption>
-            </figure>
-          </Reveal>
+          </MotionReveal>
         </div>
       </section>
 
-      <section id="priorities" className="scroll-mt-80 bg-white px-4 py-20 sm:px-8 sm:py-24">
-        <div className="mx-auto max-w-6xl">
+      <section id="priorities" className="calendar-stage scroll-mt-80 px-4 py-14 sm:px-8 sm:py-16">
+        <div className="relative mx-auto max-w-6xl">
           <SectionHeading
             kicker={charismPriorities.kicker}
             title={charismPriorities.title}
             subtitle={charismPriorities.subtitle}
           />
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
+          <div className="mt-12 grid gap-5 md:grid-cols-3 md:gap-6">
             {charismPriorities.items.map((item, index) => {
               const Icon = priorityIcons[index % priorityIcons.length]
+              const deep = index === 1
               return (
-                <Reveal
-                  key={item.title}
-                  from="up"
-                  delay={index * 120}
-                  className="group relative h-full overflow-hidden rounded-2xl bg-white p-8 shadow-[0_20px_45px_-30px_rgba(2,62,138,0.5)] ring-1 ring-[#d8eef3] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_55px_-28px_rgba(2,62,138,0.55)]"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-[#17b3c6] to-[#ffbf00] transition duration-500 group-hover:scale-x-100"
-                  />
-                  <span className="flex size-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#17b3c6] to-[#0e6a68] text-white shadow-md transition duration-500 group-hover:rotate-6">
-                    <Icon aria-hidden="true" className="size-7" />
-                  </span>
-                  <h3 className="mt-6 font-heading text-xl font-semibold text-[#023e8a]">{item.title}</h3>
-                  <p className="mt-3 leading-7 text-[#5c6b7a]">{item.text}</p>
-                </Reveal>
+                <MotionReveal key={item.title} from="up" delay={index * 100} className="h-full">
+                  <article
+                    className={
+                      deep
+                        ? "group media-bento-card media-bento-shine calendar-glass-deep relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7"
+                        : "group media-bento-card media-bento-shine calendar-glass relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7"
+                    }
+                  >
+                    <span className="absolute top-4 right-4 grid size-8 place-items-center rounded-full bg-[#17b3c6] text-white shadow-[0_8px_16px_-10px_rgb(14_152_172/0.7)] transition group-hover:translate-x-0.5">
+                      <ChevronRight className="size-3.5" />
+                    </span>
+                    <span
+                      className={
+                        deep
+                          ? "flex size-14 items-center justify-center rounded-full bg-[#ffcf4a] text-[#03202b]"
+                          : "flex size-14 items-center justify-center rounded-full bg-[#e7fbff] text-[#17b3c6] ring-1 ring-[#cfeef4]"
+                      }
+                    >
+                      <Icon aria-hidden="true" className="size-7" />
+                    </span>
+                    <h3
+                      className={
+                        deep
+                          ? "mt-6 font-heading text-xl font-semibold text-white sm:text-2xl"
+                          : "mt-6 font-heading text-xl font-semibold text-[#023e8a] sm:text-2xl"
+                      }
+                    >
+                      {item.title}
+                    </h3>
+                    <p className={deep ? "mt-3 flex-1 leading-7 text-white/75" : "mt-3 flex-1 leading-7 text-[#5c6b7a]"}>
+                      {item.text}
+                    </p>
+                  </article>
+                </MotionReveal>
               )
             })}
           </div>
@@ -159,40 +252,59 @@ export default async function CharismPage() {
       </section>
 
       <CharismWays ways={content.ways} />
-      <CharismJoin tone="ways" />
       <CharismVow
         mission={sections.mission}
         vision={sections.vision}
         motto={sections.motto}
         crossImage={sections.images.crossImage}
       />
-      <CharismJoin tone="vow" />
-      <section id="about" className="scroll-mt-80 bg-white px-4 py-20 text-[#023e8a] sm:px-8">
-        <div className="mx-auto max-w-5xl">
-          <Reveal from="up" id="who-we-are" className="text-center">
-            <h2 className="font-heading text-4xl font-semibold sm:text-5xl">{content.aboutHeading}</h2>
+
+      <section id="about" className="calendar-stage scroll-mt-80 px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
+        <div className="relative mx-auto max-w-6xl">
+          <MotionReveal from="up" id="who-we-are" className="mx-auto max-w-3xl text-center">
+            <h2 className="font-heading text-3xl font-semibold sm:text-5xl">
+              {aboutTitle.accent ? (
+                <>
+                  {aboutTitle.before}
+                  <span className="text-[#17b3c6]">{aboutTitle.accent}</span>
+                  {aboutTitle.after}
+                </>
+              ) : (
+                content.aboutHeading
+              )}
+            </h2>
             {content.about.map((paragraph) => (
-              <p key={paragraph} className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-[#3d4b59]">
+              <p key={paragraph} className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[#5c6b7a] sm:text-lg">
                 {paragraph}
               </p>
             ))}
-          </Reveal>
-          <div id="arrival" className="mt-12 grid scroll-mt-80 gap-6 md:grid-cols-2">
-            <Reveal
-              from="left"
-              className="rounded-[2rem] bg-gradient-to-br from-[#0f9fb4] via-[#17b3c6] to-[#0e98ac] p-8 text-white shadow-md"
-            >
-              <p className="text-xs font-semibold tracking-[0.22em] text-white/80 uppercase">Arrival</p>
-              <p className="mt-4 font-heading text-3xl leading-snug">
-                {content.arrival}
-              </p>
-            </Reveal>
-            <Reveal from="right" delay={150} className="rounded-[2rem] bg-[#f7fbff] p-8 ring-1 ring-[#cfe9ef]">
-              <p className="text-xs font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">The mission</p>
-              <p className="mt-4 text-lg leading-8 text-[#3d4b59]">
-                {content.mission}
-              </p>
-            </Reveal>
+          </MotionReveal>
+
+          <div id="arrival" className="mt-10 grid scroll-mt-80 gap-5 md:grid-cols-2 md:gap-6">
+            <MotionReveal from="left">
+              <div className="group media-bento-card media-bento-shine relative grid min-h-[16rem] overflow-hidden rounded-[1.75rem] text-white sm:grid-cols-[1.05fr_0.95fr]">
+                <div className="relative z-10 flex flex-col justify-center bg-gradient-to-r from-[#03202b] via-[#06394a] to-[#06394a]/70 p-7 sm:p-8">
+                  <p className="text-xs font-semibold tracking-[0.22em] text-[#ffcf4a] uppercase">Arrival</p>
+                  <p className="mt-3 font-heading text-xl leading-snug sm:text-2xl">{content.arrival}</p>
+                </div>
+                <div className="relative min-h-[10rem] sm:min-h-0">
+                  <Image
+                    src={sections.images.identityImage}
+                    alt=""
+                    fill
+                    unoptimized={isUpload(sections.images.identityImage)}
+                    sizes="(min-width: 768px) 25vw, 100vw"
+                    className="object-cover transition duration-700 group-hover:scale-105"
+                  />
+                </div>
+              </div>
+            </MotionReveal>
+            <MotionReveal from="right" delay={120}>
+              <div className="media-bento-card media-bento-shine calendar-glass relative flex h-full min-h-[16rem] flex-col justify-center overflow-hidden rounded-[1.75rem] p-7 sm:p-8">
+                <p className="text-xs font-semibold tracking-[0.22em] text-[#17b3c6] uppercase">The mission</p>
+                <p className="mt-3 text-lg leading-8 text-[#3d4b59]">{content.mission}</p>
+              </div>
+            </MotionReveal>
           </div>
         </div>
       </section>

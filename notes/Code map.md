@@ -10,10 +10,10 @@ Paths are from the repo root. `sections/` = `site/src/components/sections/`.
 | Page | Page file | Main components | CMS data (`site/src/lib/cms.ts`) |
 |---|---|---|---|
 | Home `/` | `page.tsx` | `sections/hero/hero-section.tsx`, `sections/home/*` (welcome-scene crystal-glass intro + cards, Daily inspiration, birthday-float, province-calendar crystal-glass, Our calling crystal-glass pillars, ministries crystal-glass cards, latest-news glass marquee + motion, join-us, journey-path `#17b3c6` glass, One congregation `#family` glass, media-highlights bento crystal-glass, home-contact) | `getHomeContent`; `home-sections.tsx` loads `getBlock("home-sections")`, `getProvinceCalendar`, `getTodaysBirthdays`, `getMinistries`, `getNews` |
-| History `/history` | `history/page.tsx` | `sections/history/*` (crystal-glass cards matching home: stats, commitments, chapters, bishops, archive), `sections/media/necrology-register.tsx`, `sections/home/journey-path.tsx` | `getBlock("history")` (incl. `archive` + `necrology` copy), `getBlock("journey")`, `getTimeline`, `getNecrology`, `getBishops` |
+| History `/history` | `history/page.tsx` | `sections/history/*` + page sections on `calendar-stage` with home `calendar-glass` / `media-bento` cards (stats, family, commitments, history intro, chapters, development); bishops/archive; `journey-path`; necrology | `getBlock("history")` (incl. `archive` + `necrology` copy), `getBlock("journey")`, `getTimeline`, `getNecrology`, `getBishops` |
 | Bishop profile `/history/bishops/<slug>` | `history/bishops/[slug]/page.tsx` (`bishopHref()` in `config/navigation.ts`) | — | `getBishops` / `getBishop` (CMS type `bishop`) |
-| Charism `/charism` | `charism/page.tsx` | `sections/charism/*` (charism-join, charism-vow, charism-ways) | `getCharismContent` (page entry: excerpt, body, headline, ways, about_heading, about, arrival, mission) + `getBlock("charism")` (hero, identity, priorities, **mission**, **vision**, motto, images) |
-| Leadership `/leadership` | `leadership/page.tsx` | `sections/leadership/priest-directory.tsx` (priest / council / former cards link to profiles) | `getBlock("leadership")`, `getLeadership`, `getFormerProvincials`, `getPriests` |
+| Charism `/charism` | `charism/page.tsx` + `charism-vow.tsx` | Layered wave hero; gospel strip; identity; priorities; ways teal badges; vow = soft blue orbs/leaves + open cross (no hard frame) + pink/blue/gold cards; arrival split. Theme `tide`. | `getCharismContent` + `getBlock("charism")` |
+| Leadership `/leadership` | `leadership/page.tsx` | Council teal cards + `council-portrait.tsx` (same person scale); priests 5-col `priest-directory`; former timeline | `getBlock("leadership")`, `getLeadership`, `getFormerProvincials`, `getPriests` |
 | Father profile `/leadership/fathers/slug` | `leadership/fathers/[slug]/page.tsx` | bio + gallery | `getPriest`, `getPriests` |
 | Council profile `/leadership/council/slug` | `leadership/council/[slug]/page.tsx` | `leadership-person-profile.tsx` | `getCouncilMember`, `getLeadership` |
 | Former Provincial `/leadership/former/slug` | `leadership/former/[slug]/page.tsx` | same shared profile | `getFormerProvincial`, `getFormerProvincials` |
@@ -23,13 +23,13 @@ Paths are from the repo root. `sections/` = `site/src/components/sections/`.
 | Vocations `/vocations` | `vocations/page.tsx` | `sections/page-banner.tsx` | `getFormationHouses` |
 | International `/international` | `international/page.tsx` | `sections/page-banner.tsx` | `getBlock("international")` (full page copy: hero, Category 1/2, formation, closing), `getMissionCountries`, `getFormationAbroad` |
 | Country `/international/slug` | `international/[slug]/page.tsx` | missions + photos from CMS | `getMissionCountry` |
-| Library `/library` | `library/page.tsx` | hub collection cards + closing | `getBlock("library")`, `getLibraryItems` |
-| Magazines `/library/magazines` | `library/magazines/page.tsx` | `library-section-page.tsx` + `library-resource-browser.tsx` | `getBlock("library")`, `getLibraryItems("magazine")` |
+| Library `/library` | `library/page.tsx` | 4 door cards + `library-latest.tsx` filters/grid + teal CTA; images in `public/library/` | `getBlock("library")`, `getLibraryItems` |
+| Magazines `/library/magazines` | `library/magazines/page.tsx` | `library-section-page.tsx` + `library-resource-browser.tsx` (category tabs + Latest issue featured + Previous Issues 4-col 3D books) | `getBlock("library")`, `getLibraryItems("magazine")` |
 | Libraries `/library/libraries` | `library/libraries/page.tsx` | same | `getLibraryItems("libraries")` |
 | Books `/library/books` | `library/books/page.tsx` | same | `getLibraryItems("books")` |
 | Articles `/library/articles` | `library/articles/page.tsx` | same | `getLibraryItems("articles")` |
 | Media `/media` | `media/page.tsx` | `sections/media/*` (media-studio, media-publications, social-signals — calendar-stage + crystal-glass cards, media-bento hover/shine) | `getNews`, `getPublications`, `getMinistries`, `getHomeContent` (quote/lede in Readings), `getBlock("media-page")` |
-| News `/news` | `news/page.tsx` | `sections/news/*` (news-card, news-ticker, news-marquee) | `getNews` (sections list: `content/news.ts`) |
+| News `/news` | `news/page.tsx` | Sports-style landing: teal hero, ticker, featured+3 secondary, section chips, section grids, most-read sidebar (`news-card`, `news-ticker`) | `getNews` (sections: `content/news.ts`) |
 | News article `/news/[slug]` | `news/[slug]/page.tsx` | `sections/news/news-card.tsx`, `share-buttons.tsx` | `getNewsArticle`, `getNews` |
 | Contact `/contact` | `contact/page.tsx` | `site/src/components/contact/contact-form.tsx`, `sections/page-banner.tsx` | `getSiteInfo` (`site-info` block: office contact + `houses[]` addresses, social without WhatsApp), `getLeadership`; form → `/api/public/inquiries` |
 | Login / Register | `login/`, `register/page.tsx` | `site/src/components/auth/member-access.tsx` (left full `images/faithful-horizons-sunrise.jpg` + right white glass form card, accent `#17b3c6`) | `/api/auth/*` — fathers redirect to `/dashboard` |
@@ -45,9 +45,9 @@ Leadership page data (CMS type `leadership`, one entry per person, told apart by
 Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-directory`, `/publications` to `/media#publications`.
 
 ## Shared site pieces
-- Header / menu: `site/src/components/layout/site-header.tsx` — white logos + search; desktop `#17b3c6` nav pill hangs ~half into the hero; below `lg` pill hides and hamburger Sheet toggle shows pages + login; hero video + dark wash in `hero-section.tsx`
+- Header / menu: `site/src/components/layout/site-header.tsx` — white logos + search; desktop teal nav pill (white links, white active + Register) hangs ~half into the hero; below `lg` pill hides and hamburger Sheet; hero video + dark wash in `hero-section.tsx`
   - Spacer `.site-header-shell` = white strip only (no nest pad when mobile pill is hidden)
-- Footer: `site/src/components/layout/site-footer.tsx` — Pinterest-style cyan glass panel (`.footer-glass`): Province/Explore/Contact columns + members widget, bottom logo/copyright/social; brand `#17b3c6`
+- Footer: `site/src/components/layout/site-footer.tsx` — layered teal wave; Explore / Resources / Contact / Stay connected glass box (white email + teal send); social + X; Privacy/Terms/Cookies; brand `#17b3c6`
 - Site name, contact details: `site/src/config/site.ts`
 - Section title style: `sections/section-heading.tsx`; coloured page banner: `sections/page-banner.tsx`
 - Animations: `site/src/components/motion/` (reveal, page-motion, `motion-reveal` = Motion for React — History + Home Keyvo-style stagger/hero/float)

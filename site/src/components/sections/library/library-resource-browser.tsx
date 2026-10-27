@@ -1,88 +1,201 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Download, FileText } from "lucide-react"
+import { CalendarDays, Download, FileText, Layers, Sparkles } from "lucide-react"
 
 import type { LibraryCategory } from "@/content/library"
 import type { LibraryItem } from "@/lib/cms"
 
-function ItemCard({
+const COVER_TONES = [
+  { from: "#03202b", via: "#0a5062", to: "#17b3c6" },
+  { from: "#023e8a", via: "#0a5062", to: "#53b0c2" },
+  { from: "#06394a", via: "#0e98ac", to: "#17b3c6" },
+  { from: "#03202b", via: "#023e8a", to: "#0e98ac" },
+  { from: "#0a5062", via: "#17b3c6", to: "#53b0c2" },
+] as const
+
+function coverTone(seed: string) {
+  let hash = 0
+  for (let i = 0; i < seed.length; i += 1) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0
+  return COVER_TONES[hash % COVER_TONES.length]
+}
+
+function BookVisual({ item, featured = false }: { item: LibraryItem; featured?: boolean }) {
+  const tone = coverTone(item.id || item.title)
+  return (
+    <div className={`lib-book-scene ${featured ? "lib-book-scene--featured" : ""}`} aria-hidden="true">
+      <div className="lib-book-3d">
+        <div
+          className="lib-book-cover"
+          style={
+            item.cover
+              ? undefined
+              : {
+                  background: `linear-gradient(155deg, ${tone.from} 0%, ${tone.via} 48%, ${tone.to} 100%)`,
+                }
+          }
+        >
+          {item.cover ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={encodeURI(item.cover)} alt="" className="lib-book-cover-img" />
+          ) : (
+            <div className="lib-book-cover-fallback">
+              <span className="lib-book-cover-rule" />
+              <p className="lib-book-cover-title">{item.title}</p>
+              {item.categoryLabel ? <p className="lib-book-cover-cat">{item.categoryLabel}</p> : null}
+            </div>
+          )}
+          <span className="lib-book-cover-sheen" />
+          <span className="lib-book-cover-edge" />
+        </div>
+        <div className="lib-book-spine" style={{ background: `linear-gradient(180deg, ${tone.from}, ${tone.via})` }}>
+          <span className="lib-book-spine-title">{item.title}</span>
+        </div>
+        <div className="lib-book-pages">
+          <span />
+          <span />
+          <span />
+          <span />
+        </div>
+        <div className="lib-book-back" style={{ background: tone.from }} />
+      </div>
+      <div className="lib-book-shadow" />
+    </div>
+  )
+}
+
+function BookCard({
   item,
   downloadLabel,
   comingSoonLabel,
-  featured = false,
+  index = 0,
 }: {
   item: LibraryItem
   downloadLabel: string
   comingSoonLabel: string
-  featured?: boolean
+  index?: number
 }) {
-  return (
-    <article
-      className={`group flex h-full overflow-hidden rounded-[1.5rem] border border-[#d4e4ea] bg-white shadow-[0_18px_40px_-34px_rgba(10,60,80,0.55)] transition duration-500 hover:-translate-y-1 hover:border-[#17b3c6]/60 hover:shadow-[0_28px_56px_-30px_rgba(10,80,98,0.55)] ${
-        featured ? "sm:flex-row" : "flex-col"
-      }`}
-    >
-      <div
-        className={`relative shrink-0 overflow-hidden bg-gradient-to-br from-[#06394a] via-[#0a5062] to-[#17b3c6] ${
-          featured ? "aspect-[4/5] sm:w-[42%] sm:aspect-auto sm:min-h-[22rem]" : "aspect-[3/4]"
-        }`}
-      >
-        {item.cover ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={encodeURI(item.cover)}
-            alt=""
-            className="h-full w-full object-cover opacity-95 transition duration-700 group-hover:scale-105"
-          />
-        ) : (
-          <div className="grid h-full place-items-center text-white/55">
-            <FileText aria-hidden="true" className={featured ? "size-16" : "size-12"} />
-          </div>
-        )}
-        <div aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 bg-[#ffcf4a]/90" />
-        {item.categoryLabel ? (
-          <span className="absolute top-3 left-4 rounded-full bg-[#03202b]/75 px-2.5 py-1 text-[10px] font-bold tracking-[0.14em] text-white uppercase backdrop-blur-sm">
-            {item.categoryLabel}
-          </span>
-        ) : null}
-      </div>
+  const className = "lib-book group"
+  const style = { animationDelay: `${Math.min(index, 8) * 70}ms` }
+  const label = item.pdfUrl ? `${item.title} — ${downloadLabel}` : item.title
 
-      <div className={`flex flex-1 flex-col ${featured ? "p-7 sm:p-8" : "p-5"}`}>
-        {item.dateLabel ? (
-          <p className="text-[11px] font-bold tracking-[0.16em] text-[#0e98ac] uppercase">{item.dateLabel}</p>
-        ) : null}
-        <h3
-          className={`mt-1.5 font-heading font-semibold text-[#03202b] ${
-            featured ? "text-2xl sm:text-3xl" : "text-xl"
-          }`}
-        >
-          {item.title}
-        </h3>
-        {item.summary ? (
-          <p className={`mt-3 flex-1 leading-7 text-[#5c6b7a] ${featured ? "text-base" : "text-sm line-clamp-4"}`}>
-            {item.summary}
-          </p>
-        ) : (
-          <div className="flex-1" />
-        )}
-        {item.pdfUrl ? (
-          <a
-            href={item.pdfUrl}
-            download
-            target="_blank"
-            rel="noreferrer"
-            className="mt-6 inline-flex items-center justify-center gap-2 self-start rounded-full bg-[#023e8a] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0e98ac]"
-          >
-            <Download aria-hidden="true" className="size-4" />
-            {downloadLabel}
-          </a>
-        ) : (
-          <p className="mt-6 text-sm text-[#8a98a6]">{comingSoonLabel}</p>
-        )}
+  const body = (
+    <>
+      <BookVisual item={item} />
+      <div className="lib-book-meta">
+        {item.dateLabel ? <p className="lib-book-date">{item.dateLabel}</p> : null}
+        <h3 className="lib-book-heading">{item.title}</h3>
+        {item.summary ? <p className="lib-book-summary">{item.summary}</p> : null}
+        <div className="lib-book-cta">
+          {item.pdfUrl ? (
+            <span className="lib-book-download lib-book-download--soft">
+              <Download aria-hidden="true" className="size-3.5" />
+              {downloadLabel}
+            </span>
+          ) : (
+            <span className="lib-book-soon">{comingSoonLabel}</span>
+          )}
+        </div>
       </div>
+    </>
+  )
+
+  if (item.pdfUrl) {
+    return (
+      <a
+        href={item.pdfUrl}
+        download
+        target="_blank"
+        rel="noreferrer"
+        className={className}
+        style={style}
+        aria-label={label}
+      >
+        {body}
+      </a>
+    )
+  }
+
+  return (
+    <article className={className} style={style} aria-label={label}>
+      {body}
     </article>
   )
+}
+
+function FeaturedIssue({
+  item,
+  downloadLabel,
+  comingSoonLabel,
+  pdfFormatLabel,
+  sampleIssueLabel,
+  categoryLabel,
+}: {
+  item: LibraryItem
+  downloadLabel: string
+  comingSoonLabel: string
+  pdfFormatLabel: string
+  sampleIssueLabel: string
+  categoryLabel?: string
+}) {
+  const label = item.pdfUrl ? `${item.title} — ${downloadLabel}` : item.title
+  const metaLabel = categoryLabel || item.categoryLabel || sampleIssueLabel
+
+  const inner = (
+    <>
+      <div className="lib-featured-book">
+        <BookVisual item={item} featured />
+      </div>
+      <div className="lib-featured-copy">
+        {item.dateLabel ? <p className="lib-book-date">{item.dateLabel}</p> : null}
+        <h3 className="lib-featured-title">{item.title}</h3>
+        {item.summary ? <p className="lib-featured-summary">{item.summary}</p> : null}
+        <div className="mt-6">
+          {item.pdfUrl ? (
+            <span className="lib-book-download lib-book-download--primary">
+              <Download aria-hidden="true" className="size-4" />
+              {downloadLabel}
+            </span>
+          ) : (
+            <span className="lib-book-soon">{comingSoonLabel}</span>
+          )}
+        </div>
+        <ul className="lib-featured-meta">
+          <li>
+            <FileText aria-hidden="true" className="size-3.5" />
+            {pdfFormatLabel}
+          </li>
+          <li>
+            <Layers aria-hidden="true" className="size-3.5" />
+            {metaLabel}
+          </li>
+          {item.dateLabel ? (
+            <li>
+              <CalendarDays aria-hidden="true" className="size-3.5" />
+              {item.dateLabel}
+            </li>
+          ) : null}
+        </ul>
+      </div>
+    </>
+  )
+
+  if (item.pdfUrl) {
+    return (
+      <a
+        href={item.pdfUrl}
+        download
+        target="_blank"
+        rel="noreferrer"
+        className="lib-featured group"
+        aria-label={label}
+      >
+        {inner}
+      </a>
+    )
+  }
+
+  return <article className="lib-featured">{inner}</article>
 }
 
 export function LibraryResourceBrowser({
@@ -91,12 +204,24 @@ export function LibraryResourceBrowser({
   emptyLabel = "No items published yet.",
   downloadLabel = "Download PDF",
   comingSoonLabel = "PDF coming soon",
+  latestIssueLabel = "Latest issue",
+  previousIssuesLabel = "Previous Issues",
+  earlierIssuesKicker = "Earlier issues",
+  previousIssuesSummaryPrefix = "Browse and download earlier issues of",
+  pdfFormatLabel = "PDF Format",
+  sampleIssueLabel = "Sample Issue",
 }: {
   items: LibraryItem[]
   categories?: LibraryCategory[]
   emptyLabel?: string
   downloadLabel?: string
   comingSoonLabel?: string
+  latestIssueLabel?: string
+  previousIssuesLabel?: string
+  earlierIssuesKicker?: string
+  previousIssuesSummaryPrefix?: string
+  pdfFormatLabel?: string
+  sampleIssueLabel?: string
 }) {
   const tabs = useMemo(() => {
     if (!categories.length) return []
@@ -108,14 +233,16 @@ export function LibraryResourceBrowser({
   const current = tabs.some((tab) => tab.id === active) ? active : tabs[0]?.id || ""
   const visible = categories.length ? items.filter((item) => item.category === current) : items
   const [featured, ...rest] = visible
+  const activeTab = tabs.find((tab) => tab.id === current)
+  const categoryName = activeTab?.label || featured?.categoryLabel || "this collection"
 
   return (
-    <div>
+    <div className="lib-shelf">
       {tabs.length ? (
         <div
           role="tablist"
           aria-label="Categories"
-          className="flex gap-1 overflow-x-auto rounded-2xl border border-[#d9eef3] bg-[#f4fbfd] p-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex gap-1.5 overflow-x-auto rounded-2xl border border-[#d9eef3] bg-[#f4fbfd] p-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {tabs.map((tab) => {
             const selected = tab.id === current
@@ -129,16 +256,16 @@ export function LibraryResourceBrowser({
                 onClick={() => setActive(tab.id)}
                 className={
                   selected
-                    ? "flex shrink-0 items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#023e8a] shadow-sm"
-                    : "flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-[#5c6b7a] transition hover:bg-white/70 hover:text-[#023e8a]"
+                    ? "flex shrink-0 items-center gap-2 rounded-xl bg-[#023e8a] px-4 py-2.5 text-sm font-semibold text-white shadow-sm"
+                    : "flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-[#5c6b7a] transition hover:bg-white hover:text-[#023e8a]"
                 }
               >
                 {tab.label}
                 <span
                   className={
                     selected
-                      ? "rounded-full bg-[#e8f7fa] px-2 py-0.5 text-[11px] font-bold text-[#0e98ac]"
-                      : "rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-bold text-[#8a98a6]"
+                      ? "grid min-w-6 place-items-center rounded-full bg-[#17b3c6] px-1.5 py-0.5 text-[11px] font-bold text-white"
+                      : "grid min-w-6 place-items-center rounded-full bg-white px-1.5 py-0.5 text-[11px] font-bold text-[#0e98ac]"
                   }
                 >
                   {count}
@@ -150,26 +277,54 @@ export function LibraryResourceBrowser({
       ) : null}
 
       {visible.length && featured ? (
-        <div className={tabs.length ? "mt-10 space-y-6" : "space-y-6"}>
-          <ItemCard
-            item={featured}
-            featured
-            downloadLabel={downloadLabel}
-            comingSoonLabel={comingSoonLabel}
-          />
+        <div className={tabs.length ? "mt-10 space-y-12" : "space-y-12"}>
+          <section>
+            <p className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] text-[#0e98ac] uppercase">
+              <Sparkles aria-hidden="true" className="size-3.5 text-[#ffcf4a]" />
+              {latestIssueLabel}
+            </p>
+            <div className="mt-4">
+              <FeaturedIssue
+                item={featured}
+                downloadLabel={downloadLabel}
+                comingSoonLabel={comingSoonLabel}
+                pdfFormatLabel={pdfFormatLabel}
+                sampleIssueLabel={sampleIssueLabel}
+                categoryLabel={categoryName}
+              />
+            </div>
+          </section>
+
           {rest.length ? (
-            <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {rest.map((item) => (
-                <li key={item.id}>
-                  <ItemCard item={item} downloadLabel={downloadLabel} comingSoonLabel={comingSoonLabel} />
-                </li>
-              ))}
-            </ul>
+            <section>
+              <div className="flex items-center gap-3">
+                <span aria-hidden="true" className="h-px w-8 bg-[#17b3c6]" />
+                <p className="text-xs font-bold tracking-[0.18em] text-[#0e98ac] uppercase">{earlierIssuesKicker}</p>
+              </div>
+              <h2 className="mt-2 font-heading text-2xl font-semibold text-[#03202b] sm:text-3xl">
+                {previousIssuesLabel}
+              </h2>
+              <p className="mt-2 text-sm text-[#5c6b7a] sm:text-base">
+                {previousIssuesSummaryPrefix} {categoryName}
+              </p>
+              <ul className="lib-shelf-grid mt-8">
+                {rest.map((item, index) => (
+                  <li key={item.id}>
+                    <BookCard
+                      item={item}
+                      index={index + 1}
+                      downloadLabel={downloadLabel}
+                      comingSoonLabel={comingSoonLabel}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
           ) : null}
         </div>
       ) : (
         <div
-          className={`rounded-[1.5rem] border border-dashed border-[#cfe4ea] bg-[#f7fbfd] px-6 py-16 text-center ${
+          className={`rounded-[1.5rem] border border-dashed border-[#cfe4ea] bg-white/70 px-6 py-16 text-center ${
             tabs.length ? "mt-10" : ""
           }`}
         >

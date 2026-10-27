@@ -1,10 +1,11 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { CalendarCheck2 } from "lucide-react"
+import { ArrowRight, CalendarCheck2 } from "lucide-react"
 
 import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
+import { CouncilPortrait } from "@/components/sections/leadership/council-portrait"
 import { PriestDirectory } from "@/components/sections/leadership/priest-directory"
 import { SectionHeading } from "@/components/sections/section-heading"
 import { anchorId, councilHref, formerProvincialHref } from "@/config/navigation"
@@ -164,14 +165,22 @@ export default async function LeadershipPage() {
       </section>
       ) : null}
 
-      <section id="council" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-20 sm:px-8 sm:py-24">
-        <div className="mx-auto max-w-6xl">
+      <section id="council" className="relative isolate scroll-mt-80 overflow-visible bg-[#f4fbfd] px-4 py-20 sm:px-8 sm:py-24">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-[4%] hidden h-48 w-40 -translate-y-1/2 opacity-40 sm:block"
+          style={{
+            backgroundImage: "radial-gradient(circle, rgb(23 179 198 / 0.35) 1.25px, transparent 1.3px)",
+            backgroundSize: "14px 14px",
+          }}
+        />
+        <div className="relative mx-auto max-w-6xl">
           <SectionHeading
             kicker={councilTerm}
             title="Provincial Council"
-            subtitle="The Council supports the Provincial Superior in guiding the mission and life of the Province."
+            subtitle="Working together for the life and mission of the Province."
           />
-          <div className="mx-auto mt-16 grid max-w-5xl gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 flex flex-wrap justify-center gap-x-5 gap-y-12 pt-14 sm:mt-12 sm:gap-x-6 sm:gap-y-14 sm:pt-16">
             {council.map((person, index) => {
               const photo = person.image
               return (
@@ -179,59 +188,46 @@ export default async function LeadershipPage() {
                   key={`${person.role}-${person.name}`}
                   id={`council-${anchorId(person.name)}`}
                   from="up"
-                  delay={(index % 3) * 120}
-                  className="group scroll-mt-80"
+                  delay={(index % 4) * 80}
+                  className="group scroll-mt-80 w-full max-w-[15.5rem] overflow-visible sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] lg:max-w-none"
                 >
                   <Link
                     href={councilHref(person)}
-                    className="block outline-none focus-visible:ring-2 focus-visible:ring-[#17b3c6] focus-visible:ring-offset-2"
+                    className="relative block h-full overflow-visible outline-none focus-visible:ring-2 focus-visible:ring-[#17b3c6] focus-visible:ring-offset-2"
                     aria-label={`Open profile for ${person.name}`}
                   >
-                    <article className="relative mx-auto aspect-[4/5] w-full max-w-xs transition duration-500 group-hover:-translate-y-2">
+                    {/* Teal plate; portrait sits edge-to-edge and pops slightly above the top */}
+                    <article className="relative aspect-[4/5] overflow-visible transition duration-500 group-hover:-translate-y-1.5">
                       <div
                         aria-hidden="true"
-                        className="absolute top-0 bottom-0 left-0 w-[46%] overflow-hidden rounded-t-[3rem] rounded-b-[1.5rem] shadow-[0_30px_60px_-30px_rgba(3,32,43,0.7)]"
-                        style={{ background: "linear-gradient(180deg, #17b3c6 0%, #0e98ac 38%)" }}
-                      >
-                        <span className="absolute inset-x-0 top-5 flex justify-center font-heading text-6xl font-bold tracking-wide text-white/15 uppercase [writing-mode:vertical-rl] rotate-180">
-                          Council
-                        </span>
-                      </div>
-                      <div
-                        aria-hidden="true"
-                        className="absolute inset-x-0 top-[38%] bottom-0 rounded-[1.5rem] rounded-tl-none shadow-[0_30px_60px_-30px_rgba(3,32,43,0.7)]"
-                        style={{ background: "linear-gradient(180deg, #0e98ac 0%, #0a5062 70%, #06394a 100%)" }}
-                      />
-                      <span
-                        aria-hidden="true"
-                        className="absolute top-[38%] right-5 z-10 h-1 w-10 rounded-full bg-[#ffcf4a] transition-all duration-500 group-hover:w-16"
+                        className="absolute inset-0 rounded-[1.75rem] bg-gradient-to-b from-[#2bc4d6] via-[#17b3c6] to-[#0e98ac] shadow-[0_22px_40px_-24px_rgb(14_152_172/0.65)] transition duration-500 group-hover:shadow-[0_28px_48px_-22px_rgb(14_152_172/0.75)]"
                       />
 
                       {photo ? (
-                        <div className="absolute inset-x-0 top-[5%] bottom-0 z-10 overflow-hidden rounded-b-[1.5rem]">
-                          <Image
-                            src={photo}
-                            alt={person.name}
-                            fill
-                            unoptimized={isUpload(photo)}
-                            sizes="(min-width: 1024px) 20rem, (min-width: 640px) 45vw, 90vw"
-                            className={`origin-bottom object-bottom drop-shadow-[0_18px_24px_rgba(3,32,43,0.45)] transition duration-700 group-hover:scale-[1.04] ${
-                              person.cover ? "object-cover" : "object-contain"
-                            }`}
-                          />
-                        </div>
+                        <CouncilPortrait src={photo} alt={person.name} />
                       ) : (
-                        <div className="absolute inset-x-0 top-[22%] z-10 flex justify-center">
-                          <span className="flex size-32 items-center justify-center rounded-full bg-white/15 font-heading text-4xl font-bold text-white ring-4 ring-white/25 backdrop-blur-sm transition duration-500 group-hover:scale-105">
+                        <div className="absolute inset-0 z-10 flex items-center justify-center">
+                          <span className="flex size-28 items-center justify-center rounded-full bg-white/20 font-heading text-3xl font-bold text-white ring-2 ring-white/30">
                             {initials(person.name)}
                           </span>
                         </div>
                       )}
 
-                      <div className="absolute inset-x-0 bottom-0 z-20 h-[45%] rounded-b-[1.5rem] bg-gradient-to-t from-[#03202b] via-[#03202b]/80 to-transparent" />
-                      <div className="absolute inset-x-0 bottom-0 z-30 p-5">
-                        <p className="text-[11px] font-bold tracking-[0.2em] text-[#ffcf4a] uppercase">{person.role}</p>
-                        <p className="mt-1 font-heading text-lg leading-snug font-semibold text-white">{person.name}</p>
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[46%] rounded-b-[1.75rem] bg-gradient-to-t from-[#0a5062]/95 via-[#0e98ac]/55 to-transparent"
+                      />
+
+                      <div className="absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-3 p-4 sm:p-5">
+                        <div className="min-w-0 pr-1">
+                          <p className="font-heading text-[15px] leading-snug font-semibold text-white sm:text-base">
+                            {person.name}
+                          </p>
+                          <p className="mt-1 text-xs leading-snug text-white/85 sm:text-[13px]">{person.role}</p>
+                        </div>
+                        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white text-[#17b3c6] shadow-[0_8px_18px_-10px_rgb(3_32_43/0.45)] transition group-hover:translate-x-0.5">
+                          <ArrowRight className="size-4" aria-hidden="true" />
+                        </span>
                       </div>
                     </article>
                   </Link>

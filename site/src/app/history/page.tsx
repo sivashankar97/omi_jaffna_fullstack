@@ -72,85 +72,126 @@ export default async function HistoryPage() {
         <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-3 sm:gap-6">
           {whoWeAre.stats.map((stat, index) => {
             const Icon = statIcons[index % statIcons.length]
+            const deep = index === 1
             return (
               <MotionReveal
                 key={stat.label}
                 from="up"
                 delay={index * 120}
-                className="group rounded-2xl border border-[#d8eef3] bg-white p-7 text-center shadow-[0_24px_50px_-28px_rgba(2,62,138,0.45)] transition duration-300 hover:-translate-y-1"
+                className={
+                  deep
+                    ? "group media-bento-card media-bento-shine calendar-glass-deep relative overflow-hidden rounded-[1.75rem] p-7 text-center"
+                    : "group media-bento-card media-bento-shine calendar-glass relative overflow-hidden rounded-[1.75rem] p-7 text-center"
+                }
               >
-                <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-[#e7fbff] text-[#0e98ac] transition group-hover:bg-[#17b3c6] group-hover:text-white">
+                <span
+                  className={
+                    deep
+                      ? "mx-auto flex size-12 items-center justify-center rounded-2xl bg-[#ffcf4a] text-[#03202b]"
+                      : "mx-auto flex size-12 items-center justify-center rounded-2xl bg-[#e7fbff] text-[#0e98ac] ring-1 ring-[#cfeef4] transition group-hover:bg-[#17b3c6] group-hover:text-white group-hover:ring-[#17b3c6]"
+                  }
+                >
                   <Icon aria-hidden="true" className="size-6" />
                 </span>
-                <p className="mt-4 font-heading text-4xl font-bold text-[#023e8a]">
+                <p className={`mt-4 font-heading text-4xl font-bold ${deep ? "text-white" : "text-[#023e8a]"}`}>
                   <CountUp value={stat.value} />
                 </p>
-                <p className="mt-1 text-sm font-medium tracking-wide text-[#5c6b7a]">{stat.label}</p>
+                <p className={`mt-1 text-sm font-medium tracking-wide ${deep ? "text-white/75" : "text-[#5c6b7a]"}`}>
+                  {stat.label}
+                </p>
               </MotionReveal>
             )
           })}
         </div>
       </section>
 
-      <section id="missionary-family" className="scroll-mt-80 bg-white px-4 py-20 sm:px-8 sm:py-24">
-        <div className="mx-auto max-w-6xl">
+      <section id="missionary-family" className="calendar-stage scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
+        <div className="relative mx-auto max-w-6xl">
           <SectionHeading title={whoWeAre.family.title} subtitle={whoWeAre.family.subtitle} />
-          <div className="mt-14 grid items-center gap-12 lg:grid-cols-2">
-            <MotionReveal from="left" className="space-y-6">
-              {whoWeAre.family.paragraphs.map((paragraph, index) => (
-                <div key={paragraph} className="flex gap-5">
-                  <span className="mt-1 font-heading text-sm font-bold text-[#17b3c6]">0{index + 1}</span>
-                  <p className="border-l-2 border-[#caf0f8] pl-5 text-lg leading-8 text-[#3d4b59]">{paragraph}</p>
-                </div>
-              ))}
+          <div className="mt-12 grid items-center gap-8 lg:grid-cols-2 lg:gap-10">
+            <MotionReveal
+              from="left"
+              className="media-bento-card media-bento-shine calendar-glass relative overflow-hidden rounded-[1.75rem] p-6 sm:p-8"
+            >
+              <div className="space-y-6">
+                {whoWeAre.family.paragraphs.map((paragraph, index) => (
+                  <div key={paragraph} className="flex gap-5">
+                    <span className="mt-1 font-heading text-sm font-bold text-[#17b3c6]">0{index + 1}</span>
+                    <p className="border-l-2 border-[#17b3c6]/35 pl-5 text-lg leading-8 text-[#3d4b59]">{paragraph}</p>
+                  </div>
+                ))}
+              </div>
             </MotionReveal>
             <MotionReveal from="right" delay={120} className="relative">
-              <div
-                aria-hidden="true"
-                className="absolute -top-4 -right-4 h-full w-full rounded-[2rem] border-2 border-[#ffcf4a]"
-              />
-              <div className="group relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-[0_30px_60px_-30px_rgba(2,62,138,0.55)]">
-                <Image
-                  src={images.familyImage}
-                  alt={images.familyImageAlt}
-                  unoptimized={isUpload(images.familyImage)}
-                  fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover transition duration-[1200ms] ease-out group-hover:scale-105"
-                />
-                <span aria-hidden="true" className="history-shine pointer-events-none absolute inset-0" />
+              <div className="group media-bento-card media-bento-shine calendar-glass relative overflow-hidden rounded-[1.75rem] p-3">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.35rem]">
+                  <Image
+                    src={images.familyImage}
+                    alt={images.familyImageAlt}
+                    unoptimized={isUpload(images.familyImage)}
+                    fill
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    className="object-cover transition duration-[1200ms] ease-out group-hover:scale-105"
+                  />
+                  <span aria-hidden="true" className="history-shine pointer-events-none absolute inset-0" />
+                </div>
               </div>
             </MotionReveal>
           </div>
         </div>
       </section>
 
-      <section id="core-commitments" className="scroll-mt-80 bg-[#f4fbfd] px-4 py-20 sm:px-8 sm:py-24">
-        <div className="mx-auto max-w-6xl">
+      <section id="core-commitments" className="calendar-stage scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
+        <div className="relative mx-auto max-w-6xl">
           <SectionHeading
             kicker={whoWeAre.commitments.kicker}
             title={whoWeAre.commitments.title}
             subtitle={whoWeAre.commitments.subtitle}
           />
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
+          <div className="mt-12 grid gap-5 md:grid-cols-3 md:gap-6">
             {whoWeAre.commitments.items.map((item, index) => {
               const Icon = commitmentIcons[index % commitmentIcons.length]
+              const deep = index === 1
               return (
-                <MotionReveal
-                  key={item.title}
-                  from="up"
-                  delay={index * 120}
-                  className="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-[0_20px_45px_-30px_rgba(2,62,138,0.5)] ring-1 ring-[#d8eef3] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_55px_-28px_rgba(2,62,138,0.55)]"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-[#17b3c6] to-[#ffbf00] transition duration-500 group-hover:scale-x-100"
-                  />
-                  <span className="flex size-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#17b3c6] to-[#0e6a68] text-white shadow-md">
-                    <Icon aria-hidden="true" className="size-7" />
-                  </span>
-                  <h3 className="mt-6 font-heading text-xl font-semibold text-[#023e8a]">{item.title}</h3>
-                  <p className="mt-3 leading-7 text-[#5c6b7a]">{item.text}</p>
+                <MotionReveal key={item.title} from="up" delay={index * 120} className="h-full">
+                  <article
+                    className={
+                      deep
+                        ? "group media-bento-card media-bento-shine calendar-glass-deep relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7"
+                        : "group media-bento-card media-bento-shine calendar-glass relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7"
+                    }
+                  >
+                    <span
+                      className={
+                        deep
+                          ? "absolute top-4 right-4 grid size-8 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 transition group-hover:rotate-45"
+                          : "absolute top-4 right-4 grid size-8 place-items-center rounded-full bg-[#e7fbff] text-[#023e8a] ring-1 ring-[#cfeef4] transition group-hover:rotate-45"
+                      }
+                    >
+                      <ArrowUpRight className="size-3.5" />
+                    </span>
+                    <span
+                      className={
+                        deep
+                          ? "flex size-14 items-center justify-center rounded-2xl bg-[#ffcf4a] text-[#03202b]"
+                          : "flex size-14 items-center justify-center rounded-2xl bg-[#e7fbff] text-[#0e98ac] ring-1 ring-[#cfeef4]"
+                      }
+                    >
+                      <Icon aria-hidden="true" className="size-7" />
+                    </span>
+                    <h3
+                      className={
+                        deep
+                          ? "mt-6 font-heading text-xl font-semibold text-white sm:text-2xl"
+                          : "mt-6 font-heading text-xl font-semibold text-[#023e8a] sm:text-2xl"
+                      }
+                    >
+                      {item.title}
+                    </h3>
+                    <p className={deep ? "mt-3 flex-1 leading-7 text-white/75" : "mt-3 flex-1 leading-7 text-[#5c6b7a]"}>
+                      {item.text}
+                    </p>
+                  </article>
                 </MotionReveal>
               )
             })}
@@ -158,26 +199,34 @@ export default async function HistoryPage() {
         </div>
       </section>
 
-      <section
-        id="history"
-        className="relative isolate scroll-mt-80 overflow-hidden bg-gradient-to-br from-[#03202b] via-[#06394a] to-[#0a5062] px-4 py-20 text-white sm:px-8 sm:py-24"
-      >
-        <div aria-hidden="true" className="history-kenburns absolute inset-0 -z-20">
-          <Image
-            src={images.historyImage}
-            alt=""
-            fill
-            sizes="100vw"
-            unoptimized={isUpload(images.historyImage)}
-            className="object-cover opacity-35"
-          />
+      <section id="history" className="calendar-stage relative isolate scroll-mt-80 overflow-hidden px-4 py-16 sm:px-8 sm:py-20">
+        <div className="relative mx-auto max-w-6xl">
+          <MotionReveal from="left">
+            <div className="group media-bento-card media-bento-shine relative min-h-[18rem] overflow-hidden rounded-[1.75rem] text-white sm:min-h-[22rem]">
+              <Image
+                src={images.historyImage}
+                alt=""
+                fill
+                sizes="100vw"
+                unoptimized={isUpload(images.historyImage)}
+                className="object-cover object-[72%_center] transition duration-700 group-hover:scale-105"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-[linear-gradient(105deg,#03202b_0%,#03202b_32%,rgb(6_57_74/0.82)_52%,rgb(10_80_98/0.35)_72%,transparent_100%)]"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-y-0 left-0 w-[55%] backdrop-blur-md [mask-image:linear-gradient(90deg,black_0%,black_40%,transparent_100%)]"
+              />
+              <div className="relative z-10 max-w-xl px-7 py-9 sm:px-10 sm:py-12">
+                <p className="text-[11px] font-semibold tracking-[0.2em] text-[#ffcf4a] uppercase">Our history</p>
+                <h2 className="mt-3 font-heading text-4xl leading-tight font-semibold sm:text-5xl">{briefHistory.title}</h2>
+                <p className="mt-4 text-lg leading-8 text-white/85">{briefHistory.summary}</p>
+              </div>
+            </div>
+          </MotionReveal>
         </div>
-        <MotionReveal from="left" className="mx-auto max-w-6xl">
-          <div className="media-bento-shine calendar-glass-deep max-w-3xl overflow-hidden rounded-[1.75rem] p-7 sm:p-10">
-            <h2 className="font-heading text-4xl leading-tight font-semibold sm:text-5xl">{briefHistory.title}</h2>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-white/80">{briefHistory.summary}</p>
-          </div>
-        </MotionReveal>
       </section>
 
       <section id="brief-history" className="calendar-stage scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
@@ -185,7 +234,7 @@ export default async function HistoryPage() {
           <SectionHeading kicker={briefHistory.kicker} title={briefHistory.heading} subtitle={briefHistory.subtitle} />
 
           <MotionReveal from="up" className="mx-auto mt-10 max-w-4xl">
-            <p className="media-bento-card calendar-glass overflow-hidden rounded-[1.75rem] border-l-4 border-[#ffcf4a] px-6 py-5 text-lg leading-8 text-[#3d4b59] italic sm:px-8">
+            <p className="media-bento-card media-bento-shine calendar-glass overflow-hidden rounded-[1.75rem] border-l-4 border-[#ffcf4a] px-6 py-5 text-lg leading-8 text-[#3d4b59] italic sm:px-8">
               {briefHistory.intro}
             </p>
           </MotionReveal>
@@ -199,8 +248,11 @@ export default async function HistoryPage() {
               {chapters.map((chapter, index) => (
                 <MotionReveal key={chapter.id} from="up" id={chapter.id} delay={(index % 3) * 60} className="scroll-mt-32">
                   <article className="group media-bento-card media-bento-shine calendar-glass relative overflow-hidden rounded-[1.75rem] p-6 sm:p-7">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <span className="font-heading text-4xl leading-none font-bold text-[#17b3c6]/35">
+                    <span className="absolute top-4 right-4 grid size-8 place-items-center rounded-full bg-[#e7fbff] text-[#023e8a] ring-1 ring-[#cfeef4] transition group-hover:rotate-45">
+                      <ArrowUpRight className="size-3.5" />
+                    </span>
+                    <div className="flex flex-wrap items-center gap-3 pr-10">
+                      <span className="flex size-11 items-center justify-center rounded-2xl bg-[#e7fbff] font-heading text-sm font-bold text-[#0e98ac] ring-1 ring-[#cfeef4]">
                         {String(index + 1).padStart(2, "0")}
                       </span>
                       <span className="rounded-full bg-[#e7fbff] px-3 py-1 text-xs font-bold tracking-[0.14em] text-[#0e98ac] ring-1 ring-[#cfeef4]">

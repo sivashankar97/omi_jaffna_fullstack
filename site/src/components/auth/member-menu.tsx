@@ -112,13 +112,13 @@ export function MemberMenu({ variant = "desktop" }: MemberMenuProps) {
       <div className="relative z-20 flex shrink-0 flex-row flex-nowrap items-center gap-1">
         <Link
           href={site.familyPortal.login}
-          className="inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full px-3 text-xs font-semibold text-white/90 transition hover:bg-white/15 hover:text-white"
+          className="inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full px-3 text-xs font-semibold text-white transition hover:bg-white/15"
         >
           Login
         </Link>
         <Link
           href={site.familyPortal.register}
-          className="inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full bg-white px-5 text-xs font-bold text-[#17b3c6] transition hover:bg-[#e7fbff]"
+          className="inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full bg-white px-5 text-xs font-bold text-[#0e98ac] shadow-[0_8px_18px_-10px_rgba(2,62,138,0.35)] transition hover:bg-[#e7fbff]"
         >
           Register
         </Link>

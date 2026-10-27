@@ -5,10 +5,10 @@ import type { NewsArticle } from "@/content/news"
 export function NewsTicker({ articles }: { articles: NewsArticle[] }) {
   const items = [...articles, ...articles]
   return (
-    <div className="border-y border-[#0a5062]/40 bg-[#021a23] text-white">
+    <div className="border-y border-[#0e98ac]/35 bg-[#03202b] text-white">
       <div className="mx-auto flex max-w-6xl items-stretch">
-        <p className="relative z-10 flex shrink-0 items-center gap-2 bg-[#ffcf4a] px-4 py-2.5 text-xs font-bold tracking-[0.2em] text-[#03202b] uppercase">
-          <span aria-hidden="true" className="news-live-dot size-2 rounded-full bg-[#03202b]" />
+        <p className="relative z-10 flex shrink-0 items-center gap-2 bg-[#17b3c6] px-4 py-2.5 text-xs font-bold tracking-[0.2em] text-white uppercase">
+          <span aria-hidden="true" className="news-live-dot size-2 rounded-full bg-[#ffcf4a]" />
           Latest
         </p>
         <div className="news-ticker relative min-w-0 flex-1 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_4%,black_96%,transparent)]">

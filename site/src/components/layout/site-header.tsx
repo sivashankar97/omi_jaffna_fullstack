@@ -124,13 +124,13 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search the Province"
+                placeholder="Search the Province..."
                 aria-label="Search"
-                className="header-search h-6 w-full rounded-full border border-[#17b3c6] bg-white pr-9 pl-5 text-[12.5px] leading-none text-[#023e8a] shadow-none placeholder:text-[#9aa8b5] focus-visible:border-[#17b3c6] focus-visible:ring-0 focus-visible:ring-offset-0 sm:h-7"
+                className="header-search h-8 w-full rounded-full border border-[#d5e4ea] bg-[#f7fbff] pr-10 pl-5 text-[13px] leading-none text-[#023e8a] shadow-none placeholder:text-[#9aa8b5] focus-visible:border-[#17b3c6] focus-visible:bg-white focus-visible:ring-0 focus-visible:ring-offset-0 sm:h-9"
               />
               <Search
                 aria-hidden="true"
-                className="pointer-events-none absolute top-1/2 right-3 z-10 size-3.5 -translate-y-1/2 text-[#17b3c6]"
+                className="pointer-events-none absolute top-1/2 right-3.5 z-10 size-4 -translate-y-1/2 text-[#17b3c6]"
                 strokeWidth={1.75}
               />
               {query.trim() ? <SearchResults results={results} onPick={() => setQuery("")} /> : null}
@@ -224,11 +224,11 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
           </div>
         </div>
 
-        {/* Desktop nav pill only — mobile uses the hamburger toggle above */}
+        {/* Desktop nav — teal bar; active = white pill (inverse of light-bar mockup) */}
         <div ref={hangRef} className="pointer-events-auto relative z-50 hidden -mt-7 px-3 sm:px-5 lg:block">
           <div
             ref={pillRef}
-            className="header-nav-pill mx-auto flex w-full max-w-7xl items-center gap-3 rounded-full bg-[#17b3c6] py-1.5 pr-1.5 pl-3 sm:gap-4 sm:py-2 sm:pr-2 sm:pl-4"
+            className="header-nav-pill mx-auto flex w-full max-w-7xl items-center gap-2 rounded-full border border-[#0e98ac]/40 bg-gradient-to-b from-[#17b3c6] to-[#0e98ac] py-1.5 pr-1.5 pl-2.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_28px_-16px_rgb(2_62_138/0.45)] backdrop-blur-xl sm:gap-3 sm:py-2 sm:pr-2 sm:pl-3"
           >
             <nav ref={navRef} aria-label="Main" className="min-w-0 flex-1">
               <ul className="flex flex-nowrap items-center justify-start gap-0.5 sm:gap-1">
@@ -261,21 +261,21 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
                         className={cn(
                           "inline-flex h-9 items-center whitespace-nowrap rounded-full px-2.5 text-[11px] font-semibold tracking-wide transition xl:px-3 xl:text-xs",
                           active
-                            ? "bg-white text-[#0a5062] shadow-[0_1px_6px_rgba(10,80,98,0.18)]"
-                            : "text-white/95 hover:bg-white/20 hover:text-white"
+                            ? "bg-white text-[#0e98ac] shadow-[0_8px_18px_-10px_rgba(2,62,138,0.35)]"
+                            : "text-white hover:bg-white/15"
                         )}
                       >
                         {item.label}
                       </Link>
                       {open ? (
                         <div className={cn("absolute top-full z-50 pt-2", alignRight ? "right-0" : "left-0")}>
-                          <div className="menu-drop max-h-80 w-56 overflow-y-auto rounded-2xl border border-white/70 bg-white/95 py-1 text-[#123944] shadow-[0_16px_40px_rgba(8,47,61,0.16)] backdrop-blur-xl">
+                          <div className="menu-drop max-h-80 w-56 overflow-y-auto rounded-2xl border border-[#cfe9ef]/90 bg-white/95 py-1 text-[#123944] shadow-[0_16px_40px_rgba(8,47,61,0.16)] backdrop-blur-xl">
                             {item.sections.map((section, index) => (
                               <Link
                                 key={section.id}
                                 href={section.href || `${item.href}#${section.id}`}
                                 onClick={() => setOpenHref(null)}
-                                className="menu-row block border-b border-[#edf2f3]/80 px-3.5 py-2.5 text-[13px] font-medium transition last:border-b-0 hover:bg-[#f0f8f8] focus-visible:bg-[#f0f8f8] focus-visible:outline-none"
+                                className="menu-row block border-b border-[#edf2f3]/80 px-3.5 py-2.5 text-[13px] font-medium transition last:border-b-0 hover:bg-[#e7fbff] focus-visible:bg-[#e7fbff] focus-visible:outline-none"
                                 style={{ animationDelay: `${index * 20}ms` }}
                               >
                                 {section.label}

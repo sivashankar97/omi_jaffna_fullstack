@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
     agentUpgrade: "security",
   },
   images: {
+    // Allow local paths with cache-bust query (e.g. /Herosection/Cross_vision.png?v=3).
+    // Default Next pattern is `{ pathname: '**', search: '' }`, which rejects any `?…`.
+    localPatterns: [{ pathname: "/**" }],
     remotePatterns: [
       {
         protocol: "https",

@@ -30,10 +30,18 @@ export async function LibrarySectionPage({ section }: { section: LibrarySectionI
         summary={sectionCopy.pageSummary}
         stats={[{ value: String(items.length), label: items.length === 1 ? "Title" : "Titles" }]}
       />
-      <section className="relative bg-gradient-to-b from-[#f4fbfd] to-white px-4 py-14 text-[#102a43] sm:px-8 sm:py-16">
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-[#eef8fb] via-[#f7fbfd] to-white px-4 py-14 text-[#102a43] sm:px-8 sm:py-16">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(ellipse_at_top,rgba(23,179,198,0.12),transparent_70%)]"
+          className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(ellipse_at_top,rgba(23,179,198,0.16),transparent_70%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-24 left-1/2 size-[28rem] -translate-x-1/2 rounded-full bg-[#ffcf4a]/10 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,transparent,rgba(3,32,43,0.04))]"
         />
         <div className="relative mx-auto max-w-6xl">
           <Link
@@ -49,6 +57,12 @@ export async function LibrarySectionPage({ section }: { section: LibrarySectionI
             emptyLabel={sectionCopy.empty}
             downloadLabel={copy.downloadLabel}
             comingSoonLabel={copy.comingSoonLabel}
+            latestIssueLabel={copy.latestIssueLabel}
+            previousIssuesLabel={copy.previousIssuesLabel}
+            earlierIssuesKicker={copy.earlierIssuesKicker}
+            previousIssuesSummaryPrefix={copy.previousIssuesSummaryPrefix}
+            pdfFormatLabel={copy.pdfFormatLabel}
+            sampleIssueLabel={copy.sampleIssueLabel}
           />
         </div>
       </section>
