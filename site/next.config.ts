@@ -30,20 +30,27 @@ const nextConfig: NextConfig = {
     },
   },
   async rewrites() {
-    // Dev only: on Netlify, /api and /admin are routed by netlify.toml.
-    // CMS is the static build in public/admin (same as production) — no separate Vite port.
-    if (process.env.NETLIFY || process.env.NODE_ENV !== "development") return [];
-    return {
-      beforeFiles: [
-        { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },
-        // SPA entry (assets under /admin/assets are served from public/ as-is).
-        { source: "/admin", destination: "/admin/index.html" },
-        { source: "/demo", destination: "/admin/index.html" },
-        { source: "/demo/:path*", destination: "/admin/index.html" },
-      ],
-      afterFiles: [],
-      fallback: [],
-    };
+    // CMS SPA entry (assets under /admin/assets are static files).
+    const adminSpa = [
+      { source: "/admin", destination: "/admin/index.html" },
+      { source: "/demo", destination: "/admin/index.html" },
+      { source: "/demo/:path*", destination: "/admin/index.html" },
+    ]
+    // Netlify uses netlify.toml for /api and /admin.
+    if (process.env.NETLIFY) return []
+    // Local next dev: proxy API to Express.
+    if (process.env.NODE_ENV === "development") {
+      return {
+        beforeFiles: [
+          { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },
+          ...adminSpa,
+        ],
+        afterFiles: [],
+        fallback: [],
+      }
+    }
+    // VPS / Node production: nginx proxies /api; Next still must map /admin → index.html.
+    return { beforeFiles: adminSpa, afterFiles: [], fallback: [] }
   },
 };
 

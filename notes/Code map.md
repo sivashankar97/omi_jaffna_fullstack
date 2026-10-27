@@ -46,6 +46,7 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 
 ## Shared site pieces
 - Header / menu: `site/src/components/layout/site-header.tsx` — white logos + search; desktop teal nav pill (white links, white active + Register) hangs ~half into the hero; below `lg` pill hides and hamburger Sheet; hero video + dark wash in `hero-section.tsx`
+- Route loading skeleton (instant on nav): `app/loading.tsx` → `components/layout/page-loading.tsx`
   - Spacer `.site-header-shell` = white strip only (no nest pad when mobile pill is hidden)
 - Footer: `site/src/components/layout/site-footer.tsx` — layered teal wave; Explore / Resources / Contact / Stay connected glass box (white email + teal send); social + X; Privacy/Terms/Cookies; brand `#17b3c6`
 - Site name, contact details: `site/src/config/site.ts`
@@ -106,7 +107,7 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 - Local server start: `api/src/index.js`; Netlify function: `api/netlify/functions/api.mjs`
 
 ## Deploy and config
-- **Hostinger VPS (primary):** `deploy/vps/` (compose + nginx + `Dockerfile.site`); scripts `vps:deploy`, `vps:up`, `db:tunnel` in root `package.json`. Shared DB via SSH tunnel — see [[Project overview]].
+- **Hostinger VPS (primary):** `deploy/vps/` (compose + nginx + `Dockerfile.site`); auto-deploy `.github/workflows/deploy-vps.yml` on push to `main`; scripts `vps:deploy`, `vps:up`, `db:tunnel` in root `package.json`. Shared DB via SSH tunnel — see [[Project overview]].
 - Legacy Netlify: `netlify.toml`; deploy from `site/` if still used.
 - Next.js config (`output: "standalone"` for VPS image; local `/api` → API; `/admin` CMS): `site/next.config.ts`
 - Local dev starter: `scripts/dev.mjs`

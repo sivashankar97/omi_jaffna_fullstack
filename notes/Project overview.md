@@ -4,8 +4,9 @@ tags: [project, overview]
 # OMI Jaffna website
 
 GitHub: https://github.com/sivashankar97/omi_jaffna_fullstack (branch `main`)
-Live (legacy Netlify): https://omi-jaffna-province.netlify.app  
-**Production:** Hostinger VPS KVM 2 — Docker stack in `deploy/vps/` (Postgres + API + Next + nginx). Works on **public IP** until you add a domain.
+Live VPS: http://179.197.250.19 · CMS: http://179.197.250.19/admin  
+(Legacy Netlify: https://omi-jaffna-province.netlify.app)  
+Stack: `deploy/vps/` Docker (Postgres + API + Next + nginx). Login secrets: local `VPS-LOGIN.txt` (not in git).
 
 For which file to change, see [[Code map]]. Open tasks: [[Todo]].
 
@@ -17,24 +18,29 @@ For which file to change, see [[Code map]]. Open tasks: [[Todo]].
 - **Files** – `MEDIA_STORE=postgres` on VPS so media lives in the shared DB.
 
 ## Run locally (shared VPS database)
-1. Keep tunnel open: `npm run db:tunnel -- user@VPS_IP`
-2. Point local API at the tunnel: copy `api/.env.shared.example` → `api/.env` (same DB password + JWT as VPS)
+1. Keep tunnel open: `npm run db:tunnel -- omi-vps` (SSH Host in `~/.ssh/config`; key `~/.ssh/omi_vps`)
+2. Point local API at the tunnel: `api/.env` with `DATABASE_URL=...@127.0.0.1:5433/...` + same DB password + JWT as `deploy/vps/.env`
 3. `npm run dev` → http://localhost:5173 · CMS `/admin`
 4. After CMS UI code changes: `npm run cms:build`
 
 ## Hostinger VPS deploy
-Stack: `deploy/vps/docker-compose.yml` + `nginx.conf` + `Dockerfile.site`.
+Stack: `deploy/vps/docker-compose.yml` + `nginx.conf` + `Dockerfile.site`.  
+**Code** deploys via GitHub Actions on push to `main` (workflow `.github/workflows/deploy-vps.yml`). CMS **content** is already on the shared VPS DB — no deploy for content edits. Nav clicks show an instant page skeleton (`app/loading.tsx`) while CMS data loads.
+
+**One-time GitHub secrets** (repo → Settings → Secrets and variables → Actions)
+- `VPS_SSH_KEY` — private key (`~/.ssh/omi_vps`)
+- `VPS_HOST` — `root@179.197.250.19`
+- `VPS_PATH` — `/root/omi-jaffna-cms`
+
+**Day to day (any Mac)**  
+`git push origin main` → Actions rsync + `vps-up.sh` → live at http://179.197.250.19. Manual re-run: Actions → Deploy VPS → Run workflow. Fallback: `npm run vps:deploy -- omi-vps`.
 
 **First time on the VPS**
 1. Install Docker (or run `scripts/vps-bootstrap.sh` on the server after clone)
 2. Create `deploy/vps/.env` from `.env.example` — set `POSTGRES_PASSWORD`, `JWT_SECRET`, `FRONTEND_ORIGIN=http://YOUR_PUBLIC_IP`, `COOKIE_SECURE=false` (until HTTPS)
-3. From your Mac: `npm run vps:deploy -- user@VPS_IP`
-4. Open `http://YOUR_PUBLIC_IP` and `http://YOUR_PUBLIC_IP/admin`
+3. Add the three GitHub secrets above, then push to `main` (or run `npm run vps:deploy -- omi-vps` once)
 
-**Later publishes (any Mac)**  
-`npm run vps:deploy -- user@VPS_IP` → rsync + rebuild + migrate.
-
-Postgres is **not** public; only `127.0.0.1:5432` on the VPS. Macs use `npm run db:tunnel`.
+Postgres is **not** public; only `127.0.0.1:5432` on the VPS. Macs use `npm run db:tunnel -- omi-vps`.
 
 ## Deploy to Netlify (legacy)
 Run from `site/`, not the repo root:

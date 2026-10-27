@@ -24,3 +24,4 @@ notes/.obsidian-mcp/
 .vercel
 .tmp/
 VPS-LOGIN.txt
+api/.env.shared

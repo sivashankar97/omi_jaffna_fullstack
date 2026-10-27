@@ -1,0 +1,65 @@
+# Auto-deploy to Hostinger VPS on every push to main.
+# Secrets (repo → Settings → Secrets → Actions):
+#   VPS_SSH_KEY  – private key (same as ~/.ssh/omi_vps)
+#   VPS_HOST     – e.g. root@179.197.250.19
+#   VPS_PATH     – e.g. /root/omi-jaffna-cms
+name: Deploy VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$(echo "${{ secrets.VPS_HOST }}" | sed 's/.*@//')" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Rsync to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+        run: |
+          set -euo pipefail
+          : "${VPS_HOST:?VPS_HOST secret missing}"
+          : "${VPS_PATH:?VPS_PATH secret missing}"
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes" \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            --exclude '**/node_modules' \
+            --exclude 'site/.next' \
+            --exclude 'api/uploads' \
+            --exclude 'api/.env' \
+            --exclude 'LOCAL-LOGIN.txt' \
+            --exclude 'VPS-LOGIN.txt' \
+            --exclude 'deploy/vps/.env' \
+            --exclude 'notes/.obsidian' \
+            --exclude '.DS_Store' \
+            ./ "${VPS_HOST}:${VPS_PATH}/"
+
+      - name: Build and restart stack
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes "$VPS_HOST" \
+            "cd '$VPS_PATH' && bash scripts/vps-up.sh"
