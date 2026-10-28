@@ -514,20 +514,21 @@ app.get('/api/users',auth,allow('admin'),asyncRoute(async(req,res)=>{
  }
  res.json({items:r.rows});
 }));
-const allowedMime={'image/jpeg':'.jpg','image/png':'.png','image/webp':'.webp','application/pdf':'.pdf','video/mp4':'.mp4'};
+const allowedMime={'image/jpeg':'.jpg','image/png':'.png','image/webp':'.webp','application/pdf':'.pdf','video/mp4':'.mp4','audio/mpeg':'.mp3','audio/mp4':'.m4a','audio/x-m4a':'.m4a'};
 const imageOrPdfMime=new Set(['image/jpeg','image/png','image/webp','application/pdf']);
-const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:40*1024*1024},fileFilter:(_req,file,cb)=>allowedMime[file.mimetype]?cb(null,true):cb(new Error('Only JPEG, PNG, WebP, PDF or MP4 allowed'))});
+const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:40*1024*1024},fileFilter:(_req,file,cb)=>allowedMime[file.mimetype]?cb(null,true):cb(new Error('Only JPEG, PNG, WebP, PDF, MP4, MP3 or M4A allowed'))});
 const signatureOK=(buf,mime)=>{
  if(mime==='image/jpeg')return buf[0]===255&&buf[1]===216&&buf[2]===255;
  if(mime==='image/png')return buf.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]));
  if(mime==='image/webp')return buf.toString('ascii',0,4)==='RIFF'&&buf.toString('ascii',8,12)==='WEBP';
  if(mime==='application/pdf')return buf.toString('ascii',0,5)==='%PDF-';
- if(mime==='video/mp4')return buf.length>=8&&buf.toString('ascii',4,8)==='ftyp';
+ if(mime==='video/mp4'||mime==='audio/mp4'||mime==='audio/x-m4a')return buf.length>=8&&buf.toString('ascii',4,8)==='ftyp';
+ if(mime==='audio/mpeg')return buf.toString('ascii',0,3)==='ID3'||(buf[0]===255&&(buf[1]&224)===224);
  return false;
 };
 const enforceUploadSize=(file)=>{
  if(imageOrPdfMime.has(file.mimetype)&&file.size>12*1024*1024){const err=new Error('Images and PDFs must be 12 MB or smaller');err.status=400;throw err;}
- if(file.mimetype==='video/mp4'&&file.size>40*1024*1024){const err=new Error('MP4 videos must be 40 MB or smaller');err.status=400;throw err;}
+ if(!imageOrPdfMime.has(file.mimetype)&&file.size>40*1024*1024){const err=new Error('Video and audio files must be 40 MB or smaller');err.status=400;throw err;}
 };
 app.post('/api/assets',auth,allow('admin','editor','publisher'),upload.single('file'),asyncRoute(async(req,res)=>{
  if(!req.file)return bad(res,'File required');
@@ -588,6 +589,16 @@ app.get('/api/files/:id',asyncRoute(async(req,res)=>{
   res.set('Cross-Origin-Resource-Policy','cross-origin');
   res.set('X-Content-Type-Options','nosniff');
   if((type||a.mime_type)==='application/pdf')res.set('Content-Disposition',`attachment; filename="publication.pdf"`);
+  res.set('Accept-Ranges','bytes');
+  const range=/^bytes=(\d*)-(\d*)$/.exec(req.headers.range||'');
+  if(range&&(range[1]||range[2])){
+   const size=buf.length;
+   let start=range[1]?Number(range[1]):Math.max(0,size-Number(range[2]));
+   let end=range[1]&&range[2]?Math.min(Number(range[2]),size-1):size-1;
+   if(start>=size||start>end){res.set('Content-Range',`bytes */${size}`);return res.status(416).end();}
+   res.status(206).set('Content-Range',`bytes ${start}-${end}/${size}`);
+   return res.send(buf.subarray(start,end+1));
+  }
   res.send(buf);
  };
  let file;

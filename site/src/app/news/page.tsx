@@ -11,8 +11,9 @@ import {
   NewsSecondary,
 } from "@/components/sections/news/news-card"
 import { NewsTicker } from "@/components/sections/news/news-ticker"
+import { OmiCeremonies } from "@/components/sections/news/omi-ceremonies"
 import { newsSections } from "@/content/news"
-import { getNews, getSiteInfo } from "@/lib/cms"
+import { getBlock, getNews, getSiteInfo } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "News",
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
 }
 
 export default async function NewsPage() {
-  const [newsArticles, site] = await Promise.all([getNews(), getSiteInfo()])
+  const [newsArticles, site, newsPage] = await Promise.all([getNews(), getSiteInfo(), getBlock("news-page")])
   const follow = [
     { label: "Facebook", href: site.social.facebook },
     { label: "Instagram", href: site.social.instagram },
@@ -143,6 +144,8 @@ export default async function NewsPage() {
         </section>
       ) : null}
 
+      <OmiCeremonies copy={newsPage.ceremonies} />
+
       {/* Section chips */}
       <nav aria-label="News sections" className="sticky top-[4.5rem] z-20 border-y border-[#d5e8ef] bg-white/90 backdrop-blur-xl lg:top-[5.5rem]">
         <ul className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-3 sm:px-8">
@@ -160,6 +163,14 @@ export default async function NewsPage() {
               </li>
             )
           })}
+          <li className="shrink-0">
+            <a
+              href="#omi-ceremonies"
+              className="inline-flex items-center gap-2 rounded-full bg-[#fff6d6] px-4 py-2 text-sm font-semibold text-[#7a5600] ring-1 ring-[#f4e2a1] transition hover:bg-[#ffcf4a] hover:text-[#03202b]"
+            >
+              {newsPage.ceremonies.title}
+            </a>
+          </li>
         </ul>
       </nav>
 

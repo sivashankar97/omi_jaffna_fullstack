@@ -1,8 +1,9 @@
+import Image from "next/image"
 import Link from "next/link"
-import { ArrowUpRight } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 
 import { MotionItem, MotionReveal, MotionStagger } from "@/components/motion/motion-reveal"
-import { cn } from "cn"
+import { isUpload } from "@/content/site-info"
 
 export type WelcomeCard = {
   badge: string
@@ -17,58 +18,101 @@ type WelcomeSceneProps = {
   badge: string
   eyebrow?: string
   title: string
-  highlight?: string
   lede: string
+  image: string
   cards: WelcomeCard[]
 }
 
-function TitleWithHighlight({ title, highlight }: { title: string; highlight?: string }) {
-  if (!highlight) return <>{title}</>
-  const needle = highlight.trim()
-  const index = title.toLowerCase().indexOf(needle.toLowerCase())
-  if (index < 0) return <>{title}</>
-  const before = title.slice(0, index)
-  const mark = title.slice(index, index + needle.length)
-  const after = title.slice(index + needle.length)
-  return (
-    <>
-      {before}
-      <span className="bg-gradient-to-r from-[#17b3c6] via-[#0e98ac] to-[#ffcf4a] bg-clip-text text-transparent">
-        {mark}
-      </span>
-      {after}
-    </>
-  )
+/** Prefer the designed church scene when CMS still points at an old logo/upload. */
+function welcomeHeroSrc(image: string) {
+  const src = (image || "").trim()
+  if (!src) return "/Herosection/welcome-church-sunset.jpg"
+  if (/supabase\.co/i.test(src)) return "/Herosection/welcome-church-sunset.jpg"
+  if (/welcome\.jpeg$/i.test(src)) return "/Herosection/welcome-church-sunset.jpg"
+  return src
 }
 
-export function WelcomeScene({ badge, eyebrow, title, highlight, lede, cards }: WelcomeSceneProps) {
+export function WelcomeScene({ badge, eyebrow, title, lede, image, cards }: WelcomeSceneProps) {
   const items = cards.slice(0, 3)
+  const exploreHref = items[0]?.href ?? "/charism"
+  const heroSrc = welcomeHeroSrc(image)
 
   return (
     <div className="relative mx-auto max-w-6xl">
-      <div className="grid items-stretch gap-5 lg:grid-cols-[0.95fr_1.05fr] lg:gap-6">
+      <div className="grid items-stretch gap-5 lg:grid-cols-[1.12fr_0.88fr] lg:gap-6">
         <MotionReveal from="left" className="min-h-0">
-          <div className="media-bento-card media-bento-shine calendar-glass-deep relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-8">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex rounded-full bg-[#ffcf4a] px-3 py-1 text-[10px] font-bold tracking-[0.22em] text-[#03202b] uppercase">
+          <article className="welcome-hero-card relative flex h-full min-h-[26rem] flex-col overflow-hidden rounded-[1.75rem] shadow-[0_28px_60px_-36px_rgba(3,32,43,0.55)] sm:min-h-[30rem] lg:min-h-full">
+            <Image
+              src={heroSrc}
+              alt=""
+              fill
+              priority
+              sizes="(max-width:1024px) 100vw, 55vw"
+              className="object-cover object-[82%_52%]"
+              unoptimized
+            />
+
+            {/* Reference overlay: teal from top-left; church + golden sky stay clear on the right */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-[linear-gradient(112deg,rgba(2,42,54,0.88)_0%,rgba(3,58,72,0.7)_24%,rgba(5,78,94,0.32)_46%,rgba(5,78,94,0.08)_60%,transparent_74%)]"
+            />
+
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -top-20 -left-16 size-[22rem] rounded-full bg-[#17b3c6]/22 blur-3xl"
+            />
+
+            {/* Faint cross watermark on the photo side (reference) */}
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 80 120"
+              className="pointer-events-none absolute top-[46%] right-[8%] h-[64%] w-auto -translate-y-1/2 text-white/[0.15]"
+            >
+              <path fill="currentColor" d="M34 8h12v28h22v12H46v64H34V48H12V36h22V8z" />
+            </svg>
+
+            <div className="relative z-10 flex h-full flex-col p-6 sm:p-8 lg:p-9">
+              <span className="inline-flex w-fit rounded-full bg-[#ffcf4a] px-3.5 py-1.5 text-[11px] font-bold tracking-[0.2em] text-[#03202b] uppercase">
                 {badge}
               </span>
+
               {eyebrow ? (
-                <p className="text-xs font-semibold tracking-[0.18em] text-[#7fe3ef] uppercase">{eyebrow}</p>
+                <p
+                  className="mt-7 flex items-center gap-3 text-[11px] font-semibold tracking-[0.22em] uppercase sm:text-xs"
+                  style={{ color: "#7fe3ef" }}
+                >
+                  <span aria-hidden="true" className="h-px w-8 shrink-0 bg-[#ffcf4a] sm:w-10" />
+                  {eyebrow}
+                </p>
               ) : null}
+
+              {/* Inline color beats [data-page-theme] h2 { color: var(--pt-ink) } */}
+              <h2
+                className="mt-4 max-w-lg font-heading text-3xl leading-[1.12] font-semibold sm:text-4xl lg:text-[2.55rem]"
+                style={{ color: "#ffffff" }}
+              >
+                {title}
+              </h2>
+
+              <p
+                className="mt-4 max-w-md flex-1 text-sm leading-7 sm:text-[0.95rem] sm:leading-8"
+                style={{ color: "rgba(255,255,255,0.9)" }}
+              >
+                {lede}
+              </p>
+
+              <Link
+                href={exploreHref}
+                className="group mt-8 inline-flex items-center gap-3 self-start rounded-full bg-gradient-to-r from-[#17b3c6] to-[#0e98ac] py-2 pr-2 pl-5 text-sm font-bold text-white shadow-[0_12px_28px_-12px_rgba(14,152,172,0.85)] transition hover:brightness-105"
+              >
+                Begin exploring
+                <span className="grid size-9 place-items-center rounded-full bg-white text-[#0e98ac] transition group-hover:translate-x-0.5">
+                  <ArrowRight className="size-4" strokeWidth={2.5} />
+                </span>
+              </Link>
             </div>
-            <h2 className="mt-6 font-heading text-3xl leading-tight font-semibold text-white sm:text-4xl lg:text-[2.65rem]">
-              <TitleWithHighlight title={title} highlight={highlight} />
-            </h2>
-            <p className="mt-4 max-w-md flex-1 text-sm leading-7 text-white/75 sm:text-base">{lede}</p>
-            <Link
-              href={items[0]?.href ?? "/charism"}
-              className="mt-8 inline-flex items-center gap-2 self-start rounded-full bg-white/10 px-5 py-2.5 text-sm font-bold text-white ring-1 ring-white/25 transition hover:bg-white/15"
-            >
-              Begin exploring
-              <ArrowUpRight className="size-4 transition group-hover:rotate-45" />
-            </Link>
-          </div>
+          </article>
         </MotionReveal>
 
         <MotionStagger as="ul" stagger={0.1} className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 lg:gap-5">
@@ -76,37 +120,33 @@ export function WelcomeScene({ badge, eyebrow, title, highlight, lede, cards }: 
             <MotionItem key={card.badge + card.href} as="li" className="h-full">
               <Link
                 href={card.href}
-                className="group media-bento-card media-bento-shine calendar-glass relative flex h-full min-h-[9.5rem] overflow-hidden rounded-[1.75rem] sm:min-h-0 sm:flex-col lg:min-h-[8.75rem] lg:flex-row"
+                className="group relative flex h-full min-h-[7.5rem] items-stretch gap-3.5 overflow-hidden rounded-[1.5rem] bg-white p-3.5 shadow-[0_16px_40px_-28px_rgba(10,60,80,0.35)] ring-1 ring-[#d7eef4] transition hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-28px_rgba(10,60,80,0.42)] sm:min-h-0 sm:flex-col sm:gap-3 lg:min-h-[8.25rem] lg:flex-row lg:gap-4 lg:p-4"
               >
-                <span className="relative block w-[42%] shrink-0 overflow-hidden sm:aspect-[16/10] sm:w-full lg:aspect-auto lg:w-[11.5rem] lg:self-stretch">
-                  <img
+                <span className="relative block w-[38%] shrink-0 overflow-hidden rounded-[1.1rem] sm:aspect-[16/10] sm:w-full lg:aspect-auto lg:w-[9.75rem] lg:self-stretch">
+                  <Image
                     src={card.image}
                     alt=""
-                    className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105"
+                    fill
+                    sizes="(max-width:1024px) 40vw, 160px"
+                    className="object-cover transition duration-700 group-hover:scale-105"
+                    unoptimized={isUpload(card.image)}
                   />
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent to-white/10 lg:bg-gradient-to-t lg:from-[#03202b]/20 lg:to-transparent" />
                 </span>
-                <span className="relative flex min-w-0 flex-1 flex-col justify-center px-4 py-3.5 sm:px-5 sm:py-4">
-                  <span
-                    className={cn(
-                      "inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[10px] font-bold tracking-[0.18em] uppercase",
-                      card.tone === "gold"
-                        ? "bg-[#fff6d9] text-[#9a6b00]"
-                        : "bg-[#e7fbff] text-[#0e98ac]"
-                    )}
-                  >
+
+                <span className="relative flex min-w-0 flex-1 flex-col justify-center py-1 pr-12 sm:pr-2 lg:pr-14">
+                  <span className="text-[10px] font-bold tracking-[0.2em] text-[#0e98ac] uppercase">
                     {card.badge}
                   </span>
-                  <span className="mt-2 line-clamp-3 font-heading text-base leading-snug font-semibold text-[#023e8a] sm:text-lg">
+                  <span className="mt-1.5 line-clamp-3 font-heading text-[0.95rem] leading-snug font-semibold text-[#023e8a] sm:text-base">
                     {card.title}
                   </span>
-                  <span className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[#0e98ac] transition group-hover:gap-2 group-hover:text-[#023e8a]">
-                    Open
-                    <ArrowUpRight className="size-3.5 transition group-hover:rotate-45" />
-                  </span>
                 </span>
-                <span className="absolute top-3 right-3 grid size-8 place-items-center rounded-full bg-[#e7fbff] text-[#023e8a] ring-1 ring-[#cfeef4] transition group-hover:rotate-45">
-                  <ArrowUpRight className="size-3.5" />
+
+                <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-2 text-xs font-semibold text-[#5c6b7a]">
+                  <span className="hidden sm:inline">Open</span>
+                  <span className="grid size-8 place-items-center rounded-full bg-[#17b3c6] text-white shadow-[0_8px_18px_-10px_rgba(14,152,172,0.9)] transition group-hover:translate-x-0.5">
+                    <ArrowRight className="size-3.5" strokeWidth={2.5} />
+                  </span>
                 </span>
               </Link>
             </MotionItem>

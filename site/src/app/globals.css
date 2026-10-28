@@ -317,15 +317,6 @@
   opacity: 0;
 }
 
-.text-motion {
-  animation: text-bloom 0.15s ease-out both;
-  animation-play-state: paused;
-}
-
-.text-motion-title {
-  animation-name: title-sweep;
-}
-
 .animate-card-in {
   animation: card-in 0.16s ease-out both;
 }
@@ -1351,7 +1342,6 @@ html.dark .pillar-item:hover {
   .menu-row,
   .page-stage,
   .page-curtain,
-  .text-motion,
   .animate-card-in,
   .slide-ken,
   .media-panel,

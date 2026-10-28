@@ -4,7 +4,8 @@ tags: [project, overview]
 # OMI Jaffna website
 
 GitHub: https://github.com/sivashankar97/omi_jaffna_fullstack (branch `main`)
-Live VPS: http://179.197.250.19 · CMS: http://179.197.250.19/admin  
+Live: https://omijaffna.com · CMS: https://omijaffna.com/admin · IP: http://179.197.250.19  
+TLS: Let’s Encrypt on VPS (`deploy/vps/nginx.conf`); `FRONTEND_ORIGIN=https://omijaffna.com`, `COOKIE_SECURE=true`.  
 (Legacy Netlify: https://omi-jaffna-province.netlify.app)  
 Stack: `deploy/vps/` Docker (Postgres + API + Next + nginx). Login secrets: local `VPS-LOGIN.txt` (not in git).
 
@@ -48,7 +49,7 @@ Takes about 3–10 minutes (longer when large files like the hero video change).
 
 The CLI builds on this Mac, so `NETLIFY` is not set during the build. Local-only rewrites in `site/next.config.ts` (mainly `/api` → :4000) apply in `next dev` only; on Netlify, `netlify.toml` routes `/api` and `/admin`.
 
-CMS uploads go to **Supabase Storage** bucket `media` (private). Local and Netlify share the same bucket via `MEDIA_STORE=supabase`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY` (server-only; set in `api/.env` and Netlify env). The site still loads files through `/api/files/{id}` (API streams from Storage). Allowed: JPEG/PNG/WebP/PDF ≤12 MB, MP4 ≤40 MB. Migrate existing Blobs files once with `cd api && npm run migrate:media` (pulls from the live site into Supabase).
+CMS uploads go to **Supabase Storage** bucket `media` (private). Local and Netlify share the same bucket via `MEDIA_STORE=supabase`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY` (server-only; set in `api/.env` and Netlify env). The site still loads files through `/api/files/{id}` (API streams from Storage). Allowed: JPEG/PNG/WebP/PDF ≤12 MB, MP4 / MP3 / M4A ≤40 MB (`/api/files` supports byte ranges for seeking). Migrate existing Blobs files once with `cd api && npm run migrate:media` (pulls from the live site into Supabase).
 
 Oblate priest studio portraits: stage in `site/public/priests/portraits/`, then `cd api && npm run seed:priest-portraits` → Storage + `priest.image_url` = `/api/files/{id}`. Convert JPGs first with `python3 api/scripts/convert-priest-portraits.py` if needed.
 

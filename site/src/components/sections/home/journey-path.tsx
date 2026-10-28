@@ -6,7 +6,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import type { JourneyEra } from "@/content/journey"
 import { cn } from "cn"
 
-const INTERVAL = 3800
+/** Full auto timeline — keeps stepping through every stop in a loop. */
+const INTERVAL = 3200
 
 export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[] }) {
   const { stops, eraStart } = useMemo(() => {
@@ -14,7 +15,6 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
     return { stops, eraStart: journeyEras.map((era) => stops.findIndex((stop) => stop.era === era)) }
   }, [journeyEras])
   const [active, setActive] = useState(0)
-  const [hovered, setHovered] = useState(false)
   const [playing, setPlaying] = useState(true)
   const [offset, setOffset] = useState(0)
   const viewportRef = useRef<HTMLDivElement>(null)
@@ -22,12 +22,17 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
 
   const current = stops[active]
 
+  // Continuous auto-move (does not pause on hover — only via Play/Pause or reduced-motion).
   useEffect(() => {
-    if (!playing || hovered) return
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    const id = window.setTimeout(() => setActive((index) => (index + 1) % stops.length), INTERVAL)
-    return () => window.clearTimeout(id)
-  }, [active, playing, hovered, stops.length])
+    if (!playing || stops.length < 2) return
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return
+    }
+    const id = window.setInterval(() => {
+      setActive((index) => (index + 1) % stops.length)
+    }, INTERVAL)
+    return () => window.clearInterval(id)
+  }, [playing, stops.length])
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -48,12 +53,7 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
   if (!current) return null
 
   return (
-    <section
-      id="journey"
-      className="journey-stage relative scroll-mt-80 overflow-hidden px-4 py-20 text-white sm:px-8"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <section id="journey" className="journey-stage relative scroll-mt-80 overflow-hidden px-4 py-20 text-white sm:px-8">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-40 -bottom-40 size-[36rem] rounded-full bg-[#17b3c6]/12 blur-[130px]"
@@ -100,7 +100,7 @@ export function JourneyPath({ eras: journeyEras }: { eras: readonly JourneyEra[]
         />
         <ol
           ref={trackRef}
-          className="relative flex transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          className="relative flex transition-transform duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
           style={{ transform: `translate3d(${-offset}px, 0, 0)` }}
         >
           {stops.map((stop, index) => {

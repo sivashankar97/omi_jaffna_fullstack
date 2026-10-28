@@ -98,8 +98,6 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
       description: "Who we are, the brief history, journey and development of the Province",
       sections: [
         { label: "Who we are", id: "who-we-are" },
-        { label: "Missionary family", id: "missionary-family" },
-        { label: "Core commitments", id: "core-commitments" },
         { label: "Brief history", id: "brief-history" },
         { label: "The journey", id: "journey" },
         { label: "Bishops", id: "bishops" },
@@ -113,6 +111,8 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
       description: "Evangelizing the poor, mission, vision and our story since 1847",
       sections: [
         { label: "Charism", id: "charism" },
+        { label: "Missionary family", id: "missionary-family" },
+        { label: "Core commitments", id: "core-commitments" },
         { label: "Mission with the poor", id: "identity" },
         { label: "Charism priorities", id: "priorities" },
         { label: "How we live it", id: "how-we-live" },

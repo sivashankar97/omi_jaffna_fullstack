@@ -100,9 +100,7 @@ export default async function MediaPage() {
         ministries={ministries}
         quote={hero.quote}
         lede={hero.lede}
-        photos={photos.gallery}
-        videoImage={photos.videoImage}
-        desksCopy={photos.desks}
+        content={photos}
       />
       <MediaPublications publications={publications} copy={photos.publications} />
     </>

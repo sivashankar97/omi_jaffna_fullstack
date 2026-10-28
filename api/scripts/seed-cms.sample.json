@@ -102,6 +102,99 @@
       "slug": "journey",
       "title_en": "Our journey timeline",
       "sections": {}
+    },
+    {
+      "slug": "news-page",
+      "title_en": "OMI ceremonies calendar",
+      "sections": {
+        "ceremonies": {
+          "kicker": "General event dates",
+          "title": "OMI ceremonies",
+          "summary": "Feasts, foundations and remembrances the Oblate family keeps every year. Pick a month or a date to see the ceremony.",
+          "items": [
+            {
+              "month": 1,
+              "day": 25,
+              "title": "Foundation of the Congregation",
+              "since": "1816",
+              "category": "Liturgical Feasts & Foundations",
+              "description": ""
+            },
+            {
+              "month": 2,
+              "day": 17,
+              "title": "Papal Approval of the OMI Constitutions and Rules by Pope Leo XII",
+              "since": "1826",
+              "category": "Liturgical Feasts & Foundations",
+              "description": ""
+            },
+            {
+              "month": 5,
+              "day": 21,
+              "title": "Feast of St. Eugene de Mazenod",
+              "since": "",
+              "category": "Liturgical Feasts & Foundations",
+              "description": "Founder of the OMI."
+            },
+            {
+              "month": 12,
+              "day": 8,
+              "title": "Feast of the Immaculate Conception",
+              "since": "",
+              "category": "Liturgical Feasts & Foundations",
+              "description": "Principal Patroness of the Congregation."
+            },
+            {
+              "month": 5,
+              "day": 29,
+              "title": "Feast of Blessed Joseph Gérard",
+              "since": "",
+              "category": "Oblate Saints, Blesseds & Martyrs",
+              "description": "Apostle of Lesotho."
+            },
+            {
+              "month": 6,
+              "day": 12,
+              "title": "Feast of Blessed Józef Cebula",
+              "since": "",
+              "category": "Oblate Saints, Blesseds & Martyrs",
+              "description": "Martyr of World War II."
+            },
+            {
+              "month": 9,
+              "day": 4,
+              "title": "Feast of the Blessed Martyrs of Laos",
+              "since": "",
+              "category": "Oblate Saints, Blesseds & Martyrs",
+              "description": "Including the OMI martyrs."
+            },
+            {
+              "month": 11,
+              "day": 28,
+              "title": "Feast of the Blessed Martyrs of Spain",
+              "since": "",
+              "category": "Oblate Saints, Blesseds & Martyrs",
+              "description": "The Oblate Martyrs of Pozuelo."
+            },
+            {
+              "month": 11,
+              "day": 3,
+              "title": "Annual Requiem Mass for all deceased Oblates",
+              "since": "",
+              "category": "Remembrances & Regional Dates",
+              "description": ""
+            },
+            {
+              "month": 11,
+              "day": 10,
+              "title": "Anniversary of Fr. Michael Rodrigo, OMI",
+              "since": "",
+              "category": "Remembrances & Regional Dates",
+              "description": "Sri Lankan Oblate Martyr."
+            }
+          ]
+        }
+      }
     }
   ],
   "items": [

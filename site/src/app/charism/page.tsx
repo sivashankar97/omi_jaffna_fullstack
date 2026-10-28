@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Image from "next/image"
-import { ChevronRight, HandHeart, Heart, Users } from "lucide-react"
+import { ChevronRight, Church, Globe, HandHeart, Heart, HeartHandshake, Users } from "lucide-react"
 
 import { MotionHero, MotionReveal } from "@/components/motion/motion-reveal"
 import { CharismVow } from "@/components/sections/charism/charism-vow"
@@ -9,6 +9,8 @@ import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { SectionHeading } from "@/components/sections/section-heading"
 import { isUpload } from "@/content/site-info"
 import { getBlock, getCharismContent } from "@/lib/cms"
+
+const commitmentIcons = [Church, HeartHandshake, Globe]
 
 export const metadata: Metadata = {
   title: "Charism",
@@ -38,7 +40,13 @@ function highlightSince(heading: string) {
 
 export default async function CharismPage() {
   const [content, sections] = await Promise.all([getCharismContent(), getBlock("charism")])
-  const { hero: charismHero, identity: charismIdentity, priorities: charismPriorities } = sections
+  const {
+    hero: charismHero,
+    missionaryFamily,
+    coreCommitments,
+    identity: charismIdentity,
+    priorities: charismPriorities,
+  } = sections
   const heroTitle = splitHeroTitle(charismHero.title)
   const identityTitle = splitIdentityTitle(charismIdentity.title)
   const aboutTitle = highlightSince(content.aboutHeading)
@@ -127,6 +135,91 @@ export default async function CharismPage() {
             </div>
           </div>
         </MotionReveal>
+      </section>
+
+      <section id="missionary-family" className="calendar-stage scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
+        <div className="relative mx-auto max-w-6xl">
+          <SectionHeading title={missionaryFamily.title} subtitle={missionaryFamily.subtitle} />
+          <div className="mt-12 grid items-center gap-8 lg:grid-cols-2 lg:gap-10">
+            <MotionReveal
+              from="left"
+              className="media-bento-card media-bento-shine calendar-glass relative overflow-hidden rounded-[1.75rem] p-6 sm:p-8"
+            >
+              <div className="space-y-6">
+                {missionaryFamily.paragraphs.map((paragraph, index) => (
+                  <div key={paragraph} className="flex gap-5">
+                    <span className="mt-1 font-heading text-sm font-bold text-[#17b3c6]">0{index + 1}</span>
+                    <p className="border-l-2 border-[#17b3c6]/35 pl-5 text-lg leading-8 text-[#3d4b59]">{paragraph}</p>
+                  </div>
+                ))}
+              </div>
+            </MotionReveal>
+            <MotionReveal from="right" delay={120} className="relative">
+              <div className="group media-bento-card media-bento-shine calendar-glass relative overflow-hidden rounded-[1.75rem] p-3">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.35rem]">
+                  <Image
+                    src={sections.images.familyImage}
+                    alt={sections.images.familyImageAlt}
+                    unoptimized={isUpload(sections.images.familyImage)}
+                    fill
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    className="object-cover transition duration-[1200ms] ease-out group-hover:scale-105"
+                  />
+                  <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#03202b]/25 to-transparent" />
+                </div>
+              </div>
+            </MotionReveal>
+          </div>
+        </div>
+      </section>
+
+      <section id="core-commitments" className="calendar-stage scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
+        <div className="relative mx-auto max-w-6xl">
+          <SectionHeading
+            kicker={coreCommitments.kicker}
+            title={coreCommitments.title}
+            subtitle={coreCommitments.subtitle}
+          />
+          <div className="mt-12 grid gap-5 md:grid-cols-3 md:gap-6">
+            {coreCommitments.items.map((item, index) => {
+              const Icon = commitmentIcons[index % commitmentIcons.length]
+              const deep = index === 1
+              return (
+                <MotionReveal key={item.title} from="up" delay={index * 120} className="h-full">
+                  <article
+                    className={
+                      deep
+                        ? "group media-bento-card media-bento-shine calendar-glass-deep relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7"
+                        : "group media-bento-card media-bento-shine calendar-glass relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7"
+                    }
+                  >
+                    <span
+                      className={
+                        deep
+                          ? "flex size-14 items-center justify-center rounded-2xl bg-[#ffcf4a] text-[#03202b]"
+                          : "flex size-14 items-center justify-center rounded-2xl bg-[#e7fbff] text-[#0e98ac] ring-1 ring-[#cfeef4]"
+                      }
+                    >
+                      <Icon aria-hidden="true" className="size-7" />
+                    </span>
+                    <h3
+                      className={
+                        deep
+                          ? "mt-6 font-heading text-xl font-semibold text-white sm:text-2xl"
+                          : "mt-6 font-heading text-xl font-semibold text-[#023e8a] sm:text-2xl"
+                      }
+                    >
+                      {item.title}
+                    </h3>
+                    <p className={deep ? "mt-3 flex-1 leading-7 text-white/75" : "mt-3 flex-1 leading-7 text-[#5c6b7a]"}>
+                      {item.text}
+                    </p>
+                  </article>
+                </MotionReveal>
+              )
+            })}
+          </div>
+        </div>
       </section>
 
       <section id="identity" className="calendar-stage scroll-mt-80 px-4 py-14 sm:px-8 sm:py-16">

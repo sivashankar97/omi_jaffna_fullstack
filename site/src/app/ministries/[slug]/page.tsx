@@ -48,19 +48,20 @@ export default async function MinistryPage({ params }: MinistryPageProps) {
   return (
     <>
       <ScrollProgress />
-      <header className="relative isolate overflow-hidden bg-[#03202b] px-4 pt-10 pb-16 text-white sm:px-8 sm:pt-14 sm:pb-24">
+      <header className="relative isolate flex min-h-[30rem] flex-col overflow-hidden bg-[#06394a] px-4 pt-20 pb-8 text-white sm:min-h-[36rem] sm:px-8 sm:pt-24 sm:pb-12">
         {image ? (
           <img
             src={encodeURI(image)}
             alt=""
-            className="history-kenburns absolute inset-0 -z-20 h-full w-full object-cover opacity-60"
+            className="history-kenburns absolute inset-0 -z-20 h-full w-full object-cover"
           />
         ) : null}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#03202b] via-[#03202b]/80 to-[#03202b]/40" />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#03202b]/90 via-[#03202b]/40 to-transparent" />
 
-        <div className="mx-auto max-w-6xl">
-          <nav aria-label="Breadcrumb" className="history-rise flex flex-wrap items-center gap-1.5 text-sm text-white/70">
+        <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col justify-between gap-10">
+          <nav
+            aria-label="Breadcrumb"
+            className="history-rise flex w-fit flex-wrap items-center gap-1.5 rounded-full bg-[#03202b]/55 px-4 py-2 text-sm text-white/80 backdrop-blur-md"
+          >
             <Link href="/" className="transition hover:text-white">
               Home
             </Link>
@@ -72,7 +73,7 @@ export default async function MinistryPage({ params }: MinistryPageProps) {
             <span className="text-white">{ministry.title}</span>
           </nav>
 
-          <div className="mt-16 max-w-3xl sm:mt-24">
+          <div className="max-w-3xl rounded-[1.75rem] bg-[#03202b]/60 p-6 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.6)] ring-1 ring-white/15 backdrop-blur-md sm:p-8">
             <p
               className="history-rise flex flex-wrap items-center gap-3 text-xs font-bold tracking-[0.24em] text-[#ffcf4a] uppercase sm:text-sm"
               style={{ "--rise-delay": "100ms" } as React.CSSProperties}

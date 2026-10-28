@@ -5,6 +5,8 @@ import {
   charismMotto,
   charismPriorities,
   charismVision,
+  coreCommitments,
+  missionaryFamily,
 } from "@/content/charism"
 import { briefHistory, development, whoWeAre } from "@/content/history"
 import { journeyEras } from "@/content/journey"
@@ -19,9 +21,9 @@ export const homeSectionsDefaults = {
   welcome: {
     badge: "Welcome",
     eyebrow: "Oblate Province of Jaffna",
-    title: "Welcome home to mission",
-    highlight: "home",
-    lede: "Presence, charism and ministries across Sri Lanka and abroad — one Oblate family serving the most abandoned.",
+    title: "A missionary family since 1847",
+    image: "/Herosection/welcome-church-sunset.jpg",
+    lede: "From the arrival of the first Oblates to today's houses, parishes and missions — one family serving the most abandoned in Sri Lanka and abroad.",
     cards: [
       {
         badge: "Presence",
@@ -165,8 +167,149 @@ export const mediaPageDefaults = {
   },
   desks: {
     kicker: "Media desks",
-    title: "Seven ways into the same mission",
+    title: "Eight ways into the same mission",
     summary: "Choose a desk. Photographs are from the Province collection, not frames of one event.",
+    tabs: [
+      { panel: "photo-gallery", label: "Photo gallery" },
+      { panel: "video", label: "Video" },
+      { panel: "podcasts", label: "Podcasts" },
+      { panel: "songs", label: "Songs" },
+      { panel: "articles", label: "Articles" },
+      { panel: "interviews", label: "Interviews" },
+      { panel: "homilies-and-reflections", label: "Homilies and reflections" },
+      { panel: "testimonials", label: "Testimonials" },
+    ],
+  },
+  videos: {
+    intro: "",
+    channelTitle: "Oblate Jaffna TV",
+    channelText: "Open the official YouTube channel of the Province.",
+    notes: [
+      { title: "Channel", text: "Oblate Jaffna TV, the official YouTube channel of the Oblate Province of Jaffna." },
+      { title: "On the channel", text: "நற்கருணை ஆராதனை is one programme listed there." },
+      { title: "Write", text: "{email}" },
+    ],
+    items: [
+      {
+        title: "",
+        category: "",
+        url: "",
+        thumbnail: "",
+        description: "",
+        date: "",
+      },
+    ],
+  },
+  podcasts: {
+    intro:
+      "A podcast series has not been published yet. The rows below are the public voices already named by the Province: the channel, the bulletin and the magazines.",
+    items: [
+      {
+        title: "Oblate Jaffna TV",
+        category: "Watch",
+        description: "The official YouTube channel of the Province. New programmes are published there.",
+        url: "youtube",
+        audio: "",
+        coverImage: "",
+        date: "",
+      },
+      {
+        title: "Yazha-Thoni",
+        category: "Read",
+        description: "The official news bulletin of the Oblate Province of Jaffna. The Lyre Boat.",
+        url: "/media#publications",
+        audio: "",
+        coverImage: "",
+        date: "",
+      },
+      {
+        title: "Zeal",
+        category: "Read",
+        description: "A scholastic publication of reflections, articles and community news.",
+        url: "/media#publications",
+        audio: "",
+        coverImage: "",
+        date: "",
+      },
+      {
+        title: "Naan",
+        category: "Read",
+        description: "A Tamil magazine of the Province for personal growth, reflection and community life.",
+        url: "/media#publications",
+        audio: "",
+        coverImage: "",
+        date: "",
+      },
+    ],
+  },
+  songs: {
+    intro: "Hymns and songs of the Province. Press play to listen.",
+    emptyText: "Songs will be added here as they are approved for the website.",
+    items: [
+      {
+        title: "",
+        category: "",
+        artist: "",
+        description: "",
+        audio: "",
+        coverImage: "",
+        url: "",
+        date: "",
+      },
+    ],
+  },
+  articles: {
+    intro: "",
+    ctaLabel: "Open the full report",
+  },
+  interviews: {
+    intro: "No recorded interview is published on this page. The answers are the Province’s own published lines.",
+    items: [
+      {
+        q: "Who is speaking?",
+        a: "The Oblate Province of Jaffna, part of the Missionary Oblates of Mary Immaculate. These lines are published Province statements, not a recorded interview.",
+      },
+      {
+        q: "When did the mission reach this island?",
+        a: "The Oblate missionary presence in Sri Lanka began in 1847. The first Oblates reached Jaffna in 1848.",
+      },
+      {
+        q: "What is the charism?",
+        a: "Evangelizing the poor. Presence, accompaniment, education, compassion, justice, reconciliation and service.",
+      },
+      {
+        q: "What is the mission?",
+        a: "Empowered by the Good News, we work for a healing society in and through the light of the Good News.",
+      },
+      { q: "What is the vision?", a: "A life towards a renewed, just and free society." },
+      {
+        q: "Who leads the Province now?",
+        a: "Very Rev. Fr. Paul Jeyanthan Pachchek, OMI, Provincial Superior, 2023–2026. The house is Thodarpaham, 657/1 Hospital Road, Jaffna.",
+      },
+    ],
+  },
+  readings: {
+    intro: "Homily manuscripts are not published here. These are the texts the Province already gives for prayer and mission.",
+    items: [
+      { kicker: "The sending", text: "{homeQuote}", audio: "" },
+      { kicker: "The journey", text: "{homeLede}", audio: "" },
+      {
+        kicker: "Charism",
+        text: "Evangelizing the poor. Presence, accompaniment, education, compassion, justice, reconciliation and service.",
+        audio: "",
+      },
+      {
+        kicker: "Mission",
+        text: "Empowered by the Good News, we work for a healing society in and through the light of the Good News.",
+        audio: "",
+      },
+      { kicker: "Vision", text: "A life towards a renewed, just and free society.", audio: "" },
+    ],
+  },
+  testimonials: {
+    intro:
+      "Personal testimonies are not published until a person has agreed to the words. Until then, this desk lists the ministries through which the Province already serves.",
+    items: [{ name: "", place: "", text: "", image: "" }],
   },
   publications: {
     kicker: "Read",
@@ -181,6 +324,7 @@ export const mediaPageDefaults = {
       src: "/Herosection/Heroimage_2.jpg",
       alt: "A jubilee arch of the Oblate Province of Jaffna",
       caption: "Jubilee arch marked OMI 200. Province collection.",
+      category: "",
     },
     {
       src: "/Herosection/Heroimage_3.jpg",
@@ -208,6 +352,97 @@ export const mediaPageDefaults = {
       caption: "Emblem of the Oblate Province of Jaffna.",
     },
   ],
+}
+
+export const newsPageDefaults = {
+  ceremonies: {
+    kicker: "General event dates",
+    title: "OMI ceremonies",
+    summary:
+      "Feasts, foundations and remembrances the Oblate family keeps every year. Pick a month or a date to see the ceremony.",
+    items: [
+      {
+        month: 1,
+        day: 25,
+        title: "Foundation of the Congregation",
+        since: "1816",
+        category: "Liturgical Feasts & Foundations",
+        description: "",
+      },
+      {
+        month: 2,
+        day: 17,
+        title: "Papal Approval of the OMI Constitutions and Rules by Pope Leo XII",
+        since: "1826",
+        category: "Liturgical Feasts & Foundations",
+        description: "",
+      },
+      {
+        month: 5,
+        day: 21,
+        title: "Feast of St. Eugene de Mazenod",
+        since: "",
+        category: "Liturgical Feasts & Foundations",
+        description: "Founder of the OMI.",
+      },
+      {
+        month: 12,
+        day: 8,
+        title: "Feast of the Immaculate Conception",
+        since: "",
+        category: "Liturgical Feasts & Foundations",
+        description: "Principal Patroness of the Congregation.",
+      },
+      {
+        month: 5,
+        day: 29,
+        title: "Feast of Blessed Joseph Gérard",
+        since: "",
+        category: "Oblate Saints, Blesseds & Martyrs",
+        description: "Apostle of Lesotho.",
+      },
+      {
+        month: 6,
+        day: 12,
+        title: "Feast of Blessed Józef Cebula",
+        since: "",
+        category: "Oblate Saints, Blesseds & Martyrs",
+        description: "Martyr of World War II.",
+      },
+      {
+        month: 9,
+        day: 4,
+        title: "Feast of the Blessed Martyrs of Laos",
+        since: "",
+        category: "Oblate Saints, Blesseds & Martyrs",
+        description: "Including the OMI martyrs.",
+      },
+      {
+        month: 11,
+        day: 28,
+        title: "Feast of the Blessed Martyrs of Spain",
+        since: "",
+        category: "Oblate Saints, Blesseds & Martyrs",
+        description: "The Oblate Martyrs of Pozuelo.",
+      },
+      {
+        month: 11,
+        day: 3,
+        title: "Annual Requiem Mass for all deceased Oblates",
+        since: "",
+        category: "Remembrances & Regional Dates",
+        description: "",
+      },
+      {
+        month: 11,
+        day: 10,
+        title: "Anniversary of Fr. Michael Rodrigo, OMI",
+        since: "",
+        category: "Remembrances & Regional Dates",
+        description: "Sri Lankan Oblate Martyr.",
+      },
+    ],
+  },
 }
 
 export const vocationsDefaults = {
@@ -304,14 +539,13 @@ export const blocks = {
   "home-sections": { label: "Home page sections", defaults: homeSectionsDefaults },
   journey: { label: "Our journey timeline", defaults: { eras: journeyEras } },
   "media-page": { label: "Media page text & photos", defaults: mediaPageDefaults },
+  "news-page": { label: "News page — OMI ceremonies calendar", defaults: newsPageDefaults },
   vocations: { label: "Vocations page sections", defaults: vocationsDefaults },
   history: {
     label: "History page sections",
     defaults: {
       images: {
         heroImage: "/Herosection/Heroimage_4.jpg",
-        familyImage: "/Administration.jpg",
-        familyImageAlt: "Oblates united in prayer around the Word of God",
         historyImage: "/Herosection/Heroimage_2.jpg",
       },
       whoWeAre,
@@ -345,8 +579,12 @@ export const blocks = {
         identityImage: "/Herosection/Heroimage_4.jpg",
         identityImageAlt: "Oblate church in Jaffna",
         crossImage: "/Herosection/Cross_vision.png?v=3",
+        familyImage: "/Administration.jpg",
+        familyImageAlt: "Oblates united in prayer around the Word of God",
       },
       hero: charismHero,
+      missionaryFamily,
+      coreCommitments,
       identity: charismIdentity,
       priorities: charismPriorities,
       mission: charismMission,

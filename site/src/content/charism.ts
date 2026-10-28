@@ -4,6 +4,37 @@ export const charismHero = {
     "\"He has sent me to bring good news to the poor\" (Luke 4:18) is the heart of our spirituality and mission.",
 } as const
 
+/** Moved from History — edited in CMS under Charism page sections. */
+export const missionaryFamily = {
+  title: "Missionary Family in the Church",
+  subtitle: "We are united as communities in prayer and mission.",
+  paragraphs: [
+    "Our life is rooted in faith, humanity, and justice, guided by the charism of St. Eugene de Mazenod.",
+    "In Sri Lanka, we serve through proclaiming the Good News, parish work, pastoral care, education and social service.",
+    "We strive to be close to the people, rooted in prayer, and faithful in service.",
+  ],
+} as const
+
+export const coreCommitments = {
+  kicker: "What we live",
+  title: "Core Commitments",
+  subtitle: "Our life: faith, humanity, and justice.",
+  items: [
+    {
+      title: "Oblate Spirituality",
+      text: "A way of life centered on St. Eugene de Mazenod's charism.",
+    },
+    {
+      title: "Serves the Poor",
+      text: "Compassionate proclamation of the Good News aimed at the most abandoned.",
+    },
+    {
+      title: "Mission",
+      text: "Evangelization through preaching, pastoral care, and social service.",
+    },
+  ],
+} as const
+
 export const charismIdentity = {
   kicker: "Our identity",
   title: "Mission With the Poor",

@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Image from "next/image"
-import { ArrowUpRight, CalendarDays, Church, Globe, HeartHandshake, MapPin, Users } from "lucide-react"
+import { ArrowUpRight, CalendarDays, MapPin, Users } from "lucide-react"
 
 import { MotionHero, MotionReveal } from "@/components/motion/motion-reveal"
 import { BishopProfiles } from "@/components/sections/history/bishop-profiles"
@@ -20,7 +20,6 @@ export const metadata: Metadata = {
 }
 
 const statIcons = [CalendarDays, Users, MapPin]
-const commitmentIcons = [Church, HeartHandshake, Globe]
 
 export default async function HistoryPage() {
   const [{ images, whoWeAre, briefHistory, development, archive, necrology }, journey, timeline, people] =
@@ -102,100 +101,6 @@ export default async function HistoryPage() {
               </MotionReveal>
             )
           })}
-        </div>
-      </section>
-
-      <section id="missionary-family" className="calendar-stage scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
-        <div className="relative mx-auto max-w-6xl">
-          <SectionHeading title={whoWeAre.family.title} subtitle={whoWeAre.family.subtitle} />
-          <div className="mt-12 grid items-center gap-8 lg:grid-cols-2 lg:gap-10">
-            <MotionReveal
-              from="left"
-              className="media-bento-card media-bento-shine calendar-glass relative overflow-hidden rounded-[1.75rem] p-6 sm:p-8"
-            >
-              <div className="space-y-6">
-                {whoWeAre.family.paragraphs.map((paragraph, index) => (
-                  <div key={paragraph} className="flex gap-5">
-                    <span className="mt-1 font-heading text-sm font-bold text-[#17b3c6]">0{index + 1}</span>
-                    <p className="border-l-2 border-[#17b3c6]/35 pl-5 text-lg leading-8 text-[#3d4b59]">{paragraph}</p>
-                  </div>
-                ))}
-              </div>
-            </MotionReveal>
-            <MotionReveal from="right" delay={120} className="relative">
-              <div className="group media-bento-card media-bento-shine calendar-glass relative overflow-hidden rounded-[1.75rem] p-3">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.35rem]">
-                  <Image
-                    src={images.familyImage}
-                    alt={images.familyImageAlt}
-                    unoptimized={isUpload(images.familyImage)}
-                    fill
-                    sizes="(min-width: 1024px) 50vw, 100vw"
-                    className="object-cover transition duration-[1200ms] ease-out group-hover:scale-105"
-                  />
-                  <span aria-hidden="true" className="history-shine pointer-events-none absolute inset-0" />
-                </div>
-              </div>
-            </MotionReveal>
-          </div>
-        </div>
-      </section>
-
-      <section id="core-commitments" className="calendar-stage scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
-        <div className="relative mx-auto max-w-6xl">
-          <SectionHeading
-            kicker={whoWeAre.commitments.kicker}
-            title={whoWeAre.commitments.title}
-            subtitle={whoWeAre.commitments.subtitle}
-          />
-          <div className="mt-12 grid gap-5 md:grid-cols-3 md:gap-6">
-            {whoWeAre.commitments.items.map((item, index) => {
-              const Icon = commitmentIcons[index % commitmentIcons.length]
-              const deep = index === 1
-              return (
-                <MotionReveal key={item.title} from="up" delay={index * 120} className="h-full">
-                  <article
-                    className={
-                      deep
-                        ? "group media-bento-card media-bento-shine calendar-glass-deep relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7"
-                        : "group media-bento-card media-bento-shine calendar-glass relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7"
-                    }
-                  >
-                    <span
-                      className={
-                        deep
-                          ? "absolute top-4 right-4 grid size-8 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 transition group-hover:rotate-45"
-                          : "absolute top-4 right-4 grid size-8 place-items-center rounded-full bg-[#e7fbff] text-[#023e8a] ring-1 ring-[#cfeef4] transition group-hover:rotate-45"
-                      }
-                    >
-                      <ArrowUpRight className="size-3.5" />
-                    </span>
-                    <span
-                      className={
-                        deep
-                          ? "flex size-14 items-center justify-center rounded-2xl bg-[#ffcf4a] text-[#03202b]"
-                          : "flex size-14 items-center justify-center rounded-2xl bg-[#e7fbff] text-[#0e98ac] ring-1 ring-[#cfeef4]"
-                      }
-                    >
-                      <Icon aria-hidden="true" className="size-7" />
-                    </span>
-                    <h3
-                      className={
-                        deep
-                          ? "mt-6 font-heading text-xl font-semibold text-white sm:text-2xl"
-                          : "mt-6 font-heading text-xl font-semibold text-[#023e8a] sm:text-2xl"
-                      }
-                    >
-                      {item.title}
-                    </h3>
-                    <p className={deep ? "mt-3 flex-1 leading-7 text-white/75" : "mt-3 flex-1 leading-7 text-[#5c6b7a]"}>
-                      {item.text}
-                    </p>
-                  </article>
-                </MotionReveal>
-              )
-            })}
-          </div>
         </div>
       </section>
 

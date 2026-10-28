@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
   experimental: {
     agentUpgrade: "security",
+    // Local dev proxies CMS uploads (MP4/MP3 up to 40 MB) to the API over the DB tunnel.
+    proxyClientMaxBodySize: "45mb",
+    proxyTimeout: 300_000,
   },
   images: {
     // Allow local paths with cache-bust query (e.g. /Herosection/Cross_vision.png?v=3).

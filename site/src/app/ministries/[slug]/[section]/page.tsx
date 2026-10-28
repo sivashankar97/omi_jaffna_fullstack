@@ -56,19 +56,21 @@ export default async function MinistrySectionPage({ params }: SectionPageProps) 
   return (
     <>
       <ScrollProgress />
-      <header className="relative isolate overflow-hidden bg-[#03202b] px-4 pt-10 pb-14 text-white sm:px-8 sm:pt-14 sm:pb-16">
+      <header className="relative isolate flex min-h-[28rem] flex-col overflow-hidden bg-[#06394a] px-4 pt-20 pb-8 text-white sm:min-h-[32rem] sm:px-8 sm:pt-24 sm:pb-12">
         {section.image || ministry.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={encodeURI(section.image || ministry.image || "")}
             alt=""
-            className="history-kenburns absolute inset-0 -z-20 h-full w-full object-cover opacity-50"
+            className="history-kenburns absolute inset-0 -z-20 h-full w-full object-cover"
           />
         ) : null}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#03202b] via-[#03202b]/85 to-[#03202b]/50" />
 
-        <div className="mx-auto max-w-6xl">
-          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm text-white/70">
+        <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col justify-between gap-10">
+          <nav
+            aria-label="Breadcrumb"
+            className="flex w-fit flex-wrap items-center gap-1.5 rounded-full bg-[#03202b]/55 px-4 py-2 text-sm text-white/80 backdrop-blur-md"
+          >
             <Link href="/" className="transition hover:text-white">
               Home
             </Link>
@@ -84,7 +86,8 @@ export default async function MinistrySectionPage({ params }: SectionPageProps) 
             <span className="text-white">{section.title}</span>
           </nav>
 
-          <p className="mt-12 flex flex-wrap items-center gap-3 text-xs font-bold tracking-[0.2em] text-[#ffcf4a] uppercase">
+          <div className="max-w-3xl rounded-[1.75rem] bg-[#03202b]/60 p-6 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.6)] ring-1 ring-white/15 backdrop-blur-md sm:p-8">
+          <p className="flex flex-wrap items-center gap-3 text-xs font-bold tracking-[0.2em] text-[#ffcf4a] uppercase">
             {section.group ? `${section.group} · ` : null}
             {ministry.title}
             {section.place ? (
@@ -93,45 +96,53 @@ export default async function MinistrySectionPage({ params }: SectionPageProps) 
               </span>
             ) : null}
           </p>
-          <h1 className="mt-4 max-w-3xl font-heading text-4xl font-semibold text-balance sm:text-5xl">
+          <h1
+            className="mt-4 font-heading text-4xl font-semibold text-balance sm:text-5xl"
+            style={{ color: "#ffffff" }}
+          >
             {section.title}
           </h1>
 
           <Link
             href={ministryHref(ministry)}
-            className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#ffcf4a] transition hover:text-white"
+            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#ffcf4a] transition hover:text-white"
           >
             <ArrowLeft aria-hidden="true" className="size-4" /> Back to {ministry.title}
           </Link>
+          </div>
         </div>
       </header>
 
       <section className="bg-gradient-to-b from-[#f7fbfd] to-white px-4 py-12 text-[#102a43] sm:px-8 sm:py-16">
         <div className="mx-auto max-w-5xl">
           {siblings.length > 1 ? (
-            <div
-              role="tablist"
-              aria-label="Other places"
-              className="mb-10 flex flex-wrap gap-2 border-b border-[#d9eef3] pb-px"
-            >
-              {siblings.map((item) => {
-                const active = anchorId(item.slug) === anchorId(section.slug)
-                return (
-                  <Link
-                    key={item.slug}
-                    role="tab"
-                    aria-selected={active}
-                    href={ministrySectionHref(ministry, item.slug)}
-                    className={
-                      active
-                        ? "-mb-px border-b-2 border-[#0e98ac] px-3 py-2.5 text-sm font-semibold text-[#023e8a]"
-                        : "px-3 py-2.5 text-sm font-semibold text-[#5c6b7a] transition hover:text-[#023e8a]"
-                    }
-                  >
-                    {item.title}
-                  </Link>
-                )
-              })}
+            <div className="mb-10">
+              <p className="mb-3 text-xs font-bold tracking-[0.22em] text-[#0e98ac] uppercase">Other places</p>
+              <div
+                role="tablist"
+                aria-label="Other places"
+                className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:thin] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
+              >
+                {siblings.map((item) => {
+                  const active = anchorId(item.slug) === anchorId(section.slug)
+                  return (
+                    <Link
+                      key={item.slug}
+                      role="tab"
+                      aria-selected={active}
+                      href={ministrySectionHref(ministry, item.slug)}
+                      className={
+                        active
+                          ? "inline-flex shrink-0 snap-start items-center gap-1.5 rounded-full bg-[#0e98ac] px-4 py-2 text-sm font-semibold whitespace-nowrap text-white shadow-[0_10px_22px_-12px_rgba(14,152,172,0.9)]"
+                          : "inline-flex shrink-0 snap-start items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#0a5062] ring-1 ring-[#d9eef3] transition hover:bg-[#e7fbff] hover:ring-[#17b3c6]"
+                      }
+                    >
+                      {active ? <MapPin aria-hidden="true" className="size-3.5" /> : null}
+                      {item.title}
+                    </Link>
+                  )
+                })}
+              </div>
             </div>
           ) : null}
 

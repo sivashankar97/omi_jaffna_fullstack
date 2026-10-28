@@ -43,8 +43,8 @@ export async function HomeSections() {
           badge={home.welcome.badge}
           eyebrow={home.welcome.eyebrow}
           title={home.welcome.title}
-          highlight={home.welcome.highlight}
           lede={welcome[0] ? welcome[0] : home.welcome.lede}
+          image={home.welcome.image}
           cards={home.welcome.cards ?? []}
         />
       </section>

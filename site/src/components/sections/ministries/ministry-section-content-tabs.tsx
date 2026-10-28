@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowUpRight, CalendarDays, Clock3, MapPin, Play } from "lucide-react"
+import { ArrowUpRight, BookOpen, CalendarDays, Clock3, Images, MapPin, Newspaper, Play } from "lucide-react"
 
 import {
   ministryStorySource,
@@ -11,11 +11,11 @@ import {
 } from "@/content/ministry-details"
 
 const TABS = [
-  { id: "history", label: "History" },
-  { id: "articles", label: "Articles" },
-  { id: "photos", label: "Photos" },
-  { id: "videos", label: "Videos" },
-  { id: "events", label: "Events" },
+  { id: "history", label: "History", Icon: BookOpen },
+  { id: "articles", label: "Articles", Icon: Newspaper },
+  { id: "photos", label: "Photos", Icon: Images },
+  { id: "videos", label: "Videos", Icon: Play },
+  { id: "events", label: "Events", Icon: CalendarDays },
 ] as const
 
 type TabId = (typeof TABS)[number]["id"]
@@ -267,9 +267,9 @@ export function MinistrySectionContentTabs({ content }: { content: MinistrySecti
       <div
         role="tablist"
         aria-label="Section content"
-        className="flex gap-1 overflow-x-auto border-b border-[#d9eef3] pb-px [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-1.5 overflow-x-auto rounded-[1.5rem] bg-[#eef7fa] p-1.5 ring-1 ring-[#d7eef3] [-ms-overflow-style:none] [scrollbar-width:none] sm:rounded-full [&::-webkit-scrollbar]:hidden"
       >
-        {available.map((tab) => {
+        {available.map(({ Icon, ...tab }) => {
           const selected = tab.id === current
           const count = tabCount(content, tab.id)
           return (
@@ -283,16 +283,17 @@ export function MinistrySectionContentTabs({ content }: { content: MinistrySecti
               onClick={() => setActive(tab.id)}
               className={
                 selected
-                  ? "relative -mb-px flex shrink-0 items-center gap-2 border-b-2 border-[#0e98ac] px-4 py-3 font-heading text-lg font-semibold text-[#023e8a] sm:text-xl"
-                  : "flex shrink-0 items-center gap-2 px-4 py-3 font-heading text-lg font-semibold text-[#5c6b7a] transition hover:text-[#023e8a] sm:text-xl"
+                  ? "flex grow shrink-0 items-center justify-center gap-2 rounded-full bg-[#17b3c6] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(14,152,172,0.95)] transition sm:text-base"
+                  : "flex grow shrink-0 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-[#3d4b59] transition hover:bg-white hover:text-[#023e8a] sm:text-base"
               }
             >
+              <Icon aria-hidden="true" className={selected ? "size-4 text-white" : "size-4 text-[#17b3c6]"} />
               {tab.label}
               <span
                 className={
                   selected
-                    ? "rounded-full bg-[#e8f7fa] px-2 py-0.5 text-[11px] font-bold tracking-wide text-[#0e98ac]"
-                    : "rounded-full bg-[#f0f4f7] px-2 py-0.5 text-[11px] font-bold tracking-wide text-[#8a98a6]"
+                    ? "rounded-full bg-white/25 px-2 py-0.5 text-[11px] font-bold text-white"
+                    : "rounded-full bg-white px-2 py-0.5 text-[11px] font-bold text-[#0e98ac] ring-1 ring-[#d7eef3]"
                 }
               >
                 {count}
