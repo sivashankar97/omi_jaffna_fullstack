@@ -9,7 +9,7 @@ import { SiteInfoProvider } from "@/components/layout/site-info"
 import { ProvinceMapGate } from "@/components/map/province-map-gate"
 import { buildNavigation } from "@/config/navigation"
 import { site } from "@/config/site"
-import { getFormationHouses, getMapLocations, getMinistries, getParishes, getSiteInfo } from "@/lib/cms"
+import { getFormationHouses, getMapLocations, getMinistries, getParishes, getSiteInfo, getTodayHighlights } from "@/lib/cms"
 
 import "./globals.css"
 
@@ -41,12 +41,13 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const theme = (await cookies()).get("omi-theme")?.value
-  const [ministries, parishes, formationHouses, mapLocations, siteInfo] = await Promise.all([
+  const [ministries, parishes, formationHouses, mapLocations, siteInfo, today] = await Promise.all([
     getMinistries(),
     getParishes(),
     getFormationHouses(),
     getMapLocations(),
     getSiteInfo(),
+    getTodayHighlights().catch(() => []),
   ])
   const navigation = buildNavigation({ ministries, parishes, formationHouses })
 
@@ -58,7 +59,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full w-full max-w-[100%] flex-col overflow-x-clip font-sans">
         <SiteInfoProvider value={siteInfo}>
-          <SiteHeader navigation={navigation} />
+          <SiteHeader navigation={navigation} today={today} />
           <main className="flex-1">
             <PageTheme>{children}</PageTheme>
           </main>

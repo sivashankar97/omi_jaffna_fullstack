@@ -55,19 +55,19 @@ function safeNextPath(fallback = "/dashboard") {
   }
 }
 
-const fieldLabel = "mb-1.5 block text-[11px] font-semibold tracking-[0.14em] text-[#5a7380] uppercase"
+export const fieldLabel = "mb-1.5 block text-[11px] font-semibold tracking-[0.14em] text-[#5a7380] uppercase"
 
-const fieldInput =
+export const fieldInput =
   "w-full rounded-[0.85rem] border border-[#d7e8ee] bg-white px-3.5 py-2.5 text-sm text-[#0b4a5c] outline-none transition placeholder:text-[#9aafb8] focus:border-[#17b3c6] focus:ring-3 focus:ring-[#17b3c6]/20"
 
-const fieldInputError = "border-[#e8a0a0] focus:border-[#d14343] focus:ring-[#d14343]/15"
+export const fieldInputError = "border-[#e8a0a0] focus:border-[#d14343] focus:ring-[#d14343]/15"
 
-const primaryBtn =
+export const primaryBtn =
   "member-access-cta inline-flex w-full items-center justify-center gap-2 rounded-[0.9rem] bg-[#0f8fa3] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_32px_-16px_rgb(15_143_163/0.75)] transition hover:bg-[#0c7d8f] disabled:opacity-60"
 
 const ease = [0.22, 1, 0.36, 1] as const
 
-function FieldHint({ error, hint }: { error?: string; hint?: string }) {
+export function FieldHint({ error, hint }: { error?: string; hint?: string }) {
   if (error) {
     return (
       <p role="alert" className="mt-1.5 text-[12px] leading-snug text-[#b42318]">
@@ -81,7 +81,7 @@ function FieldHint({ error, hint }: { error?: string; hint?: string }) {
   return null
 }
 
-function FieldIcon({ children }: { children: ReactNode }) {
+export function FieldIcon({ children }: { children: ReactNode }) {
   return (
     <span
       aria-hidden="true"
@@ -92,7 +92,7 @@ function FieldIcon({ children }: { children: ReactNode }) {
   )
 }
 
-function AuthField({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
+export function AuthField({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
   return (
     <div className="member-access-field" style={{ animationDelay: `${delay}s` }}>
       {children}
@@ -100,7 +100,7 @@ function AuthField({ children, delay = 0 }: { children: ReactNode; delay?: numbe
   )
 }
 
-function AuthArtPanel() {
+export function AuthArtPanel() {
   return (
     <div className="relative min-h-[14rem] overflow-hidden sm:min-h-[16rem] lg:min-h-full">
       <Image
@@ -576,7 +576,7 @@ export function MemberAccess({ mode }: { mode: Mode }) {
                       <label className={cn(fieldLabel, "mb-0")} htmlFor="login-password">
                         Password
                       </label>
-                      <Link href="/contact" className="text-xs font-semibold text-[#0f8fa3] hover:text-[#0c7d8f]">
+                      <Link href="/forgot-password" className="text-xs font-semibold text-[#0f8fa3] hover:text-[#0c7d8f]">
                         Forgot Password
                       </Link>
                     </div>

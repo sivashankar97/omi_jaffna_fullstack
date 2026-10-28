@@ -54,10 +54,13 @@ function refreshIfNeeded(res,user,claims){
   }
 }
 
-async function loadActiveUser(userId){
-  const result=await query('SELECT id,role,active FROM users WHERE id=$1',[userId]);
-  if(!result.rowCount||!result.rows[0].active)return null;
-  return result.rows[0];
+async function loadActiveUser(userId,claims){
+  const result=await query('SELECT id,role,active,password_changed_at FROM users WHERE id=$1',[userId]);
+  const user=result.rows[0];
+  if(!user?.active)return null;
+  // JWT iat is in whole seconds; a session issued before the last password reset is revoked.
+  if(user.password_changed_at&&claims?.iat&&claims.iat<Math.floor(new Date(user.password_changed_at).getTime()/1000))return null;
+  return user;
 }
 
 export async function auth(req,res,next){
@@ -65,7 +68,7 @@ export async function auth(req,res,next){
   if(!token)return res.status(401).json({error:'Sign in required'});
   try{
     const claims=jwt.verify(token,process.env.JWT_SECRET);
-    const user=await loadActiveUser(claims.sub);
+    const user=await loadActiveUser(claims.sub,claims);
     if(!user)return res.status(401).json({error:'Account unavailable'});
     req.session={sub:user.id,role:user.role};
     refreshIfNeeded(res,user,claims);
@@ -85,7 +88,7 @@ export async function optionalAuth(req,res,next){
   if(!token){req.session=null;return next();}
   try{
     const claims=jwt.verify(token,process.env.JWT_SECRET);
-    const user=await loadActiveUser(claims.sub);
+    const user=await loadActiveUser(claims.sub,claims);
     if(!user){
       clearSessionCookie(res);
       req.session=null;

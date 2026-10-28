@@ -33,10 +33,18 @@ Stack: `deploy/vps/docker-compose.yml` + `nginx.conf` + `Dockerfile.site`.
 
 **First time on the VPS**
 1. Install Docker (or run `scripts/vps-bootstrap.sh` on the server after clone)
-2. Create `deploy/vps/.env` from `.env.example` — set `POSTGRES_PASSWORD`, `JWT_SECRET`, `FRONTEND_ORIGIN=http://YOUR_PUBLIC_IP`, `COOKIE_SECURE=false` (until HTTPS)
+2. Create `deploy/vps/.env` from `.env.example` — set `POSTGRES_PASSWORD`, `JWT_SECRET`, `FRONTEND_ORIGIN=http://YOUR_PUBLIC_IP`, `COOKIE_SECURE=false` (until HTTPS). For Forgot password emails also set `PUBLIC_SITE_URL` (address used in the email link) and `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`. Without SMTP, production sends no reset emails; locally the link is printed in the API log.
+   - Live mail goes through **Brevo** (`smtp-relay.brevo.com:587`, sender `no-reply@omijaffna.com`). omijaffna.com is authenticated in Brevo (DKIM, SPF and DMARC records in Namecheap DNS), so mail lands in the inbox. The SMTP key is "OMI website VPS" in Brevo → SMTP & API; it expires after 90 days without sending. To prevent that, the API sends a check email every 2 weeks to `MAIL_KEEPALIVE_TO` (set in the VPS `.env`; last send stored in `site_settings` key `mail_keepalive`). If resets stop arriving, generate a new key there and update `SMTP_PASS` on the VPS, then `docker compose up -d api`. Brevo click tracking rewrites the HTML button link; the redirect still works.
 3. `npm run vps:deploy -- omi-vps`
 
 Postgres is **not** public; only `127.0.0.1:5432` on the VPS. Macs use `npm run db:tunnel -- omi-vps`.
+
+**Daily backup to Google Drive**
+- Every night at 00:00 Sri Lanka time (cron `30 18 * * *` UTC in root's crontab), `scripts/vps-backup.sh` dumps the whole database and uploads `omi-db-YYYY-MM-DD.sql.gz` to the Drive folder **OMI Jaffna backups**. The dump covers content, users and media files, because media lives in the `media_blobs` table. Backups older than 30 days are deleted. Each one is about 130 MB.
+- Log: `/var/log/omi-backup.log` on the VPS. Run one by hand: `ssh omi-vps /root/omi-jaffna-cms/scripts/vps-backup.sh`.
+- Drive access is the rclone remote `gdrive` (`/root/.config/rclone/rclone.conf`, scope `drive.file`, so it only sees files it created). To reconnect: on the Mac run `rclone authorize "drive"` and sign in, then put the new token in that file.
+- `deploy/vps/.env` is not backed up (secrets). Keep a copy somewhere safe yourself.
+- Restore (overwrites the live DB): `rclone copy "gdrive:OMI Jaffna backups/omi-db-DATE.sql.gz" /tmp/`, then `gunzip -c /tmp/omi-db-DATE.sql.gz | docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'` in `deploy/vps`.
 
 ## Deploy to Netlify (legacy)
 Run from `site/`, not the repo root:

@@ -48,6 +48,10 @@ export const userSchema=userFieldsSchema.superRefine((user,ctx)=>{
  }
 });
 export const userUpdateSchema=userFieldsSchema.omit({password:true}).extend({password:userFieldsSchema.shape.password.optional()});
+export const passwordResetSchema=z.object({
+ token:z.string().min(20).max(200),
+ password:z.string().min(12,'Password must be at least 12 characters').refine(v=>Buffer.byteLength(v,'utf8')<=72,'Password must be at most 72 UTF-8 bytes'),
+});
 export const fatherRegistrationSchema=z.object({
  name:z.string().trim().min(2).max(150),
  role:z.literal('father').default('father'),

@@ -844,6 +844,67 @@ export async function getProvinceCalendar(): Promise<Gathering[]> {
   return entries
 }
 
+export type TodayHighlight = {
+  id: string
+  kind: "event" | "ceremony" | "birthday"
+  title: string
+  detail: string
+  href: string
+}
+
+/** Today's events, OMI ceremonies and living fathers' birthdays (Colombo calendar) for the site-wide Today bar. */
+export async function getTodayHighlights(): Promise<TodayHighlight[]> {
+  const [events, birthdays, newsPage] = await Promise.all([
+    getEvents().catch(() => [] as Gathering[]),
+    getTodaysBirthdays().catch(() => []),
+    getBlock("news-page").catch(() => null),
+  ])
+  const [year, month, day] = new Intl.DateTimeFormat("en-CA", {
+    timeZone: TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  })
+    .format(new Date())
+    .split("-")
+    .map(Number)
+  const today = Date.UTC(year, month - 1, day)
+
+  const runningEvents = events
+    .filter((event) => {
+      const start = Date.UTC(event.year, event.month, event.day)
+      const end = Date.UTC(event.endYear, event.endMonth, event.endDay)
+      return start <= today && today <= Math.max(start, end)
+    })
+    .map((event) => ({
+      id: `event-${event.id}`,
+      kind: "event" as const,
+      title: event.title,
+      detail: event.place || event.dateLabel,
+      href: "/#calendar",
+    }))
+
+  const ceremonies = (newsPage?.ceremonies?.items ?? [])
+    .filter((item) => Number(item.month) === month && Number(item.day) === day && item.title)
+    .map((item, index) => ({
+      id: `ceremony-${index}`,
+      kind: "ceremony" as const,
+      title: item.title,
+      detail: item.category || "OMI ceremony",
+      href: "/news#omi-ceremonies",
+    }))
+
+  const fathers = birthdays.map((person) => ({
+    id: `birthday-${person.slug}`,
+    kind: "birthday" as const,
+    title: person.name,
+    detail: "Birthday",
+    href: person.href,
+  }))
+
+  return [...ceremonies, ...runningEvents, ...fathers]
+}
+
 /** Living Oblate fathers whose birthday is today (Colombo calendar). */
 export async function getTodaysBirthdays(): Promise<
   { slug: string; name: string; image?: string; href: string }[]

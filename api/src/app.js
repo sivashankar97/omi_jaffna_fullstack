@@ -5,15 +5,16 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcryptjs';
-import {randomUUID} from 'node:crypto';
+import {createHash,randomBytes,randomUUID} from 'node:crypto';
 import multer from 'multer';
 import {query} from './db.js';
 import {auth,optionalAuth,allow,setSessionCookie,clearSessionCookie,verifyPassword} from './security.js';
 import {crudRouter} from './crud.js';
 import {TYPES} from './constants.js';
 import {saveFile,readStoredFile,removeFile} from './storage.js';
-import {contentSchema,inquirySchema,publishCheck,fatherRegistrationSchema,fatherProfileSchema,fatherItemSchema,fatherItemUpdateSchema,fatherItemKinds,fatherDispatchSchema,fatherNewsSchema,fatherEventSchema} from './validation.js';
+import {contentSchema,inquirySchema,publishCheck,fatherRegistrationSchema,fatherProfileSchema,fatherItemSchema,fatherItemUpdateSchema,fatherItemKinds,fatherDispatchSchema,fatherNewsSchema,fatherEventSchema,passwordResetSchema} from './validation.js';
 import {findPersonnel,matchPersonnel} from './personnel.js';
+import {sendMail} from './mailer.js';
 import {applyCmsSeed,buildSeedCatalog,loadSampleSeed} from './seed-cms.js';
 
 export const app=express();
@@ -42,6 +43,7 @@ const asyncRoute=fn=>(req,res,next)=>Promise.resolve(fn(req,res,next)).catch(nex
 const idValid=id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'');
 const audit=async(actor,action,type,id,details={})=>query('INSERT INTO audit_log(actor_id,action,target_type,target_id,details) VALUES($1,$2,$3,$4,$5)',[actor,action,type,String(id||''),details]);
 const bad=(res,error,status=400)=>res.status(status).json({error});
+const escapeHtml=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 const cmsOnly=allow('admin','editor','publisher');
 
 app.use('/api',crudRouter());
@@ -104,6 +106,53 @@ app.post('/api/auth/register',slowLimit,asyncRoute(async(req,res)=>{
   message:'Registration received. A Province administrator must activate your account before you can sign in.',
   user:{id:user.id,name:user.name,email:user.email,role:user.role,active:false,father_id:user.father_id}
  });
+}));
+const RESET_MINUTES=60;
+const RESET_REPLY='If an active account matches, a reset link has been sent to its email address. The link works for 60 minutes.';
+const hashToken=token=>createHash('sha256').update(String(token)).digest('hex');
+const siteUrl=()=>(process.env.PUBLIC_SITE_URL||configuredOrigins[0]||'http://localhost:5173').replace(/\/$/,'');
+app.post('/api/auth/forgot-password',slowLimit,asyncRoute(async(req,res)=>{
+ const identifier=String(req.body?.identifier||'').trim().slice(0,255);
+ if(!identifier)return bad(res,{fieldErrors:{identifier:['Enter your email or OMI ID.']}});
+ const isEmail=identifier.includes('@');
+ const r=await query(`SELECT id,name,email,role FROM users WHERE ${isEmail?'lower(email)=lower($1)':"lower(father_id)=lower($1) AND role='father'"} AND active AND email<>'' LIMIT 1`,[identifier]);
+ const user=r.rows[0];
+ if(user){
+  const recent=await query("SELECT 1 FROM password_resets WHERE user_id=$1 AND created_at>now()-interval '2 minutes' LIMIT 1",[user.id]);
+  if(!recent.rowCount){
+   const token=randomBytes(32).toString('base64url');
+   await query(`INSERT INTO password_resets(user_id,token_hash,expires_at,requested_ip) VALUES($1,$2,now()+interval '${RESET_MINUTES} minutes',$3)`,[user.id,hashToken(token),String(req.ip||'').slice(0,64)]);
+   const link=`${siteUrl()}/reset-password?token=${token}`;
+   const text=`Dear ${user.name},\n\nWe received a request to reset the password for your Oblate Province of Jaffna account.\n\nChoose a new password here (the link works for ${RESET_MINUTES} minutes and can be used once):\n${link}\n\nIf you did not ask for this, you can ignore this email — your password will not change.\n\nOblate Province of Jaffna`;
+   const html=`<p>Dear ${escapeHtml(user.name)},</p><p>We received a request to reset the password for your Oblate Province of Jaffna account.</p><p><a href="${link}" style="display:inline-block;background:#0f8fa3;color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:600">Choose a new password</a></p><p style="color:#5a7380;font-size:13px">The link works for ${RESET_MINUTES} minutes and can be used once. If the button does not work, copy this address into your browser:<br>${link}</p><p style="color:#5a7380;font-size:13px">If you did not ask for this, ignore this email — your password will not change.</p>`;
+   try{await sendMail({to:user.email,subject:'Reset your password — OMI Jaffna',text,html});}
+   catch(err){console.error('[mail] password reset email failed',err.message);}
+   await audit(user.id,'password_reset_request','user',user.id);
+  }
+ }
+ res.json({ok:true,message:RESET_REPLY});
+}));
+app.get('/api/auth/reset-password',slowLimit,asyncRoute(async(req,res)=>{
+ const token=String(req.query.token||'');
+ if(token.length<20)return res.json({valid:false});
+ const r=await query('SELECT 1 FROM password_resets p JOIN users u ON u.id=p.user_id WHERE p.token_hash=$1 AND p.used_at IS NULL AND p.expires_at>now() AND u.active',[hashToken(token)]);
+ res.json({valid:Boolean(r.rowCount)});
+}));
+app.post('/api/auth/reset-password',slowLimit,asyncRoute(async(req,res)=>{
+ const parsed=passwordResetSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
+ const {token,password}=parsed.data;
+ const password_hash=await bcrypt.hash(password,12);
+ const r=await query(
+  `WITH t AS (UPDATE password_resets SET used_at=now() WHERE token_hash=$1 AND used_at IS NULL AND expires_at>now() RETURNING user_id)
+   UPDATE users u SET password_hash=$2,password_changed_at=now() FROM t WHERE u.id=t.user_id AND u.active RETURNING u.id,u.role`,
+  [hashToken(token),password_hash]
+ );
+ const user=r.rows[0];
+ if(!user)return bad(res,'This reset link is invalid or has expired. Request a new one.',400);
+ await query('UPDATE password_resets SET used_at=now() WHERE user_id=$1 AND used_at IS NULL',[user.id]);
+ await audit(user.id,'password_reset','user',user.id);
+ clearSessionCookie(res);
+ res.json({ok:true,role:user.role,message:'Your password has been changed. Sign in with your new password.'});
 }));
 app.post('/api/auth/logout',(_req,res)=>{
  clearSessionCookie(res);

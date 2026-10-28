@@ -1,13 +1,14 @@
 import React, {useState} from 'react';
 import {ArrowDown, ArrowUp, Plus, Trash2} from 'lucide-react';
 
-const emptyHistory={heading:'',paragraphs:['']};
-const emptyArticle={title:'',summary:'',date:'',href:''};
+export const emptyHistory={heading:'',paragraphs:['']};
+const emptyArticle={title:'',summary:'',date:'',href:'',image:''};
 const emptyPhoto={src:'',alt:'',caption:''};
 const emptyVideo={title:'',url:'',thumbnail:'',caption:''};
 const emptyEvent={title:'',date:'',place:'',summary:''};
-const emptySection={
+export const emptySection={
  listNo:'',slug:'',title:'',place:'',summary:'',image:'',group:'',
+ about:[],focus:[],mapUrl:'',contact:{name:'',role:'',phone:'',email:''},
  history:[emptyHistory],articles:[emptyArticle],photos:[emptyPhoto],videos:[emptyVideo],futureEvents:[emptyEvent],
 };
 export const emptyMinistryDetail={
@@ -32,7 +33,7 @@ function tools({index,total,onMove,onRemove,label}){
  </span>;
 }
 
-function ImageUpload({label,value,onChange,upload,hint}){
+export function ImageUpload({label,value,onChange,upload,hint}){
  const [busy,setBusy]=useState(false);
  async function pick(e){
   const file=e.target.files?.[0];e.target.value='';
@@ -81,7 +82,29 @@ function VideoFileUpload({label,value,onChange,upload}){
  </div>;
 }
 
-function StringList({label,items,onChange,placeholder}){
+function PdfLinkField({label,value,onChange,upload}){
+ const [busy,setBusy]=useState(false);
+ async function pick(e){
+  const file=e.target.files?.[0];e.target.value='';
+  if(!file||!upload)return;
+  setBusy(true);
+  try{const url=await upload(file,{kind:'pdf'});if(url)onChange(url)}finally{setBusy(false)}
+ }
+ const isFile=/\/api\/files\//.test(value||'')||/\.pdf($|\?)/i.test(value||'');
+ return <div>
+  <label className="form-label">{label}</label>
+  <input className="field mt-2" value={value||''} onChange={e=>onChange(e.target.value)} placeholder="/news/story-name, https://… or upload a PDF"/>
+  <div className="mt-2 flex flex-wrap items-center gap-3">
+   {upload&&<label className="inline-flex cursor-pointer items-center gap-2 text-xs font-semibold text-gold-600">
+    <input type="file" accept="application/pdf" className="sr-only" disabled={busy} onChange={pick}/>
+    {busy?'Uploading…':'Upload PDF article'}
+   </label>}
+   {isFile?<a href={value} target="_blank" rel="noreferrer" className="text-[11px] font-semibold text-emerald-700 underline">Open PDF</a>:null}
+  </div>
+ </div>;
+}
+
+export function StringList({label,items,onChange,placeholder}){
  const list=Array.isArray(items)?items:[''];
  return <div>
   <p className="form-label">{label} <span className="font-normal text-slate-400">({list.length})</span></p>
@@ -97,7 +120,7 @@ function StringList({label,items,onChange,placeholder}){
  </div>;
 }
 
-function HistoryEditor({items,onChange}){
+export function HistoryEditor({items,onChange}){
  const list=Array.isArray(items)&&items.length?items:[{...emptyHistory}];
  return <div className="space-y-3">
   {list.map((item,index)=>(
@@ -114,7 +137,7 @@ function HistoryEditor({items,onChange}){
  </div>;
 }
 
-function ArticlesEditor({items,onChange}){
+export function ArticlesEditor({items,onChange,upload}){
  const list=Array.isArray(items)?items:[];
  return <div className="space-y-3">
   {list.map((item,index)=>(
@@ -127,15 +150,16 @@ function ArticlesEditor({items,onChange}){
     <div><label className="form-label">Summary</label><textarea className="field mt-2" rows={3} value={item.summary||''} onChange={e=>onChange(list.map((row,i)=>i===index?{...row,summary:e.target.value}:row))}/></div>
     <div className="grid sm:grid-cols-2 gap-3">
      <div><label className="form-label">Date (YYYY-MM-DD)</label><input className="field mt-2" type="date" value={item.date||''} onChange={e=>onChange(list.map((row,i)=>i===index?{...row,date:e.target.value}:row))}/></div>
-     <div><label className="form-label">Link</label><input className="field mt-2" value={item.href||''} onChange={e=>onChange(list.map((row,i)=>i===index?{...row,href:e.target.value}:row))} placeholder="/news or https://…"/></div>
+     <PdfLinkField label="Link or PDF file" value={item.href||''} upload={upload} onChange={href=>onChange(list.map((row,i)=>i===index?{...row,href}:row))}/>
     </div>
+    <ImageUpload label="Article image (optional)" value={item.image||''} upload={upload} onChange={image=>onChange(list.map((row,i)=>i===index?{...row,image}:row))}/>
    </div>
   ))}
   <button type="button" onClick={()=>onChange([...list,{...emptyArticle}])} className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-gold-400 hover:text-gold-600"><Plus size={14}/> Add article</button>
  </div>;
 }
 
-function PhotosEditor({items,onChange,upload}){
+export function PhotosEditor({items,onChange,upload}){
  const list=Array.isArray(items)?items:[];
  return <div className="space-y-3">
   {list.map((item,index)=>(
@@ -153,7 +177,7 @@ function PhotosEditor({items,onChange,upload}){
  </div>;
 }
 
-function VideosEditor({items,onChange,upload}){
+export function VideosEditor({items,onChange,upload}){
  const list=Array.isArray(items)?items:[];
  return <div className="space-y-3">
   {list.map((item,index)=>(
@@ -172,7 +196,7 @@ function VideosEditor({items,onChange,upload}){
  </div>;
 }
 
-function EventsEditor({items,onChange}){
+export function EventsEditor({items,onChange}){
  const list=Array.isArray(items)?items:[];
  return <div className="space-y-3">
   {list.map((item,index)=>(
@@ -221,7 +245,7 @@ function SectionContentTabs({section,onChange,upload}){
    ))}
   </div>
   {tab==='history'?<HistoryEditor items={section.history} onChange={history=>onChange({...section,history})}/>:null}
-  {tab==='articles'?<ArticlesEditor items={section.articles} onChange={articles=>onChange({...section,articles})}/>:null}
+  {tab==='articles'?<ArticlesEditor items={section.articles} onChange={articles=>onChange({...section,articles})} upload={upload}/>:null}
   {tab==='photos'?<PhotosEditor items={section.photos} onChange={photos=>onChange({...section,photos})} upload={upload}/>:null}
   {tab==='videos'?<VideosEditor items={section.videos} onChange={videos=>onChange({...section,videos})} upload={upload}/>:null}
   {tab==='events'?<EventsEditor items={section.futureEvents} onChange={futureEvents=>onChange({...section,futureEvents})}/>:null}
@@ -309,7 +333,7 @@ export function MinistryDetailFields({value,onChange,upload}){
   <div className="space-y-3 rounded-xl border border-sky-200 bg-sky-50/30 p-3">
    <div>
     <p className="text-sm font-bold text-navy-900">Major sections (place tabs)</p>
-    <p className="mt-1 text-[11px] leading-5 text-slate-500">Each place is a tab on the ministry page. Inside it, edit History, Articles, Photos, Videos and Events separately. Photos and videos support file upload.</p>
+    <p className="mt-1 text-[11px] leading-5 text-slate-500">Each place is a card on the ministry page and has its own page. For the full editor (about text, contact, map, articles, photos, videos, events) use <b>Ministries › Places &amp; communities</b> in the menu.</p>
    </div>
    {sections.map((section,index)=>(
     <MajorSectionCard

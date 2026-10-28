@@ -10,10 +10,9 @@ import { HomeContact } from "@/components/sections/home/home-contact"
 import { JoinUs } from "@/components/sections/home/join-us"
 import { MediaHighlights } from "@/components/sections/home/media-highlights"
 import { ProvinceCalendar } from "@/components/sections/home/province-calendar"
-import { BirthdayFloat } from "@/components/sections/home/birthday-float"
 import { WelcomeScene } from "@/components/sections/home/welcome-scene"
 import { NewsMarquee } from "@/components/sections/news/news-marquee"
-import { getBlock, getHomeContent, getMinistries, getNews, getProvinceCalendar, getTodaysBirthdays } from "@/lib/cms"
+import { getBlock, getHomeContent, getMinistries, getNews, getProvinceCalendar } from "@/lib/cms"
 
 const pillarIcons = [HandHeart, Compass, Eye]
 
@@ -24,11 +23,10 @@ const pathStyles = [
 ]
 
 export async function HomeSections() {
-  const [ministries, latestNews, events, todaysBirthdays, { welcome }, home, journey] = await Promise.all([
+  const [ministries, latestNews, events, { welcome }, home, journey] = await Promise.all([
     getMinistries(),
     getNews(),
     getProvinceCalendar(),
-    getTodaysBirthdays(),
     getHomeContent(),
     getBlock("home-sections"),
     getBlock("journey"),
@@ -37,7 +35,6 @@ export async function HomeSections() {
   const paths = home.paths.map((path, index) => ({ ...pathStyles[index % pathStyles.length], ...path }))
   return (
     <>
-      <BirthdayFloat people={todaysBirthdays} />
       <section id="welcome" className="calendar-stage relative scroll-mt-28 overflow-hidden px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
         <WelcomeScene
           badge={home.welcome.badge}

@@ -184,13 +184,13 @@ export function SiteFooter({
               © {site.years.slice(-4)} {site.name}. All rights reserved.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href="/contact" className="transition hover:text-white">
+              <Link href="/privacy" className="transition hover:text-white">
                 Privacy
               </Link>
               <Link href="/contact" className="transition hover:text-white">
                 Terms
               </Link>
-              <Link href="/contact" className="transition hover:text-white">
+              <Link href="/privacy" className="transition hover:text-white">
                 Cookies
               </Link>
             </div>

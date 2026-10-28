@@ -330,16 +330,33 @@ export function MinistrySectionContentTabs({ content }: { content: MinistrySecti
 
         {current === "articles" ? (
           <ul role="tabpanel" id="panel-articles" aria-labelledby="tab-articles" className="grid gap-4">
-            {content.articles.map((article) => (
+            {content.articles.map((article) => {
+              const href = article.href || "/news"
+              const file = /\/api\/files\/|\.pdf($|\?)/i.test(href)
+              return (
               <li key={article.title + article.date}>
                 <Link
-                  href={article.href || "/news"}
+                  href={href}
+                  {...(file || /^https?:/i.test(href) ? { target: "_blank", rel: "noreferrer" } : {})}
                   className="group flex items-start justify-between gap-4 rounded-2xl border border-[#e2f2f6] bg-white px-5 py-5 transition hover:-translate-y-0.5 hover:border-[#17b3c6]/55 hover:shadow-[0_22px_44px_-34px_rgba(10,80,98,0.5)]"
                 >
-                  <div className="min-w-0">
-                    {article.date ? (
-                      <p className="text-xs font-semibold tracking-[0.14em] text-[#0e98ac] uppercase">
-                        {formatDate(article.date)}
+                  {article.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={encodeURI(article.image)}
+                      alt=""
+                      className="hidden aspect-[4/3] w-32 shrink-0 rounded-xl object-cover sm:block"
+                    />
+                  ) : null}
+                  <div className="min-w-0 flex-1">
+                    {article.date || file ? (
+                      <p className="flex flex-wrap items-center gap-2 text-xs font-semibold tracking-[0.14em] text-[#0e98ac] uppercase">
+                        {article.date ? formatDate(article.date) : null}
+                        {file ? (
+                          <span className="rounded-full bg-[#eaf8fb] px-2 py-0.5 text-[10px] tracking-wider text-[#0a5062]">
+                            PDF
+                          </span>
+                        ) : null}
                       </p>
                     ) : null}
                     <h3 className="mt-1 font-heading text-xl font-semibold text-[#023e8a] transition group-hover:text-[#0e98ac]">
@@ -355,7 +372,8 @@ export function MinistrySectionContentTabs({ content }: { content: MinistrySecti
                   />
                 </Link>
               </li>
-            ))}
+              )
+            })}
           </ul>
         ) : null}
 

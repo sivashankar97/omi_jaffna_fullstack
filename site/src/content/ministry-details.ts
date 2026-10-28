@@ -8,6 +8,7 @@ export type MinistryArticle = {
   summary: string
   date: string
   href: string
+  image?: string
 }
 
 export type MinistryPhoto = {
@@ -47,6 +48,13 @@ export type MinistryMajorSection = MinistrySectionContent & {
   summary: string
   image: string
   group?: string
+  /** Longer "About this place" paragraphs; empty uses a generated sentence. */
+  about?: string[]
+  /** "How the mission serves here"; empty uses the ministry's focus points. */
+  focus?: string[]
+  /** Google Maps (or other) link; empty searches the title + place. */
+  mapUrl?: string
+  contact?: { name?: string; role?: string; phone?: string; email?: string }
 }
 
 export type MinistryDetail = {

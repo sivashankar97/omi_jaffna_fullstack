@@ -22,10 +22,18 @@ import { mainNavigation as defaultNavigation } from "@/config/navigation"
 import type { NavItem } from "@/types"
 import { site } from "@/config/site"
 import { useSiteInfo } from "@/components/layout/site-info"
+import { TodayBar } from "@/components/layout/today-bar"
+import type { TodayHighlight } from "@/lib/cms"
 import { isUpload } from "@/content/site-info"
 import { cn } from "cn"
 
-export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: { navigation?: NavItem[] }) {
+export function SiteHeader({
+  navigation: mainNavigation = defaultNavigation,
+  today = [],
+}: {
+  navigation?: NavItem[]
+  today?: TodayHighlight[]
+}) {
   const siteInfo = useSiteInfo()
   const pathname = usePathname()
   const [query, setQuery] = useState("")
@@ -107,6 +115,7 @@ export function SiteHeader({ navigation: mainNavigation = defaultNavigation }: {
       <header ref={headerRef} className="site-header pointer-events-none fixed inset-x-0 top-0 z-40">
         {/* Top: white + logos + search — paddingBottom set in JS to half the pill height */}
         <div ref={brandRef} className="pointer-events-auto bg-white pb-7">
+          <TodayBar items={today} />
           <div className="relative mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 py-3 min-[400px]:gap-3 sm:gap-5 sm:px-5 sm:py-4">
             <Link href="/" className="justify-self-start" aria-label={site.name}>
               <Image

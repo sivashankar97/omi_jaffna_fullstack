@@ -260,6 +260,23 @@
   }
 }
 
+.today-bar-item {
+  animation: today-bar-in 0.35s ease-out;
+}
+
+@keyframes today-bar-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .today-bar-item {
+    animation: none;
+  }
+}
+
 @keyframes text-bloom {
   from {
     opacity: 0;

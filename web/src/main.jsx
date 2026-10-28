@@ -12,6 +12,7 @@ import seed from './demo.json';
 import CoverImageUpload from './CoverImageUpload.jsx';
 import {AutoFields,mergeContent,useCmsBlocks} from './AutoFields.jsx';
 import {emptyMinistryDetail,MinistryDetailFields} from './MinistryDetailFields.jsx';
+import PlacesManager from './PlacesManager.jsx';
 import './style.css';
 
 const TYPE_INFO={page:['Website Pages',PanelsTopLeft],ministry:['Ministries',HeartHandshake],parish:['Parishes',Church],formation:['Formation Houses',GraduationCap],location:['Map Locations',MapPin],leadership:['Leadership',Users],priest:['Oblate Priests',UserRound],bishop:['Oblate Bishops',Cross],necrology:['Necrology Register',BookOpen],international:['International Mission',Globe2],school:['Schools & Education',School],timeline:['History Timeline',History],news:['News & Stories',Newspaper],event:['Feasts & Events',CalendarDays],publication:['Publications',BookOpen],media:['Media Library',Images],library:['Library',BookOpen]};
@@ -40,6 +41,7 @@ const VIEWS={
  priest:{type:'priest',item:'priest',label:'Oblate Priests',where:'Leadership: Oblate priests directory',link:'/leadership#priests'},
  'block-ministries':{type:'page',label:'Hero & titles',query:'slug=ministries',single:true,slugs:[['ministries','Ministries page sections']],where:'Ministries: top hero text and mission name (ministry cards stay under Ministries)',link:'/ministries'},
  ministry:{type:'ministry',item:'ministry',label:'Ministries',where:'Ministries page, Home and each ministry\'s own page',link:'/ministries'},
+ 'ministry-places':{type:'ministry',custom:'places',label:'Places & communities',where:'Place cards on each ministry page and each place\'s own page',link:'/ministries'},
  parish:{type:'parish',item:'parish',label:'Parishes',where:'Ministries: parish directory',link:'/ministries#parish-directory'},
  school:{type:'school',item:'school',label:'Schools & Education',where:'Ministries: schools list',link:'/ministries#schools'},
  formation:{type:'formation',item:'formation house',label:'Formation Houses',where:'Vocations: formation houses',link:'/vocations'},
@@ -67,7 +69,7 @@ const NAV=[
   {label:'History',icon:History,views:['page-history','necrology','timeline','bishop']},
   {label:'Charism',icon:Sparkles,views:['page-charism']},
   {label:'Leadership',icon:Users,views:['block-leadership','leadership-superior','leadership-council','leadership-former','priest']},
-  {label:'Ministries',icon:HeartHandshake,views:['block-ministries','ministry','parish','school']},
+  {label:'Ministries',icon:HeartHandshake,views:['block-ministries','ministry','ministry-places','parish','school']},
   {label:'Vocations',icon:GraduationCap,views:['block-vocations','formation']},
   {label:'International',icon:Globe2,views:['block-international','international-cat1','international-cat2','international-formation']},
   {label:'News',icon:Newspaper,views:['news','block-news-page','news-father']},
@@ -182,7 +184,7 @@ function Login({onLogin,notify}){
   <div className="cms-login-form flex min-h-screen items-center justify-center px-6 sm:px-12"><div className="w-full max-w-[410px]">
    <div className="lg:hidden mb-10 flex items-center gap-3"><Crest small/><strong>OMI Jaffna</strong></div>
    <div className="mb-10"><div className="inline-flex items-center gap-2 rounded-full bg-gold-100 px-3.5 py-2 text-xs font-bold text-gold-600"><LockKeyhole size={14}/> Province staff CMS</div><h2 className="mt-6 text-4xl font-semibold tracking-tight text-navy-900">Staff sign in</h2><p className="mt-3 text-slate-500">Editors and administrators only. This is separate from Father login on the website.</p></div>
-   <form onSubmit={submit} className="space-y-5"><div><label className="form-label">Staff email</label><input type="email" autoComplete="username" value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="you@omi-jaffna.org" className="field mt-2" required/></div><div><label className="form-label">Password</label><input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" className="field mt-2" required/></div><button disabled={loading} className="w-full btn-primary justify-center h-12">{loading?'Signing in…':'Sign in to CMS'} <ArrowRight size={17}/></button></form>
+   <form onSubmit={submit} className="space-y-5"><div><label className="form-label">Staff email</label><input type="email" autoComplete="username" value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="you@omi-jaffna.org" className="field mt-2" required/></div><div><div className="flex items-center justify-between gap-3"><label className="form-label">Password</label><a href="/forgot-password" className="text-xs font-semibold text-gold-600 hover:underline">Forgot password?</a></div><input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" className="field mt-2" required/></div><button disabled={loading} className="w-full btn-primary justify-center h-12">{loading?'Signing in…':'Sign in to CMS'} <ArrowRight size={17}/></button></form>
    <p className="mt-8 text-xs leading-6 text-slate-500">Oblate Father? Use <a className="font-semibold text-gold-600 hover:underline" href="/login">website Login</a> with your OMI ID — then open your profile dashboard.</p><div className="mt-7 flex items-center gap-3 border-t border-slate-200 pt-6"><a className="text-xs text-slate-500 hover:underline" href="/">← Public website</a><span className="text-slate-300">·</span><a className="text-xs font-semibold text-gold-600 hover:underline" href="/login">Father login →</a></div>
   </div></div>
  </div>
@@ -336,13 +338,8 @@ const PAGE_FIELDS={
  charism:{title:'Entry name',excerpt:'Small heading at the top',body:'Summary paragraph'},
 };
 const fieldsFor=form=>form.type==='page'?(PAGE_FIELDS[form.slug]||{title:'Entry name'}):(FIELDS[form.type]||{title:'Title',excerpt:'Short description',body:'Full content',location_text:'Location',event_date:'Date',image:'Cover image',media_url:'Media URL'});
-function ContentEditor({value,view,onClose,onSaved,notify,role}){
- const [form,setForm]=useState({...emptyItem(value.type),...value,metadata:value.metadata||{}}),[lang]=useState('en'),[busy,setBusy]=useState(false),[advanced,setAdvanced]=useState(false),[jsonMeta,setJsonMeta]=useState(JSON.stringify(value.metadata||{},null,2));
- const [imageBusy,setImageBusy]=useState(false);
- const isNew=!value.id;const canPublish=['admin','publisher'].includes(role);const fields=fieldsFor(form);
- const set=(name,content)=>setForm(a=>({...a,[name]:content}));
- async function uploadImage(file,opts={}){
-  if(demo){notify('Visual demo is read-only.','error');return '';}
+async function uploadAsset(file,opts,notify){
+ if(demo){notify('Visual demo is read-only.','error');return '';}
   const kind=opts.kind||(file.type==='application/pdf'?'pdf':file.type?.startsWith('video/')?'video':file.type?.startsWith('audio/')?'audio':'image');
   if(kind==='audio'){
    if(!['audio/mpeg','audio/mp4','audio/x-m4a'].includes(file.type)){notify('Choose an MP3 or M4A audio file.','error');return '';}
@@ -359,7 +356,13 @@ function ContentEditor({value,view,onClose,onSaved,notify,role}){
   }
   try{const data=new FormData();data.append('file',file);const {item}=await api('/api/assets',{method:'POST',body:data});notify(`${kind==='pdf'?'PDF':kind==='video'?'Video':kind==='audio'?'Audio':'Image'} uploaded. Approve it in File Uploads, then save this entry.`,'success');return item.url;}
   catch(err){notify(err.message,'error');return '';}
- }
+}
+function ContentEditor({value,view,onClose,onSaved,notify,role}){
+ const [form,setForm]=useState({...emptyItem(value.type),...value,metadata:value.metadata||{}}),[lang]=useState('en'),[busy,setBusy]=useState(false),[advanced,setAdvanced]=useState(false),[jsonMeta,setJsonMeta]=useState(JSON.stringify(value.metadata||{},null,2));
+ const [imageBusy,setImageBusy]=useState(false);
+ const isNew=!value.id;const canPublish=['admin','publisher'].includes(role);const fields=fieldsFor(form);
+ const set=(name,content)=>setForm(a=>({...a,[name]:content}));
+ const uploadImage=(file,opts={})=>uploadAsset(file,opts,notify);
  const meta=(()=>{try{const m=JSON.parse(jsonMeta);return m&&typeof m==='object'&&!Array.isArray(m)?m:{}}catch{return {}}})();
  const setMeta=(key,content)=>setJsonMeta(s=>{let m;try{m=JSON.parse(s)}catch{return s}if(!m||typeof m!=='object'||Array.isArray(m))m={};if(content===''||content==null)delete m[key];else m[key]=content;return JSON.stringify(m,null,2)});
  const validStatus=requiresVerification.has(form.type);
@@ -862,7 +865,7 @@ function App(){
  if(!ready)return <div className="min-h-screen grid place-items-center text-slate-500 text-sm">Loading secure workspace…</div>;
  if(user?.role==='father')return <div className="min-h-screen grid place-items-center gap-3 p-8 text-center text-slate-600"><p className="text-sm font-semibold text-navy-900">This area is the staff CMS.</p><p className="text-sm">Opening your Father profile on the public website…</p></div>;
  if(!isStaff)return <><Login onLogin={acceptAuth} notify={notify}/>{notice&&<Toast key={notice.message} {...notice}/>}</>;
- return <div className="cms-shell lg:pl-[270px]"><Sidebar section={section} setSection={setSection} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={user} onLogout={logout}/><Topbar section={section} setMobileOpen={setMobileOpen} user={user} onLogout={logout} setSection={setSection}/><main className="px-4 sm:px-8 lg:px-10 py-7 sm:py-9 max-w-[1750px] mx-auto">{demo&&<div className="mb-6 flex flex-wrap justify-between gap-3 items-center border border-sky-200 rounded-xl bg-sky-50/90 px-4 py-3 text-xs text-sky-900"><span><Info size={15} className="inline mr-2"/><strong>Read-only demo.</strong> 124 source-derived draft records; no connection to the real database.</span><a href="/admin" className="underline font-bold">Go to secure login</a></div>}{section==='overview'?<Overview setSection={setSection} user={user} notify={notify}/>:viewFor(section)?<ContentManager key={viewFor(section).id} view={viewFor(section)} notify={notify} user={user}/>:section==='contacts'?<Contacts notify={notify} user={user}/>:section==='inquiries'?<Inquiries notify={notify} user={user}/>:section==='father-profiles'?(user.role==='admin'?<FatherProfiles notify={notify}/>:<div className="panel p-8">Only admins can manage Father profiles.</div>):section==='father-galleries'?<FatherGalleries notify={notify} user={user}/>:section==='father-reports'?<FatherReports notify={notify} user={user}/>:section==='assets'?<Assets notify={notify} user={user}/>:section==='users'?(user.role==='admin'?<Team notify={notify}/>:<div className="panel p-8">Only admins can manage accounts.</div>):section==='seeder'?(user.role==='admin'?<ContentSeeder notify={notify}/>:<div className="panel p-8">Only admins can run the content seeder.</div>):section==='settings'?(user.role==='admin'?<SiteSettings notify={notify}/>:<div className="panel p-8">Only admins can edit settings.</div>):null}<div className="flex justify-between flex-wrap gap-2 text-[11px] text-slate-500 mt-10 pt-6 border-t border-sky-200"><span>© 2026 · Oblate Province of Jaffna · Content Management System</span><span>Built for stewardship, accessibility and safeguarding</span></div></main>{notice&&<Toast key={notice.message} {...notice}/>}</div>;
+ return <div className="cms-shell lg:pl-[270px]"><Sidebar section={section} setSection={setSection} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={user} onLogout={logout}/><Topbar section={section} setMobileOpen={setMobileOpen} user={user} onLogout={logout} setSection={setSection}/><main className="px-4 sm:px-8 lg:px-10 py-7 sm:py-9 max-w-[1750px] mx-auto">{demo&&<div className="mb-6 flex flex-wrap justify-between gap-3 items-center border border-sky-200 rounded-xl bg-sky-50/90 px-4 py-3 text-xs text-sky-900"><span><Info size={15} className="inline mr-2"/><strong>Read-only demo.</strong> 124 source-derived draft records; no connection to the real database.</span><a href="/admin" className="underline font-bold">Go to secure login</a></div>}{section==='overview'?<Overview setSection={setSection} user={user} notify={notify}/>:viewFor(section)?.custom==='places'?<PlacesManager api={api} notify={notify} user={user} upload={(file,opts={})=>uploadAsset(file,opts,notify)}/>:viewFor(section)?<ContentManager key={viewFor(section).id} view={viewFor(section)} notify={notify} user={user}/>:section==='contacts'?<Contacts notify={notify} user={user}/>:section==='inquiries'?<Inquiries notify={notify} user={user}/>:section==='father-profiles'?(user.role==='admin'?<FatherProfiles notify={notify}/>:<div className="panel p-8">Only admins can manage Father profiles.</div>):section==='father-galleries'?<FatherGalleries notify={notify} user={user}/>:section==='father-reports'?<FatherReports notify={notify} user={user}/>:section==='assets'?<Assets notify={notify} user={user}/>:section==='users'?(user.role==='admin'?<Team notify={notify}/>:<div className="panel p-8">Only admins can manage accounts.</div>):section==='seeder'?(user.role==='admin'?<ContentSeeder notify={notify}/>:<div className="panel p-8">Only admins can run the content seeder.</div>):section==='settings'?(user.role==='admin'?<SiteSettings notify={notify}/>:<div className="panel p-8">Only admins can edit settings.</div>):null}<div className="flex justify-between flex-wrap gap-2 text-[11px] text-slate-500 mt-10 pt-6 border-t border-sky-200"><span>© 2026 · Oblate Province of Jaffna · Content Management System</span><span>Built for stewardship, accessibility and safeguarding</span></div></main>{notice&&<Toast key={notice.message} {...notice}/>}</div>;
 }
 function Toast({message,type}){return <div role="status" className={`fixed z-[100] bottom-6 right-6 left-6 sm:left-auto sm:max-w-[400px] rounded-xl shadow-xl px-5 py-4 text-sm font-semibold flex items-center gap-3 ${type==='error'?'bg-rose-700 text-white':'bg-navy-900 text-white'}`}>{type==='error'?<AlertCircle size={19} className="shrink-0"/>:<CheckCircle2 size={19} className="shrink-0 text-gold-400"/>}{message}</div>}
 const root=import.meta.hot?.data.root||createRoot(document.getElementById('root'));
