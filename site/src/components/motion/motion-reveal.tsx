@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { motion, useReducedMotion, type Variants } from "motion/react"
 
 import { cn } from "cn"
@@ -16,6 +15,9 @@ const offsets: Record<From, { x?: number; y?: number }> = {
 }
 
 const ease = [0.22, 1, 0.36, 1] as const
+
+/** Any overlap triggers: a ratio like 0.14 never fires on blocks taller than ~7 screens. */
+const viewport = { once: true, amount: "some", margin: "0px 0px -6% 0px" } as const
 
 type MotionRevealProps = {
   children: React.ReactNode
@@ -37,7 +39,6 @@ export function MotionReveal({
   const reduce = useReducedMotion()
   const offset = offsets[from]
   const classes = cn(id && "scroll-mt-80", className)
-  const [done, setDone] = useState(false)
 
   if (reduce) {
     if (as === "li") {
@@ -60,14 +61,12 @@ export function MotionReveal({
     "data-motion-own": "",
     initial: { opacity: 0, ...offset },
     whileInView: { opacity: 1, x: 0, y: 0 },
-    viewport: { once: true, amount: 0.14 },
+    viewport,
     transition: {
       duration: 0.55,
       delay: delay / 1000,
       ease,
     },
-    onAnimationComplete: () => setDone(true),
-    style: done ? undefined : { willChange: "opacity, transform" },
   }
 
   if (as === "li") {
@@ -149,7 +148,7 @@ export function MotionStagger({ children, className, stagger = 0.09, as = "div" 
         data-motion-own=""
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true, amount: 0.12 }}
+        viewport={viewport}
         variants={variants}
       >
         {children}
@@ -163,7 +162,7 @@ export function MotionStagger({ children, className, stagger = 0.09, as = "div" 
       data-motion-own=""
       initial="hidden"
       whileInView="show"
-      viewport={{ once: true, amount: 0.12 }}
+      viewport={viewport}
       variants={variants}
     >
       {children}

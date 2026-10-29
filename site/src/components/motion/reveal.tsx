@@ -13,11 +13,12 @@ type RevealProps = {
   from?: "left" | "right" | "up" | "zoom"
 }
 
+/** Short offsets: long slides over glass/backdrop-filter cards read as flicker. */
 const offsets = {
-  left: "translate3d(-120px, 0, 0)",
-  right: "translate3d(120px, 0, 0)",
-  up: "translate3d(0, 120px, 0)",
-  zoom: "translate3d(0, 60px, 0) scale(0.82)",
+  left: "translate3d(-24px, 0, 0)",
+  right: "translate3d(24px, 0, 0)",
+  up: "translate3d(0, 20px, 0)",
+  zoom: "translate3d(0, 16px, 0) scale(0.97)",
 } as const
 
 export function Reveal({
@@ -42,19 +43,20 @@ export function Reveal({
           observer.disconnect()
         }
       },
-      { threshold: from ? 0.2 : 0.01 }
+      // A ratio threshold never fires on blocks taller than the screen, so trigger on any overlap.
+      { threshold: 0, rootMargin: "0px 0px -6% 0px" }
     )
 
     observer.observe(node)
     return () => observer.disconnect()
-  }, [from])
+  }, [])
 
   const classNameValue = cn(shown && !from && "animate-card-in", id && "scroll-mt-80", className)
   const style: React.CSSProperties = from
     ? {
         opacity: shown ? 1 : 0,
         transform: shown ? "none" : offsets[from],
-        transition: `opacity 0.9s ease ${delay}ms, transform 1s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
+        transition: `opacity 0.55s ease ${delay}ms, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
       }
     : { animationDelay: "0ms" }
 

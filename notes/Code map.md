@@ -54,7 +54,7 @@ Redirect-only pages: `/about` to `/history`, `/parishes` to `/ministries#parish-
 - Footer: `site/src/components/layout/site-footer.tsx` — layered teal wave; Explore / Resources / Contact / Stay connected glass box (white email + teal send); social + X; Privacy/Terms/Cookies; brand `#17b3c6`
 - Site name, contact details: `site/src/config/site.ts`
 - Section title style: `sections/section-heading.tsx`; coloured page banner: `sections/page-banner.tsx`
-- Animations: `site/src/components/motion/` (reveal, page-motion, `motion-reveal` = Motion for React — History + Home Keyvo-style stagger/hero/float)
+- Animations: `site/src/components/motion/` (`reveal`, `motion-reveal` = Motion for React — History + Home stagger/hero/float). `page-motion` is now a plain wrapper: the per-text-node fades, page fade-in and cyan page curtain were removed on 29 Oct 2026 because they made the whole site flicker. Keep reveal offsets short (≤24px) and trigger on any overlap, never a ratio (tall blocks never reach it).
 - Mission map: `site/src/components/map/province-map.tsx` (Leaflet + glass overlays: kind stats, place list, district chips, selected place; pins = CMS `location` entries with lat/lng), shown only on Home and Contact via `map/province-map-gate.tsx`
 - Buttons, inputs: `site/src/components/ui/`
 - Root layout, fonts: `site/src/app/layout.tsx` (also loads `getFormationHouses`, `getMapLocations`, `getMinistries`, `getParishes`, `getTodayHighlights` for every page)

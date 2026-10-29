@@ -242,24 +242,6 @@
   animation: page-in 0.5s ease both;
 }
 
-@keyframes page-arrive-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes curtain {
-  0% {
-    opacity: 0.9;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
 .today-ticker {
   mask-image: linear-gradient(to right, transparent, #000 1.5rem, #000 calc(100% - 1.5rem), transparent);
 }
@@ -316,30 +298,6 @@
   }
 }
 
-@keyframes text-bloom {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes title-sweep {
-  from {
-    opacity: 0;
-    clip-path: inset(0 100% 0 0);
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    clip-path: inset(0 0 0 0);
-    transform: none;
-  }
-}
-
 @keyframes card-in {
   from {
     transform: translateY(8px);
@@ -356,21 +314,6 @@
   to {
     transform: scale(1.08);
   }
-}
-
-.page-stage {
-  animation: page-arrive-fade 0.18s ease-out both;
-  transform: none;
-}
-
-.page-curtain {
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  background: linear-gradient(100deg, transparent, rgb(144 224 239 / 0.15) 35%, #48cae4 50%, rgb(144 224 239 / 0.15) 65%, transparent);
-  animation: curtain 0.2s ease-out forwards;
-  opacity: 0;
 }
 
 .animate-card-in {
@@ -1396,8 +1339,6 @@ html.dark .pillar-item:hover {
   .journey-rise,
   .menu-drop,
   .menu-row,
-  .page-stage,
-  .page-curtain,
   .animate-card-in,
   .slide-ken,
   .media-panel,
