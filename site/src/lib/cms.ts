@@ -118,7 +118,7 @@ export type Publication = {
   href?: string
   image?: string
 }
-export type GatheringKind = "event" | "birthday" | "death-anniversary"
+export type GatheringKind = "event" | "birthday"
 export type Gathering = {
   id: string
   title: string
@@ -126,7 +126,7 @@ export type Gathering = {
   place: string
   summary: string
   kind: GatheringKind
-  /** Recurring every year on month/day (birthdays & death anniversaries). */
+  /** Recurring every year on month/day (birthdays). */
   annual: boolean
   year: number
   month: number
@@ -153,7 +153,6 @@ export type Leadership = {
 }
 export type HomeContent = {
   hero: { eyebrow: string; title: string; tagline: string; years: string; quote: string; lede: string }
-  welcome: string[]
 }
 export type CharismContent = {
   kicker: string
@@ -641,7 +640,6 @@ export async function getHomeContent(): Promise<HomeContent> {
       quote: text(page, "quote"),
       lede: text(page, "lede"),
     },
-    welcome: paragraphs(page?.body ?? ""),
   }
 }
 
@@ -867,9 +865,9 @@ function annualEntry(
   }
 }
 
-/** Province calendar: feasts/events + living fathers’ birthdays + historical archive birthdays & death anniversaries. */
+/** Province calendar: feasts/events + living fathers’ birthdays. */
 export async function getProvinceCalendar(): Promise<Gathering[]> {
-  const [events, priests, necrology] = await Promise.all([getEvents(), getPriests(), getNecrology()])
+  const [events, priests] = await Promise.all([getEvents(), getPriests()])
   const entries: Gathering[] = [...events]
 
   for (const priest of priests) {
@@ -892,45 +890,6 @@ export async function getProvinceCalendar(): Promise<Gathering[]> {
     )
   }
 
-  for (const person of necrology) {
-    const born = parseOblateDate(person.born)
-    if (born) {
-      entries.push(
-        annualEntry({
-          id: `necrology-birthday-${person.no}`,
-          title: `${person.name} — Birthday`,
-          dateLabel: monthDayLabel(born.month, born.day),
-          place: person.bornAt || "Historical archive",
-          summary: `Birthday remembered from the Province necrology register (no. ${person.no}).`,
-          kind: "birthday",
-          month: born.month,
-          day: born.day,
-          href: "/history#necrology",
-          face: "#d4f6fa",
-          ink: "#023e8a",
-        })
-      )
-    }
-    const died = parseOblateDate(person.died)
-    if (died) {
-      entries.push(
-        annualEntry({
-          id: `necrology-death-${person.no}`,
-          title: `${person.name} — Death anniversary`,
-          dateLabel: monthDayLabel(died.month, died.day),
-          place: person.diedAt || "Historical archive",
-          summary: `Death anniversary from the Province necrology register (no. ${person.no}).`,
-          kind: "death-anniversary",
-          month: died.month,
-          day: died.day,
-          href: "/history#necrology",
-          face: "#ece4fb",
-          ink: "#5b21b6",
-        })
-      )
-    }
-  }
-
   return entries
 }
 
@@ -942,7 +901,7 @@ export type TodayHighlight = {
   href: string
 }
 
-/** Today's entries from the province calendar (events, birthdays, death anniversaries) plus OMI ceremonies (Colombo calendar) for the site-wide Today bar. */
+/** Today's entries from the province calendar (events, birthdays) plus OMI ceremonies (Colombo calendar) for the site-wide Today bar. */
 export async function getTodayHighlights(): Promise<TodayHighlight[]> {
   const [calendar, newsPage] = await Promise.all([
     getProvinceCalendar().catch(() => [] as Gathering[]),
@@ -968,11 +927,11 @@ export async function getTodayHighlights(): Promise<TodayHighlight[]> {
   const todays = calendar.filter(onToday).map((entry) => ({
     id: entry.id,
     kind: entry.kind,
-    title: entry.title.replace(/\s+—\s+(Birthday|Death anniversary)$/, ""),
+    title: entry.title.replace(/\s+—\s+Birthday$/, ""),
     detail: entry.place || entry.dateLabel,
     href: entry.href || "/#calendar",
   }))
-  const order: Record<GatheringKind, number> = { event: 0, birthday: 1, "death-anniversary": 2 }
+  const order: Record<GatheringKind, number> = { event: 0, birthday: 1 }
   todays.sort((a, b) => order[a.kind] - order[b.kind])
 
   const ceremonies = (newsPage?.ceremonies?.items ?? [])

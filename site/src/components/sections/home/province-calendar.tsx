@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Cake, CalendarDays, ChevronLeft, ChevronRight, Cross } from "lucide-react"
+import { Cake, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
 import { MotionReveal } from "@/components/motion/motion-reveal"
@@ -59,7 +59,6 @@ const weekdayLong = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Sa
 const kindMeta: Record<GatheringKind, { label: string; dot: string; Icon: typeof Cake; tone: string }> = {
   event: { label: "Event", dot: "bg-[#17b3c6]", Icon: CalendarDays, tone: "text-[#0e98ac]" },
   birthday: { label: "Birthday", dot: "bg-[#ffbf00]", Icon: Cake, tone: "text-[#9a6b00]" },
-  "death-anniversary": { label: "Anniversary", dot: "bg-[#8b5cf6]", Icon: Cross, tone: "text-[#5b21b6]" },
 }
 
 function monthCells(year: number, month: number) {
@@ -75,13 +74,11 @@ function monthCells(year: number, month: number) {
 }
 
 function cleanTitle(title: string) {
-  return title.replace(/\s—\s(Birthday|Death anniversary)$/i, "").trim()
+  return title.replace(/\s—\sBirthday$/i, "").trim()
 }
 
 function kindRank(kind: GatheringKind) {
-  if (kind === "event") return 0
-  if (kind === "birthday") return 1
-  return 2
+  return kind === "event" ? 0 : 1
 }
 
 function CompactRow({
@@ -238,7 +235,6 @@ export function ProvinceCalendar({ events: entries }: { events: Gathering[] }) {
   const monthCounts = {
     event: monthEvents.filter((item) => item.kind === "event").length,
     birthday: monthEvents.filter((item) => item.kind === "birthday").length,
-    death: monthEvents.filter((item) => item.kind === "death-anniversary").length,
   }
 
   return (
@@ -248,7 +244,7 @@ export function ProvinceCalendar({ events: entries }: { events: Gathering[] }) {
           <div className="max-w-xl">
             <p className="text-xs font-bold tracking-[0.2em] text-[#0e98ac] uppercase">Province calendar</p>
             <h2 className="mt-2 font-heading text-3xl font-semibold text-[#023e8a] sm:text-4xl">
-              Events, birthdays &amp; remembrances
+              Events &amp; birthdays
             </h2>
           </div>
           <div className="flex flex-wrap gap-3 text-[11px] font-semibold text-[#5c6b7a]">
@@ -257,9 +253,6 @@ export function ProvinceCalendar({ events: entries }: { events: Gathering[] }) {
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="size-2 rounded-full bg-[#ffbf00]" /> Birthday
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-[#8b5cf6]" /> Anniversary
             </span>
           </div>
         </MotionReveal>
@@ -306,7 +299,7 @@ export function ProvinceCalendar({ events: entries }: { events: Gathering[] }) {
                   const marks = entries.filter((event) => covers(event, year, month, date))
                   const selected = date === day
                   const todayCell = isToday(date)
-                  const kinds = (["event", "birthday", "death-anniversary"] as GatheringKind[]).filter((kind) =>
+                  const kinds = (["event", "birthday"] as GatheringKind[]).filter((kind) =>
                     marks.some((mark) => mark.kind === kind)
                   )
                   return (
@@ -352,7 +345,7 @@ export function ProvinceCalendar({ events: entries }: { events: Gathering[] }) {
                 })}
               </div>
               <p className="mt-3 text-center text-[11px] text-[#5c6b7a]">
-                {monthCounts.event} events · {monthCounts.birthday} birthdays · {monthCounts.death} anniversaries
+                {monthCounts.event} events · {monthCounts.birthday} birthdays
               </p>
             </div>
           </MotionReveal>

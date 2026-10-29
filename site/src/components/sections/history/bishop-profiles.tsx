@@ -29,7 +29,7 @@ export async function BishopProfiles() {
       <div className="relative mx-auto max-w-6xl">
         <SectionHeading
           kicker="Oblate bishops"
-          title="Bishops of our story"
+          title="Story of our Oblate bishops"
           subtitle="Open any card for that bishop’s own profile page."
         />
         <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

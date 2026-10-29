@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Cake, CalendarDays, Flame, Sparkles, X } from "lucide-react"
+import { Cake, CalendarDays, Sparkles, X } from "lucide-react"
 import { useSyncExternalStore } from "react"
 
 import type { TodayHighlight } from "@/lib/cms"
@@ -12,8 +12,8 @@ const TIME_ZONE = "Asia/Colombo"
 const SECONDS_PER_ITEM = 7
 const MIN_LOOP_SECONDS = 18
 
-const ICONS = { birthday: Cake, event: CalendarDays, ceremony: Sparkles, "death-anniversary": Flame } as const
-const LABELS = { birthday: "Birthday", event: "Event", ceremony: "Feast", "death-anniversary": "Remembrance" } as const
+const ICONS = { birthday: Cake, event: CalendarDays, ceremony: Sparkles } as const
+const LABELS = { birthday: "Birthday", event: "Event", ceremony: "Feast" } as const
 
 function todayStamp() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(new Date())

@@ -17,37 +17,39 @@ import { siteInfoDefaults } from "@/content/site-info"
  * block id (in `metadata.sections`); anything not edited there falls back to these defaults.
  * The CMS builds its forms from the shape of these defaults (served at /cms-blocks).
  */
+export const homeWelcomeDefaults = {
+  badge: "Welcome",
+  eyebrow: "Oblate Province of Jaffna",
+  title: "A missionary family since 1847",
+  lede: "From the arrival of the first Oblates to today's houses, parishes and missions — one family serving the most abandoned in Sri Lanka and abroad.",
+  mainImage: "/Herosection/welcome-church-sunset.jpg",
+  mainImageAlt: "White church on a tropical hillside at golden sunset",
+  buttonLabel: "Begin exploring",
+  buttonHref: "/history",
+  openLabel: "Open",
+  cards: [
+    {
+      badge: "Presence",
+      title: "Island-wide and abroad — houses, parishes and missions in one family.",
+      image: "/Herosection/Welcome.jpeg",
+      href: "/history",
+    },
+    {
+      badge: "Charism",
+      title: "Evangelizing the poor through presence, accompaniment and service.",
+      image: "/Herosection/Ministry_1.jpg",
+      href: "/charism",
+    },
+    {
+      badge: "Ministries",
+      title: "Seventeen ways of serving — education, media, justice and formation.",
+      image: "/Herosection/ministry_2.jpg",
+      href: "/ministries",
+    },
+  ],
+}
+
 export const homeSectionsDefaults = {
-  welcome: {
-    badge: "Welcome",
-    eyebrow: "Oblate Province of Jaffna",
-    title: "A missionary family since 1847",
-    image: "/Herosection/welcome-church-sunset.jpg",
-    lede: "From the arrival of the first Oblates to today's houses, parishes and missions — one family serving the most abandoned in Sri Lanka and abroad.",
-    cards: [
-      {
-        badge: "Presence",
-        title: "Island-wide and abroad — houses, parishes and missions in one family.",
-        image: "/Herosection/Welcome.jpeg",
-        href: "/history",
-        tone: "teal",
-      },
-      {
-        badge: "Charism",
-        title: "Evangelizing the poor through presence, accompaniment and service.",
-        image: "/Herosection/Ministry_1.jpg",
-        href: "/charism",
-        tone: "teal",
-      },
-      {
-        badge: "Ministries",
-        title: "Seventeen ways of serving — education, media, justice and formation.",
-        image: "/Herosection/ministry_2.jpg",
-        href: "/ministries",
-        tone: "gold",
-      },
-    ],
-  },
   inspiration: {
     kicker: "Daily inspiration",
     quote: "Leave nothing undared for the Kingdom of God.",
@@ -536,6 +538,17 @@ export const blocks = {
     defaults: { hero: { posterImage: "/Herosection/Heroimage_4.jpg", video: "/video/Hero_section.mp4" } },
   },
   "site-info": { label: "Footer, contact and social links", defaults: siteInfoDefaults },
+  "home-welcome": {
+    label: "Welcome section (below the top banner)",
+    defaults: homeWelcomeDefaults,
+    labels: {
+      title: "Title",
+      mainImage: "Main photo (large card on the left)",
+      mainImageAlt: "Main photo description (for screen readers)",
+      image: "Card photo",
+      href: "Card link (e.g. /charism)",
+    },
+  },
   "home-sections": { label: "Home page sections", defaults: homeSectionsDefaults },
   journey: { label: "Our journey timeline", defaults: { eras: journeyEras } },
   "media-page": { label: "Media page text & photos", defaults: mediaPageDefaults },

@@ -16,10 +16,12 @@ Write website changes here as checkboxes. Ask Cursor: "do the tasks in my Todo n
 - [x] Media page fully editable in CMS (tabs, gallery, videos, podcasts, songs, interviews, reflections, testimonials, categories).
 - [ ] Not yet editable: Vocations page wording.
 - [x] International: Category 1 & 2 countries in CMS, country detail pages (missions + photos), heading updates with country count.
-- [ ] After deploying the `merge/ministry-details` branch: run `node ~/omi-jaffna-backups/merge-ministry-details/apply-on-deploy.mjs` (switches the Province emblem and Home welcome photo to the new Jaffna logo). Not before: the logo file only exists on the live site after that deploy.
+- [ ] After deploying the `merge/ministry-details` branch: run `node ~/omi-jaffna-backups/merge-ministry-details/apply-on-deploy.mjs` (switches the Province emblem and Home welcome photo to the new Jaffna logo). Its welcome-photo step writes the old `home-sections` welcome, which the site no longer reads: change the photo in CMS Home → Welcome section instead. Not before: the logo file only exists on the live site after that deploy.
 - [ ] Switch the Google Drive backup to OMI's own Google app (rclone's shared login is being retired in 2026; backups stop when it is). Google Cloud project "My Project 3145" (`clean-vista-513010-d1`, account omijaffnadatabase@gmail.com) already has the "OMI Jaffna Backup" app in production with a Desktop client "rclone VPS backup". Left: sign in to Google once, then point the VPS rclone remote at the new client and run a fresh backup. Steps in Project overview → Daily backup. Ask Cursor: "finish the Drive backup switch".
 - [x] Turn on "Write with AI" for Fathers: Gemini API key added to `api/.env` (local) and the VPS `deploy/vps/.env` (29 Oct 2026). Live once the dashboard code is deployed.
 - [ ] Turn on the email keep-alive: add `MAIL_KEEPALIVE_TO=omijaffnadatabase@gmail.com` to the VPS `deploy/vps/.env`, then `docker compose up -d api` (code is already deployed).
+- [x] Priest birthdays filled from `OMI_Fathers_Month_Wise_As_Is.xlsx` (29 Oct 2026): 108 of 111 CMS priest profiles now have `metadata.born` (shows on profiles and in the Today bar).
+- [ ] Birthdays still missing in the CMS: Emmanuel Godfrey Joel, Adaikalam Jesuraj Croos, Rohan (not in the spreadsheet). Spreadsheet names with no CMS profile: Rex Kulas, Luis Ignacio (Chicho), Gerard Rosairo, Theva Vasantharasa (OMI 14560), Rockson Croos. Add their profiles or dates in the CMS if they should appear.
 - [x] (Confirmed correct 28 Oct 2026, together with the OMI ID list comparison.) Check priest names in the CMS that look like test edits: "Rev. Fr. C. S. Cro", "Rev. Fr. F. L. N. Croos OMI efefef", "Rev. Fr. Louis Ponniah OMILs".
 
 ## Done

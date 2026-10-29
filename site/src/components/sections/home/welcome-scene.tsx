@@ -8,10 +8,8 @@ import { isUpload } from "@/content/site-info"
 export type WelcomeCard = {
   badge: string
   title: string
-  text?: string
   image: string
   href: string
-  tone?: string
 }
 
 type WelcomeSceneProps = {
@@ -19,23 +17,29 @@ type WelcomeSceneProps = {
   eyebrow?: string
   title: string
   lede: string
-  image: string
+  mainImage: string
+  mainImageAlt?: string
+  buttonLabel?: string
+  buttonHref?: string
+  openLabel?: string
   cards: WelcomeCard[]
 }
 
-/** Prefer the designed church scene when CMS still points at an old logo/upload. */
-function welcomeHeroSrc(image: string) {
-  const src = (image || "").trim()
-  if (!src) return "/Herosection/welcome-church-sunset.jpg"
-  if (/supabase\.co/i.test(src)) return "/Herosection/welcome-church-sunset.jpg"
-  if (/welcome\.jpeg$/i.test(src)) return "/Herosection/welcome-church-sunset.jpg"
-  return src
-}
-
-export function WelcomeScene({ badge, eyebrow, title, lede, image, cards }: WelcomeSceneProps) {
-  const items = cards.slice(0, 3)
-  const exploreHref = items[0]?.href ?? "/charism"
-  const heroSrc = welcomeHeroSrc(image)
+export function WelcomeScene({
+  badge,
+  eyebrow,
+  title,
+  lede,
+  mainImage,
+  mainImageAlt,
+  buttonLabel,
+  buttonHref,
+  openLabel,
+  cards,
+}: WelcomeSceneProps) {
+  const items = cards.filter((card) => card.title?.trim() || card.badge?.trim()).slice(0, 3)
+  const exploreHref = buttonHref?.trim() || items[0]?.href || "/history"
+  const heroSrc = mainImage?.trim() || "/Herosection/welcome-church-sunset.jpg"
 
   return (
     <div className="relative mx-auto max-w-6xl">
@@ -44,7 +48,7 @@ export function WelcomeScene({ badge, eyebrow, title, lede, image, cards }: Welc
           <article className="welcome-hero-card relative flex h-full min-h-[26rem] flex-col overflow-hidden rounded-[1.75rem] shadow-[0_28px_60px_-36px_rgba(3,32,43,0.55)] sm:min-h-[30rem] lg:min-h-full">
             <Image
               src={heroSrc}
-              alt=""
+              alt={mainImageAlt ?? ""}
               fill
               priority
               sizes="(max-width:1024px) 100vw, 55vw"
@@ -106,7 +110,7 @@ export function WelcomeScene({ badge, eyebrow, title, lede, image, cards }: Welc
                 href={exploreHref}
                 className="group mt-8 inline-flex items-center gap-3 self-start rounded-full bg-gradient-to-r from-[#17b3c6] to-[#0e98ac] py-2 pr-2 pl-5 text-sm font-bold text-white shadow-[0_12px_28px_-12px_rgba(14,152,172,0.85)] transition hover:brightness-105"
               >
-                Begin exploring
+                {buttonLabel || "Begin exploring"}
                 <span className="grid size-9 place-items-center rounded-full bg-white text-[#0e98ac] transition group-hover:translate-x-0.5">
                   <ArrowRight className="size-4" strokeWidth={2.5} />
                 </span>
@@ -119,17 +123,17 @@ export function WelcomeScene({ badge, eyebrow, title, lede, image, cards }: Welc
           {items.map((card) => (
             <MotionItem key={card.badge + card.href} as="li" className="h-full">
               <Link
-                href={card.href}
+                href={card.href || exploreHref}
                 className="group relative flex h-full min-h-[7.5rem] items-stretch gap-3.5 overflow-hidden rounded-[1.5rem] bg-white p-3.5 shadow-[0_16px_40px_-28px_rgba(10,60,80,0.35)] ring-1 ring-[#d7eef4] transition hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-28px_rgba(10,60,80,0.42)] sm:min-h-0 sm:flex-col sm:gap-3 lg:min-h-[8.25rem] lg:flex-row lg:gap-4 lg:p-4"
               >
                 <span className="relative block w-[38%] shrink-0 overflow-hidden rounded-[1.1rem] sm:aspect-[16/10] sm:w-full lg:aspect-auto lg:w-[9.75rem] lg:self-stretch">
                   <Image
-                    src={card.image}
+                    src={card.image || heroSrc}
                     alt=""
                     fill
                     sizes="(max-width:1024px) 40vw, 160px"
                     className="object-cover transition duration-700 group-hover:scale-105"
-                    unoptimized={isUpload(card.image)}
+                    unoptimized={isUpload(card.image || heroSrc)}
                   />
                 </span>
 
@@ -143,7 +147,7 @@ export function WelcomeScene({ badge, eyebrow, title, lede, image, cards }: Welc
                 </span>
 
                 <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-2 text-xs font-semibold text-[#5c6b7a]">
-                  <span className="hidden sm:inline">Open</span>
+                  <span className="hidden sm:inline">{openLabel || "Open"}</span>
                   <span className="grid size-8 place-items-center rounded-full bg-[#17b3c6] text-white shadow-[0_8px_18px_-10px_rgba(14,152,172,0.9)] transition group-hover:translate-x-0.5">
                     <ArrowRight className="size-3.5" strokeWidth={2.5} />
                   </span>

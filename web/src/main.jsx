@@ -21,8 +21,9 @@ const LIBRARY_CATS=[['gaanapairkasiyar','Gaanapairkasiyar Library'],['anna-illam
 const notLeadershipRole='provincial superior,former provincial';
 // Each CMS screen is one content type, optionally narrowed to the entries one website section uses.
 const VIEWS={
- 'page-home':{type:'page',label:'Top banner & welcome',query:'slug=home',single:true,slugs:[['home','Home page']],where:'Home: banner video and image, title, tagline and welcome text at the top',link:'/'},
- 'block-home-sections':{type:'page',label:'Rest of the Home page',query:'slug=home-sections',single:true,slugs:[['home-sections','Home page sections']],where:'Home: welcome, Daily inspiration quote, Our calling, section headings, the three cards, Media, Oblate family, Join us, Contact us',link:'/#welcome'},
+ 'page-home':{type:'page',label:'Top banner',query:'slug=home',single:true,slugs:[['home','Home page']],where:'Home: banner video and image, title, tagline and quote at the top',link:'/'},
+ 'block-home-welcome':{type:'page',label:'Welcome section',query:'slug=home-welcome',single:true,slugs:[['home-welcome','Welcome section']],where:'Home: the Welcome section under the banner — badge, title, paragraph, main photo, button and the three side cards (photos, text and links)',link:'/#welcome'},
+ 'block-home-sections':{type:'page',label:'Rest of the Home page',query:'slug=home-sections',single:true,slugs:[['home-sections','Home page sections']],where:'Home: Daily inspiration quote, Our calling, section headings, the three cards, Media, Oblate family, Join us, Contact us',link:'/#daily-inspiration'},
  'block-journey':{type:'page',label:'Our journey timeline',query:'slug=journey',single:true,slugs:[['journey','Our journey timeline']],where:'Home and History pages: "Our journey" timeline',link:'/#journey'},
  event:{type:'event',item:'event',label:'Calendar events',where:'Home: province calendar',link:'/#calendar'},
  location:{type:'location',item:'location',label:'Mission map',where:'Home and Contact: mission map pins and place cards',link:'/#mission-map'},
@@ -66,7 +67,7 @@ const VIEWS={
 const NAV=[
  {label:'WORKSPACE',items:[['overview','Overview',LayoutDashboard]]},
  {label:'WEBSITE PAGES',pages:[
-  {label:'Home',icon:Home,views:['page-home','block-home-sections','event','event-father']},
+  {label:'Home',icon:Home,views:['page-home','block-home-welcome','block-home-sections','event','event-father']},
   {label:'History',icon:History,views:['page-history','necrology','timeline','bishop']},
   {label:'Charism',icon:Sparkles,views:['page-charism']},
   {label:'Leadership',icon:Users,views:['block-leadership','leadership-superior','leadership-council','leadership-former','priest']},
@@ -87,7 +88,7 @@ const NAV=[
  {label:'FILES & MANAGEMENT',items:[['assets','File Uploads',FolderOpen],['contacts','Contact Directory',ContactRound],['inquiries','Enquiries',MessageCircle],['users','Team & Roles',ShieldCheck],['seeder','Content Seeder',Database],['settings','Site Settings',Settings2]]}
 ];
 const anchorId=s=>String(s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const PAGE_LINKS={home:'/','home-sections':'/#welcome',journey:'/#journey','site-info':'/contact',history:'/history',bishops:'/history#bishops','media-page':'/media','news-page':'/news#omi-ceremonies',vocations:'/vocations',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations',international:'/international','international-cat1':'/international','international-cat2':'/international','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/history#historical-archive',library:'/library','library-magazines':'/library/magazines','library-libraries':'/library/libraries','library-books':'/library/books','library-articles':'/library/articles'};
+const PAGE_LINKS={home:'/','home-welcome':'/#welcome','home-sections':'/#daily-inspiration',journey:'/#journey','site-info':'/contact',history:'/history',bishops:'/history#bishops','media-page':'/media','news-page':'/news#omi-ceremonies',vocations:'/vocations',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations',international:'/international','international-cat1':'/international','international-cat2':'/international','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/history#historical-archive',library:'/library','library-magazines':'/library/magazines','library-libraries':'/library/libraries','library-books':'/library/books','library-articles':'/library/articles'};
 /** Website address where an entry's changes can be seen. */
 function itemLink(item,view){
  const {type,slug}=item;
@@ -294,7 +295,7 @@ function SectionFields({form,meta,setMeta,upload}){
  if(!data)return <p className="text-xs text-slate-400">Loading website sections…</p>;
  const block=data.blocks[form.slug];if(!block)return null;
  return <div className="rounded-xl border border-sky-200 bg-sky-50/40 p-4 space-y-4"><div><p className="text-sm font-bold text-navy-900">{block.label}</p><p className="mt-1 text-[11px] leading-5 text-slate-500">Empty text keeps the original wording. Uploaded images must be approved in File Uploads before visitors can see them.</p></div>
-  <AutoFields value={mergeContent(block.defaults,meta.sections)} template={block.defaults} onChange={v=>setMeta('sections',v)} upload={upload}/>
+  <AutoFields value={mergeContent(block.defaults,meta.sections)} template={block.defaults} labels={block.labels} onChange={v=>setMeta('sections',v)} upload={upload}/>
  </div>;
 }
 function MetaFields({type,slug,meta,setMeta,upload}){
@@ -349,7 +350,7 @@ const FIELDS={
  library:{title:'Title',excerpt:'Short description',event_date:'Date / issue date',image:'Cover image',media_url:'PDF file'},
 };
 const PAGE_FIELDS={
- home:{title:'Entry name',excerpt:'Tagline under the title',body:'Welcome paragraphs (blank line between paragraphs)'},
+ home:{title:'Entry name',excerpt:'Tagline under the title'},
  charism:{title:'Entry name',excerpt:'Small heading at the top',body:'Summary paragraph'},
 };
 const fieldsFor=form=>form.type==='page'?(PAGE_FIELDS[form.slug]||{title:'Entry name'}):(FIELDS[form.type]||{title:'Title',excerpt:'Short description',body:'Full content',location_text:'Location',event_date:'Date',image:'Cover image',media_url:'Media URL'});
