@@ -22,6 +22,8 @@ Write website changes here as checkboxes. Ask Cursor: "do the tasks in my Todo n
 - [ ] Turn on the email keep-alive: add `MAIL_KEEPALIVE_TO=omijaffnadatabase@gmail.com` to the VPS `deploy/vps/.env`, then `docker compose up -d api` (code is already deployed).
 - [x] Priest birthdays filled from `OMI_Fathers_Month_Wise_As_Is.xlsx` (29 Oct 2026): 108 of 111 CMS priest profiles now have `metadata.born` (shows on profiles and in the Today bar).
 - [ ] Birthdays still missing in the CMS: Emmanuel Godfrey Joel, Adaikalam Jesuraj Croos, Rohan (not in the spreadsheet). Spreadsheet names with no CMS profile: Rex Kulas, Luis Ignacio (Chicho), Gerard Rosairo, Theva Vasantharasa (OMI 14560), Rockson Croos. Add their profiles or dates in the CMS if they should appear.
+- [x] Ordination dates from `OMI_Fathers_Ordination_Only_Month_Wise.xlsx` (29 Oct 2026): 104 priest profiles now have `metadata.ordained` (home calendar + Today bar).
+- [ ] Ordination sheet names with no CMS profile: Rockson Croos, Rex Kulas, Luis Ignacio (Chicho), Theva Vasantharasa, Gerard Rosairo, Jerome Lambert.
 - [x] (Confirmed correct 28 Oct 2026, together with the OMI ID list comparison.) Check priest names in the CMS that look like test edits: "Rev. Fr. C. S. Cro", "Rev. Fr. F. L. N. Croos OMI efefef", "Rev. Fr. Louis Ponniah OMILs".
 
 ## Done

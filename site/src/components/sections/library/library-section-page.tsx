@@ -18,7 +18,7 @@ type SectionCopy = {
 export async function LibrarySectionPage({ section }: { section: LibrarySectionId }) {
   const [items, copy] = await Promise.all([getLibraryItems(section), getBlock("library")])
   const sectionCopy = copy[section] as SectionCopy
-  const categories: LibraryCategory[] = categoriesForSection(section)
+  const categories: LibraryCategory[] = categoriesForSection(section, copy)
 
   return (
     <>

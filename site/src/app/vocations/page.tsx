@@ -1,12 +1,12 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { BookOpen, Compass, Heart, HandHeart, MapPin, MessageCircle, Sparkles, Users } from "lucide-react"
+import { ArrowRight, BookOpen, Compass, Heart, HandHeart, MapPin, MessageCircle, Sparkles, Users } from "lucide-react"
 
 import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { PageBanner } from "@/components/sections/page-banner"
 import { SectionHeading } from "@/components/sections/section-heading"
-import { houseAnchor } from "@/config/navigation"
+import { formationHref, houseAnchor } from "@/config/navigation"
 import { getBlock, getFormationHouses } from "@/lib/cms"
 
 export const metadata: Metadata = {
@@ -70,7 +70,8 @@ export default async function VocationsPage() {
             className="absolute top-0 bottom-0 left-6 w-px bg-gradient-to-b from-[#17b3c6] via-[#0a5062] to-[#ffcf4a] sm:left-1/2"
           />
           {formationHouses.map((house, index) => {
-            const note = journey.stageNotes.find((item) => house.name.includes(item.match))
+            const note = journey.stageNotes.find((item) => item.match && house.name.includes(item.match))
+            const stage = house.stage || note?.stage
             const right = index % 2 === 1
             return (
               <Reveal
@@ -89,9 +90,12 @@ export default async function VocationsPage() {
                 >
                   {index + 1}
                 </span>
-                <article className="rounded-[1.5rem] border border-[#d5dee6] bg-white p-6 shadow-sm transition duration-500 hover:-translate-y-1 hover:shadow-[0_24px_50px_-28px_rgba(10,80,98,0.55)]">
-                  {note ? (
-                    <p className="text-xs font-bold tracking-[0.22em] text-[#17b3c6] uppercase">{note.stage}</p>
+                <Link
+                  href={formationHref(house)}
+                  className="group block rounded-[1.5rem] border border-[#d5dee6] bg-white p-6 shadow-sm transition duration-500 hover:-translate-y-1 hover:border-[#17b3c6] hover:shadow-[0_24px_50px_-28px_rgba(10,80,98,0.55)]"
+                >
+                  {stage ? (
+                    <p className="text-xs font-bold tracking-[0.22em] text-[#17b3c6] uppercase">{stage}</p>
                   ) : null}
                   <h3 className="mt-2 font-heading text-2xl font-semibold text-[#023e8a]">{house.name}</h3>
                   {house.place ? (
@@ -100,8 +104,15 @@ export default async function VocationsPage() {
                       {house.place}
                     </p>
                   ) : null}
-                  {note ? <p className="mt-4 leading-7 text-[#3d4b59]">{note.text}</p> : null}
-                </article>
+                  {house.tagline ? (
+                    <p className="mt-4 font-heading text-lg leading-snug font-semibold text-[#0a5062]">{house.tagline}</p>
+                  ) : null}
+                  {note?.text ? <p className="mt-3 leading-7 text-[#3d4b59]">{note.text}</p> : null}
+                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#0e98ac]">
+                    Read more
+                    <ArrowRight aria-hidden="true" className="size-4 transition group-hover:translate-x-1" />
+                  </span>
+                </Link>
               </Reveal>
             )
           })}

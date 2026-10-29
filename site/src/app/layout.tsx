@@ -9,7 +9,7 @@ import { SiteInfoProvider } from "@/components/layout/site-info"
 import { ProvinceMapGate } from "@/components/map/province-map-gate"
 import { buildNavigation } from "@/config/navigation"
 import { site } from "@/config/site"
-import { getFormationHouses, getMapLocations, getMinistries, getParishes, getSiteInfo, getTodayHighlights } from "@/lib/cms"
+import { getBlock, getFormationHouses, getMapLocations, getMinistries, getParishes, getSiteInfo, getTodayHighlights } from "@/lib/cms"
 
 import "./globals.css"
 
@@ -41,15 +41,26 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const theme = (await cookies()).get("omi-theme")?.value
-  const [ministries, parishes, formationHouses, mapLocations, siteInfo, today] = await Promise.all([
+  const [ministries, parishes, formationHouses, mapLocations, siteInfo, today, library] = await Promise.all([
     getMinistries(),
     getParishes(),
     getFormationHouses(),
     getMapLocations(),
     getSiteInfo(),
     getTodayHighlights().catch(() => []),
+    getBlock("library"),
   ])
-  const navigation = buildNavigation({ ministries, parishes, formationHouses })
+  const navigation = buildNavigation({
+    ministries,
+    parishes,
+    formationHouses,
+    librarySections: {
+      magazine: library.magazine.cardTitle,
+      libraries: library.libraries.cardTitle,
+      books: library.books.cardTitle,
+      articles: library.articles.cardTitle,
+    },
+  })
 
   return (
     <html

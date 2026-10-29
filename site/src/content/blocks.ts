@@ -4,12 +4,16 @@ import {
   charismMission,
   charismMotto,
   charismPriorities,
+  charismFounder,
+  charismSpirituality,
   charismVision,
   coreCommitments,
   missionaryFamily,
+  oblateJourney,
 } from "@/content/charism"
 import { briefHistory, development, whoWeAre } from "@/content/history"
 import { journeyEras } from "@/content/journey"
+import { libraryCategories, magazineCategories } from "@/content/library"
 import { siteInfoDefaults } from "@/content/site-info"
 
 /**
@@ -77,7 +81,7 @@ export const homeSectionsDefaults = {
     {
       kicker: "Formation",
       title: "A life given to mission",
-      text: "Prayer, study and community at Colombuthurai, Keeri and Ampitiya, and formation houses abroad.",
+      text: "Prayer, study and community at Colombuthurai and Keeri, and formation houses abroad.",
       href: "/vocations",
     },
     {
@@ -489,22 +493,17 @@ export const vocationsDefaults = {
       {
         match: "Juniorate",
         stage: "First steps",
-        text: "Young men begin to discover community life, prayer and study while completing their education.",
+        text: "Young people from around the age of 15 discover community life, prayer and study while completing their education.",
       },
       {
         match: "Pre-Novitiate",
         stage: "Discernment",
-        text: "A year of deeper discernment, spiritual direction and preparation for religious life.",
+        text: "Discovering the Oblate charism and preparing spiritually, personally and in community for the Novitiate.",
       },
       {
         match: "De Mazenod",
-        stage: "Philosophy",
-        text: "Philosophical studies, pastoral exposure and growth in the Oblate missionary spirit.",
-      },
-      {
-        match: "Oblate Scholasticate",
-        stage: "Theology",
-        text: "Theological formation and missionary preparation toward final vows and priesthood.",
+        stage: "Scholasticate",
+        text: "Philosophy and theology, pastoral experience and regency, preparing Oblate scholastics for priesthood or brotherhood.",
       },
     ],
   },
@@ -596,13 +595,43 @@ export const blocks = {
         familyImageAlt: "Oblates united in prayer around the Word of God",
       },
       hero: charismHero,
+      spirituality: charismSpirituality,
       missionaryFamily,
       coreCommitments,
       identity: charismIdentity,
       priorities: charismPriorities,
+      founder: charismFounder,
+      journey: oblateJourney,
       mission: charismMission,
       vision: charismVision,
       motto: charismMotto,
+    },
+    labels: {
+      kicker: "Small heading",
+      title: "Title",
+      subtitle: "Subtitle",
+      image: "Photo",
+      imageAlt: "Photo description",
+      closing: "Closing paragraph",
+      spirituality: "Mission, charism & spiritual life (section under the top banner)",
+      themes: "Spiritual themes (cards)",
+      quote: "Highlighted quote",
+      quoteBy: "Quote source (e.g. Pope Pius XI)",
+      sriLanka: "Sri Lanka card",
+      founder: "St. Eugene de Mazenod (founder section)",
+      tagline: "Tagline under the name",
+      years: "Years (e.g. 1782–1861)",
+      chapters: "Life chapters (timeline)",
+      quoteIntro: "Line above the quote",
+      journey: "Journey of the Oblates section",
+      story: "Beginning cards",
+      badge: "Date badge",
+      expansion: "Across continents (timeline)",
+      milestones: "Milestones",
+      year: "Year",
+      witnesses: "Saints, Blesseds and Martyrs",
+      items: "Items",
+      future: "Closing cards (two centuries, the future)",
     },
   },
   leadership: {
@@ -744,6 +773,8 @@ export const blocks = {
       previousIssuesSummaryPrefix: "Browse and download earlier issues of",
       pdfFormatLabel: "PDF Format",
       sampleIssueLabel: "Sample Issue",
+      magazineCategories,
+      libraryCategories,
       closing: {
         quote: "A library is a place where hope and knowledge meet.",
         quoteAccentWords: ["hope", "knowledge"],
@@ -751,6 +782,13 @@ export const blocks = {
         ctaLabel: "Contact the Province",
         ctaHref: "/contact",
       },
+    },
+    labels: {
+      magazineCategories: "Magazine titles (tabs on the Magazines page)",
+      libraryCategories: "Library collections (tabs on the Libraries page)",
+      id: "ID — keep it when renaming (only change the name below); for a new one type e.g. lebara-kilinochchi",
+      label: "Name shown on the website (rename here)",
+      cardTitle: "Name (Library page card and menu)",
     },
   },
 }

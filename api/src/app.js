@@ -10,7 +10,7 @@ import multer from 'multer';
 import {query} from './db.js';
 import {auth,optionalAuth,allow,setSessionCookie,clearSessionCookie,verifyPassword} from './security.js';
 import {crudRouter} from './crud.js';
-import {TYPES} from './constants.js';
+import {TYPES,LIBRARY_CATEGORY_IDS} from './constants.js';
 import {saveFile,readStoredFile,removeFile} from './storage.js';
 import {contentSchema,inquirySchema,publishCheck,fatherRegistrationSchema,fatherProfileSchema,fatherItemSchema,fatherItemUpdateSchema,fatherItemKinds,fatherDispatchSchema,fatherNewsSchema,fatherEventSchema,fatherAiWriteSchema,fatherLibrarySchema,passwordResetSchema} from './validation.js';
 import {writeWithAi} from './ai-writer.js';
@@ -364,9 +364,17 @@ async function ownFileProblem(url,userId,kind){
  if(kind==='image'&&!/^image\//.test(mime))return 'The cover must be a JPEG, PNG or WebP image.';
  return null;
 }
+/** Library collection ids: the CMS list in page `library` (sections.libraryCategories), else the defaults. */
+async function libraryCategoryIds(){
+ const r=await query(`SELECT metadata->'sections'->'libraryCategories' AS list FROM content_items WHERE type='page' AND slug='library' LIMIT 1`);
+ const list=r.rows[0]?.list;
+ const ids=Array.isArray(list)?list.map(x=>String(x?.id||'').trim()).filter(Boolean):[];
+ return ids.length?ids:LIBRARY_CATEGORY_IDS;
+}
 async function fatherBookInput(req,res){
  const parsed=fatherLibrarySchema.safeParse(req.body);
  if(!parsed.success){bad(res,parsed.error.flatten());return null;}
+ if(parsed.data.section==='libraries'&&!(await libraryCategoryIds()).includes(parsed.data.category)){bad(res,{fieldErrors:{category:['Choose the library collection.']}});return null;}
  const pdf=await ownFileProblem(parsed.data.media_url,req.session.sub,'pdf');
  if(pdf){bad(res,{fieldErrors:{media_url:[pdf]}});return null;}
  const cover=await ownFileProblem(parsed.data.image_url,req.session.sub,'image');
@@ -608,10 +616,10 @@ app.delete('/api/items/:id',auth,allow('admin'),asyncRoute(async(req,res)=>{
 
 // Public routes deliberately exclude unpublished content and private contact records.
 const PUBLIC_META_KEYS=[
- 'role','term','term_in_source','since','terms','section','end_date','date_display','subtitle','kind','place',
+ 'role','term','term_in_source','since','terms','section','end_date','date_display','subtitle','kind','place','stage',
  'district','purpose','contact','phone','email','lat','lng',
  'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample','sections','detail','about_heading','about','mission','fit',
- 'born','born_at','died','died_at','register_no','office',
+ 'born','born_at','ordained','died','died_at','register_no','office',
  'category','region','missions','photos','library_section','role','author_name'
 ];
 app.get('/api/public/items',asyncRoute(async(req,res)=>{

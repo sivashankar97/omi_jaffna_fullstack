@@ -3,6 +3,9 @@ import Image from "next/image"
 import { ChevronRight, Church, Globe, HandHeart, Heart, HeartHandshake, Users } from "lucide-react"
 
 import { MotionHero, MotionReveal } from "@/components/motion/motion-reveal"
+import { CharismFounder } from "@/components/sections/charism/charism-founder"
+import { CharismJourney } from "@/components/sections/charism/charism-journey"
+import { CharismSpirituality } from "@/components/sections/charism/charism-spirituality"
 import { CharismVow } from "@/components/sections/charism/charism-vow"
 import { CharismWays } from "@/components/sections/charism/charism-ways"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
@@ -15,7 +18,7 @@ const commitmentIcons = [Church, HeartHandshake, Globe]
 export const metadata: Metadata = {
   title: "Charism",
   description:
-    "Evangelizing the poor — the charism, mission, vision and motto of the Oblate Province of Jaffna.",
+    "Evangelizing the poor — the charism, spiritual life, founder, history, mission, vision and motto of the Oblate Province of Jaffna.",
 }
 
 const priorityIcons = [HandHeart, Users, Heart]
@@ -136,6 +139,8 @@ export default async function CharismPage() {
           </div>
         </MotionReveal>
       </section>
+
+      <CharismSpirituality content={sections.spirituality} />
 
       <section id="missionary-family" className="calendar-stage scroll-mt-80 px-4 py-16 sm:px-8 sm:py-20">
         <div className="relative mx-auto max-w-6xl">
@@ -343,6 +348,9 @@ export default async function CharismPage() {
           </div>
         </div>
       </section>
+
+      <CharismFounder content={sections.founder} />
+      <CharismJourney content={sections.journey} />
 
       <CharismWays ways={content.ways} />
       <CharismVow

@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {TYPES,SENSITIVE_TYPES,LIBRARY_CATEGORY_IDS} from './constants.js';
+import {TYPES,SENSITIVE_TYPES} from './constants.js';
 export const contentSchema=z.object({
  type:z.enum(Object.keys(TYPES)),
  slug:z.string().min(1).max(180).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
@@ -130,7 +130,7 @@ export const fatherLibrarySchema=z.object({
  media_url:z.string().trim().regex(/^\/api\/files\/[0-9a-f-]{36}$/i,'Upload the book PDF.'),
  image_url:z.union([z.string().trim().regex(/^\/api\/files\/[0-9a-f-]{36}$/i),z.literal('')]).default('')
 }).strict().superRefine((data,ctx)=>{
- if(data.section==='libraries'&&!LIBRARY_CATEGORY_IDS.includes(data.category))ctx.addIssue({code:'custom',path:['category'],message:'Choose the library collection.'});
+ if(data.section==='libraries'&&!data.category)ctx.addIssue({code:'custom',path:['category'],message:'Choose the library collection.'});
 }).transform(data=>({...data,category:data.section==='libraries'?data.category:''}));
 export const fatherAiWriteSchema=z.object({
  kind:z.enum(['event','article','book']),

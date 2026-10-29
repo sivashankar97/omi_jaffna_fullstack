@@ -136,7 +136,7 @@
       "title_en": "Formation",
       "excerpt_en": "Preparing future missionaries through prayer, study, community life, pastoral experience, spiritual direction, human formation and discernment.",
       "body_en": "Preparing future missionaries through prayer, study, community life, pastoral experience, spiritual direction, human formation and discernment.",
-      "location_text": "Colombuthurai, Keeri, Ampitiya",
+      "location_text": "Colombuthurai, Keeri",
       "sort_order": 9,
       "metadata": {
         "source": "2026 blueprint, ministry table",
@@ -760,7 +760,7 @@
     },
     {
       "type": "formation",
-      "slug": "st-josephs-juniorate-colombuthurai",
+      "slug": "st-joseph-s-juniorate-colombuthurai",
       "title_en": "St Joseph’s Juniorate – Colombuthurai",
       "excerpt_en": "Formation house named in source; details pending confirmation.",
       "body_en": "",
@@ -772,7 +772,7 @@
     },
     {
       "type": "formation",
-      "slug": "pre-novitiate-gnanodhayam-keeri",
+      "slug": "pre-novitiate-keeri",
       "title_en": "Pre-Novitiate, Gnanodhayam – Keeri",
       "excerpt_en": "Formation house named in source; details pending confirmation.",
       "body_en": "",
@@ -790,18 +790,6 @@
       "body_en": "",
       "location_text": "",
       "sort_order": 3,
-      "metadata": {
-        "source": "2026 blueprint formation section"
-      }
-    },
-    {
-      "type": "formation",
-      "slug": "oblate-scholasticate-ampitiya",
-      "title_en": "Oblate Scholasticate – Ampitiya",
-      "excerpt_en": "Formation house named in source; details pending confirmation.",
-      "body_en": "",
-      "location_text": "",
-      "sort_order": 4,
       "metadata": {
         "source": "2026 blueprint formation section"
       }

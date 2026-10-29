@@ -6,6 +6,7 @@ import { emptyMinistryDetail, type MinistryDetail } from "@/content/ministry-det
 import type { MapKind, MapLocation } from "@/content/map-locations"
 import {
   categoryLabel,
+  type LibraryCategoryLists,
   type LibrarySectionId,
 } from "@/content/library"
 import { newsSections, type NewsArticle, type NewsSectionId } from "@/content/news"
@@ -109,7 +110,12 @@ export type FormerProvincial = {
   image?: string
   gallery: LeadershipPhoto[]
 }
-export type FormationHouse = { name: string; place: string }
+export type FormationHouse = { slug: string; name: string; place: string; tagline: string; stage: string; image?: string }
+export type RichBlock =
+  | { kind: "heading"; text: string }
+  | { kind: "paragraph"; text: string }
+  | { kind: "list"; items: { label: string; text: string }[] }
+export type FormationDetail = FormationHouse & { blocks: RichBlock[]; gallery: LeadershipPhoto[] }
 export type Publication = {
   id: string
   title: string
@@ -118,7 +124,7 @@ export type Publication = {
   href?: string
   image?: string
 }
-export type GatheringKind = "event" | "birthday"
+export type GatheringKind = "event" | "birthday" | "ordination"
 export type Gathering = {
   id: string
   title: string
@@ -126,7 +132,7 @@ export type Gathering = {
   place: string
   summary: string
   kind: GatheringKind
-  /** Recurring every year on month/day (birthdays). */
+  /** Recurring every year on month/day (birthdays, ordination anniversaries). */
   annual: boolean
   year: number
   month: number
@@ -313,10 +319,61 @@ export const getNecrology = () =>
     })
   )
 
-export const getFormationHouses = () =>
-  fromCms<FormationHouse[]>("formation", (items) =>
-    items.map((item) => ({ name: item.title, place: item.location_text }))
-  )
+const toFormationHouse = (item: CmsItem): FormationHouse => ({
+  slug: item.slug,
+  name: item.title,
+  place: item.location_text,
+  tagline: item.excerpt,
+  stage: text(item, "stage"),
+  image: item.image_url || undefined,
+})
+
+export const getFormationHouses = () => fromCms<FormationHouse[]>("formation", (items) => items.map(toFormationHouse))
+
+export async function getFormationHouse(slug: string): Promise<FormationDetail | undefined> {
+  const item = (await fetchItems("formation"))?.find((entry) => entry.slug === slug)
+  if (!item) return undefined
+  const gallery = Array.isArray(item.meta.gallery)
+    ? (item.meta.gallery as Partial<LeadershipPhoto>[])
+        .filter((photo) => typeof photo?.src === "string" && photo.src)
+        .map((photo) => ({ src: photo.src!, alt: photo.alt || item.title, caption: photo.caption || "" }))
+    : []
+  return { ...toFormationHouse(item), blocks: richText(item.body), gallery }
+}
+
+/**
+ * CMS body text with light structure: a line starting with "## " is a heading, lines starting with "- "
+ * form a list ("- Label: text" bolds the label), and blank lines separate paragraphs.
+ */
+export function richText(body: string): RichBlock[] {
+  const blocks: RichBlock[] = []
+  for (const chunk of body.replace(/\r\n/g, "\n").split(/\n\s*\n/)) {
+    const lines = chunk.split("\n").map((line) => line.trim()).filter(Boolean)
+    let prose: string[] = []
+    const flush = () => {
+      if (prose.length) blocks.push({ kind: "paragraph", text: prose.join(" ") })
+      prose = []
+    }
+    for (const line of lines) {
+      if (line.startsWith("## ")) {
+        flush()
+        blocks.push({ kind: "heading", text: line.slice(3).trim() })
+      } else if (/^[-•]\s+/.test(line)) {
+        flush()
+        const entry = line.replace(/^[-•]\s+/, "")
+        const match = entry.match(/^([^:]{2,60}):\s+(.+)$/)
+        const item = match ? { label: match[1].trim(), text: match[2].trim() } : { label: "", text: entry }
+        const last = blocks.at(-1)
+        if (last?.kind === "list") last.items.push(item)
+        else blocks.push({ kind: "list", items: [item] })
+      } else {
+        prose.push(line)
+      }
+    }
+    flush()
+  }
+  return blocks
+}
 
 export type MissionPhoto = { src: string; alt: string; caption: string }
 export type MissionEntry = { title: string; summary: string }
@@ -436,7 +493,7 @@ export type LibraryItem = {
 
 const librarySections = new Set<LibrarySectionId>(["magazine", "libraries", "books", "articles"])
 
-const toLibraryItem = (item: CmsItem): LibraryItem | null => {
+const toLibraryItem = (item: CmsItem, lists: LibraryCategoryLists): LibraryItem | null => {
   const sectionRaw = text(item, "library_section")
   const section = librarySections.has(sectionRaw as LibrarySectionId)
     ? (sectionRaw as LibrarySectionId)
@@ -450,7 +507,7 @@ const toLibraryItem = (item: CmsItem): LibraryItem | null => {
     summary: item.excerpt,
     section,
     category,
-    categoryLabel: category ? categoryLabel(section, category) : "",
+    categoryLabel: category ? categoryLabel(section, category, lists) : "",
     cover: item.image_url || undefined,
     pdfUrl: item.media_url || undefined,
     dateLabel: item.event_date ? formatDate(item.event_date) : text(item, "date_display"),
@@ -458,13 +515,15 @@ const toLibraryItem = (item: CmsItem): LibraryItem | null => {
   }
 }
 
-export const getLibraryItems = (section?: LibrarySectionId) =>
-  fromCms<LibraryItem[]>("library", (items) =>
+export async function getLibraryItems(section?: LibrarySectionId) {
+  const lists = await getBlock("library")
+  return fromCms<LibraryItem[]>("library", (items) =>
     items
-      .map(toLibraryItem)
+      .map((item) => toLibraryItem(item, lists))
       .filter((item): item is LibraryItem => Boolean(item))
       .filter((item) => (section ? item.section === section : true))
   )
+}
 
 const isSuperior = (item: CmsItem) => /provincial superior/i.test(text(item, "role"))
 const isFormerProvincial = (item: CmsItem) => /former provincial/i.test(text(item, "role"))
@@ -580,6 +639,7 @@ const toPriest = (item: CmsItem): Priest => {
     summary: item.excerpt,
     bio: item.body,
     born: text(item, "born") || undefined,
+    ordained: text(item, "ordained") || undefined,
     image: item.image_url || undefined,
     gallery,
   }
@@ -865,7 +925,7 @@ function annualEntry(
   }
 }
 
-/** Province calendar: feasts/events + living fathers’ birthdays. */
+/** Province calendar: feasts/events + living fathers’ birthdays and ordination anniversaries. */
 export async function getProvinceCalendar(): Promise<Gathering[]> {
   const [events, priests] = await Promise.all([getEvents(), getPriests()])
   const entries: Gathering[] = [...events]
@@ -890,6 +950,28 @@ export async function getProvinceCalendar(): Promise<Gathering[]> {
     )
   }
 
+  for (const priest of priests) {
+    const ordained = priest.ordained ? parseOblateDate(priest.ordained) : null
+    if (!ordained) continue
+    entries.push(
+      annualEntry({
+        id: `ordination-${priest.slug}`,
+        title: `${priest.name} — Ordination anniversary`,
+        dateLabel: monthDayLabel(ordained.month, ordained.day),
+        place: ordained.year ? `Ordained in ${ordained.year}` : "Oblate Province of Jaffna",
+        summary: ordained.year
+          ? `Ordination anniversary of ${priest.name}, ordained on ${monthDayLabel(ordained.month, ordained.day)} ${ordained.year}.`
+          : `Ordination anniversary of ${priest.name}.`,
+        kind: "ordination",
+        month: ordained.month,
+        day: ordained.day,
+        href: `/leadership/fathers/${priest.slug}`,
+        face: "#ece4fb",
+        ink: "#5b21b6",
+      })
+    )
+  }
+
   return entries
 }
 
@@ -901,7 +983,7 @@ export type TodayHighlight = {
   href: string
 }
 
-/** Today's entries from the province calendar (events, birthdays) plus OMI ceremonies (Colombo calendar) for the site-wide Today bar. */
+/** Today's entries from the province calendar (events, birthdays, ordination anniversaries) plus OMI ceremonies (Colombo calendar) for the site-wide Today bar. */
 export async function getTodayHighlights(): Promise<TodayHighlight[]> {
   const [calendar, newsPage] = await Promise.all([
     getProvinceCalendar().catch(() => [] as Gathering[]),
@@ -927,11 +1009,11 @@ export async function getTodayHighlights(): Promise<TodayHighlight[]> {
   const todays = calendar.filter(onToday).map((entry) => ({
     id: entry.id,
     kind: entry.kind,
-    title: entry.title.replace(/\s+—\s+Birthday$/, ""),
+    title: entry.title.replace(/\s+—\s+(Birthday|Ordination anniversary)$/, ""),
     detail: entry.place || entry.dateLabel,
     href: entry.href || "/#calendar",
   }))
-  const order: Record<GatheringKind, number> = { event: 0, birthday: 1 }
+  const order: Record<GatheringKind, number> = { event: 0, birthday: 1, ordination: 2 }
   todays.sort((a, b) => order[a.kind] - order[b.kind])
 
   const ceremonies = (newsPage?.ceremonies?.items ?? [])

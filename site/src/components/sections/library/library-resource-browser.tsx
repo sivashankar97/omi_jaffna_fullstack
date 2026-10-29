@@ -225,13 +225,13 @@ export function LibraryResourceBrowser({
   pdfFormatLabel?: string
   sampleIssueLabel?: string
 }) {
-  const tabs = useMemo(() => {
-    if (!categories.length) return []
-    const withItems = categories.filter((category) => items.some((item) => item.category === category.id))
-    return withItems.length ? withItems : categories
-  }, [categories, items])
+  const tabs = categories
+  const firstWithItems = useMemo(
+    () => categories.find((category) => items.some((item) => item.category === category.id))?.id,
+    [categories, items]
+  )
 
-  const [active, setActive] = useState(tabs[0]?.id || "")
+  const [active, setActive] = useState(firstWithItems || tabs[0]?.id || "")
   const current = tabs.some((tab) => tab.id === active) ? active : tabs[0]?.id || ""
   const visible = categories.length ? items.filter((item) => item.category === current) : items
   const [featured, ...rest] = visible

@@ -1709,6 +1709,10 @@ html.dark [data-page-theme="moon"] {
   color: var(--pt-ink);
 }
 
+[data-page-theme] :is(h1, h2, h3, h4)[class~="text-white"] {
+  color: #fff;
+}
+
 [data-page-theme] [class~="bg-white"] {
   background-color: var(--pt-paper);
 }

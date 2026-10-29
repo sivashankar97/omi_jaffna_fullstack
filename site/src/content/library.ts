@@ -1,4 +1,4 @@
-/** Library area structure (categories + routes). Page copy lives in CMS block `library`. */
+/** Library area structure (routes + default categories). Page copy and the category lists are edited in CMS block `library`. */
 
 export type LibrarySectionId = "magazine" | "libraries" | "books" | "articles"
 
@@ -30,12 +30,25 @@ export const librarySectionRoutes: Record<LibrarySectionId, string> = {
   articles: "/library/articles",
 }
 
-export function categoriesForSection(section: LibrarySectionId): LibraryCategory[] {
-  if (section === "magazine") return magazineCategories
-  if (section === "libraries") return libraryCategories
-  return []
+/** Category lists as edited in CMS block `library` (defaults above). */
+export type LibraryCategoryLists = {
+  magazineCategories: readonly LibraryCategory[]
+  libraryCategories: readonly LibraryCategory[]
 }
 
-export function categoryLabel(section: LibrarySectionId, categoryId: string) {
-  return categoriesForSection(section).find((item) => item.id === categoryId)?.label || categoryId
+const defaultLists: LibraryCategoryLists = { magazineCategories, libraryCategories }
+
+export function categoriesForSection(
+  section: LibrarySectionId,
+  lists: LibraryCategoryLists = defaultLists
+): LibraryCategory[] {
+  const list =
+    section === "magazine" ? lists.magazineCategories : section === "libraries" ? lists.libraryCategories : []
+  return list
+    .map((item) => ({ id: String(item.id ?? "").trim(), label: String(item.label ?? "").trim() }))
+    .filter((item) => item.id && item.label)
+}
+
+export function categoryLabel(section: LibrarySectionId, categoryId: string, lists?: LibraryCategoryLists) {
+  return categoriesForSection(section, lists).find((item) => item.id === categoryId)?.label || categoryId
 }

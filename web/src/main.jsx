@@ -18,6 +18,23 @@ import './style.css';
 const TYPE_INFO={page:['Website Pages',PanelsTopLeft],ministry:['Ministries',HeartHandshake],parish:['Parishes',Church],formation:['Formation Houses',GraduationCap],location:['Map Locations',MapPin],leadership:['Leadership',Users],priest:['Oblate Priests',UserRound],bishop:['Oblate Bishops',Cross],necrology:['Necrology Register',BookOpen],international:['International Mission',Globe2],school:['Schools & Education',School],timeline:['History Timeline',History],news:['News & Stories',Newspaper],event:['Feasts & Events',CalendarDays],publication:['Publications',BookOpen],media:['Media Library',Images],library:['Library',BookOpen]};
 const MAGAZINE_CATS=[['year-thoni','Year Thoni'],['naan','Naan'],['zeal','Zeal'],['koinonia','Koinonia'],['vaanavil','Vaanavil'],['malai-loran-versus-katru','Malai Loran Versus Katru']];
 const LIBRARY_CATS=[['gaanapairkasiyar','Gaanapairkasiyar Library'],['anna-illam','Anna Illam Library'],['de-mazoned-scholasticate','De Mazoned Scholasticate Library'],['malarum-mullai','Malarum Mullai Library']];
+let libraryPageRequest=null;
+/** Magazine titles + library collections as edited in Library page sections (falls back to the lists above). */
+function useLibraryCats(){
+ const {data}=useCmsBlocks();
+ const [sections,setSections]=useState(null);
+ useEffect(()=>{
+  let active=true;
+  libraryPageRequest??=fetch('/api/public/items?type=page&slug=library').then(r=>r.ok?r.json():{items:[]}).then(d=>d.items?.[0]?.meta?.sections||{}).catch(()=>{libraryPageRequest=null;return {};});
+  libraryPageRequest.then(v=>{if(active)setSections(v)});
+  return ()=>{active=false};
+ },[]);
+ const merged=mergeContent(data?.blocks?.library?.defaults||{},sections||{});
+ const pairs=(list,fallback)=>Array.isArray(list)&&list.some(x=>x?.id&&x?.label)?list.filter(x=>x?.id&&x?.label).map(x=>[x.id,x.label]):fallback;
+ return {magazine:pairs(merged.magazineCategories,MAGAZINE_CATS),libraries:pairs(merged.libraryCategories,LIBRARY_CATS)};
+}
+/** Refresh after the Library page sections are saved. */
+function resetLibraryCats(){libraryPageRequest=null;}
 const notLeadershipRole='provincial superior,former provincial';
 // Each CMS screen is one content type, optionally narrowed to the entries one website section uses.
 const VIEWS={
@@ -45,7 +62,7 @@ const VIEWS={
  'ministry-places':{type:'ministry',custom:'places',label:'Places & communities',where:'Place cards on each ministry page and each place\'s own page',link:'/ministries'},
  parish:{type:'parish',item:'parish',label:'Parishes',where:'Ministries: parish directory',link:'/ministries#parish-directory'},
  school:{type:'school',item:'school',label:'Schools & Education',where:'Ministries: schools list',link:'/ministries#schools'},
- formation:{type:'formation',item:'formation house',label:'Formation Houses',where:'Vocations: formation houses',link:'/vocations'},
+ formation:{type:'formation',item:'formation house',label:'Formation Houses',where:'Vocations: the formation journey cards, the Vocations menu and each house’s own page (/vocations/…). “Order on the website” sets the journey order',link:'/vocations#formation-journey'},
  'block-international':{type:'page',label:'Page text & stats',query:'slug=international',single:true,slugs:[['international','International page sections']],where:'International: banner, Category 1/2 headings, formation headings, bottom quote and Countries / Continents / Study abroad numbers',link:'/international'},
  'international-cat1':{type:'international',item:'country',label:'Category 1 countries',query:'meta_key=category&meta_like=1',defaults:{category:'1',kind:''},where:'International: Category 1 (Italy, France, Norway, Philippines…)',link:'/international'},
  'international-cat2':{type:'international',item:'country',label:'Category 2 countries',query:'meta_key=category&meta_like=2',defaults:{category:'2',kind:''},where:'International: Category 2 (UK, Australia, Sweden…)',link:'/international'},
@@ -55,7 +72,7 @@ const VIEWS={
  'news-father':{type:'news',item:'submission',label:'Father news submissions',query:'meta_has=submitted_by',fixedStatus:'review',where:'Stories Fathers sent for approval — set status to Published to show on the website',link:'/news'},
  'event-father':{type:'event',item:'submission',label:'Father event submissions',query:'meta_has=submitted_by',fixedStatus:'review',where:'Events Fathers sent for approval — set status to Published to show on the home calendar',link:'/#calendar'},
  publication:{type:'publication',item:'publication',label:'Publications',where:'Media: publications',link:'/media#publications'},
- 'block-library':{type:'page',label:'Page text & stats',query:'slug=library',single:true,slugs:[['library','Library page sections']],where:'Library: hub banner, collection cards, section page headings, download labels and closing quote',link:'/library'},
+ 'block-library':{type:'page',label:'Names, categories & page text',query:'slug=library',single:true,slugs:[['library','Library page sections']],where:'Library: section names (Magazine, Libraries, Books, Articles), magazine titles and library collections (the tabs), hub banner, section headings, download labels and closing quote',link:'/library'},
  'library-magazines':{type:'library',item:'magazine issue',label:'Magazines',query:'meta_key=library_section&meta_like=magazine',defaults:{library_section:'magazine'},where:'Library › Magazine: PDF issues by magazine title (tabs on the website)',link:'/library/magazines'},
  'library-libraries':{type:'library',item:'library book',label:'Libraries',query:'meta_key=library_section&meta_like=libraries',defaults:{library_section:'libraries'},where:'Library › Libraries: PDF books by library collection (tabs on the website)',link:'/library/libraries'},
  'library-books':{type:'library',item:'book release',label:'New book releases',query:'meta_key=library_section&meta_like=books',defaults:{library_section:'books'},where:'Library › Books: new book release PDFs',link:'/library/books'},
@@ -102,7 +119,7 @@ function itemLink(item,view){
   return section==='libraries'?'/library/libraries':section==='books'?'/library/books':section==='articles'?'/library/articles':'/library/magazines';
  }
  if(type==='school')return `/ministries#school-${anchorId(String(item.title_en).split(/\s+—\s+/)[0])}`;
- if(type==='formation')return `/vocations#house-${anchorId(item.title_en)}`;
+ if(type==='formation')return `/vocations/${item.slug}`;
  if(type==='international')return item.metadata?.kind==='formation'
   ?`/international#abroad-${anchorId(item.title_en)}`
   :`/international/${item.slug||anchorId(item.title_en)}`;
@@ -261,6 +278,7 @@ const META_SPECS={
  bishop:[['register_no','Register number',{number:true,hint:'Necrology register number, used for order when “Order on the website” is 0.'}],['office','Office / title',{hint:'e.g. Bishop of Jaffna'}],['born','Born (date)',{hint:'e.g. 07.02.1813'}],['born_at','Born at (place)'],['died','Died (date)',{hint:'e.g. 23.01.1868'}],['died_at','Died at (place)']],
  necrology:[['register_no','Register number',{number:true,hint:'Shown in the list circle. Also set “Order on the website” to the same number.'}],['role','Role',{options:[['father','Father'],['bishop','Bishop'],['brother','Brother'],['scholastic','Scholastic']]}],['born','Born (date)',{hint:'e.g. 17.05.1821'}],['born_at','Born at (place)'],['died','Died (date)',{hint:'e.g. 16.06.1851'}],['died_at','Died at (place)']],
  international:[['kind','List',{options:[['','Mission country'],['formation','Formation abroad']]}],['category','Category (mission countries)',{options:[['1','Category 1'],['2','Category 2'],['','— not set / formation']]}],['region','Region label',{hint:'e.g. Europe, Asia, Americas — shown on cards'}]],
+ formation:[['stage','Stage label (e.g. First steps, Discernment, Scholasticate)',{hint:'Small label above the name. Empty uses the stage note from Vocations page text.'}]],
  library:[['library_section','Library section',{options:[['magazine','Magazine'],['libraries','Libraries'],['books','New book releases'],['articles','Articles']]}],['date_display','Date / issue shown',{hint:'e.g. 2026 · March issue'}]],
 };
 const PAGE_SPECS={
@@ -304,8 +322,8 @@ function MetaFields({type,slug,meta,setMeta,upload}){
  const page=type==='page'&&PAGE_SPECS[slug];
  if(page)return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Page details</p><p className="text-[11px] leading-5 text-slate-400">{page.note}</p><SpecFields specs={page.fields} meta={meta} setMeta={setMeta}/></div>;
  if(META_SPECS[type])return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Details</p><SpecFields specs={META_SPECS[type]} meta={meta} setMeta={setMeta} newsSections={data?.newsSections}/>
-  {type==='library'&&(meta.library_section==='magazine'||meta.library_section==='libraries')&&<div><label className="form-label">Category (tab on the website)</label><select className="field mt-2" value={meta.category||''} onChange={e=>setMeta('category',e.target.value)}><option value="">Select…</option>{(meta.library_section==='magazine'?MAGAZINE_CATS:LIBRARY_CATS).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select></div>}
-  {(type==='news'||type==='event')&&<AutoFields name="gallery" value={Array.isArray(meta.gallery)?meta.gallery:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('gallery',v.length?v:'')} upload={upload} depth={1}/>}
+  {type==='library'&&(meta.library_section==='magazine'||meta.library_section==='libraries')&&<LibraryCategorySelect section={meta.library_section} value={meta.category} onChange={v=>setMeta('category',v)}/>}
+  {(type==='news'||type==='event'||type==='formation')&&<AutoFields name="gallery" value={Array.isArray(meta.gallery)?meta.gallery:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('gallery',v.length?v:'')} upload={upload} depth={1}/>}
   {type==='international'&&meta.kind!=='formation'&&<>
    <AutoFields name="missions" value={Array.isArray(meta.missions)?meta.missions:[]} template={[{title:'',summary:''}]} onChange={v=>setMeta('missions',v.length?v:'')} depth={1}/>
    <AutoFields name="photos" value={Array.isArray(meta.photos)?meta.photos:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('photos',v.length?v:'')} upload={upload} depth={1}/>
@@ -316,6 +334,7 @@ function MetaFields({type,slug,meta,setMeta,upload}){
   <div><label className="form-label">Where serving</label><select className="field mt-2" value={meta.place||'sri-lanka'} onChange={e=>setMeta('place',e.target.value)}>{priestPlaces.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></div>
   <div><label className="form-label">Role / ministry line</label><input className="field mt-2" value={meta.role||''} onChange={e=>setMeta('role',e.target.value)} placeholder="e.g. Parish priest · St. Mary’s"/><p className="mt-1 text-[11px] text-slate-400">Shown on the profile page under the name. Short description can also go in “Summary”.</p></div>
   <div><label className="form-label">Birthday</label><input type="date" className="field mt-2" value={meta.born||''} onChange={e=>setMeta('born',e.target.value)}/><p className="mt-1 text-[11px] text-slate-400">Shown on the home calendar every year, and as a floating notice on the home page on that day.</p></div>
+  <div><label className="form-label">Ordination date</label><input type="date" className="field mt-2" value={meta.ordained||''} onChange={e=>setMeta('ordained',e.target.value)}/><p className="mt-1 text-[11px] text-slate-400">Shown on the home calendar every year as an ordination anniversary.</p></div>
   <AutoFields name="gallery" value={Array.isArray(meta.gallery)?meta.gallery:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('gallery',v.length?v:'')} upload={upload} depth={1}/>
   <p className="text-[11px] text-slate-400">Cover image below is the main portrait. Extra photos appear in the gallery on the father profile page. Biography: use “Full page content” / body field.</p>
  </div>;
@@ -336,7 +355,7 @@ const FIELDS={
  ministry:{title:'Ministry name',location_text:'Where (shown on the card)',excerpt:'Summary on the card',image:'Card photo'},
  parish:{title:'Parish name',location_text:'Place'},
  school:{title:'School name (optionally "Name — District")',location_text:'Place (leave empty to use the district from the name)'},
- formation:{title:'House name',location_text:'Place'},
+ formation:{title:'House name (e.g. St. Joseph’s Juniorate)',location_text:'Place (e.g. Colombuthurai, Jaffna)',excerpt:'Tagline (under the name on the card and the page)',body:'Full page text — blank line between paragraphs; start a line with ## for a heading and - for a list item (“- Holy Mass: Celebrating the Eucharist” shows as a card)',image:'Cover photo (optional)'},
  international:{title:'Country or place',excerpt:'Summary / formation note (shown on the card)'},
  timeline:{title:'Year (used when "Year or date shown" is empty)',excerpt:'What happened (shown on the archive list)',body:'Longer note (optional)',image:'Photo (optional)'},
  bishop:{title:'Name',excerpt:'Short line on the card (optional)',body:'Biography on the profile page',image:'Portrait photo'},
@@ -374,9 +393,14 @@ async function uploadAsset(file,opts,notify){
   catch(err){notify(err.message,'error');return '';}
 }
 const LIBRARY_SECTION_LABELS={magazine:'Magazine',libraries:'Libraries',books:'New book releases',articles:'Articles'};
+function LibraryCategorySelect({section,value,onChange}){
+ const cats=useLibraryCats()[section]||[];
+ const known=!value||cats.some(([id])=>id===value);
+ return <div><label className="form-label">Category (tab on the website)</label><select className="field mt-2" value={value||''} onChange={e=>onChange(e.target.value)}><option value="">Select…</option>{cats.map(([id,name])=><option key={id} value={id}>{name}</option>)}{!known&&<option value={value}>{value} (no longer in the list)</option>}</select><p className="mt-1 text-[11px] text-slate-400">Rename, add or remove {section==='magazine'?'magazine titles':'library collections'} in Library → Library page sections.</p></div>;
+}
 function FatherSubmissionPanel({form,meta}){
  const who=meta.submitted_by_name||meta.author_name||'A Father';
- const collection=LIBRARY_CATS.find(([id])=>id===meta.category)?.[1];
+ const collection=useLibraryCats().libraries.find(([id])=>id===meta.category)?.[1];
  return <div className="rounded-xl border border-sky-100 bg-sky-50 px-4 py-3 text-xs text-sky-900 space-y-1.5">
   <p className="font-bold text-[11px] uppercase tracking-wider text-sky-700">Sent by a Father</p>
   <p><b>{who}</b>{meta.father_id?` · OMI ${meta.father_id}`:''}</p>
@@ -402,6 +426,7 @@ function ContentEditor({value,view,onClose,onSaved,notify,role}){
   const coverId=content.image_url?.match(/^\/api\/files\/([\da-f-]{36})$/i)?.[1];
   if(content.status==='published'&&coverId&&!metadata.submitted_by){const {item}=await api(`/api/assets/${coverId}`);if(item.status!=='published')throw Error('Approve the cover image before publishing this entry.');}
   const result=await api(isNew?'/api/items':`/api/items/${value.id}`,{method:isNew?'POST':'PUT',body:JSON.stringify(content)});
+  if(content.type==='page'&&content.slug==='library')resetLibraryCats();
   notify(isNew?'Content entry created.':'Changes saved successfully.','success');onSaved(result.item);
  }catch(err){notify(err.message,'error')}finally{setBusy(false)}}
  return <div data-dialog className="fixed inset-0 z-[70] flex justify-end"><div className="absolute inset-0 bg-navy-950/50 backdrop-blur-[3px]" onClick={onClose}/><div className="relative flex h-full w-full max-w-[690px] flex-col bg-white shadow-2xl">

@@ -3,7 +3,9 @@ import type { NavItem } from "@/types"
 type NavigationData = {
   ministries: readonly { number: string; title: string }[]
   parishes: readonly { name: string }[]
-  formationHouses: readonly { name: string }[]
+  formationHouses: readonly { name: string; slug?: string }[]
+  /** Library section names from CMS block `library` (cardTitle). */
+  librarySections?: Partial<Record<"magazine" | "libraries" | "books" | "articles", string>>
 }
 
 export function anchorId(value: string) {
@@ -41,6 +43,10 @@ export function houseAnchor(name: string) {
   return `house-${anchorId(name)}`
 }
 
+export function formationHref(house: { slug?: string }) {
+  return `/vocations/${house.slug}`
+}
+
 export function bishopHref(bishop: { slug: string }) {
   return `/history/bishops/${bishop.slug}`
 }
@@ -70,7 +76,7 @@ export const mediaSections = [
   "Testimonials",
 ] as const
 
-export function buildNavigation({ ministries, parishes, formationHouses }: NavigationData): NavItem[] {
+export function buildNavigation({ ministries, parishes, formationHouses, librarySections = {} }: NavigationData): NavItem[] {
   return [
     {
       label: "Home",
@@ -111,10 +117,13 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
       description: "Evangelizing the poor, mission, vision and our story since 1847",
       sections: [
         { label: "Charism", id: "charism" },
+        { label: "Spiritual life", id: "spiritual-life" },
         { label: "Missionary family", id: "missionary-family" },
         { label: "Core commitments", id: "core-commitments" },
         { label: "Mission with the poor", id: "identity" },
         { label: "Charism priorities", id: "priorities" },
+        { label: "St. Eugene de Mazenod", id: "founder" },
+        { label: "Journey of the Oblates", id: "oblate-journey" },
         { label: "How we live it", id: "how-we-live" },
         { label: "Mission", id: "mission" },
         { label: "Vision", id: "vision" },
@@ -160,6 +169,7 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
         ...formationHouses.map((house) => ({
           label: house.name,
           id: houseAnchor(house.name),
+          href: house.slug ? formationHref(house) : undefined,
         })),
         { label: "Begin the conversation", id: "discernment" },
       ],
@@ -192,10 +202,10 @@ export function buildNavigation({ ministries, parishes, formationHouses }: Navig
       href: "/library",
       description: "Magazines, libraries, new books and articles",
       sections: [
-        { label: "Magazine", id: "magazine", href: "/library/magazines" },
-        { label: "Libraries", id: "libraries", href: "/library/libraries" },
-        { label: "Books", id: "books", href: "/library/books" },
-        { label: "Articles", id: "articles", href: "/library/articles" },
+        { label: librarySections.magazine || "Magazine", id: "magazine", href: "/library/magazines" },
+        { label: librarySections.libraries || "Libraries", id: "libraries", href: "/library/libraries" },
+        { label: librarySections.books || "Books", id: "books", href: "/library/books" },
+        { label: librarySections.articles || "Articles", id: "articles", href: "/library/articles" },
       ],
     },
     {

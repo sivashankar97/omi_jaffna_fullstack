@@ -46,7 +46,7 @@ import {
   type NoticeTone,
 } from "@/components/auth/father-dashboard-ui"
 import { signOutSession } from "@/components/auth/session"
-import { libraryCategories } from "@/content/library"
+import { libraryCategories as defaultLibraryCategories, type LibraryCategory } from "@/content/library"
 import { isUpload } from "@/content/site-info"
 import { cn } from "cn"
 
@@ -183,7 +183,7 @@ const IMAGE_TYPES = "image/jpeg,image/png,image/webp"
 const MAX_PDF = 40 * 1024 * 1024
 const MAX_IMAGE = 12 * 1024 * 1024
 
-const bookPlace = (book: Pick<MyBook, "section" | "category">) =>
+const bookPlace = (book: Pick<MyBook, "section" | "category">, libraryCategories: readonly LibraryCategory[]) =>
   book.section === "libraries"
     ? `Library › ${libraryCategories.find((c) => c.id === book.category)?.label || "collection"}`
     : "New book release"
@@ -331,7 +331,17 @@ function EventFields({ item, ai }: { item?: MyEvent; ai?: ReactNode }) {
   )
 }
 
-function BookFields({ item, defaultAuthor, ai }: { item?: MyBook; defaultAuthor: string; ai?: ReactNode }) {
+function BookFields({
+  item,
+  defaultAuthor,
+  ai,
+  libraryCategories,
+}: {
+  item?: MyBook
+  defaultAuthor: string
+  ai?: ReactNode
+  libraryCategories: readonly LibraryCategory[]
+}) {
   const [where, setWhere] = useState<"books" | "libraries">(item?.section === "libraries" ? "libraries" : "books")
   const choice = (value: "books" | "libraries", title: string, text: string) => (
     <label
@@ -461,7 +471,11 @@ function StatCard({
   )
 }
 
-export function FatherDashboard() {
+export function FatherDashboard({
+  libraryCategories = defaultLibraryCategories,
+}: {
+  libraryCategories?: readonly LibraryCategory[]
+}) {
   const router = useRouter()
   const [section, setSection] = useState<SectionId>("overview")
   const [creating, setCreating] = useState<SectionId | null>(null)
@@ -1531,7 +1545,7 @@ export function FatherDashboard() {
               {creating === "books" && !editingBookId ? (
                 <FormCard title="Submit a book">
                   <form onSubmit={(e) => onBookSubmit(e)} className="space-y-4">
-                    <BookFields defaultAuthor={user.name} ai={<AiButton busy={aiBusy} disabled={working} onClick={(form) => aiWrite(form, "book")} />} />
+                    <BookFields defaultAuthor={user.name} libraryCategories={libraryCategories} ai={<AiButton busy={aiBusy} disabled={working} onClick={(form) => aiWrite(form, "book")} />} />
                     <FormActions>
                       <button type="submit" disabled={working} className={btnPrimary}>
                         Send for approval
@@ -1556,7 +1570,7 @@ export function FatherDashboard() {
                     editingBookId === item.id ? (
                       <FormCard key={item.id} title="Edit book">
                         <form onSubmit={(e) => onBookSubmit(e, item)} className="space-y-4">
-                          <BookFields item={item} defaultAuthor={user.name} ai={<AiButton busy={aiBusy} disabled={working} onClick={(form) => aiWrite(form, "book")} />} />
+                          <BookFields item={item} defaultAuthor={user.name} libraryCategories={libraryCategories} ai={<AiButton busy={aiBusy} disabled={working} onClick={(form) => aiWrite(form, "book")} />} />
                           <FormActions>
                             <button type="submit" disabled={working} className={btnPrimary}>
                               Save changes
@@ -1574,7 +1588,7 @@ export function FatherDashboard() {
                         icon={<BookOpen className="size-6" />}
                         title={item.title}
                         status={item.status}
-                        meta={[item.author ? `by ${item.author}` : "", item.date_display, bookPlace(item)].filter(Boolean).join(" · ")}
+                        meta={[item.author ? `by ${item.author}` : "", item.date_display, bookPlace(item, libraryCategories)].filter(Boolean).join(" · ")}
                         excerpt={item.excerpt}
                         actions={
                           <>
