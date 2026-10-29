@@ -2,6 +2,7 @@ import {Router} from 'express';
 import bcrypt from 'bcryptjs';
 import {query,pool} from './db.js';
 import {removeFile} from './storage.js';
+import {publishFatherMedia} from './father-media.js';
 import {auth,allow} from './security.js';
 import {contentSchema,publishCheck,contactSchema,userSchema,userUpdateSchema,assetSchema,adminInquirySchema,settingKeySchema,settingValueSchema} from './validation.js';
 
@@ -44,7 +45,7 @@ export function crudRouter(){
    const warning=publishCheck(data);if(warning)fail(400,warning);
    data.event_date=data.event_date||null;data.last_verified_at=data.last_verified_at||null;
    data.updated_by=req.session.sub;data.published_at=data.status==='published'?(old.published_at||new Date()):null;
-   const result=await update(db,'content_items',old.id,data,',updated_at=now()');await audit(db,req.session.sub,'update',old.type,old.id);return result;
+   const result=await update(db,'content_items',old.id,data,',updated_at=now()');await publishFatherMedia(result,db);await audit(db,req.session.sub,'update',old.type,old.id);return result;
   });res.json({item});
  }));
 

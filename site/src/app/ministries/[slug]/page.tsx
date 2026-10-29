@@ -128,10 +128,10 @@ export default async function MinistryPage({ params }: MinistryPageProps) {
                     {detail.highlights.map((item) => (
                       <div
                         key={item.label}
-                        className="rounded-3xl bg-gradient-to-br from-[#f4fbfd] to-white px-4 py-6 text-center ring-1 ring-[#d9eef3]"
+                        className="min-w-0 rounded-3xl bg-gradient-to-br from-[#f4fbfd] to-white px-2 py-6 text-center ring-1 ring-[#d9eef3] sm:px-4"
                       >
                         <dd className="font-heading text-3xl font-semibold text-[#0a5062] sm:text-4xl">{item.value}</dd>
-                        <dt className="mt-2 text-[11px] font-semibold tracking-[0.14em] text-[#5c6b7a] uppercase sm:text-xs">
+                        <dt className="mt-2 text-[10px] font-semibold tracking-[0.06em] [overflow-wrap:anywhere] text-[#5c6b7a] uppercase sm:text-xs sm:tracking-[0.14em]">
                           {item.label}
                         </dt>
                       </div>

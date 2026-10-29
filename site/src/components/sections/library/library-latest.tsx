@@ -133,6 +133,7 @@ export function LibraryLatest({
                   <h3 className="mt-2.5 line-clamp-2 font-heading text-[0.95rem] font-semibold leading-snug text-[#03202b] transition group-hover:text-[#0e98ac]">
                     {item.title}
                   </h3>
+                  {item.author ? <p className="mt-1 line-clamp-1 text-xs text-[#5b7180]">by {item.author}</p> : null}
                   {item.dateLabel ? (
                     <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-[#8a98a6]">
                       <CalendarDays aria-hidden="true" className="size-3.5" />

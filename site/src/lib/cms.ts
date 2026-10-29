@@ -432,6 +432,7 @@ export type LibraryItem = {
   cover?: string
   pdfUrl?: string
   dateLabel: string
+  author?: string
 }
 
 const librarySections = new Set<LibrarySectionId>(["magazine", "libraries", "books", "articles"])
@@ -454,6 +455,7 @@ const toLibraryItem = (item: CmsItem): LibraryItem | null => {
     cover: item.image_url || undefined,
     pdfUrl: item.media_url || undefined,
     dateLabel: item.event_date ? formatDate(item.event_date) : text(item, "date_display"),
+    author: text(item, "author_name") || undefined,
   }
 }
 
@@ -695,6 +697,59 @@ export async function getNewsArticle(slug: string) {
   return (await getNews()).find((article) => article.slug === slug)
 }
 
+export type FatherPost = {
+  slug: string
+  title: string
+  excerpt: string
+  dateLabel: string
+  place: string
+  image?: string
+  href: string
+}
+
+type FatherPostRow = {
+  slug: string
+  title: string
+  excerpt: string | null
+  image_url?: string | null
+  location_text: string | null
+  event_date: string | null
+  published_at: string | null
+  date_display: string | null
+  end_date?: string | null
+}
+
+/** Admin-approved articles and events posted by the registered father linked to this profile. */
+export async function getFatherPosts(slug: string): Promise<{ news: FatherPost[]; events: FatherPost[] }> {
+  try {
+    const response = await fetch(`${API_ORIGIN}/api/public/father-posts?slug=${encodeURIComponent(slug)}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(15000),
+    })
+    if (!response.ok) return { news: [], events: [] }
+    const data = (await response.json()) as { news: FatherPostRow[]; events: FatherPostRow[] }
+    const toPost = (row: FatherPostRow, href: string): FatherPost => {
+      const date = row.event_date ?? row.published_at
+      return {
+        slug: row.slug,
+        title: row.title,
+        excerpt: row.excerpt ?? "",
+        dateLabel: row.date_display || (date ? formatDate(date) : ""),
+        place: row.location_text ?? "",
+        image: row.image_url || undefined,
+        href,
+      }
+    }
+    return {
+      news: (data.news ?? []).map((row) => toPost(row, `/news/${row.slug}`)),
+      events: (data.events ?? []).map((row) => toPost(row, `/events/${row.slug}`)),
+    }
+  } catch (err) {
+    if ((err as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") throw err
+    return { news: [], events: [] }
+  }
+}
+
 const palette = [
   { face: "#d4f6fa", ink: "#023e8a" },
   { face: "#fde4ec", ink: "#9d174d" },
@@ -724,11 +779,46 @@ export const getEvents = () =>
           endYear: end.year,
           endMonth: end.month,
           endDay: end.day,
+          href: `/events/${item.slug}`,
           ...palette[index % palette.length],
         }
       }),
     (item) => Boolean(item.event_date)
   )
+
+export type EventDetail = {
+  slug: string
+  title: string
+  dateLabel: string
+  place: string
+  summary: string
+  paragraphs: string[]
+  image?: string
+  gallery: LeadershipPhoto[]
+}
+
+export async function getEvent(slug: string): Promise<EventDetail | undefined> {
+  const item = (await fetchItems("event"))?.find((entry) => entry.slug === slug && entry.event_date)
+  if (!item) return undefined
+  const endDate = text(item, "end_date")
+  const start = formatDate(item.event_date!)
+  const end = /^\d{4}-\d{2}-\d{2}$/.test(endDate) ? formatDate(`${endDate}T12:00:00+05:30`) : ""
+  const gallery = Array.isArray(item.meta.gallery)
+    ? (item.meta.gallery as Partial<LeadershipPhoto>[])
+        .filter((photo) => typeof photo?.src === "string" && photo.src)
+        .map((photo) => ({ src: photo.src!, alt: photo.alt || item.title, caption: photo.caption || "" }))
+    : []
+  return {
+    slug: item.slug,
+    title: item.title,
+    dateLabel: text(item, "date_display") || (end && end !== start ? `${start} – ${end}` : start),
+    place: item.location_text,
+    summary: item.excerpt,
+    paragraphs: paragraphs(item.body),
+    image: item.image_url || gallery[0]?.src || undefined,
+    gallery,
+  }
+}
 
 /** Parse CMS dates like `17.05.1821`, `7.2.1813`, or `YYYY-MM-DD`. Year-only values are ignored. */
 export function parseOblateDate(value: string): { day: number; month: number; year?: number } | null {
@@ -846,17 +936,16 @@ export async function getProvinceCalendar(): Promise<Gathering[]> {
 
 export type TodayHighlight = {
   id: string
-  kind: "event" | "ceremony" | "birthday"
+  kind: GatheringKind | "ceremony"
   title: string
   detail: string
   href: string
 }
 
-/** Today's events, OMI ceremonies and living fathers' birthdays (Colombo calendar) for the site-wide Today bar. */
+/** Today's entries from the province calendar (events, birthdays, death anniversaries) plus OMI ceremonies (Colombo calendar) for the site-wide Today bar. */
 export async function getTodayHighlights(): Promise<TodayHighlight[]> {
-  const [events, birthdays, newsPage] = await Promise.all([
-    getEvents().catch(() => [] as Gathering[]),
-    getTodaysBirthdays().catch(() => []),
+  const [calendar, newsPage] = await Promise.all([
+    getProvinceCalendar().catch(() => [] as Gathering[]),
     getBlock("news-page").catch(() => null),
   ])
   const [year, month, day] = new Intl.DateTimeFormat("en-CA", {
@@ -870,19 +959,21 @@ export async function getTodayHighlights(): Promise<TodayHighlight[]> {
     .map(Number)
   const today = Date.UTC(year, month - 1, day)
 
-  const runningEvents = events
-    .filter((event) => {
-      const start = Date.UTC(event.year, event.month, event.day)
-      const end = Date.UTC(event.endYear, event.endMonth, event.endDay)
-      return start <= today && today <= Math.max(start, end)
-    })
-    .map((event) => ({
-      id: `event-${event.id}`,
-      kind: "event" as const,
-      title: event.title,
-      detail: event.place || event.dateLabel,
-      href: "/#calendar",
-    }))
+  const onToday = (entry: Gathering) => {
+    if (entry.annual) return entry.month === month - 1 && entry.day === day
+    const start = Date.UTC(entry.year, entry.month, entry.day)
+    const end = Date.UTC(entry.endYear, entry.endMonth, entry.endDay)
+    return start <= today && today <= Math.max(start, end)
+  }
+  const todays = calendar.filter(onToday).map((entry) => ({
+    id: entry.id,
+    kind: entry.kind,
+    title: entry.title.replace(/\s+—\s+(Birthday|Death anniversary)$/, ""),
+    detail: entry.place || entry.dateLabel,
+    href: entry.href || "/#calendar",
+  }))
+  const order: Record<GatheringKind, number> = { event: 0, birthday: 1, "death-anniversary": 2 }
+  todays.sort((a, b) => order[a.kind] - order[b.kind])
 
   const ceremonies = (newsPage?.ceremonies?.items ?? [])
     .filter((item) => Number(item.month) === month && Number(item.day) === day && item.title)
@@ -894,41 +985,5 @@ export async function getTodayHighlights(): Promise<TodayHighlight[]> {
       href: "/news#omi-ceremonies",
     }))
 
-  const fathers = birthdays.map((person) => ({
-    id: `birthday-${person.slug}`,
-    kind: "birthday" as const,
-    title: person.name,
-    detail: "Birthday",
-    href: person.href,
-  }))
-
-  return [...ceremonies, ...runningEvents, ...fathers]
-}
-
-/** Living Oblate fathers whose birthday is today (Colombo calendar). */
-export async function getTodaysBirthdays(): Promise<
-  { slug: string; name: string; image?: string; href: string }[]
-> {
-  const priests = await getPriests()
-  const stamp = new Intl.DateTimeFormat("en-CA", {
-    timeZone: TIME_ZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date())
-  const [, monthStr, dayStr] = stamp.split("-")
-  const month = Number(monthStr) - 1
-  const day = Number(dayStr)
-
-  return priests
-    .filter((priest) => {
-      const born = priest.born ? parseOblateDate(priest.born) : null
-      return Boolean(born && born.month === month && born.day === day)
-    })
-    .map((priest) => ({
-      slug: priest.slug,
-      name: priest.name,
-      image: priest.image,
-      href: `/leadership/fathers/${anchorId(priest.slug)}`,
-    }))
+  return [...ceremonies, ...todays]
 }

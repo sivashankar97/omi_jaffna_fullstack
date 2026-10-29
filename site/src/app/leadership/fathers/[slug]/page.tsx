@@ -2,14 +2,14 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeft, ArrowRight, ChevronRight, MapPin } from "lucide-react"
+import { ArrowLeft, ArrowRight, CalendarDays, ChevronRight, MapPin } from "lucide-react"
 
 import { Reveal } from "@/components/motion/reveal"
 import { ScrollProgress } from "@/components/sections/history/scroll-progress"
 import { fatherHref } from "@/config/navigation"
 import { isUpload } from "@/content/site-info"
 import type { PriestPlace } from "@/content/priests"
-import { getPriest, getPriests } from "@/lib/cms"
+import { getFatherPosts, getPriest, getPriests } from "@/lib/cms"
 
 type FatherPageProps = {
   params: Promise<{ slug: string }>
@@ -53,6 +53,7 @@ export default async function FatherProfilePage({ params }: FatherPageProps) {
   const index = priests.findIndex((priest) => priest.slug === slug)
   const priest = index >= 0 ? priests[index] : await getPriest(slug)
   if (!priest) notFound()
+  const posts = await getFatherPosts(priest.slug)
 
   const previous = priests[(index - 1 + priests.length) % priests.length]
   const next = priests[(index + 1) % priests.length]
@@ -184,6 +185,82 @@ export default async function FatherProfilePage({ params }: FatherPageProps) {
                       <figcaption className="px-4 py-3 text-sm text-[#5c6b7a]">{photo.caption}</figcaption>
                     ) : null}
                   </figure>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
+
+      {posts.news.length ? (
+        <section className="bg-white px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
+          <div className="mx-auto max-w-6xl">
+            <p className="text-xs font-bold tracking-[0.18em] text-[#0e98ac] uppercase">By {priest.name}</p>
+            <h2 className="mt-2 font-heading text-3xl font-semibold sm:text-4xl">Articles</h2>
+            <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {posts.news.map((post) => (
+                <li key={post.slug}>
+                  <Link
+                    href={post.href}
+                    className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] bg-[#f4fbfd] ring-1 ring-[#e2f2f6] transition hover:shadow-[0_18px_40px_-28px_rgba(10,60,80,0.5)]"
+                  >
+                    {post.image ? (
+                      <span className="relative block aspect-[16/10] bg-[#eef6f8]">
+                        <Image
+                          src={post.image}
+                          alt=""
+                          fill
+                          sizes="(max-width:768px) 100vw, 33vw"
+                          className="object-cover transition duration-700 group-hover:scale-105"
+                          unoptimized={isUpload(post.image)}
+                        />
+                      </span>
+                    ) : null}
+                    <span className="flex flex-1 flex-col p-5">
+                      {post.dateLabel ? <span className="text-xs font-semibold text-[#0e98ac]">{post.dateLabel}</span> : null}
+                      <span className="mt-2 font-heading text-lg leading-snug font-semibold">{post.title}</span>
+                      {post.excerpt ? <span className="mt-2 line-clamp-3 text-sm leading-6 text-[#5c6b7a]">{post.excerpt}</span> : null}
+                      <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold">
+                        Read article <ArrowRight aria-hidden="true" className="size-4 transition group-hover:translate-x-0.5" />
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
+
+      {posts.events.length ? (
+        <section className="bg-[#f4fbfd] px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
+          <div className="mx-auto max-w-6xl">
+            <p className="text-xs font-bold tracking-[0.18em] text-[#0e98ac] uppercase">Shared by {priest.name}</p>
+            <h2 className="mt-2 font-heading text-3xl font-semibold sm:text-4xl">Events</h2>
+            <ul className="mt-10 grid gap-4 sm:grid-cols-2">
+              {posts.events.map((post) => (
+                <li key={post.slug}>
+                  <Link
+                    href={post.href}
+                    className="flex h-full gap-4 rounded-[1.25rem] bg-white p-5 ring-1 ring-[#e2f2f6] transition hover:ring-[#90e0ef]"
+                  >
+                    {post.image ? (
+                      <span className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-[#eef6f8]">
+                        <Image src={post.image} alt="" fill sizes="64px" className="object-cover" unoptimized={isUpload(post.image)} />
+                      </span>
+                    ) : (
+                      <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#d4f6fa] text-[#023e8a]">
+                        <CalendarDays aria-hidden="true" className="size-5" />
+                      </span>
+                    )}
+                    <span className="min-w-0">
+                      <span className="block font-heading text-lg leading-snug font-semibold">{post.title}</span>
+                      <span className="mt-1 block text-sm font-semibold text-[#0e98ac]">
+                        {[post.dateLabel, post.place].filter(Boolean).join(" · ")}
+                      </span>
+                      {post.excerpt ? <span className="mt-2 block text-sm leading-6 text-[#5c6b7a]">{post.excerpt}</span> : null}
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {TYPES,SENSITIVE_TYPES} from './constants.js';
+import {TYPES,SENSITIVE_TYPES,LIBRARY_CATEGORY_IDS} from './constants.js';
 export const contentSchema=z.object({
  type:z.enum(Object.keys(TYPES)),
  slug:z.string().min(1).max(180).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
@@ -102,7 +102,8 @@ export const fatherNewsSchema=z.object({
   src:z.string().min(1).max(2000),
   alt:z.string().max(500).default(''),
   caption:z.string().max(1000).default('')
- }).strict()).max(24).default([])
+ }).strict()).max(24).default([]),
+ from_event:z.string().uuid().optional()
 }).strict();
 export const fatherEventSchema=z.object({
  title:z.string().trim().min(2).max(255),
@@ -111,7 +112,36 @@ export const fatherEventSchema=z.object({
  location_text:z.string().trim().min(1).max(1000),
  event_date:z.string().date(),
  end_date:z.union([z.string().date(),z.literal('')]).optional().transform(v=>v||''),
- date_display:z.string().max(255).default('')
+ date_display:z.string().max(255).default(''),
+ gallery:z.array(z.object({
+  src:z.string().min(1).max(2000),
+  alt:z.string().max(500).default(''),
+  caption:z.string().max(1000).default('')
+ }).strict()).max(24).default([])
+}).strict();
+export const fatherLibrarySchema=z.object({
+ title:z.string().trim().min(2).max(255),
+ author:z.string().trim().min(1).max(255),
+ date_display:z.string().trim().max(255).default(''),
+ excerpt:z.string().trim().max(4000).default(''),
+ body:z.string().trim().max(150000).default(''),
+ section:z.enum(['books','libraries']),
+ category:z.string().trim().max(80).default(''),
+ media_url:z.string().trim().regex(/^\/api\/files\/[0-9a-f-]{36}$/i,'Upload the book PDF.'),
+ image_url:z.union([z.string().trim().regex(/^\/api\/files\/[0-9a-f-]{36}$/i),z.literal('')]).default('')
+}).strict().superRefine((data,ctx)=>{
+ if(data.section==='libraries'&&!LIBRARY_CATEGORY_IDS.includes(data.category))ctx.addIssue({code:'custom',path:['category'],message:'Choose the library collection.'});
+}).transform(data=>({...data,category:data.section==='libraries'?data.category:''}));
+export const fatherAiWriteSchema=z.object({
+ kind:z.enum(['event','article','book']),
+ book_author:z.string().trim().max(255).default(''),
+ year:z.string().trim().max(255).default(''),
+ title:z.string().trim().max(255).default(''),
+ place:z.string().trim().max(1000).default(''),
+ event_date:z.string().trim().max(20).default(''),
+ end_date:z.string().trim().max(20).default(''),
+ excerpt:z.string().trim().max(4000).default(''),
+ notes:z.string().trim().max(8000).default('')
 }).strict();
 export const assetSchema=z.object({status:z.enum(['draft','published']).default('draft'),
  rights_confirmed:z.boolean().default(false),alt_text:z.string().trim().max(2000).default(''),caption:z.string().max(10000).default('')}).strict();

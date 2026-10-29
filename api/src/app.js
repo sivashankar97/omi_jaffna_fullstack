@@ -12,7 +12,9 @@ import {auth,optionalAuth,allow,setSessionCookie,clearSessionCookie,verifyPasswo
 import {crudRouter} from './crud.js';
 import {TYPES} from './constants.js';
 import {saveFile,readStoredFile,removeFile} from './storage.js';
-import {contentSchema,inquirySchema,publishCheck,fatherRegistrationSchema,fatherProfileSchema,fatherItemSchema,fatherItemUpdateSchema,fatherItemKinds,fatherDispatchSchema,fatherNewsSchema,fatherEventSchema,passwordResetSchema} from './validation.js';
+import {contentSchema,inquirySchema,publishCheck,fatherRegistrationSchema,fatherProfileSchema,fatherItemSchema,fatherItemUpdateSchema,fatherItemKinds,fatherDispatchSchema,fatherNewsSchema,fatherEventSchema,fatherAiWriteSchema,fatherLibrarySchema,passwordResetSchema} from './validation.js';
+import {writeWithAi} from './ai-writer.js';
+import {publishFatherMedia} from './father-media.js';
 import {findPersonnel,matchPersonnel} from './personnel.js';
 import {sendMail} from './mailer.js';
 import {applyCmsSeed,buildSeedCatalog,loadSampleSeed} from './seed-cms.js';
@@ -182,6 +184,11 @@ app.patch('/api/auth/profile',auth,allow('father'),asyncRoute(async(req,res)=>{
 }));
 
 const fatherOnly=allow('father');
+const FATHER_NEWS_COLS=`id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,image_url,location_text,status,published_at,created_at,updated_at,
+    metadata->>'section' AS section,metadata->'gallery' AS gallery,metadata->>'from_event' AS from_event`;
+const FATHER_EVENT_COLS=`id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,image_url,location_text,event_date,status,published_at,created_at,updated_at,
+    metadata->>'date_display' AS date_display,metadata->>'end_date' AS end_date,metadata->'gallery' AS gallery`;
+const aiLimit=rateLimit({...limitOptions,limit:30,keyGenerator:req=>req.session?.sub||req.ip||'unknown'});
 const fatherUserCols='id,name,email,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url';
 app.get('/api/father/dashboard',auth,fatherOnly,asyncRoute(async(req,res)=>{
  const user=await query(`SELECT ${fatherUserCols} FROM users WHERE id=$1`,[req.session.sub]);
@@ -197,15 +204,20 @@ app.get('/api/father/dashboard',auth,fatherOnly,asyncRoute(async(req,res)=>{
  );
  const myNews=await query(
   `SELECT id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,image_url,location_text,status,published_at,created_at,updated_at,
-    metadata->>'section' AS section,metadata->'gallery' AS gallery
+    metadata->>'section' AS section,metadata->'gallery' AS gallery,metadata->>'from_event' AS from_event
    FROM content_items WHERE type='news' AND metadata->>'submitted_by'=$1
    ORDER BY updated_at DESC LIMIT 50`,
   [req.session.sub]
  );
  const myEvents=await query(
-  `SELECT id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,location_text,event_date,status,published_at,created_at,updated_at,
-    metadata->>'date_display' AS date_display,metadata->>'end_date' AS end_date
+  `SELECT ${FATHER_EVENT_COLS}
    FROM content_items WHERE type='event' AND metadata->>'submitted_by'=$1
+   ORDER BY updated_at DESC LIMIT 50`,
+  [req.session.sub]
+ );
+ const myBooks=await query(
+  `SELECT ${FATHER_BOOK_COLS}
+   FROM content_items WHERE type='library' AND metadata->>'submitted_by'=$1
    ORDER BY updated_at DESC LIMIT 50`,
   [req.session.sub]
  );
@@ -213,18 +225,28 @@ app.get('/api/father/dashboard',auth,fatherOnly,asyncRoute(async(req,res)=>{
   FROM content_items WHERE type='news' AND status='published' ORDER BY COALESCE(event_date,published_at,created_at) DESC LIMIT 12`);
  const byKind={document:[],gallery:[],action:[],news:[]};
  for(const item of items.rows)(byKind[item.kind]||(byKind[item.kind]=[])).push(item);
- res.json({user:user.rows[0],items:byKind,adminReports:reports.rows,myNews:myNews.rows,myEvents:myEvents.rows,provinceNews:news.rows});
+ const omiId=user.rows[0].father_id;
+ const profile=omiId?await query(
+  `SELECT slug FROM content_items WHERE type='priest' AND status='published' AND lower(metadata->>'omi_id')=lower($1) LIMIT 1`,
+  [omiId]
+ ):{rows:[]};
+ res.json({user:user.rows[0],profileSlug:profile.rows[0]?.slug||null,items:byKind,adminReports:reports.rows,myNews:myNews.rows,myEvents:myEvents.rows,myBooks:myBooks.rows,provinceNews:news.rows});
 }));
 app.post('/api/father/news',auth,fatherOnly,asyncRoute(async(req,res)=>{
  const parsed=fatherNewsSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
- const {title,excerpt,body,location_text,image_url,section,gallery}=parsed.data;
+ const {title,excerpt,body,location_text,image_url,section,gallery,from_event}=parsed.data;
  const profile=await query('SELECT name,father_id FROM users WHERE id=$1',[req.session.sub]);
  if(!profile.rowCount)return bad(res,'Account unavailable',401);
+ if(from_event){
+  const source=await query(`SELECT 1 FROM content_items WHERE id=$1 AND type='event' AND status='published' AND metadata->>'submitted_by'=$2`,[from_event,req.session.sub]);
+  if(!source.rowCount)return bad(res,'Only your own approved events can be turned into an article.',409);
+ }
  const base=title.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,140)||'news';
  const slug=`${base}-${Date.now().toString(36)}`;
  const metadata={
   section:section||'province-events',
   gallery,
+  ...(from_event?{from_event}:{}),
   submitted_by:req.session.sub,
   author_name:profile.rows[0].name,
   father_id:profile.rows[0].father_id||'',
@@ -233,8 +255,7 @@ app.post('/api/father/news',auth,fatherOnly,asyncRoute(async(req,res)=>{
  const r=await query(
   `INSERT INTO content_items(type,slug,title_en,excerpt_en,body_en,location_text,image_url,status,verification_status,metadata,created_by,updated_by)
    VALUES('news',$1,$2,$3,$4,$5,$6,'review','pending',$7,$8,$8)
-   RETURNING id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,image_url,location_text,status,published_at,created_at,updated_at,
-    metadata->>'section' AS section,metadata->'gallery' AS gallery`,
+   RETURNING ${FATHER_NEWS_COLS}`,
   [slug,title,excerpt||'',body,location_text||'',image_url||'',metadata,req.session.sub]
  );
  await audit(req.session.sub,'create','news',r.rows[0].id,{source:'father'});
@@ -254,8 +275,7 @@ app.patch('/api/father/news/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
  const r=await query(
   `UPDATE content_items SET title_en=$1,excerpt_en=$2,body_en=$3,location_text=$4,image_url=$5,metadata=$6,updated_by=$7,updated_at=now()
    WHERE id=$8
-   RETURNING id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,image_url,location_text,status,published_at,created_at,updated_at,
-    metadata->>'section' AS section,metadata->'gallery' AS gallery`,
+   RETURNING ${FATHER_NEWS_COLS}`,
   [title,excerpt,body,location_text,image_url,meta,req.session.sub,req.params.id]
  );
  await audit(req.session.sub,'update','news',req.params.id,{source:'father'});
@@ -275,7 +295,7 @@ app.delete('/api/father/news/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
 }));
 app.post('/api/father/events',auth,fatherOnly,asyncRoute(async(req,res)=>{
  const parsed=fatherEventSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
- const {title,excerpt,body,location_text,event_date,end_date,date_display}=parsed.data;
+ const {title,excerpt,body,location_text,event_date,end_date,date_display,gallery}=parsed.data;
  const profile=await query('SELECT name,father_id FROM users WHERE id=$1',[req.session.sub]);
  if(!profile.rowCount)return bad(res,'Account unavailable',401);
  const base=title.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,140)||'event';
@@ -284,16 +304,16 @@ app.post('/api/father/events',auth,fatherOnly,asyncRoute(async(req,res)=>{
  const metadata={
   end_date:end_date||'',
   date_display:date_display||'',
+  gallery,
   submitted_by:req.session.sub,
   author_name:profile.rows[0].name,
   father_id:profile.rows[0].father_id||''
  };
  const r=await query(
-  `INSERT INTO content_items(type,slug,title_en,excerpt_en,body_en,location_text,event_date,status,verification_status,metadata,created_by,updated_by)
-   VALUES('event',$1,$2,$3,$4,$5,$6::timestamptz,'review','pending',$7,$8,$8)
-   RETURNING id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,location_text,event_date,status,published_at,created_at,updated_at,
-    metadata->>'date_display' AS date_display,metadata->>'end_date' AS end_date`,
-  [slug,title,excerpt,body||'',location_text,startIso,metadata,req.session.sub]
+  `INSERT INTO content_items(type,slug,title_en,excerpt_en,body_en,location_text,event_date,image_url,status,verification_status,metadata,created_by,updated_by)
+   VALUES('event',$1,$2,$3,$4,$5,$6::timestamptz,$7,'review','pending',$8,$9,$9)
+   RETURNING ${FATHER_EVENT_COLS}`,
+  [slug,title,excerpt,body||'',location_text,startIso,gallery[0]?.src||'',metadata,req.session.sub]
  );
  await audit(req.session.sub,'create','event',r.rows[0].id,{source:'father'});
  res.status(201).json({item:r.rows[0]});
@@ -307,15 +327,14 @@ app.patch('/api/father/events/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
  );
  if(!existing.rowCount)return bad(res,'Not found',404);
  if(existing.rows[0].status==='published')return bad(res,'Published events can only be changed by Province staff.',409);
- const {title,excerpt,body,location_text,event_date,end_date,date_display}=parsed.data;
+ const {title,excerpt,body,location_text,event_date,end_date,date_display,gallery}=parsed.data;
  const startIso=`${event_date}T12:00:00+05:30`;
- const meta={...(existing.rows[0].metadata||{}),end_date:end_date||'',date_display:date_display||''};
+ const meta={...(existing.rows[0].metadata||{}),end_date:end_date||'',date_display:date_display||'',gallery};
  const r=await query(
-  `UPDATE content_items SET title_en=$1,excerpt_en=$2,body_en=$3,location_text=$4,event_date=$5::timestamptz,metadata=$6,updated_by=$7,updated_at=now()
-   WHERE id=$8
-   RETURNING id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,location_text,event_date,status,published_at,created_at,updated_at,
-    metadata->>'date_display' AS date_display,metadata->>'end_date' AS end_date`,
-  [title,excerpt,body||'',location_text,startIso,meta,req.session.sub,req.params.id]
+  `UPDATE content_items SET title_en=$1,excerpt_en=$2,body_en=$3,location_text=$4,event_date=$5::timestamptz,image_url=$6,metadata=$7,updated_by=$8,updated_at=now()
+   WHERE id=$9
+   RETURNING ${FATHER_EVENT_COLS}`,
+  [title,excerpt,body||'',location_text,startIso,gallery[0]?.src||'',meta,req.session.sub,req.params.id]
  );
  await audit(req.session.sub,'update','event',req.params.id,{source:'father'});
  res.json({item:r.rows[0]});
@@ -331,6 +350,99 @@ app.delete('/api/father/events/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
  await query('DELETE FROM content_items WHERE id=$1',[req.params.id]);
  await audit(req.session.sub,'delete','event',req.params.id,{source:'father'});
  res.json({ok:true});
+}));
+const FATHER_BOOK_COLS=`id,slug,title_en AS title,excerpt_en AS excerpt,body_en AS body,image_url,media_url,status,published_at,created_at,updated_at,
+    metadata->>'library_section' AS section,metadata->>'category' AS category,metadata->>'date_display' AS date_display,metadata->>'author_name' AS author`;
+// Books may only point at files this father uploaded himself: the PDF must be a PDF, the cover an image.
+async function ownFileProblem(url,userId,kind){
+ if(!url)return null;
+ const id=url.split('/').pop();
+ const r=await query('SELECT mime_type FROM media_assets WHERE id=$1 AND uploaded_by::text=$2',[id,String(userId)]);
+ if(!r.rowCount)return kind==='pdf'?'Upload the book PDF again.':'Upload the cover image again.';
+ const mime=r.rows[0].mime_type;
+ if(kind==='pdf'&&mime!=='application/pdf')return 'The book file must be a PDF.';
+ if(kind==='image'&&!/^image\//.test(mime))return 'The cover must be a JPEG, PNG or WebP image.';
+ return null;
+}
+async function fatherBookInput(req,res){
+ const parsed=fatherLibrarySchema.safeParse(req.body);
+ if(!parsed.success){bad(res,parsed.error.flatten());return null;}
+ const pdf=await ownFileProblem(parsed.data.media_url,req.session.sub,'pdf');
+ if(pdf){bad(res,{fieldErrors:{media_url:[pdf]}});return null;}
+ const cover=await ownFileProblem(parsed.data.image_url,req.session.sub,'image');
+ if(cover){bad(res,{fieldErrors:{image_url:[cover]}});return null;}
+ return parsed.data;
+}
+app.post('/api/father/library',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ const data=await fatherBookInput(req,res);if(!data)return;
+ const profile=await query('SELECT name,father_id FROM users WHERE id=$1',[req.session.sub]);
+ if(!profile.rowCount)return bad(res,'Account unavailable',401);
+ const {title,author,date_display,excerpt,body,section,category,media_url,image_url}=data;
+ const base=title.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,140)||'book';
+ const slug=`${base}-${Date.now().toString(36)}`;
+ const metadata={
+  library_section:section,
+  category,
+  date_display,
+  author_name:author,
+  submitted_by:req.session.sub,
+  submitted_by_name:profile.rows[0].name,
+  father_id:profile.rows[0].father_id||''
+ };
+ const r=await query(
+  `INSERT INTO content_items(type,slug,title_en,excerpt_en,body_en,image_url,media_url,status,verification_status,metadata,created_by,updated_by)
+   VALUES('library',$1,$2,$3,$4,$5,$6,'review','pending',$7,$8,$8)
+   RETURNING ${FATHER_BOOK_COLS}`,
+  [slug,title,excerpt,body,image_url,media_url,metadata,req.session.sub]
+ );
+ await audit(req.session.sub,'create','library',r.rows[0].id,{source:'father'});
+ res.status(201).json({item:r.rows[0]});
+}));
+app.patch('/api/father/library/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ if(!idValid(req.params.id))return bad(res,'Invalid ID');
+ const existing=await query(
+  `SELECT id,status,metadata FROM content_items WHERE id=$1 AND type='library' AND metadata->>'submitted_by'=$2`,
+  [req.params.id,req.session.sub]
+ );
+ if(!existing.rowCount)return bad(res,'Not found',404);
+ if(existing.rows[0].status==='published')return bad(res,'Published books can only be changed by Province staff.',409);
+ const data=await fatherBookInput(req,res);if(!data)return;
+ const {title,author,date_display,excerpt,body,section,category,media_url,image_url}=data;
+ const meta={...(existing.rows[0].metadata||{}),library_section:section,category,date_display,author_name:author};
+ const r=await query(
+  `UPDATE content_items SET title_en=$1,excerpt_en=$2,body_en=$3,image_url=$4,media_url=$5,metadata=$6,updated_by=$7,updated_at=now()
+   WHERE id=$8
+   RETURNING ${FATHER_BOOK_COLS}`,
+  [title,excerpt,body,image_url,media_url,meta,req.session.sub,req.params.id]
+ );
+ await audit(req.session.sub,'update','library',req.params.id,{source:'father'});
+ res.json({item:r.rows[0]});
+}));
+app.delete('/api/father/library/:id',auth,fatherOnly,asyncRoute(async(req,res)=>{
+ if(!idValid(req.params.id))return bad(res,'Invalid ID');
+ const existing=await query(
+  `SELECT id,status FROM content_items WHERE id=$1 AND type='library' AND metadata->>'submitted_by'=$2`,
+  [req.params.id,req.session.sub]
+ );
+ if(!existing.rowCount)return bad(res,'Not found',404);
+ if(existing.rows[0].status==='published')return bad(res,'Published books can only be removed by Province staff.',409);
+ await query('DELETE FROM content_items WHERE id=$1',[req.params.id]);
+ await audit(req.session.sub,'delete','library',req.params.id,{source:'father'});
+ res.json({ok:true});
+}));
+app.post('/api/father/ai/write',auth,fatherOnly,aiLimit,asyncRoute(async(req,res)=>{
+ const parsed=fatherAiWriteSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
+ const {kind,...input}=parsed.data;
+ if(!input.title&&!input.notes&&!input.excerpt)return bad(res,'Add a title and a few points first.');
+ const profile=await query('SELECT name FROM users WHERE id=$1',[req.session.sub]);
+ const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Colombo'});
+ try{
+  const draft=await writeWithAi(kind,{...input,author:profile.rows[0]?.name||'',today});
+  await audit(req.session.sub,'ai_write',kind,'',{chars:draft.body.length});
+  res.json({draft});
+ }catch(err){
+  return bad(res,err.message||'AI writing failed.',err.status||502);
+ }
 }));
 app.get('/api/father/galleries',auth,cmsOnly,asyncRoute(async(_req,res)=>{
  const r=await query(
@@ -484,6 +596,7 @@ app.put('/api/items/:id',auth,allow('admin','editor','publisher'),asyncRoute(asy
  const cols=Object.keys(data);const updates=cols.map((k,i)=>`${k}=$${i+1}`);
  const vals=cols.map(k=>(k==='event_date'||k==='last_verified_at')?(data[k]||null):data[k]);
  const r=await query(`UPDATE content_items SET ${updates.join(',')},updated_by=$${cols.length+1},updated_at=now(),published_at=CASE WHEN $${cols.length+2}='published' THEN COALESCE(published_at,now()) ELSE NULL END WHERE id=$${cols.length+3} RETURNING *`,[...vals,req.session.sub,data.status,req.params.id]);
+ await publishFatherMedia(r.rows[0]);
  await audit(req.session.sub,'update',data.type,req.params.id,{status:data.status});res.json({item:r.rows[0]});
 }));
 app.delete('/api/items/:id',auth,allow('admin'),asyncRoute(async(req,res)=>{
@@ -499,7 +612,7 @@ const PUBLIC_META_KEYS=[
  'district','purpose','contact','phone','email','lat','lng',
  'headline','eyebrow','years','lede','quote','ways','arrival','gallery','sample','sections','detail','about_heading','about','mission','fit',
  'born','born_at','died','died_at','register_no','office',
- 'category','region','missions','photos','library_section','role'
+ 'category','region','missions','photos','library_section','role','author_name'
 ];
 app.get('/api/public/items',asyncRoute(async(req,res)=>{
  const type=String(req.query.type||'page');if(!TYPES[type])return bad(res,'Invalid type');
@@ -509,9 +622,39 @@ app.get('/api/public/items',asyncRoute(async(req,res)=>{
  if(slug){args.push(slug);parts.push('slug=$2');}
  // Necrology alone is 500+ rows; keep a high ceiling for other types too.
  const r=await query(`SELECT id,type,slug,title_en,title_ta,title_si,excerpt_en,excerpt_ta,excerpt_si,body_en,body_ta,body_si,location_text,image_url,media_url,event_date,featured,sort_order,published_at,verification_status,last_verified_at,metadata FROM content_items WHERE ${parts.join(' AND ')} ORDER BY sort_order,COALESCE(event_date,created_at) DESC LIMIT 1000`,args);
+ // A profile without a CMS birthday uses the date of birth of the registered father with the same OMI ID.
+ if(type==='priest'){
+  const dobs=await query(`SELECT lower(father_id) AS omi_id,to_char(date_of_birth,'YYYY-MM-DD') AS born FROM users WHERE role='father' AND active AND father_id IS NOT NULL AND date_of_birth IS NOT NULL`);
+  const bornById=new Map(dobs.rows.map(x=>[x.omi_id,x.born]));
+  for(const row of r.rows){
+   const omiId=String(row.metadata?.omi_id||'').trim().toLowerCase();
+   if(omiId&&!row.metadata.born&&bornById.has(omiId))row.metadata={...row.metadata,born:bornById.get(omiId)};
+  }
+ }
  // Metadata can hold editorial notes, so only these keys are public.
  const publicMeta=m=>Object.fromEntries(PUBLIC_META_KEYS.filter(k=>m?.[k]!=null).map(k=>[k,m[k]]));
  res.json({items:r.rows.map(({metadata,...item})=>({...item,meta:publicMeta(metadata),title:item[`title_${lang}`]||item.title_en,excerpt:item[`excerpt_${lang}`]||item.excerpt_en,body:item[`body_${lang}`]||item.body_en}))});
+}));
+// A father profile's private OMI ID links it to the registered father with the same ID; only his published posts are returned, never the ID.
+app.get('/api/public/father-posts',asyncRoute(async(req,res)=>{
+ const slug=String(req.query.slug||'').slice(0,180);
+ if(!slug)return bad(res,'Missing slug');
+ const priest=await query(`SELECT metadata->>'omi_id' AS omi_id FROM content_items WHERE type='priest' AND status='published' AND slug=$1`,[slug]);
+ const omiId=String(priest.rows[0]?.omi_id||'').trim();
+ if(!omiId)return res.json({news:[],events:[]});
+ const r=await query(
+  `SELECT c.type,c.slug,c.title_en AS title,c.excerpt_en AS excerpt,c.image_url,c.location_text,c.event_date,c.published_at,
+    c.metadata->>'date_display' AS date_display,c.metadata->>'end_date' AS end_date
+   FROM content_items c
+   JOIN users u ON u.id::text=c.metadata->>'submitted_by'
+   WHERE c.type IN ('news','event') AND c.status='published' AND u.role='father' AND lower(u.father_id)=lower($1)
+   ORDER BY COALESCE(c.event_date,c.published_at,c.created_at) DESC LIMIT 60`,
+  [omiId]
+ );
+ res.json({
+  news:r.rows.filter(x=>x.type==='news').map(({type,event_date,end_date,...x})=>x),
+  events:r.rows.filter(x=>x.type==='event').map(({type,...x})=>x)
+ });
 }));
 app.post('/api/public/inquiries',slowLimit,asyncRoute(async(req,res)=>{
  const parsed=inquirySchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
@@ -564,7 +707,6 @@ app.get('/api/users',auth,allow('admin'),asyncRoute(async(req,res)=>{
  res.json({items:r.rows});
 }));
 const allowedMime={'image/jpeg':'.jpg','image/png':'.png','image/webp':'.webp','application/pdf':'.pdf','video/mp4':'.mp4','audio/mpeg':'.mp3','audio/mp4':'.m4a','audio/x-m4a':'.m4a'};
-const imageOrPdfMime=new Set(['image/jpeg','image/png','image/webp','application/pdf']);
 const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:40*1024*1024},fileFilter:(_req,file,cb)=>allowedMime[file.mimetype]?cb(null,true):cb(new Error('Only JPEG, PNG, WebP, PDF, MP4, MP3 or M4A allowed'))});
 const signatureOK=(buf,mime)=>{
  if(mime==='image/jpeg')return buf[0]===255&&buf[1]===216&&buf[2]===255;
@@ -576,8 +718,8 @@ const signatureOK=(buf,mime)=>{
  return false;
 };
 const enforceUploadSize=(file)=>{
- if(imageOrPdfMime.has(file.mimetype)&&file.size>12*1024*1024){const err=new Error('Images and PDFs must be 12 MB or smaller');err.status=400;throw err;}
- if(!imageOrPdfMime.has(file.mimetype)&&file.size>40*1024*1024){const err=new Error('Video and audio files must be 40 MB or smaller');err.status=400;throw err;}
+ if(file.mimetype.startsWith('image/')&&file.size>12*1024*1024){const err=new Error('Images must be 12 MB or smaller');err.status=400;throw err;}
+ if(file.size>40*1024*1024){const err=new Error('PDF, video and audio files must be 40 MB or smaller');err.status=400;throw err;}
 };
 app.post('/api/assets',auth,allow('admin','editor','publisher'),upload.single('file'),asyncRoute(async(req,res)=>{
  if(!req.file)return bad(res,'File required');

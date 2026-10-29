@@ -85,6 +85,7 @@ function BookCard({
       <div className="lib-book-meta">
         {item.dateLabel ? <p className="lib-book-date">{item.dateLabel}</p> : null}
         <h3 className="lib-book-heading">{item.title}</h3>
+        {item.author ? <p className="mt-1 text-xs font-medium text-[#5b7180]">by {item.author}</p> : null}
         {item.summary ? <p className="lib-book-summary">{item.summary}</p> : null}
         <div className="lib-book-cta">
           {item.pdfUrl ? (
@@ -149,6 +150,7 @@ function FeaturedIssue({
       <div className="lib-featured-copy">
         {item.dateLabel ? <p className="lib-book-date">{item.dateLabel}</p> : null}
         <h3 className="lib-featured-title">{item.title}</h3>
+        {item.author ? <p className="mt-2 text-sm font-medium text-[#5b7180]">by {item.author}</p> : null}
         {item.summary ? <p className="lib-featured-summary">{item.summary}</p> : null}
         <div className="mt-6">
           {item.pdfUrl ? (

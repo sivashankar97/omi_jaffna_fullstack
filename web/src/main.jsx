@@ -59,6 +59,7 @@ const VIEWS={
  'library-libraries':{type:'library',item:'library book',label:'Libraries',query:'meta_key=library_section&meta_like=libraries',defaults:{library_section:'libraries'},where:'Library › Libraries: PDF books by library collection (tabs on the website)',link:'/library/libraries'},
  'library-books':{type:'library',item:'book release',label:'New book releases',query:'meta_key=library_section&meta_like=books',defaults:{library_section:'books'},where:'Library › Books: new book release PDFs',link:'/library/books'},
  'library-articles':{type:'library',item:'article',label:'Articles',query:'meta_key=library_section&meta_like=articles',defaults:{library_section:'articles'},where:'Library › Articles: article PDFs',link:'/library/articles'},
+ 'library-father':{type:'library',item:'submission',label:'Father book submissions',query:'meta_has=submitted_by',fixedStatus:'review',where:'Books Fathers sent for approval — set status to Published to show in the Library',link:'/library/books'},
  page:{type:'page',item:'page',label:'All website pages',where:'Every page text entry'},
 };
 // Same order as the website menu. A page with one screen opens it directly.
@@ -73,7 +74,7 @@ const NAV=[
   {label:'Vocations',icon:GraduationCap,views:['block-vocations','formation']},
   {label:'International',icon:Globe2,views:['block-international','international-cat1','international-cat2','international-formation']},
   {label:'News',icon:Newspaper,views:['news','block-news-page','news-father']},
-  {label:'Library',icon:BookOpen,views:['block-library','library-magazines','library-libraries','library-books','library-articles']},
+  {label:'Library',icon:BookOpen,views:['block-library','library-magazines','library-libraries','library-books','library-articles','library-father']},
   {label:'Media',icon:Images,views:['block-media-page','publication']},
   {label:'Contact',icon:Mail,views:['block-site-info']},
  ]},
@@ -82,7 +83,7 @@ const NAV=[
   {label:'Mission map',icon:MapPin,views:['location']},
   {label:'Our journey timeline',icon:CalendarDays,views:['block-journey']},
  ]},
- {label:'FATHER PROFILE MANAGEMENT',items:[['father-profiles','Registered Fathers',UserRound],['father-galleries','Father galleries',Images],['father-reports','Send PDF to Fathers',Send],['news-father','Father news approvals',Newspaper],['event-father','Father event approvals',CalendarDays]]},
+ {label:'FATHER PROFILE MANAGEMENT',items:[['father-profiles','Registered Fathers',UserRound],['father-galleries','Father galleries',Images],['father-reports','Send PDF to Fathers',Send],['news-father','Father news approvals',Newspaper],['event-father','Father event approvals',CalendarDays],['library-father','Father book approvals',BookOpen]]},
  {label:'FILES & MANAGEMENT',items:[['assets','File Uploads',FolderOpen],['contacts','Contact Directory',ContactRound],['inquiries','Enquiries',MessageCircle],['users','Team & Roles',ShieldCheck],['seeder','Content Seeder',Database],['settings','Site Settings',Settings2]]}
 ];
 const anchorId=s=>String(s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -107,7 +108,7 @@ function itemLink(item,view){
  if(type==='location')return `/#place-${slug}`;
  if(type==='timeline'||type==='necrology')return '/history#historical-archive';
  if(type==='bishop')return slug?`/history/bishops/${slug}`:'/history#bishops';
- if(type==='event')return '/#calendar';
+ if(type==='event')return item.slug?`/events/${item.slug}`:'/#calendar';
  if(type==='priest')return item.slug?`/leadership/fathers/${item.slug}`:'/leadership#priests';
  if(type==='leadership'){const role=String(item.metadata?.role||'');const slug=item.slug||anchorId(item.title_en);return /provincial superior/i.test(role)?'/leadership#provincial-superior':/former provincial/i.test(role)?`/leadership/former/${slug}`:`/leadership/council/${slug}`;}
  return view?.link||viewFor(type)?.link;
@@ -189,22 +190,35 @@ function Login({onLogin,notify}){
   </div></div>
  </div>
 }
-function NavButton({id,label,Icon,section,go,nested=false}){
+function NavButton({id,label,Icon,section,go,nested=false,badge=0}){
  const active=section===id;
- return <button onClick={()=>go(id)} className={`group relative flex w-full items-center gap-3 rounded-xl px-3 ${nested?'py-2 text-[12.5px]':'py-2.5 text-[13px]'} text-left font-medium ${active?'bg-white/10 text-white':'text-slate-400 hover:bg-white/5 hover:text-white'}`}>{Icon?<Icon size={17} strokeWidth={1.9} className={active?'text-gold-400':'text-slate-500 group-hover:text-gold-400'}/>:<span className={`h-1.5 w-1.5 rounded-full ${active?'bg-gold-400':'bg-slate-600 group-hover:bg-gold-400'}`}/>}<span className="truncate">{label}</span>{active&&<div className="absolute right-0 top-2.5 bottom-2.5 w-1 rounded-l-full bg-gold-400"/>}</button>;
+ return <button onClick={()=>go(id)} className={`group relative flex w-full items-center gap-3 rounded-xl px-3 ${nested?'py-2 text-[12.5px]':'py-2.5 text-[13px]'} text-left font-medium ${active?'bg-white/10 text-white':'text-slate-400 hover:bg-white/5 hover:text-white'}`}>{Icon?<Icon size={17} strokeWidth={1.9} className={active?'text-gold-400':'text-slate-500 group-hover:text-gold-400'}/>:<span className={`h-1.5 w-1.5 rounded-full ${active?'bg-gold-400':'bg-slate-600 group-hover:bg-gold-400'}`}/>}<span className="truncate">{label}</span>{badge>0&&<span className="ml-auto shrink-0 rounded-full bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold leading-none text-navy-950" title={`${badge} waiting for approval`}>{badge}</span>}{active&&<div className="absolute right-0 top-2.5 bottom-2.5 w-1 rounded-l-full bg-gold-400"/>}</button>;
+}
+const FATHER_APPROVAL_VIEWS=['news-father','event-father','library-father'];
+function useFatherWaiting(section){
+ const [counts,setCounts]=useState({});
+ useEffect(()=>{
+  if(demo)return;
+  let live=true;
+  const load=()=>Promise.all(FATHER_APPROVAL_VIEWS.map(id=>api(`/api/items?type=${VIEWS[id].type}&status=review&${VIEWS[id].query}&page=1`).then(d=>[id,d.total||0]).catch(()=>[id,0]))).then(rows=>{if(live)setCounts(Object.fromEntries(rows))});
+  load();const t=setInterval(load,120000);
+  return ()=>{live=false;clearInterval(t)};
+ },[section]);
+ return counts;
 }
 function Sidebar({section,setSection,mobileOpen,setMobileOpen,user,onLogout}){
  const current=pageOf[viewFor(section)?.id]?.label;
  const [open,setOpen]=useState(()=>new Set(current?[current]:[]));
  useEffect(()=>{if(current)setOpen(s=>s.has(current)?s:new Set([...s,current]))},[current]);
  const go=id=>{setSection(id);setMobileOpen(false)};
+ const waiting=useFatherWaiting(section);
  const toggle=label=>setOpen(s=>{const next=new Set(s);next.has(label)?next.delete(label):next.add(label);return next});
  const nav=<div className="overflow-y-auto overscroll-contain scroll-slim flex-1 px-4 pt-6 pb-7">{NAV.map(group=><div key={group.label} className="mb-7"><p className="px-3 mb-3 text-[10px] font-bold tracking-[.17em] text-slate-500">{group.label}</p><div className="space-y-1">
-  {(group.items||[]).map(([id,label,Icon])=><NavButton key={id} id={id} label={label} Icon={Icon} section={section} go={go}/>)}
+  {(group.items||[]).map(([id,label,Icon])=><NavButton key={id} id={id} label={label} Icon={Icon} section={section} go={go} badge={waiting[id]}/>)}
   {(group.pages||[]).map(page=>{const expanded=open.has(page.label),here=current===page.label,Icon=page.icon;
    if(page.views.length===1)return <NavButton key={page.label} id={page.views[0]} label={page.label} Icon={Icon} section={section} go={go}/>;
    return <div key={page.label}><button onClick={()=>toggle(page.label)} aria-expanded={expanded} className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold ${here?'text-white':'text-slate-300 hover:bg-white/5 hover:text-white'}`}><Icon size={17} strokeWidth={1.9} className={here?'text-gold-400':'text-slate-500 group-hover:text-gold-400'}/><span className="flex-1 truncate">{page.label}</span><ChevronDown size={15} className={`text-slate-500 transition-transform ${expanded?'rotate-180':''}`}/></button>
-    {expanded&&<div className="ml-5 mt-1 space-y-0.5 border-l border-white/10 pl-2">{page.views.map(id=><NavButton key={id} id={id} label={VIEWS[id].label} section={section} go={go} nested/>)}</div>}</div>})}
+    {expanded&&<div className="ml-5 mt-1 space-y-0.5 border-l border-white/10 pl-2">{page.views.map(id=><NavButton key={id} id={id} label={VIEWS[id].label} section={section} go={go} nested badge={waiting[id]}/>)}</div>}</div>})}
  </div></div>)}</div>;
  return <><div className={`fixed inset-0 z-40 bg-navy-950/45 lg:hidden ${mobileOpen?'block':'hidden'}`} onClick={()=>setMobileOpen(false)}/><aside className={`cms-sidebar fixed inset-y-0 left-0 z-50 flex w-[270px] flex-col text-slate-100  lg:translate-x-0 ${mobileOpen?'translate-x-0':'-translate-x-full'}`}>
   <div className="flex items-center gap-3 border-b border-white/10 px-6 h-[92px]"><Crest small/><div className="min-w-0"><div className="font-bold text-[15px] tracking-wide text-white">OMI Jaffna</div><div className="mt-1 text-[10px] uppercase font-semibold tracking-[.16em] text-gold-400">Province CMS</div></div><button className="lg:hidden ml-auto" onClick={()=>setMobileOpen(false)}><X size={19}/></button></div>
@@ -290,13 +304,14 @@ function MetaFields({type,slug,meta,setMeta,upload}){
  if(page)return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Page details</p><p className="text-[11px] leading-5 text-slate-400">{page.note}</p><SpecFields specs={page.fields} meta={meta} setMeta={setMeta}/></div>;
  if(META_SPECS[type])return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Details</p><SpecFields specs={META_SPECS[type]} meta={meta} setMeta={setMeta} newsSections={data?.newsSections}/>
   {type==='library'&&(meta.library_section==='magazine'||meta.library_section==='libraries')&&<div><label className="form-label">Category (tab on the website)</label><select className="field mt-2" value={meta.category||''} onChange={e=>setMeta('category',e.target.value)}><option value="">Select…</option>{(meta.library_section==='magazine'?MAGAZINE_CATS:LIBRARY_CATS).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select></div>}
-  {type==='news'&&<AutoFields name="gallery" value={Array.isArray(meta.gallery)?meta.gallery:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('gallery',v.length?v:'')} upload={upload} depth={1}/>}
+  {(type==='news'||type==='event')&&<AutoFields name="gallery" value={Array.isArray(meta.gallery)?meta.gallery:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('gallery',v.length?v:'')} upload={upload} depth={1}/>}
   {type==='international'&&meta.kind!=='formation'&&<>
    <AutoFields name="missions" value={Array.isArray(meta.missions)?meta.missions:[]} template={[{title:'',summary:''}]} onChange={v=>setMeta('missions',v.length?v:'')} depth={1}/>
    <AutoFields name="photos" value={Array.isArray(meta.photos)?meta.photos:[]} template={[{src:'',alt:'',caption:''}]} onChange={v=>setMeta('photos',v.length?v:'')} upload={upload} depth={1}/>
    <p className="text-[11px] text-slate-400">Missions and photos appear on the country detail page. Upload photos here (approve in File Uploads). Cover image below is the card/banner photo.</p>
   </>}</div>;
  if(type==='priest')return <div className="rounded-xl border border-slate-200 p-4 space-y-4"><p className="text-xs font-bold text-navy-900">Father profile</p>
+  <div><label className="form-label">OMI ID (private)</label><input className="field mt-2" inputMode="numeric" value={meta.omi_id||''} onChange={e=>setMeta('omi_id',e.target.value.trim())} placeholder="e.g. 14080"/><p className="mt-1 text-[11px] text-slate-400">Never shown on the website. Links this profile to the father’s registered account: his articles and events appear on this profile once an admin approves them.</p></div>
   <div><label className="form-label">Where serving</label><select className="field mt-2" value={meta.place||'sri-lanka'} onChange={e=>setMeta('place',e.target.value)}>{priestPlaces.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></div>
   <div><label className="form-label">Role / ministry line</label><input className="field mt-2" value={meta.role||''} onChange={e=>setMeta('role',e.target.value)} placeholder="e.g. Parish priest · St. Mary’s"/><p className="mt-1 text-[11px] text-slate-400">Shown on the profile page under the name. Short description can also go in “Summary”.</p></div>
   <div><label className="form-label">Birthday</label><input type="date" className="field mt-2" value={meta.born||''} onChange={e=>setMeta('born',e.target.value)}/><p className="mt-1 text-[11px] text-slate-400">Shown on the home calendar every year, and as a floating notice on the home page on that day.</p></div>
@@ -329,7 +344,7 @@ const FIELDS={
  priest:{title:'Name',excerpt:'Short summary on the profile',body:'Biography (full profile text)',image:'Main portrait'},
  location:{title:'Name — District',location_text:'Address'},
  news:{title:'Headline',excerpt:'Summary on news cards',body:'Article (blank line between paragraphs)',location_text:'Place',event_date:'Date',image:'Cover photo'},
- event:{title:'Event name',excerpt:'Summary',location_text:'Place',event_date:'Start date'},
+ event:{title:'Event name',excerpt:'Summary (calendar)',body:'Full description (event page, blank line between paragraphs)',location_text:'Place',event_date:'Start date',image:'Cover photo'},
  publication:{title:'Title — Subtitle',excerpt:'Description',media_url:'Link to the latest issue (PDF or web address)'},
  library:{title:'Title',excerpt:'Short description',event_date:'Date / issue date',image:'Cover image',media_url:'PDF file'},
 };
@@ -346,7 +361,7 @@ async function uploadAsset(file,opts,notify){
    if(file.size>40*1024*1024){notify('Choose an audio file smaller than 40 MB.','error');return '';}
   }else if(kind==='pdf'){
    if(file.type!=='application/pdf'){notify('Choose a PDF file.','error');return '';}
-   if(file.size>12*1024*1024){notify('Choose a PDF smaller than 12 MB.','error');return '';}
+   if(file.size>40*1024*1024){notify('Choose a PDF smaller than 40 MB.','error');return '';}
   }else if(kind==='video'){
    if(file.type!=='video/mp4'){notify('Choose an MP4 video file.','error');return '';}
    if(file.size>40*1024*1024){notify('Choose a video smaller than 40 MB.','error');return '';}
@@ -356,6 +371,18 @@ async function uploadAsset(file,opts,notify){
   }
   try{const data=new FormData();data.append('file',file);const {item}=await api('/api/assets',{method:'POST',body:data});notify(`${kind==='pdf'?'PDF':kind==='video'?'Video':kind==='audio'?'Audio':'Image'} uploaded. Approve it in File Uploads, then save this entry.`,'success');return item.url;}
   catch(err){notify(err.message,'error');return '';}
+}
+const LIBRARY_SECTION_LABELS={magazine:'Magazine',libraries:'Libraries',books:'New book releases',articles:'Articles'};
+function FatherSubmissionPanel({form,meta}){
+ const who=meta.submitted_by_name||meta.author_name||'A Father';
+ const collection=LIBRARY_CATS.find(([id])=>id===meta.category)?.[1];
+ return <div className="rounded-xl border border-sky-100 bg-sky-50 px-4 py-3 text-xs text-sky-900 space-y-1.5">
+  <p className="font-bold text-[11px] uppercase tracking-wider text-sky-700">Sent by a Father</p>
+  <p><b>{who}</b>{meta.father_id?` · OMI ${meta.father_id}`:''}</p>
+  {form.type==='library'&&<p>Shows in: <b>{LIBRARY_SECTION_LABELS[meta.library_section]||'—'}</b>{collection?` › ${collection}`:''}{meta.author_name?` · Author: ${meta.author_name}`:''}</p>}
+  {form.type==='library'&&form.media_url&&<p><a className="font-semibold text-gold-600 hover:underline inline-flex items-center gap-1" href={form.media_url} target="_blank" rel="noreferrer">Open the book PDF <ExternalLink size={12}/></a></p>}
+  <p className="text-sky-800/80">Files this Father uploaded are approved automatically when you publish.</p>
+ </div>;
 }
 function ContentEditor({value,view,onClose,onSaved,notify,role}){
  const [form,setForm]=useState({...emptyItem(value.type),...value,metadata:value.metadata||{}}),[lang]=useState('en'),[busy,setBusy]=useState(false),[advanced,setAdvanced]=useState(false),[jsonMeta,setJsonMeta]=useState(JSON.stringify(value.metadata||{},null,2));
@@ -372,7 +399,7 @@ function ContentEditor({value,view,onClose,onSaved,notify,role}){
   for(const key of ['id','created_at','updated_at','created_by','updated_by','published_at'])delete content[key];
   if(content.status==='published'&&validStatus&&(content.verification_status!=='verified'||!content.last_verified_at))throw Error('Mark this entry verified and set a verification date before publishing.');
   const coverId=content.image_url?.match(/^\/api\/files\/([\da-f-]{36})$/i)?.[1];
-  if(content.status==='published'&&coverId){const {item}=await api(`/api/assets/${coverId}`);if(item.status!=='published')throw Error('Approve the cover image before publishing this entry.');}
+  if(content.status==='published'&&coverId&&!metadata.submitted_by){const {item}=await api(`/api/assets/${coverId}`);if(item.status!=='published')throw Error('Approve the cover image before publishing this entry.');}
   const result=await api(isNew?'/api/items':`/api/items/${value.id}`,{method:isNew?'POST':'PUT',body:JSON.stringify(content)});
   notify(isNew?'Content entry created.':'Changes saved successfully.','success');onSaved(result.item);
  }catch(err){notify(err.message,'error')}finally{setBusy(false)}}
@@ -380,6 +407,7 @@ function ContentEditor({value,view,onClose,onSaved,notify,role}){
   <div className="flex items-start justify-between gap-5 border-b border-slate-100 px-6 sm:px-8 py-5"><div><div className="text-[10px] uppercase tracking-[.18em] text-gold-600 font-bold">{isNew?'New content entry':'Edit content'}</div><h2 className="text-xl font-bold text-navy-900 mt-1">{form.title_en||labels[form.type]}</h2><p className="text-xs text-slate-400 mt-1">{view?.where||labels[form.type]}</p></div><div className="flex items-center gap-1">{!isNew&&itemLink(form,view)&&<a href={itemLink(form,view)} target="_blank" rel="noreferrer" title="Open on website" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-gold-600 hover:bg-slate-100"><ExternalLink size={16}/> View on website</a>}<IconButton onClick={onClose} title="Close editor"><X size={20}/></IconButton></div></div>
   <form onSubmit={save} className="flex-1 min-h-0 flex flex-col"><div className="flex-1 overflow-y-auto px-6 sm:px-8 py-6 scroll-slim space-y-6">
    <div className="grid sm:grid-cols-2 gap-5"><div><label className="form-label">Publication status</label><select className="field mt-2" value={form.status} onChange={e=>set('status',e.target.value)}><option value="draft">Draft</option><option value="review">In review</option>{canPublish&&<option value="published">Published</option>}</select></div><div><label className="form-label">Verified by Province</label><select className="field mt-2" value={form.verification_status} onChange={e=>set('verification_status',e.target.value)}><option value="pending">Pending verification</option><option value="verified">Verified</option></select></div></div>
+   {meta.submitted_by&&<FatherSubmissionPanel form={form} meta={meta}/>}
    {validStatus&&<div className="rounded-xl bg-amber-50 border border-amber-100 px-4 py-3 text-xs text-amber-800 flex gap-2"><ShieldAlert size={17} className="shrink-0"/>For this category, live publication requires Province verification and a last-verified date.</div>}
    <div><label className="form-label">Last verified</label><input className="field mt-2" type="date" value={dateInput(form.last_verified_at)} onChange={e=>set('last_verified_at',e.target.value||null)}/></div>
    <div><label className="form-label">{fields.title} *</label><input className="field mt-2" value={form[`title_${lang}`]||''} onChange={e=>{const v=e.target.value;setForm(f=>({...f,[`title_${lang}`]:v,...(lang==='en'&&(!value.id||f.slug===slugify(f.title_en))?{slug:slugify(v)}:{})}))}} placeholder="Enter title" required={lang==='en'}/></div>
@@ -393,7 +421,7 @@ function ContentEditor({value,view,onClose,onSaved,notify,role}){
    {fields.media_url?(form.type==='library'?<div className="rounded-xl border border-slate-200 p-4 space-y-3"><label className="form-label">{fields.media_url}</label>
     {form.media_url?<p className="text-xs text-emerald-700 break-all">Attached: <a className="font-semibold text-gold-600" href={form.media_url} target="_blank" rel="noreferrer">{form.media_url}</a></p>:null}
     <input type="file" accept="application/pdf" disabled={imageBusy||demo} className="block w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:p-2.5" onChange={async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;setImageBusy(true);try{const url=await uploadImage(file,{kind:'pdf'});if(url)set('media_url',url)}finally{setImageBusy(false)}}}/>
-    <p className="text-[11px] text-slate-400">Upload a PDF (max 12 MB). Approve it in File Uploads before publishing. Visitors download it from the Library pages.</p>
+    <p className="text-[11px] text-slate-400">Upload a PDF (max 40 MB). Approve it in File Uploads before publishing. Visitors download it from the Library pages.</p>
     <details><summary className="cursor-pointer text-xs text-slate-500">Or paste a PDF URL</summary><input type="text" value={form.media_url} onChange={e=>set('media_url',e.target.value)} className="field mt-2" placeholder="/api/files/… or https://…"/></details>
     {form.media_url?<button type="button" className="text-xs font-semibold text-rose-600" onClick={()=>set('media_url','')}>Remove PDF</button>:null}
    </div>:<div><label className="form-label">{fields.media_url}</label><input type="text" value={form.media_url} onChange={e=>set('media_url',e.target.value)} className="field mt-2" placeholder="https://…"/></div>):null}
@@ -412,8 +440,9 @@ function ContentManager({view,notify,user}){
  async function remove(it){if(!window.confirm(`Permanently delete "${it.title_en}"?`))return;try{await api(`/api/items/${it.id}`,{method:'DELETE'});notify('Record deleted.','success');reload()}catch(e){notify(e.message,'error')}}
  const Icon=iconFor[type]||FileText;
  return <div className="space-y-6 "><div className="flex flex-wrap gap-4 justify-between items-center"><div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500"><span className="inline-flex items-center gap-1.5"><Eye size={15} className="text-gold-600"/>Shown on: <b className="font-semibold text-navy-900">{view.where}</b></span>{view.link&&<a href={view.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gold-600 hover:underline">View on website <ExternalLink size={12}/></a>}</div>{!view.single&&!view.fixedStatus&&<button className="btn-primary" onClick={()=>setEdit({...emptyItem(type),metadata:{...view.defaults}})}><Plus size={16}/> Add {view.item}</button>}{view.single&&!loading&&!q&&!status&&(view.slugs||[]).filter(([slug])=>!data.items.some(x=>x.slug===slug)).map(([slug,title])=><button key={slug} className="btn-primary" onClick={()=>setEdit({...emptyItem(type),slug,title_en:title})}><Plus size={16}/> Create {title}</button>)}</div>
-  {view.id==='news-father'&&<div className="rounded-xl bg-sky-50 border border-sky-100 px-4 py-3 text-xs text-sky-900 flex gap-2"><Info size={16} className="shrink-0"/>Open a submission, review the story and photos, then set Publication status to <b>Published</b> so it appears on the public News page.</div>}
-  {view.id==='event-father'&&<div className="rounded-xl bg-sky-50 border border-sky-100 px-4 py-3 text-xs text-sky-900 flex gap-2"><Info size={16} className="shrink-0"/>Open a Father event, check the date and place, then set Publication status to <b>Published</b> so it appears on the home calendar.</div>}
+  {view.id==='news-father'&&<div className="rounded-xl bg-sky-50 border border-sky-100 px-4 py-3 text-xs text-sky-900 flex gap-2"><Info size={16} className="shrink-0"/><span>Open a submission, review the story and photos, then set Publication status to <b>Published</b> so it appears on the public News page.</span></div>}
+  {view.id==='library-father'&&<div className="rounded-xl bg-sky-50 border border-sky-100 px-4 py-3 text-xs text-sky-900 flex gap-2"><Info size={16} className="shrink-0"/><span>Open a Father book, check the PDF, the Library section and collection, then set Publication status to <b>Published</b>. The PDF and cover the Father uploaded are approved automatically.</span></div>}
+  {view.id==='event-father'&&<div className="rounded-xl bg-sky-50 border border-sky-100 px-4 py-3 text-xs text-sky-900 flex gap-2"><Info size={16} className="shrink-0"/><span>Open a Father event, check the date and place, then set Publication status to <b>Published</b> so it appears on the home calendar.</span></div>}
   {view.single&&data.items.some(x=>x.status!=='published')&&<div className="rounded-xl bg-amber-50 border border-amber-100 px-4 py-3 text-xs text-amber-800 flex gap-2"><Info size={16} className="shrink-0"/>Entries that are not <b>Published</b> are not used by the website. Open the entry, set Publication status to Published and save.</div>}
   <div className="panel overflow-hidden"><div className="flex flex-col sm:flex-row justify-between gap-3 px-5 sm:px-6 py-5 border-b border-slate-100"><div className="relative w-full sm:max-w-sm"><Search size={17} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"/><input placeholder={`Search ${name.toLowerCase()}…`} className="field pl-10" value={q} onChange={e=>{setQ(e.target.value);setPage(1)}}/></div><div className="flex items-center gap-2"><span className="text-xs text-slate-400 hidden sm:inline">Show:</span><select className="field min-w-36" value={status} onChange={e=>{setStatus(e.target.value);setPage(1)}}><option value="">All statuses</option><option value="draft">Draft</option><option value="review">In review</option><option value="published">Published</option></select><IconButton title="Refresh" onClick={reload}><RefreshCw size={17}/></IconButton></div></div>
    <div className="overflow-x-auto"><table className="w-full min-w-[790px] text-left"><thead className="bg-[#f9fafc] text-[10px] uppercase tracking-wider text-slate-400"><tr><th className="px-6 py-4 font-bold">Content</th><th className="px-4 py-4 font-bold">Status</th><th className="px-4 py-4 font-bold">Verification</th><th className="px-4 py-4 font-bold">Updated</th><th className="px-6 py-4 font-bold text-right">Actions</th></tr></thead><tbody className="divide-y divide-slate-100">{data.items.map(x=><tr key={x.id} className="group hover:bg-slate-50/75"><td className="px-6 py-4"><div className="flex items-center gap-3"><div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50 text-navy-700 grid place-items-center"><Icon size={17}/></div><div className="min-w-0"><p className="text-[13px] font-semibold text-navy-900 truncate max-w-sm">{x.title_en}</p><p className="mt-1 text-[11px] text-slate-400 truncate max-w-sm">{type==='leadership'&&x.metadata?.role?[x.metadata.role,x.metadata.term].filter(Boolean).join(' · '):x.metadata?.author_name?`From ${x.metadata.author_name}${x.location_text?` · ${x.location_text}`:''}`:x.location_text||x.excerpt_en||`/${type}/${x.slug}`}</p></div></div></td><td className="px-4 py-4"><Tag value={x.status}/></td><td className="px-4 py-4"><Tag value={x.verification_status}/></td><td className="px-4 py-4 text-[11px] text-slate-500">{datePretty(x.updated_at)}</td><td className="px-6 py-4"><div className="flex justify-end gap-1">{itemLink(x,view)&&<a href={itemLink(x,view)} target="_blank" rel="noreferrer" title={x.status==='published'?'Open on website':'Open on website (not published yet, so changes are not shown)'} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-navy-900"><ExternalLink size={16}/></a>}<IconButton title="Edit" onClick={()=>setEdit(x)}><Edit3 size={16}/></IconButton>{user.role==='admin'&&<IconButton title="Delete" onClick={()=>remove(x)}><Trash2 size={16}/></IconButton>}</div></td></tr>)}</tbody></table>{!loading&&data.items.length===0&&<div className="py-20 text-center"><div className="mx-auto mb-4 h-14 w-14 bg-slate-100 rounded-2xl grid place-items-center text-slate-400"><FolderOpen size={24}/></div><h3 className="text-sm font-bold text-navy-900">No matching entries</h3><p className="text-xs text-slate-400 mt-2">Try a different filter or add new content.</p></div>}{loading&&<div className="p-8 text-center text-xs text-slate-400">Loading content…</div>}</div>
