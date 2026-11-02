@@ -76,3 +76,4 @@ CMS Content Seeder (admin): seed each page block or content type separately (or 
 ## Colour palette
 - Primary / brand: **`#17b3c6`** (`--primary`, `--brand`) — header nav, footer brand bar, site primary.
 - Supporting tokens in `globals.css`: teal-900…100, gold-600/500/100, bg `#F8FBFF`, surface, text `#2B3A42`. Home (`data-page-theme="home"`) uses the supporting palette.
+- CMS (redesigned 31 Oct 2026, clean admin style like Stripe/Linear): navy sidebar and buttons, teal links/focus, OMI gold for the active menu item, light grey page with white cards. Works on phones and tablets. Tokens: `web/tailwind.config.js`; details in [[Code map]].
