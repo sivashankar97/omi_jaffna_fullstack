@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {ArrowDown, ArrowUp, ChevronDown, Plus, Trash2} from 'lucide-react';
+import {ArrowDown, ArrowUp, ChevronDown, ImagePlus, Plus, Trash2, Youtube} from 'lucide-react';
 
 let blocksRequest=null;
 /** Default website text and shapes, served by the public site at /cms-blocks. */
@@ -87,13 +87,59 @@ function TextField({name,label,value,template,onChange,upload}){
   :<input className="field mt-2" value={value??''} onChange={e=>onChange(e.target.value)}/>}</div>;
 }
 
+const MAX_PHOTO_BATCH=50;
+const youtubeId=url=>String(url||'').match(/(?:youtu\.be\/|[?&]v=|embed\/|shorts\/|live\/)([\w-]{11})/)?.[1]||'';
+
+function PhotoBatchUpload({upload,onAdd}){
+ const [progress,setProgress]=useState(null);
+ async function pick(e){
+  let files=[...(e.target.files||[])];e.target.value='';
+  if(!files.length||!upload)return;
+  if(files.length>MAX_PHOTO_BATCH){window.alert(`You chose ${files.length} photos. The first ${MAX_PHOTO_BATCH} will be uploaded; add the rest in another batch.`);files=files.slice(0,MAX_PHOTO_BATCH);}
+  const urls=[];
+  try{
+   for(const [i,file] of files.entries()){
+    setProgress({done:i,total:files.length});
+    const url=await upload(file,{kind:'image',quiet:true});
+    if(url)urls.push(url);
+   }
+  }finally{setProgress(null);if(urls.length)onAdd(urls);}
+  window.alert(urls.length===files.length?`${urls.length} photo${urls.length===1?'':'s'} added. Save the entry to keep them.`:`${urls.length} of ${files.length} photos added. Save the entry to keep them.`);
+ }
+ return <label className={`inline-flex items-center gap-1.5 rounded-lg border border-dashed px-3 py-1.5 text-xs font-semibold ${progress?'cursor-wait border-gold-400 text-gold-600':'cursor-pointer border-slate-300 text-slate-600 hover:border-gold-400 hover:text-gold-600'}`}>
+  <input type="file" multiple accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={Boolean(progress)} onChange={pick}/>
+  <ImagePlus size={14}/>{progress?`Uploading ${progress.done+1} of ${progress.total}…`:`Upload photos (up to ${MAX_PHOTO_BATCH} at once)`}
+ </label>;
+}
+
+function YoutubeQuickAdd({onAdd}){
+ const [link,setLink]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ async function add(){
+  const id=youtubeId(link);
+  if(!id){setError('Paste a YouTube video link, e.g. https://www.youtube.com/watch?v=…');return;}
+  setBusy(true);setError('');
+  let title='';
+  try{const r=await fetch(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(`https://www.youtube.com/watch?v=${id}`)}`);if(r.ok)title=(await r.json()).title||'';}catch{/* title stays empty; the editor can type it */}
+  onAdd({url:link.trim(),title});
+  setLink('');setBusy(false);
+ }
+ return <div className="rounded-xl border border-rose-100 bg-rose-50/50 p-3"><p className="flex items-center gap-1.5 text-xs font-semibold text-navy-900"><Youtube size={15} className="text-rose-500"/>Add a YouTube video</p>
+  <div className="mt-2 flex flex-wrap gap-2"><input className="field min-w-0 flex-1" value={link} placeholder="Paste a YouTube link" onChange={e=>{setLink(e.target.value);setError('')}} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();add();}}}/><button type="button" disabled={busy||!link.trim()} onClick={add} className="btn-primary text-xs">{busy?'Adding…':'Add from YouTube'}</button></div>
+  {error?<p className="mt-1.5 text-[11px] text-rose-600">{error}</p>:<p className="mt-1.5 text-[11px] text-slate-500">The title and thumbnail are filled in from YouTube. The video plays on the website’s Videos tab.</p>}
+ </div>;
+}
+
 function ListField({name,label,value,template,onChange,upload,depth,labels}){
  const items=Array.isArray(value)?value:[];
  const shape=itemShape([...template,...items]);
  const objects=shape!=='';
  const set=(index,next)=>onChange(items.map((item,i)=>i===index?next:item));
  const move=(index,delta)=>{const next=[...items];const [item]=next.splice(index,1);next.splice(index+delta,0,item);onChange(next)};
- const singular=labelOf(name,labels).replace(/\s*\(.*\)$/,'').replace(/ies$/,'y').replace(/s$/,'');
+ const photoList=objects?'src' in shape:isImageKey(name.replace(/s$/,''))||name==='photos';
+ const videoList=objects&&'url' in shape&&'thumbnail' in shape;
+ const singular=name==='gallery'&&photoList?'Photo':videoList?'Video':labelOf(name,labels).replace(/\s*\(.*\)$/,'').replace(/ies$/,'y').replace(/s$/,'');
+ const isBlank=item=>!Object.values(objects?item||{}:{v:item}).some(v=>typeof v==='string'?v.trim():Array.isArray(v)?v.length:Boolean(v));
+ const filled=items.filter(item=>!isBlank(item));
  return <div><p className="form-label">{label} <span className="font-normal text-slate-400">({items.length})</span></p><div className="mt-2 space-y-2">
   {items.map((item,index)=>{
    const act=fn=>e=>{e.preventDefault();e.stopPropagation();fn()};
@@ -104,7 +150,11 @@ function ListField({name,label,value,template,onChange,upload,depth,labels}){
    return <details key={index} className="rounded-xl border border-slate-200 bg-white"><summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-xs font-semibold text-navy-900"><span className="text-slate-400">{index+1}.</span><span className="min-w-0 flex-1 truncate">{preview(item)||`New ${singular.toLowerCase()}`}</span>{tools}</summary>
     <div className="space-y-4 border-t border-slate-100 p-3"><AutoFields value={item} template={shape} onChange={v=>set(index,v)} upload={upload} depth={depth+1} labels={labels} flat/></div></details>;
   })}
-  <button type="button" onClick={()=>onChange([...items,objects?blank(shape):''])} className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-gold-400 hover:text-gold-600"><Plus size={14}/> Add {singular.toLowerCase()}</button>
+  <div className="flex flex-wrap items-center gap-2">
+   <button type="button" onClick={()=>onChange([...items,objects?blank(shape):''])} className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-gold-400 hover:text-gold-600"><Plus size={14}/> Add {singular.toLowerCase()}</button>
+   {photoList&&upload&&<PhotoBatchUpload upload={upload} onAdd={urls=>onChange([...filled,...urls.map(src=>objects?{...blank(shape),src}:src)])}/>}
+  </div>
+  {videoList&&<YoutubeQuickAdd onAdd={video=>onChange([...filled,{...blank(shape),...video}])}/>}
  </div></div>;
 }
 

@@ -564,6 +564,19 @@ app.get('/api/dashboard',auth,cmsOnly,asyncRoute(async(_req,res)=>{
  const actions=await query(`SELECT action,target_type,created_at FROM audit_log ORDER BY created_at DESC LIMIT 6`);
  res.json({counts:stats.rows,inquiries:inquiries.rows,recent:recent.rows,activity:actions.rows,types:TYPES});
 }));
+// Everything waiting for staff: new Father accounts, new enquiries, draft uploads, and content in review
+// (with the metadata fields the CMS screens filter on, so the CMS can count per screen).
+app.get('/api/pending',auth,cmsOnly,asyncRoute(async(_req,res)=>{
+ const counts=await query(`SELECT
+  (SELECT count(*)::int FROM users WHERE role='father' AND NOT active) AS fathers,
+  (SELECT count(*)::int FROM inquiries WHERE status='new') AS inquiries,
+  (SELECT count(*)::int FROM media_assets WHERE status='draft') AS uploads`);
+ const review=await query(`SELECT id,type,slug,jsonb_build_object(
+   'role',metadata->>'role','category',metadata->>'category','kind',metadata->>'kind',
+   'library_section',metadata->>'library_section','submitted_by',metadata->>'submitted_by') AS meta
+  FROM content_items WHERE status='review' ORDER BY updated_at DESC LIMIT 1000`);
+ res.json({...counts.rows[0],review:review.rows});
+}));
 app.get('/api/items',auth,cmsOnly,asyncRoute(async(req,res)=>{
  const type=String(req.query.type||'page');if(!TYPES[type])return bad(res,'Invalid content type');
  const status=String(req.query.status||'');if(status&&!['draft','review','published'].includes(status))return bad(res,'Invalid status');

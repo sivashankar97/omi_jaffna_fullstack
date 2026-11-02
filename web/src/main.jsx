@@ -13,6 +13,7 @@ import CoverImageUpload from './CoverImageUpload.jsx';
 import {AutoFields,mergeContent,useCmsBlocks} from './AutoFields.jsx';
 import {emptyMinistryDetail,MinistryDetailFields} from './MinistryDetailFields.jsx';
 import PlacesManager from './PlacesManager.jsx';
+import {shrinkImage} from './shrinkImage.js';
 import './style.css';
 
 const TYPE_INFO={page:['Website Pages',PanelsTopLeft],ministry:['Ministries',HeartHandshake],parish:['Parishes',Church],formation:['Formation Houses',GraduationCap],location:['Map Locations',MapPin],leadership:['Leadership',Users],priest:['Oblate Priests',UserRound],bishop:['Oblate Bishops',Cross],necrology:['Necrology Register',BookOpen],international:['International Mission',Globe2],school:['Schools & Education',School],timeline:['History Timeline',History],news:['News & Stories',Newspaper],event:['Feasts & Events',CalendarDays],publication:['Publications',BookOpen],media:['Media Library',Images],library:['Library',BookOpen]};
@@ -210,33 +211,56 @@ function Login({onLogin,notify}){
 }
 function NavButton({id,label,Icon,section,go,nested=false,badge=0}){
  const active=section===id;
- return <button onClick={()=>go(id)} className={`group relative flex w-full items-center gap-3 rounded-xl px-3 ${nested?'py-2 text-[12.5px]':'py-2.5 text-[13px]'} text-left font-medium ${active?'bg-white/10 text-white':'text-slate-400 hover:bg-white/5 hover:text-white'}`}>{Icon?<Icon size={17} strokeWidth={1.9} className={active?'text-gold-400':'text-slate-500 group-hover:text-gold-400'}/>:<span className={`h-1.5 w-1.5 rounded-full ${active?'bg-gold-400':'bg-slate-600 group-hover:bg-gold-400'}`}/>}<span className="truncate">{label}</span>{badge>0&&<span className="ml-auto shrink-0 rounded-full bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold leading-none text-navy-950" title={`${badge} waiting for approval`}>{badge}</span>}{active&&<div className="absolute right-0 top-2.5 bottom-2.5 w-1 rounded-l-full bg-gold-400"/>}</button>;
+ return <button onClick={()=>go(id)} className={`group relative flex w-full items-center gap-3 rounded-xl px-3 ${nested?'py-2 text-[12.5px]':'py-2.5 text-[13px]'} text-left font-medium ${active?'bg-white/10 text-white':'text-slate-400 hover:bg-white/5 hover:text-white'}`}>{Icon?<Icon size={17} strokeWidth={1.9} className={active?'text-gold-400':'text-slate-500 group-hover:text-gold-400'}/>:<span className={`h-1.5 w-1.5 rounded-full ${active?'bg-gold-400':'bg-slate-600 group-hover:bg-gold-400'}`}/>}<span className="truncate">{label}</span><PendingBadge count={badge} id={id}/>{active&&<div className="absolute right-0 top-2.5 bottom-2.5 w-1 rounded-l-full bg-gold-400"/>}</button>;
 }
-const FATHER_APPROVAL_VIEWS=['news-father','event-father','library-father'];
-function useFatherWaiting(section){
+const PENDING_TEXT={'father-profiles':'new Father account(s) to approve','news-father':'Father news to approve','event-father':'Father event(s) to approve','library-father':'Father book(s) to approve',inquiries:'new enquiry(ies)',assets:'uploaded file(s) to approve'};
+function PendingBadge({count,id,label}){
+ if(!(count>0))return null;
+ return <span className="ml-auto shrink-0 min-w-[1.25rem] rounded-full bg-rose-500 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white shadow-[0_0_0_3px_rgba(244,63,94,.25)]" title={label||`${count} ${PENDING_TEXT[id]||'in review, waiting for approval'}`}>{count>99?'99+':count}</span>;
+}
+/** Same filters as GET /api/items, so a screen counts exactly the review items it lists. */
+function viewMatches(view,item){
+ if(!view?.type||view.type!==item.type)return false;
+ const q=new URLSearchParams(view.query||'');
+ const csv=key=>(q.get(key)||'').split(',').map(v=>v.trim().toLowerCase()).filter(Boolean);
+ const slugs=csv('slug');if(slugs.length&&!slugs.includes(item.slug))return false;
+ const key=q.get('meta_key');
+ if(key){const value=String(item.meta?.[key]||'').toLowerCase(),like=csv('meta_like');if(like.length&&!like.some(v=>value.includes(v)))return false;if(csv('meta_not').some(v=>value.includes(v)))return false;}
+ const has=q.get('meta_has');if(has&&item.meta?.[has]==null)return false;
+ return true;
+}
+/** Everything waiting for staff, keyed by CMS view id → ids of the waiting records. */
+function usePending(section,enabled){
  const [counts,setCounts]=useState({});
  useEffect(()=>{
-  if(demo)return;
+  if(demo||!enabled)return;
   let live=true;
-  const load=()=>Promise.all(FATHER_APPROVAL_VIEWS.map(id=>api(`/api/items?type=${VIEWS[id].type}&status=review&${VIEWS[id].query}&page=1`).then(d=>[id,d.total||0]).catch(()=>[id,0]))).then(rows=>{if(live)setCounts(Object.fromEntries(rows))});
-  load();const t=setInterval(load,120000);
+  const fake=(prefix,n)=>Array.from({length:n||0},(_,i)=>`${prefix}-${i}`);
+  const load=()=>api('/api/pending').then(d=>{
+   if(!live)return;
+   const next={'father-profiles':fake('father',d.fathers),inquiries:fake('inquiry',d.inquiries),assets:fake('upload',d.uploads)};
+   for(const [id,view] of Object.entries(VIEWS)){const ids=(d.review||[]).filter(item=>viewMatches(view,item)).map(item=>item.id);if(ids.length)next[id]=ids;}
+   setCounts(next);
+  }).catch(()=>{});
+  load();const t=setInterval(load,60000);
   return ()=>{live=false;clearInterval(t)};
- },[section]);
+ },[section,enabled]);
  return counts;
 }
-function Sidebar({section,setSection,mobileOpen,setMobileOpen,user,onLogout}){
+const pendingCount=(waiting,ids)=>new Set(ids.flatMap(id=>waiting[id]||[])).size;
+const pendingTotal=waiting=>pendingCount(waiting,Object.keys(waiting));
+function Sidebar({section,setSection,mobileOpen,setMobileOpen,user,onLogout,waiting}){
  const current=pageOf[viewFor(section)?.id]?.label;
  const [open,setOpen]=useState(()=>new Set(current?[current]:[]));
  useEffect(()=>{if(current)setOpen(s=>s.has(current)?s:new Set([...s,current]))},[current]);
  const go=id=>{setSection(id);setMobileOpen(false)};
- const waiting=useFatherWaiting(section);
  const toggle=label=>setOpen(s=>{const next=new Set(s);next.has(label)?next.delete(label):next.add(label);return next});
  const nav=<div className="overflow-y-auto overscroll-contain scroll-slim flex-1 px-4 pt-6 pb-7">{NAV.map(group=><div key={group.label} className="mb-7"><p className="px-3 mb-3 text-[10px] font-bold tracking-[.17em] text-slate-500">{group.label}</p><div className="space-y-1">
-  {(group.items||[]).map(([id,label,Icon])=><NavButton key={id} id={id} label={label} Icon={Icon} section={section} go={go} badge={waiting[id]}/>)}
+  {(group.items||[]).map(([id,label,Icon])=><NavButton key={id} id={id} label={label} Icon={Icon} section={section} go={go} badge={waiting[id]?.length}/>)}
   {(group.pages||[]).map(page=>{const expanded=open.has(page.label),here=current===page.label,Icon=page.icon;
-   if(page.views.length===1)return <NavButton key={page.label} id={page.views[0]} label={page.label} Icon={Icon} section={section} go={go}/>;
-   return <div key={page.label}><button onClick={()=>toggle(page.label)} aria-expanded={expanded} className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold ${here?'text-white':'text-slate-300 hover:bg-white/5 hover:text-white'}`}><Icon size={17} strokeWidth={1.9} className={here?'text-gold-400':'text-slate-500 group-hover:text-gold-400'}/><span className="flex-1 truncate">{page.label}</span><ChevronDown size={15} className={`text-slate-500 transition-transform ${expanded?'rotate-180':''}`}/></button>
-    {expanded&&<div className="ml-5 mt-1 space-y-0.5 border-l border-white/10 pl-2">{page.views.map(id=><NavButton key={id} id={id} label={VIEWS[id].label} section={section} go={go} nested badge={waiting[id]}/>)}</div>}</div>})}
+   if(page.views.length===1)return <NavButton key={page.label} id={page.views[0]} label={page.label} Icon={Icon} section={section} go={go} badge={waiting[page.views[0]]?.length}/>;
+   return <div key={page.label}><button onClick={()=>toggle(page.label)} aria-expanded={expanded} className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold ${here?'text-white':'text-slate-300 hover:bg-white/5 hover:text-white'}`}><Icon size={17} strokeWidth={1.9} className={here?'text-gold-400':'text-slate-500 group-hover:text-gold-400'}/><span className="flex-1 truncate">{page.label}</span>{(()=>{const n=pendingCount(waiting,page.views);return <PendingBadge count={n} label={`${n} waiting for approval in ${page.label}`}/>})()}<ChevronDown size={15} className={`text-slate-500 transition-transform ${expanded?'rotate-180':''}`}/></button>
+    {expanded&&<div className="ml-5 mt-1 space-y-0.5 border-l border-white/10 pl-2">{page.views.map(id=><NavButton key={id} id={id} label={VIEWS[id].label} section={section} go={go} nested badge={waiting[id]?.length}/>)}</div>}</div>})}
  </div></div>)}</div>;
  return <><div className={`fixed inset-0 z-40 bg-navy-950/45 lg:hidden ${mobileOpen?'block':'hidden'}`} onClick={()=>setMobileOpen(false)}/><aside className={`cms-sidebar fixed inset-y-0 left-0 z-50 flex w-[270px] flex-col text-slate-100  lg:translate-x-0 ${mobileOpen?'translate-x-0':'-translate-x-full'}`}>
   <div className="flex items-center gap-3 border-b border-white/10 px-6 h-[92px]"><Crest small/><div className="min-w-0"><div className="font-bold text-[15px] tracking-wide text-white">OMI Jaffna</div><div className="mt-1 text-[10px] uppercase font-semibold tracking-[.16em] text-gold-400">Province CMS</div></div><button className="lg:hidden ml-auto" onClick={()=>setMobileOpen(false)}><X size={19}/></button></div>
@@ -244,9 +268,9 @@ function Sidebar({section,setSection,mobileOpen,setMobileOpen,user,onLogout}){
   <div className="border-t border-white/10 p-4"><div className="flex items-center gap-2.5 rounded-xl bg-white/5 p-2.5"><div className="grid h-9 w-9 place-items-center rounded-xl bg-gold-500/20 text-gold-200 text-sm font-bold">{user.name?.[0]||'A'}</div><div className="min-w-0 flex-1"><p className="text-xs font-semibold text-white truncate">{user.name}</p><p className="text-[10px] text-slate-400 capitalize">{user.role}</p></div><button title="Sign out" onClick={onLogout} className="p-1.5 hover:text-white"><LogOut size={16}/></button></div></div>
  </aside></>
 }
-function Topbar({section,setMobileOpen,user,onLogout,setSection}){
+function Topbar({section,setMobileOpen,user,onLogout,setSection,waiting}){
  return <header className="cms-topbar h-[92px] flex items-center justify-between gap-5 border-b border-sky-100 px-5 sm:px-8 lg:px-10 sticky top-0 z-20">
-  <div className="flex items-center gap-4 min-w-0"><button onClick={()=>setMobileOpen(true)} className="lg:hidden"><Menu size={23}/></button><div className="min-w-0"><div className="flex items-center gap-2 text-xs text-slate-400"><span>{pageOf[viewFor(section)?.id]?.label||'Workspace'}</span><ChevronRight size={13}/><span className="font-medium text-gold-600 truncate">{labels[viewFor(section)?.id||section]}</span></div><h1 className="mt-1 text-[22px] sm:text-2xl font-bold tracking-tight text-navy-900 truncate">{section==='overview'?'Good day, '+user.name.split(' ')[0]:labels[viewFor(section)?.id||section]}</h1></div></div>
+  <div className="flex items-center gap-4 min-w-0"><button onClick={()=>setMobileOpen(true)} className="relative lg:hidden" aria-label={pendingTotal(waiting)?`Menu, ${pendingTotal(waiting)} waiting for approval`:'Menu'}><Menu size={23}/>{pendingTotal(waiting)>0&&<span className="absolute -right-1.5 -top-1.5 h-3 w-3 rounded-full bg-rose-500 ring-2 ring-white"/>}</button><div className="min-w-0"><div className="flex items-center gap-2 text-xs text-slate-400"><span>{pageOf[viewFor(section)?.id]?.label||'Workspace'}</span><ChevronRight size={13}/><span className="font-medium text-gold-600 truncate">{labels[viewFor(section)?.id||section]}</span></div><h1 className="mt-1 text-[22px] sm:text-2xl font-bold tracking-tight text-navy-900 truncate">{section==='overview'?'Good day, '+user.name.split(' ')[0]:labels[viewFor(section)?.id||section]}</h1></div></div>
   <div className="flex items-center gap-3"><span className="hidden md:inline-flex items-center gap-2 rounded-full border border-slate-200 px-3.5 py-2 text-[11px] font-semibold text-slate-500"><span className="h-2 w-2 rounded-full bg-emerald-500"/> CMS workspace</span><a href="/" target="_blank" rel="noreferrer" className="hidden sm:inline-flex btn-outline text-xs">Public site <ExternalLink size={14}/></a><button className="h-10 w-10 grid place-items-center rounded-full bg-navy-900 text-white text-sm font-semibold" title={`${user.name} (${user.role})`} onClick={()=>setSection('users')}>{user.name?.slice(0,1)}</button></div>
  </header>
 }
@@ -387,10 +411,14 @@ async function uploadAsset(file,opts,notify){
    if(file.size>40*1024*1024){notify('Choose a video smaller than 40 MB.','error');return '';}
   }else{
    if(!['image/jpeg','image/png','image/webp'].includes(file.type)){notify('Choose a JPEG, PNG or WebP image.','error');return '';}
-   if(file.size>12*1024*1024){notify('Choose an image smaller than 12 MB.','error');return '';}
+   if(file.size>40*1024*1024){notify('Choose an image smaller than 40 MB.','error');return '';}
   }
-  try{const data=new FormData();data.append('file',file);const {item}=await api('/api/assets',{method:'POST',body:data});notify(`${kind==='pdf'?'PDF':kind==='video'?'Video':kind==='audio'?'Audio':'Image'} uploaded. Approve it in File Uploads, then save this entry.`,'success');return item.url;}
-  catch(err){notify(err.message,'error');return '';}
+  try{
+   if(kind==='image'){file=await shrinkImage(file);if(file.size>12*1024*1024)throw Error('This image is still too large after resizing. Choose a smaller image.');}
+   const data=new FormData();data.append('file',file);const {item}=await api('/api/assets',{method:'POST',body:data});
+   if(!opts.quiet)notify(item.status==='published'?`${kind==='pdf'?'PDF':kind==='video'?'Video':kind==='audio'?'Audio':'Image'} uploaded. Save this entry to keep it.`:`${kind==='pdf'?'PDF':kind==='video'?'Video':kind==='audio'?'Audio':'Image'} uploaded. Approve it in File Uploads, then save this entry.`,'success');
+   return item.url;
+  }catch(err){notify(opts.quiet?`${file.name}: ${err.message}`:err.message,'error');return '';}
 }
 const LIBRARY_SECTION_LABELS={magazine:'Magazine',libraries:'Libraries',books:'New book releases',articles:'Articles'};
 function LibraryCategorySelect({section,value,onChange}){
@@ -893,6 +921,8 @@ function App(){
  const [user,setUser]=useState(demo?{id:'demo',name:'Demo Administrator',role:'admin',email:'demo@example.org'}:null),[ready,setReady]=useState(demo),[section,setSection]=useState('overview'),[mobileOpen,setMobileOpen]=useState(false),[notice,setNotice]=useState(null);
  const notify=(message,type='success')=>{setNotice({message,type});setTimeout(()=>setNotice(null),4800)};
  const isStaff=user&&['admin','editor','publisher'].includes(user.role);
+ const waiting=usePending(section,isCms&&isStaff);
+ useEffect(()=>{const n=pendingTotal(waiting);document.title=`${n?`(${n}) `:''}OMI Jaffna · Mission Control`},[waiting]);
  useEffect(()=>{
   if(demo)return;
   api('/api/auth/me').then(r=>{
@@ -920,7 +950,7 @@ function App(){
  if(!ready)return <div className="min-h-screen grid place-items-center text-slate-500 text-sm">Loading secure workspace…</div>;
  if(user?.role==='father')return <div className="min-h-screen grid place-items-center gap-3 p-8 text-center text-slate-600"><p className="text-sm font-semibold text-navy-900">This area is the staff CMS.</p><p className="text-sm">Opening your Father profile on the public website…</p></div>;
  if(!isStaff)return <><Login onLogin={acceptAuth} notify={notify}/>{notice&&<Toast key={notice.message} {...notice}/>}</>;
- return <div className="cms-shell lg:pl-[270px]"><Sidebar section={section} setSection={setSection} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={user} onLogout={logout}/><Topbar section={section} setMobileOpen={setMobileOpen} user={user} onLogout={logout} setSection={setSection}/><main className="px-4 sm:px-8 lg:px-10 py-7 sm:py-9 max-w-[1750px] mx-auto">{demo&&<div className="mb-6 flex flex-wrap justify-between gap-3 items-center border border-sky-200 rounded-xl bg-sky-50/90 px-4 py-3 text-xs text-sky-900"><span><Info size={15} className="inline mr-2"/><strong>Read-only demo.</strong> 124 source-derived draft records; no connection to the real database.</span><a href="/admin" className="underline font-bold">Go to secure login</a></div>}{section==='overview'?<Overview setSection={setSection} user={user} notify={notify}/>:viewFor(section)?.custom==='places'?<PlacesManager api={api} notify={notify} user={user} upload={(file,opts={})=>uploadAsset(file,opts,notify)}/>:viewFor(section)?<ContentManager key={viewFor(section).id} view={viewFor(section)} notify={notify} user={user}/>:section==='contacts'?<Contacts notify={notify} user={user}/>:section==='inquiries'?<Inquiries notify={notify} user={user}/>:section==='father-profiles'?(user.role==='admin'?<FatherProfiles notify={notify}/>:<div className="panel p-8">Only admins can manage Father profiles.</div>):section==='father-galleries'?<FatherGalleries notify={notify} user={user}/>:section==='father-reports'?<FatherReports notify={notify} user={user}/>:section==='assets'?<Assets notify={notify} user={user}/>:section==='users'?(user.role==='admin'?<Team notify={notify}/>:<div className="panel p-8">Only admins can manage accounts.</div>):section==='seeder'?(user.role==='admin'?<ContentSeeder notify={notify}/>:<div className="panel p-8">Only admins can run the content seeder.</div>):section==='settings'?(user.role==='admin'?<SiteSettings notify={notify}/>:<div className="panel p-8">Only admins can edit settings.</div>):null}<div className="flex justify-between flex-wrap gap-2 text-[11px] text-slate-500 mt-10 pt-6 border-t border-sky-200"><span>© 2026 · Oblate Province of Jaffna · Content Management System</span><span>Built for stewardship, accessibility and safeguarding</span></div></main>{notice&&<Toast key={notice.message} {...notice}/>}</div>;
+ return <div className="cms-shell lg:pl-[270px]"><Sidebar section={section} setSection={setSection} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} user={user} onLogout={logout} waiting={waiting}/><Topbar section={section} setMobileOpen={setMobileOpen} user={user} onLogout={logout} setSection={setSection} waiting={waiting}/><main className="px-4 sm:px-8 lg:px-10 py-7 sm:py-9 max-w-[1750px] mx-auto">{demo&&<div className="mb-6 flex flex-wrap justify-between gap-3 items-center border border-sky-200 rounded-xl bg-sky-50/90 px-4 py-3 text-xs text-sky-900"><span><Info size={15} className="inline mr-2"/><strong>Read-only demo.</strong> 124 source-derived draft records; no connection to the real database.</span><a href="/admin" className="underline font-bold">Go to secure login</a></div>}{section==='overview'?<Overview setSection={setSection} user={user} notify={notify}/>:viewFor(section)?.custom==='places'?<PlacesManager api={api} notify={notify} user={user} upload={(file,opts={})=>uploadAsset(file,opts,notify)}/>:viewFor(section)?<ContentManager key={viewFor(section).id} view={viewFor(section)} notify={notify} user={user}/>:section==='contacts'?<Contacts notify={notify} user={user}/>:section==='inquiries'?<Inquiries notify={notify} user={user}/>:section==='father-profiles'?(user.role==='admin'?<FatherProfiles notify={notify}/>:<div className="panel p-8">Only admins can manage Father profiles.</div>):section==='father-galleries'?<FatherGalleries notify={notify} user={user}/>:section==='father-reports'?<FatherReports notify={notify} user={user}/>:section==='assets'?<Assets notify={notify} user={user}/>:section==='users'?(user.role==='admin'?<Team notify={notify}/>:<div className="panel p-8">Only admins can manage accounts.</div>):section==='seeder'?(user.role==='admin'?<ContentSeeder notify={notify}/>:<div className="panel p-8">Only admins can run the content seeder.</div>):section==='settings'?(user.role==='admin'?<SiteSettings notify={notify}/>:<div className="panel p-8">Only admins can edit settings.</div>):null}<div className="flex justify-between flex-wrap gap-2 text-[11px] text-slate-500 mt-10 pt-6 border-t border-sky-200"><span>© 2026 · Oblate Province of Jaffna · Content Management System</span><span>Built for stewardship, accessibility and safeguarding</span></div></main>{notice&&<Toast key={notice.message} {...notice}/>}</div>;
 }
 function Toast({message,type}){return <div role="status" className={`fixed z-[100] bottom-6 right-6 left-6 sm:left-auto sm:max-w-[400px] rounded-xl shadow-xl px-5 py-4 text-sm font-semibold flex items-center gap-3 ${type==='error'?'bg-rose-700 text-white':'bg-navy-900 text-white'}`}>{type==='error'?<AlertCircle size={19} className="shrink-0"/>:<CheckCircle2 size={19} className="shrink-0 text-gold-400"/>}{message}</div>}
 const root=import.meta.hot?.data.root||createRoot(document.getElementById('root'));

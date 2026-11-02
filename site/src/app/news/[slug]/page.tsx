@@ -40,6 +40,8 @@ export default async function NewsArticlePage({ params }: NewsPageProps) {
   const latest = others.filter((item) => !related.includes(item)).slice(0, 4)
   const [lead, ...rest] = article.paragraphs
   const hero = article.gallery[0] ?? article.cover
+  // Photo 1 is the hero and photos 2…n sit after paragraphs 2…n; the rest go in the grid below the story.
+  const morePhotos = article.gallery.slice(rest.length + 1)
 
   return (
     <article className="bg-white text-[#102a43]">
@@ -175,6 +177,35 @@ export default async function NewsArticlePage({ params }: NewsPageProps) {
           </aside>
         ) : null}
       </div>
+
+      {morePhotos.length ? (
+        <section className="bg-[#f4fbfd] px-4 py-14 sm:px-8">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="font-heading text-2xl font-semibold text-[#03202b] sm:text-3xl">
+              Photos <span className="text-base font-normal text-[#6b7a88]">({morePhotos.length})</span>
+            </h2>
+            <ul className="mt-8 grid gap-4 min-[420px]:grid-cols-2 lg:grid-cols-3">
+              {morePhotos.map((photo, index) => (
+                <li key={`${photo.src}-${index}`}>
+                  <Reveal from="up" delay={(index % 3) * 80}>
+                    <figure className="overflow-hidden rounded-[1.25rem] bg-white shadow-[0_18px_40px_-32px_rgba(10,60,80,0.45)]">
+                      <a href={photo.src} target="_blank" rel="noreferrer" className="group block aspect-[4/3] overflow-hidden bg-[#eef6f8]">
+                        <img
+                          src={photo.src}
+                          alt={photo.alt}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+                        />
+                      </a>
+                      {photo.caption ? <figcaption className="px-4 py-3 text-sm text-[#5c6b7a]">{photo.caption}</figcaption> : null}
+                    </figure>
+                  </Reveal>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       <section className="border-t border-[#e1e8ee] bg-[#f6f9fb] px-4 py-16 sm:px-8">
         <div className="mx-auto max-w-6xl">
