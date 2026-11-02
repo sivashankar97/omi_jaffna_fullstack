@@ -9,10 +9,11 @@ export const metadata: Metadata = {
   description: `How the ${site.name} website collects, uses and protects personal information.`,
 }
 
-const UPDATED = "28 October 2026"
+const UPDATED = "29 October 2026"
 
-const sections: { title: string; body: React.ReactNode }[] = [
+const sections: { id: string; title: string; body: React.ReactNode }[] = [
   {
+    id: "who-we-are",
     title: "Who we are",
     body: (
       <p>
@@ -24,6 +25,7 @@ const sections: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
+    id: "what-we-collect",
     title: "What we collect",
     body: (
       <ul>
@@ -32,8 +34,10 @@ const sections: { title: string; body: React.ReactNode }[] = [
           message.
         </li>
         <li>
-          <strong>Member accounts</strong> (Oblate fathers and staff): name, email address, OMI ID, and a securely
-          hashed password. We never store passwords in readable form.
+          <strong>Member accounts</strong> (Oblate fathers and staff): name, email address, OMI ID, date of birth,
+          mobile number and a securely hashed password. We never store passwords in readable form. The mobile number is
+          visible only to the member and the site administrators. The date of birth is shown publicly as the
+          father&apos;s birthday on his profile and on the province calendar.
         </li>
         <li>
           <strong>Content you add as a member:</strong> profile details, photos, documents, events and articles you
@@ -47,17 +51,23 @@ const sections: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
+    id: "how-we-use-it",
     title: "How we use it",
     body: (
       <ul>
         <li>To answer your enquiries and pastoral or vocation requests.</li>
         <li>To let members sign in, manage their profile and publish approved content.</li>
         <li>To send account emails, such as password reset links.</li>
+        <li>
+          To help members draft news and event write-ups: when a member asks for AI help, the text they entered is
+          sent to Google Gemini to produce a draft, which is reviewed before anything is published.
+        </li>
         <li>To protect the website against misuse.</li>
       </ul>
     ),
   },
   {
+    id: "cookies",
     title: "Cookies",
     body: (
       <p>
@@ -67,17 +77,20 @@ const sections: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
+    id: "services-we-use",
     title: "Services we use",
     body: (
       <ul>
         <li>Our own server, where the website and its database are hosted.</li>
         <li>Brevo, to deliver account emails such as password resets.</li>
+        <li>Google Gemini, only when a member uses the AI writing helper.</li>
         <li>Google Drive, to store daily backups of the website database.</li>
         <li>Map tiles from Esri (ArcGIS) on the mission map, and embedded YouTube videos on some pages.</li>
       </ul>
     ),
   },
   {
+    id: "sharing",
     title: "Sharing",
     body: (
       <p>
@@ -87,6 +100,7 @@ const sections: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
+    id: "how-long-we-keep-it",
     title: "How long we keep it",
     body: (
       <p>
@@ -96,6 +110,7 @@ const sections: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
+    id: "your-choices",
     title: "Your choices",
     body: (
       <p>
@@ -106,6 +121,7 @@ const sections: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
+    id: "changes",
     title: "Changes",
     body: <p>If this policy changes, we will update this page and the date below.</p>,
   },
@@ -124,7 +140,7 @@ export default function PrivacyPage() {
       <section className="bg-white px-4 py-16 text-[#023e8a] sm:px-8 sm:py-20">
         <div className="mx-auto max-w-3xl space-y-10">
           {sections.map((section) => (
-            <article key={section.title}>
+            <article key={section.id} id={section.id} className="scroll-mt-28">
               <h2 className="font-heading text-2xl font-semibold text-[#023e8a]">{section.title}</h2>
               <div className="mt-3 space-y-3 leading-7 text-[#3d4b59] [&_a]:font-semibold [&_a]:text-[#0e98ac] [&_a]:underline-offset-4 hover:[&_a]:underline [&_li]:mt-2 [&_ul]:list-disc [&_ul]:pl-5">
                 {section.body}

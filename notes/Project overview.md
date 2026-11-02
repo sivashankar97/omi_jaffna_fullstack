@@ -5,7 +5,7 @@ tags: [project, overview]
 
 GitHub: https://github.com/sivashankar97/omi_jaffna_fullstack (branch `main`)
 Live: https://omijaffna.com · CMS: https://omijaffna.com/admin · IP: http://179.197.250.19  
-TLS: Let’s Encrypt on VPS (`deploy/vps/nginx.conf`); `FRONTEND_ORIGIN=https://omijaffna.com`, `COOKIE_SECURE=true`.  
+TLS: Let’s Encrypt on VPS (`deploy/vps/nginx.conf`); `FRONTEND_ORIGIN=https://omijaffna.com`, `COOKIE_SECURE=true`. Security headers (HSTS, CSP frame-ancestors, nosniff…) and reset-token log redaction live in `nginx.conf`; `vps-up.sh` restarts nginx when it changes. Pinned: Next 16.4.3, React 19.3.1.  
 (Legacy Netlify: https://omi-jaffna-province.netlify.app)  
 Stack: `deploy/vps/` Docker (Postgres + API + Next + nginx). Login secrets: local `VPS-LOGIN.txt` (not in git).
 
@@ -59,7 +59,7 @@ Takes about 3–10 minutes (longer when large files like the hero video change).
 
 The CLI builds on this Mac, so `NETLIFY` is not set during the build. Local-only rewrites in `site/next.config.ts` (mainly `/api` → :4000) apply in `next dev` only; on Netlify, `netlify.toml` routes `/api` and `/admin`.
 
-CMS uploads go to **Supabase Storage** bucket `media` (private). Local and Netlify share the same bucket via `MEDIA_STORE=supabase`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY` (server-only; set in `api/.env` and Netlify env). The site still loads files through `/api/files/{id}` (API streams from Storage). Allowed: JPEG/PNG/WebP ≤12 MB, PDF / MP4 / MP3 / M4A ≤40 MB (PDFs were raised to 40 MB in Oct 2026 for Father book uploads; the VPS keeps files in Postgres and nginx allows 45 MB; a Supabase bucket created by `storage.js` still caps files at 12 MB). `/api/files` supports byte ranges for seeking. Migrate existing Blobs files once with `cd api && npm run migrate:media` (pulls from the live site into Supabase).
+CMS uploads are stored in Postgres (`media_blobs`, `MEDIA_STORE=postgres`) and served through `/api/files/{id}` (byte ranges supported). Supabase was removed on 31 Oct 2026: the 140 files the content linked to on Supabase were already in `media_blobs`, so they got `media_assets` rows and the links became `/api/files/…` (backup: `~/omi-jaffna-backups/content-before-supabase-removal-*.sql.gz`, local only). Allowed: JPEG/PNG/WebP ≤12 MB, PDF / MP4 / MP3 / M4A ≤40 MB (nginx allows 45 MB).
 
 Father submissions: articles, events and books (PDF for the Library, as a new release or in a library collection) arrive in the CMS as **In review** under Father Profile Management (sidebar badges show how many are waiting). Publishing one also publishes the photos/PDF the Father uploaded for it.
 

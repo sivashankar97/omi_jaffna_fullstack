@@ -69,7 +69,8 @@ export const fatherProfileSchema=z.object({
  bio:z.string().max(4000).optional(),
  place:z.string().max(255).optional(),
  photo_url:z.string().max(2000).optional(),
- password:userFieldsSchema.shape.password.optional()
+ password:userFieldsSchema.shape.password.optional(),
+ current_password:z.string().max(200).optional()
 }).strict().refine(data=>Object.keys(data).length>0,'Provide at least one profile field');
 export const fatherItemKinds=z.enum(['document','gallery','action','news']);
 export const fatherItemSchema=z.object({

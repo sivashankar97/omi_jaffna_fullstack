@@ -8,7 +8,7 @@ import bcrypt from 'bcryptjs';
 import {createHash,randomBytes,randomUUID} from 'node:crypto';
 import multer from 'multer';
 import {query} from './db.js';
-import {auth,optionalAuth,allow,setSessionCookie,clearSessionCookie,verifyPassword} from './security.js';
+import {auth,optionalAuth,allow,setSessionCookie,clearSessionCookie,verifyPassword,sessionUser} from './security.js';
 import {crudRouter} from './crud.js';
 import {TYPES,LIBRARY_CATEGORY_IDS} from './constants.js';
 import {saveFile,readStoredFile,removeFile} from './storage.js';
@@ -172,14 +172,24 @@ app.get('/api/auth/me',optionalAuth,asyncRoute(async(req,res)=>{
 }));
 app.patch('/api/auth/profile',auth,allow('father'),asyncRoute(async(req,res)=>{
  const parsed=fatherProfileSchema.safeParse(req.body);if(!parsed.success)return bad(res,parsed.error.flatten());
- const data={...parsed.data};
- if(data.password){data.password_hash=await bcrypt.hash(data.password,12);delete data.password;}
+ const {current_password,...data}=parsed.data;
+ const changingPassword=Boolean(data.password);
+ if(changingPassword||data.email){
+  const current=await query('SELECT email,password_hash FROM users WHERE id=$1',[req.session.sub]);
+  const emailChanged=Boolean(data.email)&&data.email!==String(current.rows[0]?.email||'').toLowerCase();
+  if((changingPassword||emailChanged)&&!(await verifyPassword(current_password,current.rows[0]?.password_hash))){
+   return bad(res,{fieldErrors:{current_password:['Enter your current password to change your email or password.']}});
+  }
+ }
+ if(changingPassword){data.password_hash=await bcrypt.hash(data.password,12);data.password_changed_at=new Date();delete data.password;}
  const columns=Object.keys(data);
  const values=columns.map(key=>data[key]);
  const updates=columns.map((key,index)=>`${key}=$${index+1}`);
  const result=await query(`UPDATE users SET ${updates.join(',')} WHERE id=$${columns.length+1} RETURNING id,name,email,role,active,father_id,date_of_birth,mobile_number,bio,place,photo_url`,[...values,req.session.sub]);
  if(!result.rowCount)return bad(res,'Account unavailable',401);
- await audit(req.session.sub,'update','profile',req.session.sub);
+ // A new password signs out every other session; this one gets a fresh cookie.
+ if(changingPassword)setSessionCookie(res,result.rows[0]);
+ await audit(req.session.sub,changingPassword?'password_change':'update','profile',req.session.sub);
  res.json({user:result.rows[0]});
 }));
 
@@ -770,21 +780,20 @@ app.get('/api/assets',auth,cmsOnly,asyncRoute(async(_req,res)=>{const r=await qu
 app.get('/api/files/:id',asyncRoute(async(req,res)=>{
  if(!idValid(req.params.id))return bad(res,'Invalid ID');
  const r=await query('SELECT * FROM media_assets WHERE id=$1',[req.params.id]);if(!r.rowCount)return bad(res,'Not found',404);
- const a=r.rows[0];if(a.status!=='published'){
-  try{
-   const p=req.cookies?.omi_session;
-   const claims=p?((await import('jsonwebtoken')).default.verify(p,process.env.JWT_SECRET)):null;
-   if(!claims)return bad(res,'Not available',404);
-   const active=await query('SELECT role FROM users WHERE id=$1 AND active=true',[claims.sub]);
-   if(!active.rowCount)return bad(res,'Not available',404);
-   const role=active.rows[0].role;
-   const allowed=['admin','editor','publisher'].includes(role)||a.uploaded_by===claims.sub;
-   if(!allowed)return bad(res,'Not available',404);
-  }catch{return bad(res,'Not available',404);}
+ const a=r.rows[0];
+ // PDFs sent to Fathers stay private even when the file itself is published.
+ const dispatches=await query('SELECT target_user_id FROM father_dispatches WHERE file_url=$1',[`/api/files/${a.id}`]);
+ const restricted=a.status!=='published'||dispatches.rowCount>0;
+ if(restricted){
+  const user=await sessionUser(req);
+  const staff=['admin','editor','publisher'].includes(user?.role);
+  const uploader=Boolean(user)&&a.uploaded_by===user.id;
+  const recipient=user?.role==='father'&&dispatches.rows.some(d=>!d.target_user_id||d.target_user_id===user.id);
+  if(!staff&&!uploader&&!recipient)return bad(res,'Not available',404);
  }
  const sendFile=(buf,type)=>{
   res.set('Content-Type',type||a.mime_type);
-  res.set('Cache-Control',a.status==='published'?'public, max-age=3600':'no-store');
+  res.set('Cache-Control',restricted?'private, no-store':'public, max-age=3600');
   res.set('Cross-Origin-Resource-Policy','cross-origin');
   res.set('X-Content-Type-Options','nosniff');
   if((type||a.mime_type)==='application/pdf')res.set('Content-Disposition',`attachment; filename="publication.pdf"`);

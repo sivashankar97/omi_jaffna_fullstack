@@ -1,4 +1,4 @@
-// Match priest portraits → CMS `priest` rows, upload into Supabase Storage
+// Match priest portraits → CMS `priest` rows, upload into media storage
 // + media_assets, set image_url to /api/files/{id}.
 // Source PNGs: site/public/priests/portraits/ (staging only; live site uses Storage).
 // Usage: node scripts/seed-priest-portraits.js [--dry-run] [--public] [--dir path]
@@ -154,6 +154,6 @@ if (crynton && !dryRun && !usePublic) {
 }
 
 console.log(
-  `\nDone. matched=${matches.filter((m) => m.status === 'matched').length} updated=${updated} unmatched=${skipped} dry=${dryRun} mode=${usePublic ? 'public' : 'supabase'}`
+  `\nDone. matched=${matches.filter((m) => m.status === 'matched').length} updated=${updated} unmatched=${skipped} dry=${dryRun} mode=${usePublic ? 'public' : 'upload'}`
 );
 await pool.end();

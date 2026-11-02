@@ -650,6 +650,8 @@ export function FatherDashboard({
     }
     const password = String(form.get("password") || "")
     if (password) body.password = password
+    const currentPassword = String(form.get("current_password") || "")
+    if (currentPassword) body.current_password = currentPassword
     setBusy(true)
     clearNotice()
     try {
@@ -660,8 +662,10 @@ export function FatherDashboard({
       }
       setData((current) => (current ? { ...current, user: result.user } : current))
       notify("Profile saved.", "success")
-      const passwordInput = formEl.querySelector<HTMLInputElement>('input[name="password"]')
-      if (passwordInput) passwordInput.value = ""
+      for (const name of ["password", "current_password"]) {
+        const input = formEl.querySelector<HTMLInputElement>(`input[name="${name}"]`)
+        if (input) input.value = ""
+      }
     } finally {
       setBusy(false)
     }
@@ -1297,8 +1301,11 @@ export function FatherDashboard({
                     <Field label="Mobile" required>
                       <input name="mobile_number" type="tel" required defaultValue={user.mobile_number || ""} className={field} />
                     </Field>
-                    <Field label="New password" optional hint="At least 12 characters. Leave blank to keep your current password." className="sm:col-span-2">
+                    <Field label="New password" optional hint="At least 12 characters. Leave blank to keep your current password.">
                       <input name="password" type="password" minLength={12} autoComplete="new-password" className={field} />
+                    </Field>
+                    <Field label="Current password" optional hint="Needed only when you change your email or password.">
+                      <input name="current_password" type="password" autoComplete="current-password" className={field} />
                     </Field>
                   </div>
                 </FormGroup>

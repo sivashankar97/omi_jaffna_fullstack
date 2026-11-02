@@ -97,8 +97,5 @@ export const siteInfoDefaults = {
 
 export type SiteInfo = typeof siteInfoDefaults
 
-/** CMS uploads: `/api/files/…` or direct Supabase Storage public URLs. */
-export const isUpload = (src: string) =>
-  src.startsWith("/api/") ||
-  /\/api\/files\//.test(src) ||
-  /\.supabase\.co\/storage\/v1\/object\/public\//.test(src)
+/** CMS uploads: `/api/files/…`. */
+export const isUpload = (src: string) => src.startsWith("/api/") || /\/api\/files\//.test(src)

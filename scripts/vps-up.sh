@@ -20,6 +20,13 @@ docker compose build
 echo "==> Starting db + api + site + nginx"
 docker compose up -d
 
+# nginx.conf is a single-file bind mount; rsync replaces the file, so the container keeps the old copy until restarted.
+if ! docker compose exec -T nginx cat /etc/nginx/conf.d/default.conf | cmp -s - nginx.conf; then
+  echo "==> nginx.conf changed: restarting nginx"
+  docker compose restart nginx
+  docker compose exec -T nginx nginx -t
+fi
+
 echo "==> Waiting for API health"
 for i in $(seq 1 40); do
   if curl -fsS "http://127.0.0.1/api/health" >/dev/null 2>&1; then

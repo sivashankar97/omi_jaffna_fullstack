@@ -5,6 +5,7 @@ const apiOrigin = (process.env.API_URL || process.env.API_ORIGIN || "http://127.
 const nextConfig: NextConfig = {
   // Used by deploy/vps Docker image (smaller runtime).
   output: "standalone",
+  poweredByHeader: false,
   experimental: {
     agentUpgrade: "security",
     // Local dev proxies CMS uploads (MP4/MP3 up to 40 MB) to the API over the DB tunnel.
@@ -15,13 +16,6 @@ const nextConfig: NextConfig = {
     // Allow local paths with cache-bust query (e.g. /Herosection/Cross_vision.png?v=3).
     // Default Next pattern is `{ pathname: '**', search: '' }`, which rejects any `?…`.
     localPatterns: [{ pathname: "/**" }],
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**.supabase.co",
-        pathname: "/storage/v1/object/public/**",
-      },
-    ],
   },
   devIndicators: false,
   turbopack: {

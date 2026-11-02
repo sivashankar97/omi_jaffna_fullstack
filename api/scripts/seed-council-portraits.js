@@ -1,5 +1,5 @@
 // Match provincial council portraits → CMS `leadership` rows,
-// upload into Supabase Storage + media_assets, set image_url to /api/files/{id}.
+// upload into media storage + media_assets, set image_url to /api/files/{id}.
 // Staging only (never site/public): api/.staging/council-portraits/
 // Usage: node scripts/seed-council-portraits.js [--dry-run] [--dir path]
 import { randomUUID } from 'node:crypto';
@@ -134,6 +134,6 @@ for (let i = 0; i < queue.length; i += concurrency) {
 }
 
 console.log(
-  `\nDone. matched=${queue.length} updated=${updated} unmatched=${skipped} dry=${dryRun} mode=supabase`
+  `\nDone. matched=${queue.length} updated=${updated} unmatched=${skipped} dry=${dryRun} mode=upload`
 );
 await pool.end();

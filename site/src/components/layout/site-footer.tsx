@@ -26,7 +26,6 @@ export function SiteFooter({
     { label: "Facebook", href: info.social.facebook, icon: FacebookIcon },
     { label: "YouTube", href: info.social.youtube, icon: YouTubeIcon },
     { label: "Instagram", href: info.social.instagram, icon: InstagramIcon },
-    { label: "X", href: info.social.facebook, icon: XIcon },
   ]
 
   const contactRows = [
@@ -187,10 +186,7 @@ export function SiteFooter({
               <Link href="/privacy" className="transition hover:text-white">
                 Privacy
               </Link>
-              <Link href="/contact" className="transition hover:text-white">
-                Terms
-              </Link>
-              <Link href="/privacy" className="transition hover:text-white">
+              <Link href="/privacy#cookies" className="transition hover:text-white">
                 Cookies
               </Link>
             </div>
@@ -266,14 +262,6 @@ export function WhatsAppIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
       <path d="M12.1 3.2A8.7 8.7 0 0 0 4.6 16.3L3.4 20.6l4.4-1.2A8.7 8.7 0 1 0 12.1 3.2Zm5 12.3c-.2.6-1.2 1.1-1.7 1.2-.4.1-.9.1-1.5-.1-.3-.1-.8-.3-1.3-.5-2.3-1-3.8-3.4-3.9-3.5-.1-.2-1-1.3-1-2.5s.6-1.8.9-2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .5.4.2.5.7 1.7.7 1.8.1.1.1.3 0 .4-.1.2-.2.3-.3.5l-.4.4c-.1.1-.2.3-.1.5.2.3.7 1.2 1.6 1.9 1.1.9 2 1.1 2.3 1.3.2.1.4.1.5-.1l.6-.7c.2-.2.3-.2.5-.1.2.1 1.4.7 1.6.8.2.1.4.2.4.3.1.2 0 .7-.2 1.3Z" />
-    </svg>
-  )
-}
-
-function XIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
-      <path d="M13.9 10.7 20.1 3.5h-1.5l-5.4 6.3L8.9 3.5H3.7l6.5 9.5L3.7 20.5h1.5l5.7-6.6 4.5 6.6h5.2l-6.7-9.8Zm-2 2.3-.7-1L5.7 4.6h2.3l4.3 6.2.7 1 5.7 8.1h-2.3l-4.5-6.9Z" />
     </svg>
   )
 }

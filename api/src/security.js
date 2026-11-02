@@ -104,6 +104,16 @@ export async function optionalAuth(req,res,next){
   }
 }
 
+/** The active user for the session cookie (same checks as `auth`, including revocation), or null. */
+export async function sessionUser(req){
+  const token=req.cookies?.omi_session;
+  if(!token)return null;
+  try{
+    const claims=jwt.verify(token,process.env.JWT_SECRET);
+    return await loadActiveUser(claims.sub,claims);
+  }catch{return null;}
+}
+
 export const allow=(...roles)=>(req,res,next)=>roles.includes(req.session?.role)?next():res.status(403).json({error:'Insufficient permission'});
 
 /** Constant-time-ish password check (always runs bcrypt). */
