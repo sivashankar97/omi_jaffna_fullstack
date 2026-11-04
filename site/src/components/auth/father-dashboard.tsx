@@ -40,6 +40,7 @@ import {
   ProgressIndicator,
   SectionShell,
   shortDate,
+  PrivacyNote,
   SubHeading,
   Toast,
   type Notice,
@@ -1634,6 +1635,11 @@ export function FatherDashboard({
               lede="Photos from your ministry. You can rename or remove them at any time."
               action={creating !== "gallery" ? <NewButton label="Add photo" onClick={() => go("gallery", { create: true })} /> : null}
             >
+              <PrivacyNote>
+                Your gallery is not shown on the public website. Only you and Province office staff can open these photos; anyone else
+                who gets a link sees &ldquo;not found&rdquo;. When you upload a photo, its hidden details (the place it was taken, the
+                date and the phone model) are removed.
+              </PrivacyNote>
               {creating === "gallery" ? (
                 <FormCard title="Add a photo">
                   <form
@@ -1737,6 +1743,10 @@ export function FatherDashboard({
               lede="Reports the Province sends you, and your own files. You can rename or remove your files at any time."
               action={creating !== "documents" ? <NewButton label="Add document" onClick={() => go("documents", { create: true })} /> : null}
             >
+              <PrivacyNote>
+                Your documents and the reports the Province sends you are never listed on the public website. They open only for you and
+                Province office staff, over a secure connection.
+              </PrivacyNote>
               <div className="space-y-3">
                 <SubHeading>From the Province</SubHeading>
                 {adminReports.length === 0 ? (

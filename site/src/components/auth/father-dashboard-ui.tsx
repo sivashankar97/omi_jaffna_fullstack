@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { CheckCircle2, CircleAlert, FileText, Info, Plus, Sparkles, UploadCloud, X } from "lucide-react"
+import { CheckCircle2, CircleAlert, FileText, Info, Plus, ShieldCheck, Sparkles, UploadCloud, X } from "lucide-react"
 import { useEffect, useId, useRef, useState, type ReactNode } from "react"
 import { createPortal } from "react-dom"
 
@@ -190,6 +190,18 @@ export function Empty({ title, text, action }: { title: string; text: string; ac
       <p className="font-heading text-base font-semibold text-[#0b4a5c]">{title}</p>
       <p className="mx-auto mt-1 max-w-sm text-sm text-[#6b8290]">{text}</p>
       {action ? <div className="mt-5 flex justify-center">{action}</div> : null}
+    </div>
+  )
+}
+
+export function PrivacyNote({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex items-start gap-3 rounded-2xl border border-[#cfe6ee] bg-[#f3fafc] px-4 py-3 text-sm leading-relaxed text-[#0b4a5c]">
+      <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[#0f8fa3]" aria-hidden />
+      <div className="min-w-0">
+        <p className="font-semibold">Private to you</p>
+        <p className="mt-0.5 text-[#4f6b78]">{children}</p>
+      </div>
     </div>
   )
 }

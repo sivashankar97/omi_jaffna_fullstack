@@ -18,6 +18,7 @@ import {publishFatherMedia} from './father-media.js';
 import {findPersonnel,matchPersonnel} from './personnel.js';
 import {sendMail} from './mailer.js';
 import {applyCmsSeed,buildSeedCatalog,loadSampleSeed} from './seed-cms.js';
+import {stripImageMetadata} from './clean-image.js';
 
 export const app=express();
 if(!process.env.JWT_SECRET||process.env.JWT_SECRET.length<32)throw new Error('Set JWT_SECRET to a random string of at least 32 characters');
@@ -752,10 +753,17 @@ const enforceUploadSize=(file)=>{
  if(file.mimetype.startsWith('image/')&&file.size>12*1024*1024){const err=new Error('Images must be 12 MB or smaller');err.status=400;throw err;}
  if(file.size>40*1024*1024){const err=new Error('PDF, video and audio files must be 40 MB or smaller');err.status=400;throw err;}
 };
+/** Strips GPS/camera data from photos before they are stored; keeps req.file.size in step. */
+async function cleanUpload(file){
+ try{file.buffer=await stripImageMetadata(file.buffer,file.mimetype);}
+ catch{const err=new Error('This image could not be read. Please export it again as JPEG, PNG or WebP.');err.status=400;throw err;}
+ file.size=file.buffer.length;
+}
 app.post('/api/assets',auth,allow('admin','editor','publisher'),upload.single('file'),asyncRoute(async(req,res)=>{
  if(!req.file)return bad(res,'File required');
  enforceUploadSize(req.file);
  if(!signatureOK(req.file.buffer.subarray(0,16),req.file.mimetype))return bad(res,'File signature does not match its format');
+ await cleanUpload(req.file);
  const filename=randomUUID()+allowedMime[req.file.mimetype];
  await saveFile(filename,req.file.buffer);
  // Admins/publishers: publish immediately so block/logo URLs work on the public site.
@@ -775,6 +783,7 @@ app.post('/api/father/upload',auth,fatherOnly,upload.single('file'),asyncRoute(a
  if(!req.file)return bad(res,'File required');
  enforceUploadSize(req.file);
  if(!signatureOK(req.file.buffer.subarray(0,16),req.file.mimetype))return bad(res,'File signature does not match its format');
+ await cleanUpload(req.file);
  const filename=randomUUID()+allowedMime[req.file.mimetype];
  await saveFile(filename,req.file.buffer);
  let r;
