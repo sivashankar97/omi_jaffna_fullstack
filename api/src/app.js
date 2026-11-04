@@ -39,7 +39,9 @@ app.use(cors({
 }));
 app.use(express.json({limit:'600kb'}));
 app.use(cookieParser());
-const limitOptions={windowMs:15*60*1000,standardHeaders:'draft-7',legacyHeaders:false,keyGenerator:req=>req.headers['x-nf-client-connection-ip']||req.ip||'unknown',validate:{ip:false}};
+// Only Netlify sets x-nf-client-connection-ip; anywhere else a client could forge it to dodge the limits.
+const clientIp=req=>(process.env.NETLIFY&&req.headers['x-nf-client-connection-ip'])||req.ip||'unknown';
+const limitOptions={windowMs:15*60*1000,standardHeaders:'draft-7',legacyHeaders:false,keyGenerator:clientIp,validate:{ip:false}};
 app.use('/api',rateLimit({...limitOptions,limit:400,skip:req=>req.method==='GET'&&req.path.startsWith('/public/')}));
 const slowLimit=rateLimit({...limitOptions,limit:12});
 const asyncRoute=fn=>(req,res,next)=>Promise.resolve(fn(req,res,next)).catch(next);

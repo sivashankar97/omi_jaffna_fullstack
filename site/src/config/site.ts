@@ -1,6 +1,8 @@
 export const site = {
   name: "Oblate Province of Jaffna",
   shortName: "OMI Jaffna",
+  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://omijaffna.com").replace(/\/$/, ""),
+  foundingYear: "1847",
   congregation: "Missionary Oblates of Mary Immaculate",
   tagline: "17 Ministries. Many Places. One Mission.",
   years: "1847–2026",
@@ -20,7 +22,7 @@ export const site = {
     world: "https://www.omiworld.org/",
   },
   social: {
-    facebook: "https://www.facebook.com/share/1EosRA8HHF/",
+    facebook: "https://www.facebook.com/omi.jaffna.1",
     instagram: "https://www.instagram.com/omi_jaffna/",
     youtube: "https://www.youtube.com/@oblatejaffnatv",
   },

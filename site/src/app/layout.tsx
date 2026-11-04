@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
 import { SiteInfoProvider } from "@/components/layout/site-info"
 import { ProvinceMapGate } from "@/components/map/province-map-gate"
+import { OrganizationJsonLd } from "@/components/seo/organization-json-ld"
 import { buildNavigation } from "@/config/navigation"
 import { site } from "@/config/site"
 import { getBlock, getFormationHouses, getMapLocations, getMinistries, getParishes, getSiteInfo, getTodayHighlights } from "@/lib/cms"
@@ -25,6 +26,13 @@ const tamil = Noto_Sans_Tamil({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
+  applicationName: site.name,
+  openGraph: {
+    type: "website",
+    siteName: site.name,
+    locale: "en_LK",
+  },
   title: {
     default: `${site.name} | ${site.congregation}`,
     template: `%s | ${site.name}`,
@@ -69,6 +77,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="flex min-h-full w-full max-w-[100%] flex-col overflow-x-clip font-sans">
+        <OrganizationJsonLd info={siteInfo} />
         <SiteInfoProvider value={siteInfo}>
           <SiteHeader navigation={navigation} today={today} />
           <main className="flex-1">

@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight, Compass, Eye, HandHeart } from "lucide-react"
 import { MotionItem, MotionReveal, MotionStagger } from "@/components/motion/motion-reveal"
 import { MinistryCard } from "@/components/sections/ministry-card"
 import { ministryHref } from "@/config/navigation"
+import { site } from "@/config/site"
 import { Button } from "@/components/ui/button"
 import { JourneyPath } from "@/components/sections/home/journey-path"
 import { HomeContact } from "@/components/sections/home/home-contact"
@@ -312,7 +313,7 @@ export async function HomeSections() {
               <ArrowUpRight className="size-4 opacity-70" aria-hidden="true" />
             </Link>
             <a
-              href="https://www.omiworld.org/"
+              href={site.familyPortal.world}
               target="_blank"
               rel="noreferrer"
               className="family-link family-link-soft"
@@ -321,7 +322,7 @@ export async function HomeSections() {
               <ArrowUpRight className="size-4 opacity-70" aria-hidden="true" />
             </a>
             <a
-              href="https://omicolombo.org/"
+              href={site.familyPortal.colombo}
               target="_blank"
               rel="noreferrer"
               className="family-link family-link-deep"

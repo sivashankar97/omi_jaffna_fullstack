@@ -10,8 +10,10 @@ const SESSION_REFRESH_MS=SESSION_MS/2;
 const DUMMY_HASH=bcrypt.hashSync('omi-jaffna-timing-dummy',12);
 
 export function issueToken(user){
-  return jwt.sign({sub:user.id,role:user.role},process.env.JWT_SECRET,{expiresIn:'8h'});
+  return jwt.sign({sub:user.id,role:user.role},process.env.JWT_SECRET,{algorithm:'HS256',expiresIn:'8h'});
 }
+
+const verifyToken=token=>jwt.verify(token,process.env.JWT_SECRET,{algorithms:['HS256']});
 
 /** Secure cookies on HTTPS / production VPS unless COOKIE_SECURE=false (local http). */
 function cookieSecure(){
@@ -67,7 +69,7 @@ export async function auth(req,res,next){
   const token=req.cookies?.omi_session;
   if(!token)return res.status(401).json({error:'Sign in required'});
   try{
-    const claims=jwt.verify(token,process.env.JWT_SECRET);
+    const claims=verifyToken(token);
     const user=await loadActiveUser(claims.sub,claims);
     if(!user)return res.status(401).json({error:'Account unavailable'});
     req.session={sub:user.id,role:user.role};
@@ -87,7 +89,7 @@ export async function optionalAuth(req,res,next){
   const token=req.cookies?.omi_session;
   if(!token){req.session=null;return next();}
   try{
-    const claims=jwt.verify(token,process.env.JWT_SECRET);
+    const claims=verifyToken(token);
     const user=await loadActiveUser(claims.sub,claims);
     if(!user){
       clearSessionCookie(res);
@@ -109,7 +111,7 @@ export async function sessionUser(req){
   const token=req.cookies?.omi_session;
   if(!token)return null;
   try{
-    const claims=jwt.verify(token,process.env.JWT_SECRET);
+    const claims=verifyToken(token);
     return await loadActiveUser(claims.sub,claims);
   }catch{return null;}
 }
