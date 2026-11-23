@@ -27,3 +27,4 @@ It holds the user's tasks, page ideas, client feedback and project knowledge.
 - When something durable changes (new page, new env var, deploy steps, design decisions),
   update `Project overview.md` or the relevant note. Keep edits short.
 - Never write passwords, API keys, database URLs or anything from `LOCAL-LOGIN.txt` / `.env` into notes.
+  See also the Cursor `secrets` rule: do not read or quote secret files.

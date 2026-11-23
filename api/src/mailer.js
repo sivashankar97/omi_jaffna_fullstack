@@ -19,6 +19,14 @@ function getTransport(){
   return transport;
 }
 
+/** Strip one-time tokens / secrets from text before writing to logs. */
+function redactForLog(value){
+  return String(value||'')
+    .replace(/([?&]token=)[^&\s"'<>]+/gi,'$1[redacted]')
+    .replace(/(Bearer\s+)[A-Za-z0-9._\-]+/gi,'$1[redacted]')
+    .replace(/(api[_-]?key["']?\s*[:=]\s*["']?)[^\s"'&]+/gi,'$1[redacted]');
+}
+
 /** Sends mail via SMTP. Without SMTP settings, development prints the message to the log instead. */
 export async function sendMail({to,subject,text,html}){
   if(!mailConfigured()){
@@ -26,7 +34,7 @@ export async function sendMail({to,subject,text,html}){
       console.warn(`[mail] SMTP is not configured; could not send "${subject}".`);
       return false;
     }
-    console.info(`[mail:dev] To: ${to}\nSubject: ${subject}\n\n${text}\n`);
+    console.info(`[mail:dev] To: ${to}\nSubject: ${subject}\n\n${redactForLog(text)}\n`);
     return true;
   }
   await getTransport().sendMail({from:process.env.MAIL_FROM,to,subject,text,html});
