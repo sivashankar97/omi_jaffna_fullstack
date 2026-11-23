@@ -13,7 +13,7 @@ export const contentSchema=z.object({
  verification_status:z.enum(['pending','verified']).default('pending'),
  last_verified_at:z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/),z.literal(''),z.null()]).default(null),
  featured:z.boolean().default(false),sort_order:z.coerce.number().int().min(-9999).max(9999).default(0),
- metadata:z.record(z.unknown()).default({})
+ metadata:z.record(z.string(),z.unknown()).default({})
 }).strict();
 export function publishCheck(c){
   if(c.status!=='published')return null;
@@ -80,7 +80,7 @@ export const fatherItemSchema=z.object({
  file_url:z.string().max(2000).default(''),
  status:z.enum(['open','done','draft','published']).default('open'),
  sort_order:z.coerce.number().int().min(-9999).max(9999).default(0),
- metadata:z.record(z.unknown()).default({})
+ metadata:z.record(z.string(),z.unknown()).default({})
 }).strict();
 export const fatherItemUpdateSchema=fatherItemSchema.partial().refine(data=>Object.keys(data).length>0,'Provide at least one field');
 export const fatherDispatchSchema=z.object({
@@ -148,4 +148,4 @@ export const assetSchema=z.object({status:z.enum(['draft','published']).default(
  rights_confirmed:z.boolean().default(false),alt_text:z.string().trim().max(2000).default(''),caption:z.string().max(10000).default('')}).strict();
 export const adminInquirySchema=inquirySchema.extend({status:z.enum(['new','in_progress','closed']).default('new')});
 export const settingKeySchema=z.enum(['site_identity','navigation','social_links','seo_defaults']);
-export const settingValueSchema=z.object({value:z.record(z.unknown())}).strict();
+export const settingValueSchema=z.object({value:z.record(z.string(),z.unknown())}).strict();
