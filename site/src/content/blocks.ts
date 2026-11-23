@@ -13,6 +13,7 @@ import {
 } from "@/content/charism"
 import { briefHistory, development, whoWeAre } from "@/content/history"
 import { journeyEras } from "@/content/journey"
+import { donorsDefaults } from "@/content/donors"
 import { libraryCategories, magazineCategories } from "@/content/library"
 import { siteInfoDefaults } from "@/content/site-info"
 
@@ -702,6 +703,18 @@ export const blocks = {
         ctaLabel: "Connect with our missionaries",
         ctaHref: "/contact",
       },
+    },
+  },
+  donors: {
+    label: "Donors page sections",
+    defaults: donorsDefaults,
+    labels: {
+      items: "Donor partners (name, summary, website, region, logo image)",
+      name: "Organisation name",
+      summary: "Short description on the card",
+      website: "Website link (optional)",
+      region: "Region / origin label",
+      image: "Logo or mark",
     },
   },
   library: {

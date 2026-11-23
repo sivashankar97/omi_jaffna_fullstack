@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="HAVONOS">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1d4e89"/>
+      <stop offset="100%" stop-color="#03202b"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="280" rx="28" fill="#f4fbfd"/>
+  <rect x="28" y="40" width="120" height="120" rx="28" fill="url(#g)"/>
+  <text x="88" y="118" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="42" font-weight="700" fill="#ffffff">HV</text>
+  <text x="180" y="110" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="700" fill="#023e8a"><tspan x="180" dy="0">HAVONOS</tspan></text>
+  <rect x="180" y="200" width="72" height="4" rx="2" fill="#17b3c6"/>
+</svg>

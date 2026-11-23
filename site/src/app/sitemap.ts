@@ -44,6 +44,7 @@ const staticPaths = [
   "/library/books",
   "/library/articles",
   "/publications",
+  "/donors",
   "/contact",
   "/privacy",
 ]

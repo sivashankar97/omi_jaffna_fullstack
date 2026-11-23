@@ -223,6 +223,16 @@ export function buildNavigation({ ministries, parishes, formationHouses, library
       ],
     },
     {
+      label: "Donors",
+      href: "/donors",
+      description: "Foundations and partners who support Oblate works in Jaffna",
+      sections: [
+        { label: "Give", id: "give" },
+        { label: "Partners", id: "partners" },
+        { label: "With gratitude", id: "donors" },
+      ],
+    },
+    {
       label: "Contact",
       href: "/contact",
       description: "Provincial House, phone, email and enquiries",

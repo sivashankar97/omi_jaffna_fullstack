@@ -6,7 +6,7 @@ import {
  Search,Plus,ChevronDown,ChevronRight,Menu,X,LogOut,Bell,ExternalLink,ArrowRight,ArrowUpRight,
  CheckCircle2,Clock3,Edit3,Trash2,Save,Eye,UploadCloud,FileText,Image as ImageIcon,
  ShieldAlert,RefreshCw,Filter,LockKeyhole,Calendar,Mail,Phone,Check,AlertCircle,Info,
- Compass,FolderOpen,Radio,Send,CheckCircle,Copy,Download,MoreHorizontal,UserRound,Home,Sparkles,Cross,Database
+ Compass,FolderOpen,Radio,Send,CheckCircle,Copy,Download,MoreHorizontal,UserRound,Home,Sparkles,Cross,Database,HandHeart
 } from 'lucide-react';
 import seed from './demo.json';
 import CoverImageUpload from './CoverImageUpload.jsx';
@@ -69,6 +69,7 @@ const VIEWS={
  'international-cat1':{type:'international',item:'country',label:'Category 1 countries',query:'meta_key=category&meta_like=1',defaults:{category:'1',kind:''},where:'International: Category 1 (Italy, France, Norway, Philippines…)',link:'/international'},
  'international-cat2':{type:'international',item:'country',label:'Category 2 countries',query:'meta_key=category&meta_like=2',defaults:{category:'2',kind:''},where:'International: Category 2 (UK, Australia, Sweden…)',link:'/international'},
  'international-formation':{type:'international',item:'formation place',label:'Formation Abroad',query:'meta_key=kind&meta_like=formation',defaults:{kind:'formation'},where:'International: formation abroad',link:'/international'},
+ 'block-donors':{type:'page',label:'Donors page',query:'slug=donors',single:true,slugs:[['donors','Donors page sections']],where:'Donors: banner, give panel text (UI only — payments not live), intro, partner list and closing thanks',link:'/donors'},
  news:{type:'news',item:'story',label:'News stories',where:'News page; the latest also show on Home and Media',link:'/news'},
  'block-news-page':{type:'page',label:'OMI ceremonies calendar',query:'slug=news-page',single:true,slugs:[['news-page','OMI ceremonies calendar']],where:'News: "OMI ceremonies" calendar — add, edit or remove feasts, foundations and remembrances (month + day repeat every year)',link:'/news#omi-ceremonies'},
  'news-father':{type:'news',item:'submission',label:'Father news submissions',query:'meta_has=submitted_by',fixedStatus:'review',where:'Stories Fathers sent for approval — set status to Published to show on the website',link:'/news'},
@@ -96,6 +97,7 @@ const NAV=[
   {label:'News',icon:Newspaper,views:['news','block-news-page','news-father']},
   {label:'Library',icon:BookOpen,views:['block-library','library-magazines','library-libraries','library-books','library-articles','library-father']},
   {label:'Media',icon:Images,views:['block-media-page','publication']},
+  {label:'Donors',icon:HandHeart,views:['block-donors']},
   {label:'Contact',icon:Mail,views:['block-site-info']},
  ]},
  {label:'ON SEVERAL PAGES',pages:[
@@ -107,7 +109,7 @@ const NAV=[
  {label:'FILES & MANAGEMENT',items:[['assets','File Uploads',FolderOpen],['contacts','Contact Directory',ContactRound],['inquiries','Enquiries',MessageCircle],['users','Team & Roles',ShieldCheck],['seeder','Content Seeder',Database],['settings','Site Settings',Settings2]]}
 ];
 const anchorId=s=>String(s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const PAGE_LINKS={home:'/','home-welcome':'/#welcome','home-sections':'/#daily-inspiration',journey:'/#journey','site-info':'/contact',history:'/history',bishops:'/history#bishops','media-page':'/media','news-page':'/news#omi-ceremonies',vocations:'/vocations',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations',international:'/international','international-cat1':'/international','international-cat2':'/international','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',contact:'/contact',timeline:'/history#historical-archive',library:'/library','library-magazines':'/library/magazines','library-libraries':'/library/libraries','library-books':'/library/books','library-articles':'/library/articles'};
+const PAGE_LINKS={home:'/','home-welcome':'/#welcome','home-sections':'/#daily-inspiration',journey:'/#journey','site-info':'/contact',history:'/history',bishops:'/history#bishops','media-page':'/media','news-page':'/news#omi-ceremonies',vocations:'/vocations',charism:'/charism',leadership:'/leadership',ministries:'/ministries',parishes:'/ministries#parish-directory','formation-vocations':'/vocations',international:'/international','international-cat1':'/international','international-cat2':'/international','international-mission':'/international',media:'/media',publications:'/media#publications','news-events':'/news',donors:'/donors',contact:'/contact',timeline:'/history#historical-archive',library:'/library','library-magazines':'/library/magazines','library-libraries':'/library/libraries','library-books':'/library/books','library-articles':'/library/articles'};
 /** Website address where an entry's changes can be seen. */
 function itemLink(item,view){
  const {type,slug}=item;
