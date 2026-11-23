@@ -5,7 +5,7 @@ tags: [project, overview]
 
 GitHub: https://github.com/sivashankar97/omi_jaffna_fullstack (branch `main`)
 Live: https://omijaffna.com · CMS: https://omijaffna.com/admin · IP: http://179.197.250.19  
-TLS: Let’s Encrypt on VPS (`deploy/vps/nginx.conf`); `FRONTEND_ORIGIN=https://omijaffna.com`, `COOKIE_SECURE=true`. Security headers (HSTS, CSP frame-ancestors, nosniff…) and reset-token log redaction live in `nginx.conf`; `vps-up.sh` restarts nginx when it changes. Pinned: Next 16.4.3, React 19.3.1.  
+TLS: Let’s Encrypt on VPS (`deploy/vps/nginx.conf`); `FRONTEND_ORIGIN=https://omijaffna.com`, `COOKIE_SECURE=true`. Security headers (HSTS, CSP frame-ancestors, nosniff…) and reset-token log redaction live in `nginx.conf`; `vps-up.sh` restarts nginx when it changes. Pinned: Next 16.4.6, React 19.3.1.  
 Outage 3 Nov 2026 (13:01–16:10 UTC): Hostinger's guest agent froze the disk for a snapshot (`guest-fsfreeze` in `journalctl`) and never thawed it, so CSS/JS returned 500, `/api/health` failed and SSH hung while CPU/RAM looked normal. Fix: Reboot in hPanel. Check with `journalctl -b -1 | grep fsfreeze`.  
 SEO (2 Nov 2026): `/robots.txt` (OAI-SearchBot allowed), `/sitemap.xml` (~270 URLs from the CMS) and Organization JSON-LD on every page; public domain comes from `site.url` in `site/src/config/site.ts`.  
 (Legacy Netlify: https://omi-jaffna-province.netlify.app)  
